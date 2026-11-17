@@ -238,6 +238,9 @@ export class CardEngine {
           const keep = Math.floor((Number(ev.spill) || 0) * (Number(spec.keepShare) || 0.5) + EPS);
           if (keep > 0) { this.host.store?.(keep, j); this.stored += keep; if (this.inPack) this.pack.stored += keep; this.record({ k: 'keep', slot: j, amount: keep }); }
         }
+      } else if (what === 'tithe') {
+        // Tithe (batch 3): at Pack, pay Stored Sparks for +1 max Sparks. The host decides if the Stored Sparks are there; the count is on the card.
+        if (this.inPack && this.host.tithe?.(Number(spec.cost) || 5, j)) { card.tally = (Math.floor(Number(card.tally)) || 0) + 1; this.record({ k: 'tithe', slot: j }); }
       } else if (what === 'flash') {
         const started = this.inPack ? false : !!this.host.startFlash?.(Number(spec.seconds) || 1, j);
         this.record({ k: started ? 'flash' : 'flash-refused', slot: j });

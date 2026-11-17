@@ -890,7 +890,7 @@ export class WispFlight {
     this.edgingPulse=new EdgingPulse(this);
     this.spacetime=this.mod.spacetime?new SpacetimeTerrain(this):null;
     this.luminanceWaves=new LuminanceWaves(this);
-    this.overfillWave={charge:0,waves:0,every:3};this.overfillWaveSeen=new WeakSet();
+    this.cardSecondWindUntil=0;this.cardTributaryFired={};this.cardTithePaid=0;this.overfillWave={charge:0,waves:0,every:3};this.overfillWaveSeen=new WeakSet();
     this.cardRhythm=this.mod.cardRhythm?new CardRhythm(this):null;
     this.rigImage = null; this.background = null;
     this.fx = createFlightFX(); this.muted = false;
@@ -1335,6 +1335,7 @@ export class WispFlight {
     this.cardLastAcceptedLift=this.time;
     if(effort>0&&descendingBeforeLift&&sincePreviousLift>=.75-1e-9){
       this.resolveCardRowEvent(CARD_ROW_EVENTS.lift,cardLiftContext);
+      this.undertowCollect(cardLiftContext);
     }
     this.lastFlapTime = this.time;
     this.liftGuide?.clear();
@@ -1443,15 +1444,40 @@ export class WispFlight {
     return this.resolveCardRowEvent(CARD_ROW_EVENTS.attach, {pickupKind:pickupKind(packet)},collector);
   }
 
+  /** Second Wind (batch 3): a Save, with the card mounted, opens a 5 s window on this flight. */
+  startSecondWind() {
+    if(this.cardExecution?.cards.some(card=>card?.cardId==='second-wind'))this.cardSecondWindUntil=this.time+5;
+  }
+  /** Undertow (batch 3): one Falling Lift is one Collect for the cards to the right of the first Undertow. Only the flight's Lift handler calls this, once per Lift, and a Collect never makes a Lift, so it cannot loop. */
+  undertowCollect(context) {
+    const slot=this.cardExecution?.cards.findIndex(card=>card?.cardId==='undertow')??-1;
+    if(slot<0)return;
+    const action=this.resolveCardRowEvent(CARD_ROW_EVENTS.body,{...context,pickupKind:'light',fromSlot:slot});
+    if(action)this.tributaryDelivery(context);
+  }
+  /** Tributary (batch 3): its count (kept by the row walker) reaching a multiple of 3 fires the Delivery cards to its right, once. A Delivery is not a Collect, so this cannot repeat itself. */
+  tributaryDelivery(context) {
+    const cards=this.cardExecution?.cards||[];
+    for(let slot=0;slot<cards.length;slot++){
+      const card=cards[slot];
+      if(card?.cardId==='tributary'&&card.tally>0&&card.tally%3===0&&this.cardTributaryFired[card.instanceId]!==card.tally){
+        this.cardTributaryFired[card.instanceId]=card.tally;
+        this.resolveCardRowEvent(CARD_ROW_EVENTS.delivery,{...context,pickupKind:context.pickupKind||'light',fromSlot:slot});
+      }
+    }
+  }
+
   resolveCardRowEvent(kind, detail = {}, collector = null, {engine = false} = {}) {
     if(!this.cardExecution||!this.running||this.paused||!this.alive||this.finished||this.destroyed||this.dying||this.completing
       ||this.tutorial&&!this.mod.practiceCards||(this.dream&&this.dream.phase!=='done'))return null;
-    if(!hasCardRowEvent(this.cardExecution,kind))return null;
+    // Second Wind (batch 3): for 5 s after a Save every Trigger fires the Chain. The time is a field of this flight only, and only counts while the card is mounted.
+    const wind=this.cardSecondWindUntil>this.time&&this.cardExecution.cards.some(card=>card?.cardId==='second-wind');
+    if(!wind&&!hasCardRowEvent(this.cardExecution,kind))return null;
     // One event shortens one Collector, so its recovery and reel budgets agree.
     // Attachments act on their owner; ordinary events prefer the longest reel.
     const w=collector||([CARD_ROW_EVENTS.field,CARD_ROW_EVENTS.guard].includes(kind)?this.wisp:
       this.collectors.reduce((best,item)=>item.activeReelSeconds()>best.activeReelSeconds()?item:best,this.wisp));
-    const receipt=resolveCardRow(this.cardExecution,{meterFraction:this.flame/this.maxFlame,...detail,
+    const receipt=resolveCardRow(this.cardExecution,{meterFraction:this.flame/this.maxFlame,...detail,...(wind?{secondWind:true}:{}),
       availableRecovery:w.enabled(this)?w.cooldown:0,availableReel:w.activeReelSeconds(),collectorReeling:w.activeReelSeconds()>0,
       guardRecovering:w.phase==='guard-recovery',kind,id:++this.cardRowSequence});
     const gain=Math.min(receipt.sparks*CARD_UNIT,Math.max(0,this.maxFlame-this.flame));
@@ -2350,6 +2376,7 @@ export class WispFlight {
             this.radiateLight({once:true,reveal:true,source:'card-watchlight',sourceKind:'card',color:'#d9f0dc'});
           }
           this.resolveCardRowEvent(CARD_ROW_EVENTS.guard,cardGuardContext);
+          this.startSecondWind();
         }
         if(this.projection)this.projection.nextAt=-Infinity;
         this.cancelLeveler(true);this.levelDive=0;this._auraUntil=-1;
@@ -2387,6 +2414,7 @@ export class WispFlight {
       this.dimLight(spec.dimDuration);
       const action=!ember.generated&&!ember.fetchedInDream
         ?this.resolveCardRowEvent(CARD_ROW_EVENTS.body,cardPickupContext):null;
+      if(action)this.tributaryDelivery(cardPickupContext);
       if(!ember.generated&&!ember.fetchedInDream)applyDirectPickupCards(this,ember,{falling:fallingBeforePickup,impulse:FLIGHT_TUNING.flapImpulse});
       if(this.cardEngine&&!ember.generated&&!ember.fetchedInDream)raiseFlightEngine(this,'collect',{pickupKind:'dusk'});
       const restored=action?.gain||0;
@@ -2492,6 +2520,7 @@ export class WispFlight {
     if(!ember.generated&&!ember.fetchedInDream&&spec.fuel>0){
       const action=this.resolveCardRowEvent(ember.deliveredByWisp?CARD_ROW_EVENTS.delivery:CARD_ROW_EVENTS.body,cardPickupContext);
       if(action){restored+=action.gain;if(action.gain>0)this.activation('card-body-spark',{outcome:{fuel:action.gain}});}
+      if(action&&!ember.deliveredByWisp)this.tributaryDelivery(cardPickupContext);
       applyDirectPickupCards(this,ember,{falling:fallingBeforePickup,impulse:FLIGHT_TUNING.flapImpulse});
       if(this.cardEngine)raiseFlightEngine(this,ember.deliveredByWisp?'delivery':'collect',{pickupKind:kind});
     }
@@ -2646,7 +2675,7 @@ export class WispFlight {
     this.raf = null;
     const result = { success: Boolean(success) && this.alive, alive: this.alive, condensedGlow:this.condensedGlow,storageBonus:success&&this.alive?this.storageBonus:0,resonanceStored:success&&this.alive?this.resonanceStored:0,cardPackingEligible:this.cardPackingEligible,cardPackingBonus:success&&this.alive?this.cardPackingBonus:0,cardPackingLedger:1,cardPackingRemainder:this.cardPackingRemainder,dreamAttempt:!!(this.dream&&this.dream.phase!=='done'),condensedRemainder:this.condensedRemainder,pickupOverflow:this.pickupOverflow,
       boss: this.bossEncounter ? { id:this.layout.boss?.id||'hollow-warden', defeated: Boolean(success) && this.alive } : null,
-      ...(this.cardEngine?{cardEngineTurns:this.cardEngine.turn,cardEngineStored:success&&this.alive?this.cardEngineStored:0,cardPack:success&&this.alive&&this.cardPack?{...this.cardPack}:null}:{}),
+      ...(this.cardEngine?{cardEngineTurns:this.cardEngine.turn,cardEngineStored:success&&this.alive?this.cardEngineStored:0,cardPack:success&&this.alive&&this.cardPack?{...this.cardPack}:null,...(this.cardTithePaid&&success&&this.alive?{cardTithePaid:this.cardTithePaid}:{})}:{}),
       lives:this.lives,cardHeartsRestored:this.cardHeartsRestored,
       artifactActivations: {...this.artifactEffects.activationCounts},
       flame: this.flame,artifactCharges:{...this.artifactEffects.charges},cardCharges:this.getCardChargeLedger(),cardTallies:getCardTallies(this.cardExecution),cardExecutions:this.cardExecutions,deathPosition:!success?this.deathPosition||null:null,

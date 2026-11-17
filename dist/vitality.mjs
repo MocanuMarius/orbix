@@ -1,5 +1,5 @@
 import {CONDENSED_TUNING} from './condensed-glow.mjs?v=guide-clarity-1';
-import {getCardCapacityBonus,getCardGrowthBonus,getCardFutureCapacityBonus,getCardBlackHoleBonus} from './skill-cards.mjs?v=guide-clarity-1';
+import {getCardCapacityBonus,getCardGrowthBonus,getCardFutureCapacityBonus,getCardBlackHoleBonus,getCardTallyCapacity} from './skill-cards.mjs?v=guide-clarity-1';
 // Shared flight Sparks and expedition rules. Overflow is Stored Sparks.
 export const FLAME_TUNING = Object.freeze({ maximum: 100, starting: 100, flapCost: 10,
   emberFuel: 20, heartFuel: 60, generatedFuel: 6, checkpointMinimum: 0, warmCorePickups: 4 });
@@ -31,7 +31,7 @@ export const GLOW_CAPACITY_LIMIT=100;
 export const GLOW_CAPACITY_LIMIT_UNITS=1000/3;
 /** Every capacity source added together, before the 100-Spark ceiling. */
 export function getRawGlowCapacity(run={}) {
- return 100+10*['main-light-step','main-thrifty-rise','main-low-lift'].filter(id=>run.skills?.[id]>0).length+getRestGlowBonus(run)+(run.skills?.['main-reservoir']>0?20:0)+(run.skills?.['main-vast-vessel']>0?20:0)+(run.treasureCapacity||0)+getCardCapacityBonus(run)+getCardGrowthBonus(run)+getCardFutureCapacityBonus(run)+getCardBlackHoleBonus(run);
+ return 100+10*['main-light-step','main-thrifty-rise','main-low-lift'].filter(id=>run.skills?.[id]>0).length+getRestGlowBonus(run)+(run.skills?.['main-reservoir']>0?20:0)+(run.skills?.['main-vast-vessel']>0?20:0)+(run.treasureCapacity||0)+getCardCapacityBonus(run)+getCardGrowthBonus(run)+getCardFutureCapacityBonus(run)+getCardBlackHoleBonus(run)+getCardTallyCapacity(run);
 }
 /** Total capacity never exceeds 100 printed Sparks, whatever the source. */
 export function getGlowCapacity(run={}) {

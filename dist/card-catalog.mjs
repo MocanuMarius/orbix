@@ -290,6 +290,24 @@ const cards = [
   { id: 'old-friend', name: 'Old Friend', rarity: 'common', kind: 'old-friend', unreleased: true, amount: 0, copyable: false, maxRank: 1, excludeStarter: true, artFamily: 'rhythm', tallyEvent: 'flight-clear', row: { event: '*', operation: 'add-sparks', amount: 0, perTally: 1 }, trigger: 'any',
     help: 'Counts each flight you clear with it in your Chain. The count is on the card, so Melting or swapping it out loses the count.',
     ruleBands: [{ type: 'condition', text: 'Any Trigger', trigger: 'any' }, { type: 'effect', text: '+1 Spark for each flight this card has stayed in your Chain' }] },
+  // Batch 3 (docs/card-proposals.md). Unreleased, no picture yet. Each needs one small hook in the flight or the engine; the
+  // hook only acts while its card is mounted. Gilded Rim, Tithe and Tributary keep a `tally` on the card like batch 2.
+  { id: 'gilded-rim', name: 'Gilded Rim', rarity: 'legendary', kind: 'gilded-rim', unreleased: true, amount: 0, copyable: false, maxRank: 1, excludeStarter: true, artFamily: 'growth-seed', tallyEvent: 'natural-overfill', trigger: 'overfill',
+    help: 'Counts the Overfills of Sparks you collect while it is in your Chain. Each count is +1 max Sparks from your next flight on. The count is on the card and goes with it. The meter never holds more than 100; Boosts do not change it.',
+    ruleBands: [{ type: 'condition', text: 'Overfill', trigger: 'overfill' }, { type: 'effect', text: '+1 max Sparks for each Overfill' }] },
+  { id: 'second-wind', name: 'Second Wind', rarity: 'rare', kind: 'second-wind', unreleased: true, amount: 5, copyable: false, maxRank: 1, excludeStarter: true, artFamily: 'camp-kit', trigger: 'save',
+    help: 'For 5 seconds after a Save, every Trigger fires the whole Chain, whatever each card waits for. Conditions on the pickup itself still apply. The time ends with the flight.',
+    ruleBands: [{ type: 'condition', text: 'Save', trigger: 'save' }, { type: 'effect', text: 'Your Chain fires on every Trigger for 5 s' }] },
+  { id: 'undertow', name: 'Undertow', rarity: 'common', kind: 'undertow', unreleased: true, amount: 0, copyable: false, maxRank: 1, excludeStarter: true, artFamily: 'lift-guide', trigger: 'falling-lift',
+    help: 'The Collect goes to the cards on its right only, once for each Falling Lift. Boosts and Collect cards to its left do not hear it.',
+    ruleBands: [{ type: 'condition', text: 'Falling Lift', trigger: 'falling-lift' }, { type: 'effect', text: 'Counts as a Collect for the cards to its right' }] },
+  { id: 'tributary', name: 'Tributary', rarity: 'rare', kind: 'tributary', unreleased: true, amount: 0, copyable: false, maxRank: 1, excludeStarter: true, artFamily: 'cache-handling', tallyEvent: 'body-spark', trigger: 'collect',
+    help: 'Counts every Collect while it is in your Chain; the count is on the card. The Delivery goes to the cards on its right only. A Delivery it makes is not a Collect, so it cannot count itself.',
+    ruleBands: [{ type: 'condition', text: 'Collect', trigger: 'collect' }, { type: 'effect', text: 'Every 3rd Collect also fires your Delivery cards to its right' }] },
+  { id: 'tithe', name: 'Tithe', rarity: 'common', kind: 'tithe', unreleased: true, amount: 5, copyable: true, maxRank: 1, excludeStarter: true, artFamily: 'tight-packing', tallied: true, trigger: 'pack',
+    engine: { family: 'pack', hears: ['pack'], does: ['tithe'], cost: 5 },
+    help: 'Pays from the Stored Sparks you had when the flight began, once for each Pack, and only if you have 5. They are spent, not boosted. The count is on the card; each one is +1 max Sparks from your next flight on.',
+    ruleBands: [{ type: 'condition', text: 'Pack', trigger: 'pack' }, { type: 'effect', text: 'Pay 5 Stored Sparks, gain +1 max Sparks' }] },
 ];
 
 const freeze = value => {

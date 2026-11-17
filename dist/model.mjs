@@ -1403,6 +1403,9 @@ export function finishFlight(run,result){
  const livePacking=isCardRun(run)&&result.cardPackingLedger===1;
  const cardPackingBonus=isCardRun(run)?livePacking?count(result.cardPackingBonus,Math.ceil(cardPackingEligible*CARD_ECONOMY.maxPackingWeight/4)):packingQuote.amount:0;
  if(isCardRun(run))run.cardPackingRemainder=livePacking?count(result.cardPackingRemainder,3):packingQuote.remainder;
+ // Tithe (batch 3): the Stored Sparks the card paid at Pack leave the run's Stored Sparks (the +1 max Sparks is on the card's count).
+ const tithePaid=isCardRun(run)&&!run.isTutorial&&!result.dreamAttempt?Math.min(count(result.cardTithePaid),count(run.condensedGlow)):0;
+ if(tithePaid)run.condensedGlow=count(run.condensedGlow)-tithePaid;
  const keptLightDividend=completionBonus&&!run.isTutorial?count(attempt?.keptLightDividend,10):0;
  const storageBonus=completionBonus&&!run.isTutorial?count(result.storageBonus,run.skills['packing-deep-cache']?4:run.skills['packing-hand-seal']?2:0):0;
  const resonanceStored=!run.isTutorial&&(rank(run.skills,'main-resonant-bounty')||getCardModifiers(run).cardHarvestStoredPerWave>0||livePacking)?count(result.resonanceStored):0;
@@ -1450,6 +1453,7 @@ export function finishFlight(run,result){
   }
  }
  run.lastFlight.exitPacking=exitPacking;
+ if(tithePaid)run.lastFlight.cardTithePaid=tithePaid;
  if(cardPack)run.lastFlight.cardPack=cardPack;
  if(cardEngineStored){queue(run,cardEngineStored,'card-engine');run.condensedEarned+=cardEngineStored;run.lastFlight.cardEngineStored=cardEngineStored;}
  if(attempt?.cardBlackHoleMeals?.length)run.lastFlight.cardBlackHoleMeals=copy(attempt.cardBlackHoleMeals);

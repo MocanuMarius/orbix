@@ -21,6 +21,11 @@ function flightHost(e) {
       return g / CARD_UNIT;
     },
     store: n => { e.cardEngineStored = (e.cardEngineStored || 0) + n; },
+    // Tithe: Stored Sparks the run held when the flight began pay for it, only in a real flight (never a tutorial or a Dream).
+    tithe: cost => {
+      if (e.tutorial || e.dream || (e.condensedStart || 0) - (e.cardTithePaid || 0) < cost) return false;
+      e.cardTithePaid = (e.cardTithePaid || 0) + cost; return true;
+    },
     canFlash: () => !(e.time < e.sightUntil),
     startFlash: (seconds, slot) => {
       if (e.time < e.sightUntil) return false;
