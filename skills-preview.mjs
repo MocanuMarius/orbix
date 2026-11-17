@@ -1,5 +1,5 @@
-import {newState,createRun,getSkillWallet,buyCheckpointSkill,chooseStartingSkill} from './model.mjs?v=reskin-3';
-import {skillBookMarkup} from './skill-book.mjs?v=reskin-3';
+import {newState,createRun,getSkillWallet,buyCheckpointSkill,chooseStartingSkill} from './model.mjs?v=reskin-4';
+import {skillBookMarkup} from './skill-book.mjs?v=reskin-4';
 
 const book=document.querySelector('#preview-book'),status=document.querySelector('#preview-status');
 const storageLink=()=>new URLSearchParams(location.search).get('chapter')==='packing'||location.hash==='#packing';

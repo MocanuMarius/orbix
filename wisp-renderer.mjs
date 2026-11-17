@@ -1,44 +1,46 @@
-import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=reskin-3';
-import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=reskin-3';
-import {drawTerrainBoundary,terrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=reskin-3';
-import {spacetimeBaseShape,drawSpacetimeTerrain} from './spacetime.mjs?v=reskin-3';
-import {paintContactEdge,isContactEdgeStyle,contactEdgeInk} from './contact-edge-art.mjs?v=reskin-3';
-import {ContactEdgeRaster} from './contact-edge-raster.mjs?v=reskin-3';
-import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=reskin-3';
-import {drawAtlasFlight} from './atlas-flight.mjs?v=reskin-3';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=reskin-3';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=reskin-3';
-import { drawShutters } from './shutter-cone.mjs?v=reskin-3';
-import {drawProximityMeter} from './proximity-meter.mjs?v=reskin-3';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=reskin-3';
-import {drawCollectorField} from './collector-field-art.mjs?v=reskin-3';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=reskin-3';
-import {drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=reskin-3';
-import {revealLuminanceWaves} from './luminance-waves.mjs?v=reskin-3';
-import {drawGlowSense} from './glow-sense.mjs?v=reskin-3';
-import {drawLastGlimmer} from './last-glimmer.mjs?v=reskin-3';
-import {formatGlow} from './vitality.mjs?v=reskin-3';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=reskin-3';
-import {biomePalette} from './biome-art.mjs?v=reskin-3';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=reskin-3';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=reskin-3';
-import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=reskin-3';
-import { createScenePropArt } from './scene-prop-art.mjs?v=reskin-3';
-import { drawBoss } from './boss.mjs?v=reskin-3';
-import {drawFlashTether} from './flash-tether.mjs?v=reskin-3';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=reskin-3';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=reskin-3';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=reskin-3';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=reskin-3';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery,companionTerrainLight } from './light-field.mjs?v=reskin-3';
-import {drawExitLandmark} from './exit-landmark.mjs?v=reskin-3';
-import {drawBlackHoles} from './black-hole-art.mjs?v=reskin-3';
-import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=reskin-3';
-import {drawShellArcs} from './shell-arcs.mjs?v=reskin-3';
-import {drawWispWake} from './wisp-wake.mjs?v=reskin-3';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=reskin-3';
-import {drawFallWarning} from './fall-chain-art.mjs?v=reskin-3';
-import {castTerrainLight,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=reskin-3';
+import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=reskin-4';
+import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=reskin-4';
+import {drawTerrainBoundary,terrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=reskin-4';
+import {spacetimeBaseShape,drawSpacetimeTerrain} from './spacetime.mjs?v=reskin-4';
+import {paintContactEdge,isContactEdgeStyle,contactEdgeInk} from './contact-edge-art.mjs?v=reskin-4';
+import {ContactEdgeRaster} from './contact-edge-raster.mjs?v=reskin-4';
+import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=reskin-4';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=reskin-4';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=reskin-4';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=reskin-4';
+import { drawShutters } from './shutter-cone.mjs?v=reskin-4';
+import {drawProximityMeter} from './proximity-meter.mjs?v=reskin-4';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=reskin-4';
+import {drawCollectorField} from './collector-field-art.mjs?v=reskin-4';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=reskin-4';
+import {drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=reskin-4';
+import {revealLuminanceWaves} from './luminance-waves.mjs?v=reskin-4';
+import {drawGlowSense} from './glow-sense.mjs?v=reskin-4';
+import {drawLastGlimmer} from './last-glimmer.mjs?v=reskin-4';
+import {formatGlow} from './vitality.mjs?v=reskin-4';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=reskin-4';
+import {biomePalette} from './biome-art.mjs?v=reskin-4';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=reskin-4';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=reskin-4';
+import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=reskin-4';
+import { createScenePropArt } from './scene-prop-art.mjs?v=reskin-4';
+import { drawBoss } from './boss.mjs?v=reskin-4';
+import {drawFlashTether} from './flash-tether.mjs?v=reskin-4';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=reskin-4';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=reskin-4';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=reskin-4';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=reskin-4';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery,companionTerrainLight } from './light-field.mjs?v=reskin-4';
+import {drawExitLandmark} from './exit-landmark.mjs?v=reskin-4';
+import {drawBlackHoles} from './black-hole-art.mjs?v=reskin-4';
+import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=reskin-4';
+import {drawShellArcs} from './shell-arcs.mjs?v=reskin-4';
+import {drawWispWake} from './wisp-wake.mjs?v=reskin-4';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=reskin-4';
+import {drawFallWarning} from './fall-chain-art.mjs?v=reskin-4';
+import {castTerrainLight,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=reskin-4';
+// v1.0-level scenery (frost, pinewood). Null unless ?scenery=2 or {scenery:2}.
+import {createLevelSceneryTwo} from './level-scenery-two.mjs?v=reskin-4';
 
 const TAU = Math.PI * 2;
 const propContactCache=new WeakMap();
@@ -225,6 +227,37 @@ export class WispFlightView {
     this.bossOptions = { engine, width: WIDTH, height: 0, distance: 0, time: 0, scale: 1, pass: 'silhouette' };
     this.fallbackFleet = [{ role: 'collector', x: 0, y: 0, homeX: 0, homeY: 0, radius: 100, phase: 'ready', recovery: 1, carrying: false }];
     this.originalOpacity = engine.canvas.style?.opacity || '';
+    this.scenery = createLevelSceneryTwo(engine, this.identity);
+  }
+
+  terrainKey(obstacle, top) {
+    // The scenery suffix only exists when v1.0-level is on, so flag-off keys are unchanged.
+    return `${this.identity.id}:${obstacle.sectionId || ''}:${obstacle.id}:${top ? 'top' : 'floor'}:${this.buffer.height}${this.scenery ? ':s2' : ''}`;
+  }
+
+  sceneryFrame(e, t, distance) {
+    const f = this.sceneryFrameState ??= {};
+    f.document = this.document; f.width = this.buffer.width; f.height = this.buffer.height;
+    f.distance = distance; f.time = t; f.scale = this.scale; f.reducedMotion = e.reducedMotion;
+    return f;
+  }
+
+  drawSceneryGrowth(e, t, distance, palette) {
+    // Growth that rises into open air sits behind every terrain chunk.
+    const c = this.bufferContext, s = this.scale;
+    for (const obstacle of this.visibleObstacles) {
+      if (obstacle.destroyed || obstacle.x + obstacle.width * 2.5 < distance - 10 || obstacle.x - obstacle.width > distance + e.width + 10) continue;
+      const center = obstacle.center + Math.sin(t * .9 + obstacle.phase) * obstacle.motion;
+      for (const top of SIDES) {
+        const shape = top ? obstacle.topShape : obstacle.bottomShape;
+        if (!shape?.length || shape.spacetime) continue;
+        const item = this.terrainImage(e, obstacle, spacetimeBaseShape(shape), top, palette), growth = item.growth;
+        if (!growth) continue;
+        const x = Math.round((obstacle.x + item.x) * s) - Math.round(distance * s) - item.pad,
+          y = Math.round((center + (top ? -1 : 1) * obstacle.gap / 2 + item.y) * s) - item.pad;
+        c.drawImage(growth.canvas, x + growth.dx, y + growth.dy);
+      }
+    }
   }
 
   async init() {
@@ -299,10 +332,11 @@ export class WispFlightView {
     this.obstacleCursor = 0; this.lastVisibleDistance = -1;
     this.context.imageSmoothingEnabled = false;
     this.bufferContext.imageSmoothingEnabled = false;
-    for (const item of this.terrainCache.values()) { item.canvas.width = 1; item.canvas.height = 1; }
+    for (const item of this.terrainCache.values()) { item.canvas.width = 1; item.canvas.height = 1; if (item.growth) item.growth.canvas.width = 1; }
     this.terrainCache.clear();
     for (const item of this.scenePropCache.values()) { item.canvas.width = 1; item.canvas.height = 1; }
     this.scenePropCache.clear();
+    if (this.scenery) this.scenery.reset();
     if (this.ready) this.render(e);
   }
 
@@ -513,7 +547,8 @@ export class WispFlightView {
 
   terrainImage(e, obstacle, shape, top, palette) {
     const identity = this.identity;
-    const key = `${identity.id}:${obstacle.sectionId || ''}:${obstacle.id}:${top ? 'top' : 'floor'}:${this.buffer.height}`;
+    // Same key as terrainKey(); inlined because tests call this on a bare view.
+    const key = `${identity.id}:${obstacle.sectionId || ''}:${obstacle.id}:${top ? 'top' : 'floor'}:${this.buffer.height}${this.scenery ? ':s2' : ''}`;
     const cached = this.terrainCache.get(key);
     if (cached) return cached;
     const s = this.scale, minX = Math.min(...shape.map(p => p[0]));
@@ -533,7 +568,8 @@ export class WispFlightView {
     const surface = shape.slice(2).reverse().map(([x, y]) => [Math.round(x * s + ox), Math.round(y * s + oy)]);
     const section = e.layout.sections?.find(item => item.id === obstacle.sectionId);
     const hardEntry = Boolean(section?.hard && e.layout.obstacles.find(item => item.sectionId === section.id) === obstacle);
-    drawIdentityMaterial(c, { identity, surface, top, palette, width: canvas.width,
+    if (this.scenery) this.scenery.bakeMaterial(c, { document: this.document, surface, top, width: canvas.width, height: canvas.height, obstacle });
+    else drawIdentityMaterial(c, { identity, surface, top, palette, width: canvas.width,
       height: canvas.height, obstacle, hardEntry }, { line: pixelLine, polygon: path });
     const inward = top ? -1 : 1;
     // Contact edges are drawn once, from the exposed union, after all ground
@@ -551,10 +587,11 @@ export class WispFlightView {
     }
     c.restore();
     const item = { canvas, x: minX, y: minY, pad: 2 };
+    if (this.scenery) item.growth = this.scenery.bakeGrowth(this.document, { surface, top, width: canvas.width, height: canvas.height, obstacle, engine: e, ox, oy, scale: s });
     this.terrainCache.set(key, item);
     while (this.terrainCache.size > 18) {
-      const oldest = this.terrainCache.keys().next().value;
-      this.terrainCache.get(oldest).canvas.width = 1; this.terrainCache.delete(oldest);
+      const oldest = this.terrainCache.keys().next().value, evicted = this.terrainCache.get(oldest);
+      evicted.canvas.width = 1; if (evicted.growth) evicted.growth.canvas.width = 1; this.terrainCache.delete(oldest);
     }
     return item;
   }
@@ -696,7 +733,7 @@ export class WispFlightView {
       for (const top of SIDES) {
         const shape = top ? obstacle.topShape : obstacle.bottomShape;
         if (!shape?.length) continue;
-        const key = `${identity.id}:${obstacle.sectionId || ''}:${obstacle.id}:${top ? 'top' : 'floor'}:${this.buffer.height}`;
+        const key = this.terrainKey(obstacle, top);
         if (!this.terrainCache.has(key)) { this.terrainImage(e, obstacle, spacetimeBaseShape(shape), top, palette); return; }
       }
       const center = obstacle.center + Math.sin(timeOf(e) * .9 + obstacle.phase) * obstacle.motion;
@@ -1110,19 +1147,25 @@ export class WispFlightView {
     if (this.canvas.dataset.levelIdentity !== identity.id) this.canvas.dataset.levelIdentity = identity.id;
     c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
     this.updateVisible(e, distance);
-    this.drawSky(e, t, distance, palette);
+    const scenery = this.scenery, sceneryStart = scenery ? performance.now() : 0, sceneryFrame = scenery ? this.sceneryFrame(e, t, distance) : null;
+    if (scenery) scenery.drawSky(c, sceneryFrame);
+    else this.drawSky(e, t, distance, palette);
     // Authored parallax supplies the major depth layers in the new art pass.
     c.globalAlpha = rehearsing ? .1 : .34; c.fillStyle = '#03080b'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1;
     const boss = this.bossOptions; boss.height = this.buffer.height; boss.distance = distance; boss.time = t; boss.scale = s; boss.pass = 'silhouette';
-    drawHabitatBackdrop(c,e,{scale:s,distance,time:t});
-    drawCourseArt(c,e,{scale:s,distance});
-    drawNearLandscape(c,e,{scale:s,distance});
-    drawCourseArt(c,e,{scale:s,distance,pass:'near'});
+    if (scenery) scenery.drawBackdrop(c, sceneryFrame);
+    else drawHabitatBackdrop(c,e,{scale:s,distance,time:t});
+    if (!scenery || !scenery.hidesCourseArt) {
+      drawCourseArt(c,e,{scale:s,distance});
+      drawNearLandscape(c,e,{scale:s,distance});
+      drawCourseArt(c,e,{scale:s,distance,pass:'near'});
+    }
     drawFlightForkBackdrops(c,e,{distance,scale:s});
     // The world-anchored guardian stays behind solid ground, but is no longer
     // buried under opaque background layers or the new course landmarks.
     drawBoss(c, boss);
     drawGuardianPresence(c,{engine:e,width:this.buffer.width,height:this.buffer.height,distance,time:t});
+    if (scenery) this.drawSceneryGrowth(e, t, distance, palette);
     this.drawTerrain(e, t, distance, palette);
     boss.pass = 'hands'; drawBoss(c, boss);
     this.drawSceneProps(e, t, distance);
@@ -1146,7 +1189,8 @@ export class WispFlightView {
     this.drawBurstEffects(e, MAIN_LIGHT);
     this.drawMist(e, t, distance, palette);
     const life = this.lifeOptions; life.height = this.buffer.height; life.distance = distance; life.time = t; life.reducedMotion = e.reducedMotion;
-    drawIdentityLife(c, life, SCENERY_HELPERS);
+    if (scenery) scenery.drawParticles(c, sceneryFrame);
+    else drawIdentityLife(c, life, SCENERY_HELPERS);
     let fleet = e.getCompanionStates?.(yOf(e), t,e.renderBlend);
     if (!fleet?.length) {
       const wisp = e.getWispState?.(yOf(e), t), fallback = this.fallbackFleet[0];
@@ -1207,6 +1251,7 @@ export class WispFlightView {
     this.context.imageSmoothingEnabled = false;
     this.context.drawImage(this.buffer, 0, 0, this.canvas.width, this.canvas.height);
     if (!this.backgroundRepainted) this.prewarmSurfaces(e, distance);
+    if (scenery) scenery.noteFrame(performance.now() - sceneryStart);
     } finally { endTerrainBoundaryFrame(e); }
   }
 
@@ -1219,8 +1264,9 @@ export class WispFlightView {
     this.contactEdgeRaster?.destroy();this.contactEdgeRaster=null;
     if (this.engine.canvas.style) this.engine.canvas.style.opacity = this.originalOpacity;
     this.canvas?.remove();
-    for (const item of this.terrainCache.values()) { item.canvas.width = 1; item.canvas.height = 1; }
+    for (const item of this.terrainCache.values()) { item.canvas.width = 1; item.canvas.height = 1; if (item.growth) item.growth.canvas.width = 1; }
     this.terrainCache.clear();
+    if (this.scenery) this.scenery.destroy();
     for (const item of this.scenePropCache.values()) { item.canvas.width = 1; item.canvas.height = 1; }
     this.scenePropCache.clear();
     if (this.buffer) { this.buffer.width = 1; this.buffer.height = 1; }

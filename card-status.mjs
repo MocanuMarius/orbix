@@ -1,8 +1,8 @@
 /** Configuration hints only. Every numeric verdict comes from a read-only row quote. */
-import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=reskin-3';
-import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=reskin-3';
-import { normalizeCompanionFleet } from './companion-abilities.mjs?v=reskin-3';
-import { skillProgress } from './skill-increments.mjs?v=reskin-3';
+import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=reskin-4';
+import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=reskin-4';
+import { normalizeCompanionFleet } from './companion-abilities.mjs?v=reskin-4';
+import { skillProgress } from './skill-increments.mjs?v=reskin-4';
 
 /** Labels are plain instructions (docs/card-teaching-plan.md §3); `code` is stable for code. */
 const ready = reason => ({ state: 'ready', symbol: '✓', label: 'Ready', code: 'ready', reason, fix: 'Keep this order to use it when its Trigger happens.' });

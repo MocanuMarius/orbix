@@ -1,9 +1,9 @@
 // Disposable, deterministic equipped samples. No app boot, persistence or economy actions.
-import { CARD_SYSTEM, SKILL_CARDS, makeSkillCard, getMountedCards, previewCardRow } from './skill-cards.mjs?v=reskin-3';
-import { cardRowTraceMarkup, cardRowSequenceMarkup } from './card-row-feedback.mjs?v=reskin-3';
-import { cardFace } from './card-ui.mjs?v=reskin-3';
-import { CARD_TERMS, cardTermTextMarkup, installCardTermHelp } from './card-terms.mjs?v=reskin-3';
-import {resolveCardHelpContext} from './card-row-help.mjs?v=reskin-3';
+import { CARD_SYSTEM, SKILL_CARDS, makeSkillCard, getMountedCards, previewCardRow } from './skill-cards.mjs?v=reskin-4';
+import { cardRowTraceMarkup, cardRowSequenceMarkup } from './card-row-feedback.mjs?v=reskin-4';
+import { cardFace } from './card-ui.mjs?v=reskin-4';
+import { CARD_TERMS, cardTermTextMarkup, installCardTermHelp } from './card-terms.mjs?v=reskin-4';
+import {resolveCardHelpContext} from './card-row-help.mjs?v=reskin-4';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const DEFAULT_COMBO_SEED = 'moonwell-15';

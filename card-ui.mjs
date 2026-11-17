@@ -1,9 +1,9 @@
-import { cardTermTextMarkup } from "./card-terms.mjs?v=reskin-3";
-import { getCardRuleBands } from "./card-rule-bands.mjs?v=reskin-3";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=reskin-3";
-import { activeFlightPact } from './flight-pacts.mjs?v=reskin-3';
-import { cardArt } from "./card-art.mjs?v=reskin-3";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=reskin-3';
+import { cardTermTextMarkup } from "./card-terms.mjs?v=reskin-4";
+import { getCardRuleBands } from "./card-rule-bands.mjs?v=reskin-4";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=reskin-4";
+import { activeFlightPact } from './flight-pacts.mjs?v=reskin-4';
+import { cardArt } from "./card-art.mjs?v=reskin-4";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=reskin-4';
 import {
   getMountedCards,
   getOwnedCards,
@@ -18,13 +18,13 @@ import {
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
-} from "./model.mjs?v=reskin-3";
-import { resourceSymbol } from "./game-symbols.mjs?v=reskin-3";
-import { choiceScene } from "./choice-art.mjs?v=reskin-3";
-import { livesMarkup } from "./lives.mjs?v=reskin-3";
-import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=reskin-3";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=reskin-3";
-import {canDreamAt} from './dream.mjs?v=reskin-3';
+} from "./model.mjs?v=reskin-4";
+import { resourceSymbol } from "./game-symbols.mjs?v=reskin-4";
+import { choiceScene } from "./choice-art.mjs?v=reskin-4";
+import { livesMarkup } from "./lives.mjs?v=reskin-4";
+import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=reskin-4";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=reskin-4";
+import {canDreamAt} from './dream.mjs?v=reskin-4';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -36,7 +36,7 @@ import {
   getCardFeederCapacity,
   isInventoryOnlyCard,
   SKILL_CARDS,
-} from "./skill-cards.mjs?v=reskin-3";
+} from "./skill-cards.mjs?v=reskin-4";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -85,7 +85,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=reskin-3";
+export { cardArt } from "./card-art.mjs?v=reskin-4";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }

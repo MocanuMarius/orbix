@@ -1,13 +1,13 @@
-import {ARTIFACTS,SKILL_CARDS,getCardDraft} from './model.mjs?v=reskin-3';
-import {cardDraftMarkup,cardDraftOffersMarkup} from './card-ui.mjs?v=reskin-3';
-import {rewardEarnings} from './reward-screen.mjs?v=reskin-3';
-import {resourceSymbol} from './game-symbols.mjs?v=reskin-3';
-import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=reskin-3';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=reskin-3';
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=reskin-3';
-import {sealedPackMarkup} from './flight-reward-pack-art.mjs?v=reskin-3';
-import {artifactIcon} from './upgrade-icons.mjs?v=reskin-3';
-import {flightRewardReceiptDetail,FLIGHT_REWARD_SOURCE_DETAILS} from './flight-reward-details.mjs?v=reskin-3';
+import {ARTIFACTS,SKILL_CARDS,getCardDraft} from './model.mjs?v=reskin-4';
+import {cardDraftMarkup,cardDraftOffersMarkup} from './card-ui.mjs?v=reskin-4';
+import {rewardEarnings} from './reward-screen.mjs?v=reskin-4';
+import {resourceSymbol} from './game-symbols.mjs?v=reskin-4';
+import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=reskin-4';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=reskin-4';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=reskin-4';
+import {sealedPackMarkup} from './flight-reward-pack-art.mjs?v=reskin-4';
+import {artifactIcon} from './upgrade-icons.mjs?v=reskin-4';
+import {flightRewardReceiptDetail,FLIGHT_REWARD_SOURCE_DETAILS} from './flight-reward-details.mjs?v=reskin-4';
 export {flightRewardReceiptDetail};
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));

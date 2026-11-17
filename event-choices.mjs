@@ -1,5 +1,5 @@
-import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=reskin-3';
-import {getCompanionAbility} from './companion-abilities.mjs?v=reskin-3';
+import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=reskin-4';
+import {getCompanionAbility} from './companion-abilities.mjs?v=reskin-4';
 
 // Values in descriptions are player-facing. Effects use the existing simulation units.
 export const EVENT_EDITION=3;

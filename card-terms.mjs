@@ -1,13 +1,13 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=reskin-3';
-import {lifeHeartSvg} from './lives.mjs?v=reskin-3';
-import {duskGlyphArt} from './spark-symbol.mjs?v=reskin-3';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=reskin-3';
-import {glowGaugeUnits} from './glow-ui.mjs?v=reskin-3';
-import {getRunModifiers} from './model.mjs?v=reskin-3';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=reskin-3';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=reskin-3';
-import {dreamEye} from './dream.mjs?v=reskin-3';
+import { resourceSymbol } from './game-symbols.mjs?v=reskin-4';
+import {lifeHeartSvg} from './lives.mjs?v=reskin-4';
+import {duskGlyphArt} from './spark-symbol.mjs?v=reskin-4';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=reskin-4';
+import {glowGaugeUnits} from './glow-ui.mjs?v=reskin-4';
+import {getRunModifiers} from './model.mjs?v=reskin-4';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=reskin-4';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=reskin-4';
+import {dreamEye} from './dream.mjs?v=reskin-4';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   round: ['Round', 'One flight through a passage, ending in clear rewards or a lost heart.'],
@@ -373,7 +373,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=reskin-3').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=reskin-4').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -384,7 +384,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=reskin-3').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=reskin-4').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

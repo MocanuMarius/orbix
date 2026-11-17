@@ -1,6 +1,6 @@
-import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=reskin-3';
-import {getCompanionAbility} from './companion-abilities.mjs?v=reskin-3';
-import {activeEventFavors} from './passage-preparations.mjs?v=reskin-3';
+import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=reskin-4';
+import {getCompanionAbility} from './companion-abilities.mjs?v=reskin-4';
+import {activeEventFavors} from './passage-preparations.mjs?v=reskin-4';
 
 export const TREASURE_KINDS = Object.freeze(['vessel', 'lens', 'tithe', 'wager']);
 export const LENS_SIGHT = 1.15;

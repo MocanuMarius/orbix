@@ -1,6 +1,6 @@
-import {newState,createRun,ARTIFACTS,getChoices,selectNode,beginFlightAttempt,markFlightAttemptStarted,finishFlight,settleCheckpoint} from '../model.mjs?v=reskin-3';
-import {makeSkillCard} from '../skill-cards.mjs?v=reskin-3';
-import {prepareRouteOffer} from '../route-offers.mjs?v=reskin-3';
+import {newState,createRun,ARTIFACTS,getChoices,selectNode,beginFlightAttempt,markFlightAttemptStarted,finishFlight,settleCheckpoint} from '../model.mjs?v=reskin-4';
+import {makeSkillCard} from '../skill-cards.mjs?v=reskin-4';
+import {prepareRouteOffer} from '../route-offers.mjs?v=reskin-4';
 
 /** Preview-only data. Never load/persist a player save or start a flight. */
 export function createComponentFixture(family,variant){

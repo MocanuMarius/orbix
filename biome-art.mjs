@@ -1,5 +1,5 @@
-import {drawAuthoredMaterial} from './authored-environment.mjs?v=reskin-3';
-import {pineCrown} from './pixel-contour.mjs?v=reskin-3';
+import {drawAuthoredMaterial} from './authored-environment.mjs?v=reskin-4';
+import {pineCrown} from './pixel-contour.mjs?v=reskin-4';
 // Original pixel scenery. Backdrops and solid materials are rasterized by the
 // existing renderer caches; only a few matte weather pixels animate each frame.
 // Nothing here emits light or draws outside the simulation's solid silhouettes.

@@ -1,5 +1,5 @@
-import {pickupKind,getPickupSpec} from './pickups.mjs?v=reskin-3';
-import {inLanternRoom} from './lantern-layout.mjs?v=reskin-3';
+import {pickupKind,getPickupSpec} from './pickups.mjs?v=reskin-4';
+import {inLanternRoom} from './lantern-layout.mjs?v=reskin-4';
 
 // Rise from the launch mark to the first Spark, fall through the seed, then
 // fly another half second in dim light before the third fuel pickup.

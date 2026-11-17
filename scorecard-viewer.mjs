@@ -1,4 +1,4 @@
-import {scorecardFromHash,scorecardDataURL,scorecardPNG,downloadScorecard,shareScorecard} from './scorecard.mjs?v=reskin-3';
+import {scorecardFromHash,scorecardDataURL,scorecardPNG,downloadScorecard,shareScorecard} from './scorecard.mjs?v=reskin-4';
 const root=document.querySelector('#scorecard-view');
 function renderScorecard(){
 const score=scorecardFromHash(location.hash);

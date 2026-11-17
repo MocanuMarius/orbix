@@ -1,6 +1,6 @@
-import {LOCATION_CHALLENGE_NAMES} from './world-expansion.mjs?v=reskin-3';
-import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=reskin-3';
-import { getEncounterFamily, familyChallengeCells } from './encounter-families.mjs?v=reskin-3';
+import {LOCATION_CHALLENGE_NAMES} from './world-expansion.mjs?v=reskin-4';
+import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=reskin-4';
+import { getEncounterFamily, familyChallengeCells } from './encounter-families.mjs?v=reskin-4';
 
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 const NAMES = Object.freeze({
