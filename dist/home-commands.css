@@ -28,8 +28,8 @@ html body[data-screen=home] #app .menu-art-home .home-head{flex:none}
    title row's flourishes. */
 html body[data-screen=home] #app .menu-art-home .home-page::after{height:56px;background-size:24px 56px,24px 44px}
 html body[data-screen=home] #app .menu-art-home .home-tagline{margin:0}
-html body[data-screen=home] #app .menu-art-home .home-menu{display:grid;grid-template-columns:minmax(0,1fr);gap:5px;width:100%;margin-block:auto;flex:none}
-html body[data-screen=home] #app .menu-art-home .front-version{display:block;flex:none;margin:0;font:400 10px/12px var(--pixel,monospace);letter-spacing:.5px;color:var(--wb-context);text-shadow:none}
+html body[data-screen=home] #app .menu-art-home .home-menu{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;width:100%;margin-block:auto;flex:none}
+html body[data-screen=home] #app .menu-art-home .front-version{display:block;flex:none;margin:0;font:400 11px/12px var(--pixel,monospace);letter-spacing:.5px;color:var(--wb-context);text-shadow:none}
 
 /* ── Plaques ─────────────────────────────────────────────────────────────── */
 /* Restate the kit frame with ids in the selector: rough-ui.css gives .front-* buttons its own frame. */
@@ -48,7 +48,7 @@ html body[data-screen=home] #app .menu-art-home .home-menu .wb-sign:not(:disable
 html body[data-screen=home] #app .menu-art-home .home-ascension{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:8px;height:44px;margin:0;padding:0 4px}
 html body[data-screen=home] #app .menu-art-home .home-ascension-label{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;column-gap:6px;row-gap:4px;font:400 13px/1 var(--pixel,monospace);letter-spacing:1.5px;color:var(--wb-label);text-shadow:none}
 html body[data-screen=home] #app .menu-art-home .home-ascension-label>b{display:inline;font:400 16px/1 var(--pixel,monospace);color:var(--wb-label)}
-html body[data-screen=home] #app .menu-art-home .home-ascension-label>small{display:block;flex-basis:100%;text-align:center;font:400 10px/1 var(--pixel,monospace);letter-spacing:1px;color:var(--wb-context)}
+html body[data-screen=home] #app .menu-art-home .home-ascension-label>small{display:block;flex-basis:100%;text-align:center;font:400 11px/1 var(--pixel,monospace);letter-spacing:1px;color:var(--wb-context)}
 html body[data-screen=home] #app .menu-art-home .home-ascension-step{display:grid!important;place-items:center;width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;margin:0!important;padding:0!important;box-sizing:border-box;border:12px solid transparent!important;border-image:url('assets/ui/waystone/plaque-leather.svg') 6 fill / 12px stretch!important;border-radius:0!important;clip-path:none!important;background:none!important;box-shadow:none!important;image-rendering:pixelated;color:var(--wb-ink)!important;font:400 18px/1 var(--pixel,monospace)!important;text-shadow:var(--wb-ink-shadow);cursor:pointer;touch-action:manipulation;transition:none!important;transform:none}
 html body[data-screen=home] #app .menu-art-home .home-ascension-step:disabled{cursor:default;opacity:.45;filter:saturate(.5)}
 html body[data-screen=home] #app .menu-art-home .home-ascension-step:focus-visible{outline:2px solid var(--wb-focus)!important;outline-offset:2px}
@@ -73,9 +73,9 @@ html body[data-screen=home] #app .menu-art-home .home-score-tab:focus-visible{ou
 @media(max-height:340px){
  html body[data-screen=home] #app .menu-art-home .home-page{gap:2px}
  html body[data-screen=home] #app .menu-art-home .home-head{flex-wrap:wrap;row-gap:0}
- html body[data-screen=home] #app .menu-art-home .home-tagline{flex-basis:100%;padding-left:19px;font-size:10px}
+ html body[data-screen=home] #app .menu-art-home .home-tagline{flex-basis:100%;padding-left:19px;font-size:11px}
  html body[data-screen=home] #app .menu-art-home.has-continue .home-tagline{display:none}
- html body[data-screen=home] #app .menu-art-home .home-menu{gap:3px}
+ html body[data-screen=home] #app .menu-art-home .home-menu{gap:6px}
  html body[data-screen=home] #app .menu-art-home .home-menu .wb-sign{height:44px}
  html body[data-screen=home] #app .menu-art-home .home-menu .wb-sign-text>small{display:none!important}
  html body[data-screen=home] #app .menu-art-home .home-ascension-label>small{display:none}
@@ -84,7 +84,7 @@ html body[data-screen=home] #app .menu-art-home .home-score-tab:focus-visible{ou
  html body[data-screen=home] #app .menu-art-home .home-journey{width:196px}
 }
 @media(max-height:310px){
- html body[data-screen=home] #app .menu-art-home .home-menu{gap:2px}
+ html body[data-screen=home] #app .menu-art-home .home-menu{gap:6px}
  html body[data-screen=home] #app .menu-art-home .home-ascension.is-fixed{height:22px}
 }
 @media(prefers-reduced-motion:reduce){

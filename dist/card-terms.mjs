@@ -14,6 +14,8 @@ import {inscriptionGlyph} from './inscription-glyphs.mjs?v=guide-clarity-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   inscription: ['Inscription', 'An effect written on a Chain slot, not on a card. It stays on the slot when cards move, swap or leave. Some change the card on that slot; some work on any slot, even an empty one. Get one from the Scribe after an Elite or Guardian. One per slot; writing again replaces it.'],
+  'ins-card': ['Card Inscription', 'Changes the card in its slot. It does nothing while the slot is empty, and works on whatever card you put there.'],
+  'ins-slot': ['Slot Inscription', 'Works on its own, on any slot, even an empty one.'],
   round: ['Round', 'One flight through a passage, ending in clear rewards or a lost heart.'],
   map: ['Map', 'A route of Rounds and Rest stops, ending at a Guardian.'],
   game: ['Game', 'One journey through 3 Maps, ending at the final Guardian or when you run out of hearts.'],
@@ -345,8 +347,8 @@ const relatedTerms = Object.freeze({
 export const TRIGGER_TERM_KEYS = Object.freeze(['collect','falling-lift','wave','delivery','overfill','save','clear','engine-skim','always-on','boost','next','trigger']);
 const bookButton = () => `<button type="button" class="card-term-book" data-trigger-book>${'All Triggers'}</button>`;
 /** The glossary's Inscription entry lists every Inscription with its brand mark, name and rule. */
-function inscriptionLegendMarkup() {
-  return `<details class="card-term-extra ins-legend"><summary>All Inscriptions and their marks</summary><ul class="ins-legend-list">${Object.values(INSCRIPTIONS).map(i => `<li data-ins-legend="${esc(i.id)}">${inscriptionGlyph(i.id, {size: 32})}<span><b>${esc(i.name)}</b> ${esc(i.text)}</span></li>`).join('')}</ul></details>`;
+export function inscriptionLegendMarkup() {
+  return `<details class="card-term-extra ins-legend"><summary>All Inscriptions and their marks</summary><ul class="ins-legend-list">${Object.values(INSCRIPTIONS).map(i => `<li data-ins-legend="${esc(i.id)}">${inscriptionGlyph(i.id, {role: 'list'})}<span><b>${esc(i.name)}</b> ${esc(i.text)}</span></li>`).join('')}</ul></details>`;
 }
 function termDetailsMarkup(key, lead = '') {
   const details=CARD_TERM_DETAILS[key], related=relatedTerms[key] || [];

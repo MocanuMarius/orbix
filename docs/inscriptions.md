@@ -8,44 +8,46 @@ Status: built. Artifacts are retired for players; Inscriptions replace them. Cod
 - Two kinds. **Card-modifying** changes the card sitting in that slot and does nothing while the slot is empty. **Standalone** works while it is on any slot, even an empty one.
 - It stays on the slot when cards are moved, swapped, melted, sold, devoured or taken out. The card that leaves loses the effect; the next card placed there gets it.
 - Repeat and Boost cards treat a card as it behaves in its slot: Echo repeats the modified firing, and a Boost multiplies Sparks an Inscription adds. Boosts never multiply Stored Sparks or permanent gains.
-- Writing on an inscribed slot replaces it, after a confirm on the Scribe screen.
+- Writing on an inscribed slot replaces it: the writer screen shows the old one struck through on that slot before Write (no separate confirm).
 - Global rules hold: Spark Meter cap 100, Sparks round up per firing, events flow right, only Timers return to the first slot. Nothing is readable in flight: the slot brand, the inspector and the Scribe are menu screens only (Bell sends a real light Pulse, a non-reading cue).
 - No charges: none of the 18 needs a stored count. Whetted gives its extra use inside the flight only, so it is free and never kept.
 
 ## The 18 Inscriptions
 
-| Name | Kind | Text | Numbers |
+| Name | Kind (tag) | Text (one keyword line, glossary-linked) | Numbers |
 | --- | --- | --- | --- |
-| Twin Mark | card | The card here fires twice. | 2 firings (a Repeat to the left doubles that again) |
-| Gilded | card | Each time the card here fires: +2 Sparks. | +2 Sparks per firing, Boosts see it |
-| Resonant | card | The card here also fires on a Pulse. | extra Trigger: Pulse |
-| Kindled | card | The card here also fires on a Lift. | extra Trigger: Lift |
-| Courier | card | The card here also fires on a Delivery. | extra Trigger: Delivery |
-| Wellspring | card | The card here also fires on an Overfill. | extra Trigger: Overfill |
-| Sunlit | card | The card here also fires when you Collect a Flare. | extra Trigger: Flare |
-| Mirror | card | The card here fires whenever the card to its left fires. | follows the left neighbour |
-| Brimful | card | Sparks the card here gains above the Meter become Stored Sparks. | spill becomes Stored Sparks, not boosted again |
-| Whetted | card | The card here gets 1 extra use each flight. | +1 use per flight, never kept |
-| Hollow | standalone | While this slot is empty: +2 Sparks on every Collect. | +2 Sparks per Collect |
-| Hearth | standalone | +10 maximum Sparks. | +10 max Sparks (cap 100) |
+| Twin Mark | card | Fires twice. | 2 firings (a Repeat to the left doubles that again) |
+| Gilded | card | +2 Sparks each firing. | +2 Sparks per firing, Boosts see it |
+| Resonant | card | Also fires on a Pulse. | extra Trigger: Pulse |
+| Kindled | card | Also fires on a Lift. | extra Trigger: Lift |
+| Courier | card | Also fires on a Delivery. | extra Trigger: Delivery |
+| Wellspring | card | Also fires on an Overfill. | extra Trigger: Overfill |
+| Sunlit | card | Also fires when you Collect a Flare. | extra Trigger: Flare |
+| Mirror | card | Fires when the card on its left fires. | follows the left neighbour |
+| Brimful | card | Its Sparks above the Meter become Stored Sparks. | spill becomes Stored Sparks, not boosted again |
+| Whetted | card | +1 use each flight. | +1 use per flight, never kept |
+| Hollow | standalone | Empty slot: +2 Sparks on each Collect. | +2 Sparks per Collect |
+| Hearth | standalone | +10 max Sparks. | +10 max Sparks (cap 100) |
 | Lantern | standalone | +25% Luminance. | +25% |
 | Long Cord | standalone | Collector reach +30%. | x1.3 |
-| Bell | standalone | Send a Pulse every 6 seconds. | a real light Pulse per 6 s of flight |
-| Lodestone | standalone | Cards on both sides of this slot give +1 Spark each firing. | +1 per neighbour, per firing |
-| Ember Bed | standalone | Finish: +3 Stored Sparks, +1 more per empty slot. | 3 + empty slots |
+| Bell | standalone | A Pulse every 6 seconds. | a real light Pulse per 6 s of flight |
+| Lodestone | standalone | Cards on both sides: +1 Spark each firing. | +1 per neighbour, per firing |
+| Ember Bed | standalone | Finish: +3 Stored Sparks, +1 per empty slot. | 3 + empty slots |
 | Cinder | standalone | Lift costs 1 less Spark. | -1, floor 1 |
 
 Where the rules live: the row walker (`resolveCardRow` in `dist/skill-cards.mjs`: Twin Mark as extra firings, Gilded and Lodestone as Sparks paid at the slot so Boosts see them, the "also fires" Inscriptions and Mirror as rule matches, Hollow and Ember Bed as standalone totals, Brimful as a receipt field the flight turns into Stored Sparks); the engine (`dist/card-engine.mjs`: Twin Mark, Gilded and Lodestone on gain cards); run modifiers (`getRunModifiers`, `getCardModifiers`, `getRawGlowCapacity`: Lantern, Long Cord, Cinder, Hearth, Whetted); the flight step (`stepFlightInscriptions` in `dist/card-engine-flight.mjs`: Bell).
 
 ## How players get them: the Scribe
 
-**Marks.** Every Inscription has its own 16x16 brand mark (thick, flat, mostly symmetric). On the Chain tab it is burned into the slot frame's top-left corner (36 px with a 1-pixel lighter edge; 18 px on narrow slots), inside the frame on an empty slot; tapping it names the Inscription and its rule. The Scribe screens, the inspector block and the glossary entry show the same mark. Dev: `?cards=1&mock=cards&scenario=scribe&chain=...&slots=...` (`offers=id,id,id`, `pick=id` jumps to the slot step).
+**Marks.** Every Inscription has its own brand mark on a **24×24** grid in two tones of the brand colour: ink, and an engraved second tone (carved inner lines, highlights, grain) at half strength (`fill-opacity .5`, CSS class `ins-glyph-cut`). Drawings: `scripts/build-inscription-glyphs.mjs` (ASCII, `#` ink, `+` second tone); generated `dist/inscription-glyphs.mjs` and `dist/assets/ui/inscriptions/<id>.svg`. Shown only at whole multiples, one size per role (`INSCRIPTION_GLYPH_SIZES`): **list 24** (inspector, glossary list, slot lines, briefing), **large 48** (offers on the writer; 24 on its compact short-landscape slots), **huge 72**, **brand 26** (burned into the slot frame's top-left corner, 1-pixel lighter edge, grid 26) and **brandLarge 52** (an empty inscribed slot; 26 on narrow slots). The CSS role rules live in `dist/artifact-reward.css` ("One size per glyph role") and win over generic icon rules. On narrow Chain slots the eye button moves right so it never covers the brand; on an inscribed slot the NEW badge moves to the right of the eye. Audit and screenshots: `node scripts/glyph-audit.mjs` → `outputs/glyph-audit/`, findings in `docs/glyph-audit.md`. Contact sheet: `node scripts/inscription-ui-proof.mjs sheet` → `outputs/inscriptions/glyphs.png`.
 
-Only a map’s Guardian (boss) flight on a card run (the old artifact reward, `makeFlightReward` in `dist/model.mjs`) now offers the Scribe: 1) **Choose an Inscription**: three offers, none already written on a slot unless fewer than three others remain; 2) **Choose a slot**: any slot, each showing its card and what it already carries; 3) over an existing Inscription, a **Replace this Inscription?** confirm. Back returns one step; cancelling the slot step returns to the three choices. All on the menu reward screen. Ordinary flights, the tutorial and legacy non-card runs offer nothing. Scripts and tests may call `chooseFlightReward(state, id)` without a slot: it takes the first bare slot (else the last, replacing).
+**Tags.** Choice screens show a small tag instead of the long kind sentence: **Card** (changes the card in its slot) or **Slot** (works on its own, even on an empty slot), each a glossary link (`ins-card`, `ins-slot` in `dist/card-terms.mjs`).
+
+**The writer (one screen).** A map's Guardian reward and the Scribe stops (and a chest's Inscription find) open ONE screen (`dist/inscription-write.mjs`): the offers in the top row (**2** from the Scribe, `SCRIBE_OFFER_COUNT`; 1 from a chest, already selected), the Chain as it is in the bottom row, every slot visible (3 to 6, shrinking evenly; nothing scrolls at 890×400, 915×412, 740×333). Tap an offer and a slot in either order; nothing is preselected. The chosen slot shows the result before anything is written: the new brand, the old Inscription struck through ("Replaces Gilded"), and the card's before → after from the Chain tab's own row preview (`resolveChain` with the slot Inscriptions), e.g. "+2 → +4 on Collect"; a Card Inscription on an empty slot says "Needs a card here". The single primary button **Write** (Replace when it replaces) is disabled until both are chosen. The "?" on an offer, a card or a brand and every keyword open the glossary as an overlay; the selection stays. Offers never include an Inscription already written on a slot unless fewer than two others remain. Practice (First Light) uses the same screen through `practiceScribeWrite`.
 
 ### Two Scribes per map, and the map layout (`rests-scribes-1`)
 
-Every card-run map offers exactly **two** Scribes (a run: 6). Maps 1 and 2: one **Scribe stop** about the middle of the map plus the Guardian's reward. Map 3: **two Scribe stops**, at about a third and two thirds; its Guardian ends the run and awards none. A Scribe stop is a non-flight stop like Rest (node `kind: 'scribe'`, `type: 'support'`): entering it opens the Scribe at once (`ensureScribeStop` draws three Inscriptions from the node's seed, so re-entry shows the same three), you write one, and `leaveScribe` returns to the map. Backing out before writing (`cancelScribeStop`) does not count the visit. Stop page: "Scribe — choose an Inscription for a slot of your Chain." (reward line "1 Inscription (choose 1 of 3)"). Map icon: the Whetted brand from `inscriptionGlyph()` (a nib resting on a slab), no new art.
+Every card-run map offers exactly **two** Scribes (a run: 6). Maps 1 and 2: one **Scribe stop** about the middle of the map plus the Guardian's reward. Map 3: **two Scribe stops**, at about a third and two thirds; its Guardian ends the run and awards none. A Scribe stop is a non-flight stop like Rest (node `kind: 'scribe'`, `type: 'support'`): entering it opens the Scribe at once (`ensureScribeStop` draws three Inscriptions from the node's seed, so re-entry shows the same three), you write one, and `leaveScribe` returns to the map. Backing out before writing (`cancelScribeStop`) does not count the visit. Stop page: "Scribe — choose an Inscription for a slot of your Chain." (reward line "1 Inscription (choose 1 of 2)"). Map icon: the Whetted brand from `inscriptionGlyph()` (a nib resting on a slab), no new art.
 
 Layout guarantees (recipes `MID_ROWS` and `FINAL_ROWS` in `dist/model.mjs`): maps 1 and 2 have 15 rows (was 10), map 3 has 17. Every Rest and every Scribe stop sits **alone on its row**, and the row before it funnels every lane into it, so no path can skip one. Every path passes 3 Rests (rows 4, 10, 13 on maps 1-2; rows 4, 9, 15 on map 3), never in consecutive rows. A fourth Rest sits on a side lane of row 2: take it or skip it. Elites, treasures and events stay at 2 each; ordinary flights rise from 11 to 15 (map 3: 17) because rows were added instead of flights removed. Supports are still entered from flights and leave into flights. Tutorial and legacy (non-card) maps are unchanged. Tests: `tests/map-layout.test.mjs`.
 
@@ -182,7 +184,7 @@ A chest on a card run keeps its own two finds (some of which already give Stored
 
 ### Order after a guardian: Scribe first, temporary second
 
-A guardian clear on map 1 or 2 can owe both: the Scribe's permanent Inscription (choose 1 of 3, then a slot) and, when its optional objective was fulfilled, a temporary one (`run.pendingTemporary`). The router (`goToRun` in `dist/app.mjs`) shows the Scribe first and the temporary slot screen after it is written. Before 2026-11-18 the temporary screen came first and looked like the Scribe, and a Scribe pick written on the same slot afterwards sat beneath the temporary one (it only looked temporary). The Scribe screens are headed "The Scribe — permanent Inscription" and carry the note "A second choice follows" while one is owed; the temporary screen is headed "Temporary Inscription", states its source ("Objective reward: lasts 3 flights") and shows the chosen glyph in the dashed ring. A Scribe pick is always a plain `{id}` entry. Map 3's guardian owes neither. Tests: `tests/boss-chest-inscriptions.test.mjs`.
+A guardian clear on map 1 or 2 can owe both: the Scribe's permanent Inscription (choose 1 of 2 and a slot on one screen) and, when its optional objective was fulfilled, a temporary one (`run.pendingTemporary`). The router (`goToRun` in `dist/app.mjs`) shows the Scribe first and the temporary slot screen after it is written. Before 2026-11-18 the temporary screen came first and looked like the Scribe, and a Scribe pick written on the same slot afterwards sat beneath the temporary one (it only looked temporary). The Scribe screens are headed "The Scribe — permanent Inscription" and carry the note "A second choice follows" while one is owed; the temporary screen is headed "Temporary Inscription", states its source ("Objective reward: lasts 3 flights") and shows the chosen glyph in the dashed ring. A Scribe pick is always a plain `{id}` entry. Map 3's guardian owes neither. Tests: `tests/boss-chest-inscriptions.test.mjs`.
 
 ### Chest gifts: five more permanent Inscriptions
 

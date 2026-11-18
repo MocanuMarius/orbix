@@ -8,8 +8,9 @@ import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=guide-clarity-1';
 import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=guide-clarity-1';
 import {getInscription,slotInscriptionId,slotEntry,permanentOnSlot} from './inscriptions.mjs?v=guide-clarity-1';
 import {previewPendingTemporary,temporaryLine} from './temporary-inscriptions.mjs?v=guide-clarity-1';
-import {inscriptionGlyph,INSCRIPTION_KIND_WORDS} from './inscription-ui.mjs?v=guide-clarity-1';
+import {inscriptionGlyph,inscriptionTag} from './inscription-ui.mjs?v=guide-clarity-1';
 import {cardArt} from './card-art.mjs?v=guide-clarity-1';
+import {inscriptionWriteMarkup} from './inscription-write.mjs?v=guide-clarity-1';
 import {cardTermTextMarkup} from './card-terms.mjs?v=guide-clarity-1';
 import {SKILL_CARDS} from './skill-cards.mjs?v=guide-clarity-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -34,13 +35,16 @@ export function rewardEarningsDetailMarkup(run){
  return `<div class="re-root wb-reskin wb-ground wb-inline"><button type="button" class="wb-sign wb-sign-quiet reward-earnings-back" data-action="close-sheet">Back to rewards</button><section class="reward-earnings-detail"><header><h2 class="wb-title">Stored Sparks earned</h2><strong>${resourceSymbol('packed')} +${total}</strong></header><dl>${rows.map(row=>`<div><dt>${esc(row.label)}</dt><dd>+${row.amount}</dd></div>`).join('')}</dl>${notes.length?`<div class="reward-earnings-context">${notes.map(note=>`<p>${esc(note)}</p>`).join('')}</div>`:''}</section></div>`;
 }
 // The Scribe (docs/inscriptions.md): 1 choose an Inscription, 2 choose a slot, 3 (only over an existing Inscription) confirm.
-// Cancelling the slot step returns to the three choices. Menu screens only: nothing here is shown in flight.
-const insCard=(id,open)=>{const i=getInscription(id);return `<article class="scribe-choice scribe-${i.kind}" data-scribe-offer="${id}"><span class="scribe-mark">${inscriptionGlyph(id,{size:48})}</span><h2>${esc(i.name)}</h2><small class="scribe-kind">${esc(INSCRIPTION_KIND_WORDS[i.kind])}</small><p>${cardTermTextMarkup(i.text)}</p>${open?actionButton('Choose',{className:'wb-sign wb-sign-primary',action:'scribe-pick',id,ariaLabel:`Choose ${i.name}`}):''}</article>`;};
+// Cancelling the slot step returns to the two choices. Menu screens only: nothing here is shown in flight. Nothing on these screens
+// scrolls (890×400, 915×412, 740×333): two wide offer cards (mark at the left, name, tag and one keyword line, Choose along the bottom).
+const insCard=(id,open)=>{const i=getInscription(id);return `<article class="scribe-choice scribe-${i.kind}" data-scribe-offer="${id}"><span class="scribe-mark">${inscriptionGlyph(id,{role:'huge'})}</span><div class="scribe-copy"><h2>${esc(i.name)}</h2>${inscriptionTag(i)}<p class="scribe-rule">${cardTermTextMarkup(i.text)}</p></div>${open?actionButton('Choose',{className:'wb-sign wb-sign-primary scribe-choose',action:'scribe-pick',id,ariaLabel:`Choose ${i.name}`}):''}</article>`;};
+/** The chosen Inscription beside the slots: mark, name, tag, rule and what to do. */
+const chosenAside=(i,{temp=false,flights,source='',back=''}={})=>`<aside class="scribe-chosen scribe-${i.temporary?'temporary':i.kind}" aria-label="Chosen Inscription"><div class="scribe-chosen-id"><span class="scribe-mark${temp?' scribe-mark-temp':''}">${inscriptionGlyph(i.id,{role:'large'})}</span><div><h2>${esc(i.name)}</h2>${inscriptionTag(i,flights)}</div></div><p class="scribe-rule">${cardTermTextMarkup(i.text)}</p>${source?`<small class="scribe-source">${esc(source)}</small>`:''}${back}</aside>`;
 /** One slot choice: Slot N, the mounted card (picture and wrapped name) or "Empty slot", and what is written there now. */
 function scribeSlot(r,n,i){
  const card=r.mountedCards?.[n],def=card?SKILL_CARDS[card.cardId]:null,name=card?def?.name||'Card':'',cur=getInscription(slotInscriptionId(r,n));
  const pic=card?`<span class="scribe-slot-pic">${cardArt({cardId:card.cardId,rarity:card.rarity||def?.rarity,name},{compact:true})}</span>`:'<span class="scribe-slot-pic scribe-slot-pic-empty" aria-hidden="true"></span>';
- const what=cur?`<span class="scribe-slot-ins">${inscriptionGlyph(cur.id,{size:16})}<span>Replaces: ${esc(cur.name)}</span></span>`:'<span class="scribe-slot-ins scribe-slot-none"><span>No Inscription</span></span>';
+ const what=cur?`<span class="scribe-slot-ins">${inscriptionGlyph(cur.id,{role:'list'})}<span>Replaces: ${esc(cur.name)}</span></span>`:'<span class="scribe-slot-ins scribe-slot-none"><span>No Inscription</span></span>';
  const warn=!card&&i.kind==='card'?'<span class="scribe-slot-warn">Needs a card here to do anything</span>':'';
  return `<button type="button" class="scribe-slot${cur?' scribe-slot-inscribed':''}${card?'':' scribe-slot-empty'}" data-action="scribe-slot" data-slot="${n}" aria-label="Slot ${n+1}, ${card?esc(name):'empty'}${cur?`. Replaces ${esc(cur.name)}`:'. No Inscription'}${warn?'. Needs a card here to do anything':''}"><b class="scribe-slot-n">Slot ${n+1}</b>${pic}<span class="scribe-slot-name">${card?esc(name):'Empty slot'}</span>${what}${warn}</button>`;
 }
@@ -48,23 +52,18 @@ function scribeSlot(r,n,i){
 export const SCRIBE_KICKER='The Scribe — permanent Inscription';
 export function scribeMarkup(state,{scribe={},upgradeCount=0,skillsAvailable=false,deckAvailable=true,receiptAvailable=false,earned=0,title='Elite cleared',stop=false}={}){
  // stop: the Scribe stop on the map. No flight came before it, so no course name, and it leaves for the map.
- const r=state.run,reward=r.flightReward,open=!reward.claimed,picked=open&&reward.offers.includes(scribe.id)?scribe.id:null;
+ const r=state.run,reward=r.flightReward,open=!reward.claimed,picked=open&&reward.offers.includes(scribe.id)?scribe.id:null; // scribe: {id, slot} selection
  const second=r.pendingTemporary&&open?`<p class="scribe-second-note" role="note">A second choice follows: ${r.pendingTemporary.permanent?'a chest find':'a temporary Inscription'}, ${esc(getInscription(r.pendingTemporary.id)?.name||'')}.</p>`:'';
- const head=(small,h)=>`<header class="artifact-reward-heading wbf-head"><div class="wbf-titles"><small class="wb-context">${esc(small)}${!stop&&lastCourseName(r)?` · <span class="flight-course-name">${esc(lastCourseName(r))}</span>`:''}</small><h1 class="wb-title">${esc(h)}</h1></div>${receiptAvailable?`<button type="button" class="wb-sign wb-sign-standard reward-packed-earned" data-action="reward-earnings" aria-label="${earned} Stored Sparks earned. View breakdown.">${resourceSymbol('packed')}<b>+${earned}</b><span>Earned · Details</span></button>`:''}</header>`;
+ const head=(small,h,step='')=>`<header class="artifact-reward-heading wbf-head"><div class="wbf-titles"><small class="wb-context">${esc(small)}${step?` · ${esc(step)}`:''}${!stop&&lastCourseName(r)?` · <span class="flight-course-name">${esc(lastCourseName(r))}</span>`:''}</small><h1 class="wb-title">${esc(h)}</h1></div>${receiptAvailable?`<button type="button" class="wb-sign wb-sign-standard reward-packed-earned" data-action="reward-earnings" aria-label="${earned} Stored Sparks earned. View breakdown.">${resourceSymbol('packed')}<b>+${earned}</b><span>Earned · Details</span></button>`:''}</header>`;
  const shell=(inner,foot)=>`<section class="artifact-reward-screen accumulating-rewards scribe-screen rw-screen wb-reskin wb-ground wb-inline wb-framed ${open?'reward-open':'reward-resolved'}">${inner}<footer class="artifact-reward-actions">${foot}</footer></section>`;
  if(!open){
   const i=getInscription(reward.chosen);
   return shell(head(SCRIBE_KICKER,title)+`<div class="scribe-written" role="status">${i?insCard(reward.chosen,false):''}<p class="scribe-result">Written on slot ${(reward.slot??0)+1}${reward.replaced?`, replacing ${esc(getInscription(reward.replaced)?.name||'the old one')}`:''}.</p></div>`,
    `${deckAvailable?'<button type="button" class="wb-sign wb-sign-standard" data-action="cards"><span>Deck</span></button>':''}<button type="button" class="wb-sign wb-sign-primary" data-action="${stop?'leave-scribe':'victory-next'}">${stop?'Back to map':'Continue'}</button>`);
  }
- if(!picked)return shell(head(SCRIBE_KICKER,'Choose an Inscription')+second+`<div class="scribe-offers" aria-label="Choose an Inscription">${reward.offers.map(id=>insCard(id,true)).join('')}</div>`,`<span class="artifact-choice-instruction">Next: choose the slot to write it on</span>`);
- const i=getInscription(picked),slots=Array.from({length:r.cardSlots||0},(_,n)=>n);
- if(Number.isInteger(scribe.slot)&&slotInscriptionId(r,scribe.slot)){
-  const old=getInscription(slotInscriptionId(r,scribe.slot));
-  return shell(head(SCRIBE_KICKER,'Replace this Inscription?')+`<div class="scribe-confirm"><div class="scribe-swap" aria-hidden="true"><span>${inscriptionGlyph(old.id,{size:48})}<b>${esc(old.name)}</b></span><span>${inscriptionGlyph(i.id,{size:48})}<b>${esc(i.name)}</b></span></div><p>Slot ${scribe.slot+1} already carries <b>${esc(old.name)}</b>: ${esc(old.text)}</p><p>Writing <b>${esc(i.name)}</b> there erases it. This cannot be undone.</p></div>`,
-   `<button type="button" class="wb-sign wb-sign-quiet" data-action="scribe-slot-back"><span>Back</span></button><button type="button" class="wb-sign wb-sign-primary" data-action="scribe-confirm" aria-label="Replace ${esc(old.name)} with ${esc(i.name)} on slot ${scribe.slot+1}"><span>Replace</span></button>`);
- }
- return shell(head(SCRIBE_KICKER,'Choose a slot')+second+`<div class="scribe-pick"><aside class="scribe-chosen scribe-${i.kind}" aria-label="Chosen Inscription"><span class="scribe-mark">${inscriptionGlyph(i.id,{size:48})}</span><h2>${esc(i.name)}</h2><p>${cardTermTextMarkup(i.text)}</p><small class="scribe-kind">${esc(INSCRIPTION_KIND_WORDS[i.kind])}</small><button type="button" class="wb-sign wb-sign-quiet scribe-back" data-action="scribe-back"><span>Back</span></button></aside><div class="scribe-slots" role="group" aria-label="Chain slots" style="--slots:${slots.length}">${slots.map(n=>scribeSlot(r,n,i)).join('')}</div></div>`,'');
+ // One screen (inscription-write.mjs): the offers above, the Chain below, the result shown on the chosen slot, then Write.
+ const note=r.pendingTemporary?`Then: ${r.pendingTemporary.permanent?'a chest find':'a temporary Inscription'}, ${getInscription(r.pendingTemporary.id)?.name||''}`:'';
+ return inscriptionWriteMarkup(r,{offers:reward.offers,picked,slot:Number.isInteger(scribe.slot)?scribe.slot:null,kicker:`${SCRIBE_KICKER}${note?` · ${note}`:''}`,title:'Write an Inscription'});
 }
 export function flightRewardMarkup(state,{artifactArt=artifactIcon,upgradeCount=0,skillsAvailable=true,deckAvailable=false,acquiredPresentation='horizontal',scribe=null}={}){
  if(state.run?.flightReward?.kind==='inscription'){
@@ -101,7 +100,7 @@ function tempSlot(r,n,i){
  const perm=i.temporary?null:getInscription(permanentOnSlot(r,n)),shown=i.temporary?cur:perm,onTop=!i.temporary&&cur?.temporary?` · ${cur.name} stays on top`:'';
  const pic=card?`<span class="scribe-slot-pic">${cardArt({cardId:card.cardId,rarity:card.rarity||def?.rarity,name},{compact:true})}</span>`:'<span class="scribe-slot-pic scribe-slot-pic-empty" aria-hidden="true"></span>';
  const words=i.temporary?(!cur?'No Inscription':cur.temporary?`Replaces: ${cur.name}${cur.until?'':` (${entry.flightsLeft} left)`}${under?`, still covering ${under.name}`:''}`:`Covers: ${cur.name} (comes back)`):`${perm?`Replaces: ${perm.name}`:'No Inscription'}${onTop}`;
- const what=shown?`<span class="scribe-slot-ins scribe-slot-covers">${inscriptionGlyph(shown.id,{size:16})}<span>${esc(words)}</span></span>`:`<span class="scribe-slot-ins scribe-slot-none"><span>${esc(words)}</span></span>`;
+ const what=shown?`<span class="scribe-slot-ins scribe-slot-covers">${inscriptionGlyph(shown.id,{role:'list'})}<span>${esc(words)}</span></span>`:`<span class="scribe-slot-ins scribe-slot-none"><span>${esc(words)}</span></span>`;
  return `<button type="button" class="scribe-slot${shown?' scribe-slot-inscribed':''}${card?'':' scribe-slot-empty'}" data-action="temp-slot" data-slot="${n}" aria-label="Slot ${n+1}, ${card?esc(name):'empty'}. ${esc(words)}"><b class="scribe-slot-n">Slot ${n+1}</b>${pic}<span class="scribe-slot-name">${card?esc(name):'Empty slot'}</span>${what}</button>`;
 }
 const WRITE_SOURCE=Object.freeze({'route-bonus':'Objective reward',event:'Event reward',chest:'Chest find'});
@@ -112,24 +111,26 @@ export function temporaryWriteMarkup(state,{slot=null}={}){
  // Two kinds share this screen: a TEMPORARY Inscription (events, objectives: dashed ring, "Temporary Inscription") and a PERMANENT chest find.
  const slots=Array.from({length:r.cardSlots||0},(_,n)=>n),perm=!i.temporary,oath=!!i.until,kind=perm?'Chest find — permanent Inscription':oath?'Oath Inscription':'Temporary Inscription';
  const when=perm?'Permanent':oath?'Stays until fulfilled':`${p.flights} ${p.flights===1?'flight':'flights'}`;
- const sourceWords=perm?'Chest find: permanent, kept for the whole run':`${WRITE_SOURCE[p.source]||'Reward'}: ${oath?'stays until fulfilled':`lasts ${when}`}`;
+ const sourceWords=perm?'Chest find: kept for the whole run. Choose a slot.':`${WRITE_SOURCE[p.source]||'Reward'}: ${oath?'stays until fulfilled':`lasts ${when}`}. Choose a slot.`;
  const head=h=>`<header class="artifact-reward-heading wbf-head"><div class="wbf-titles"><small class="wb-context">${kind}${p.label?` · ${esc(p.label)}`:''}</small><h1 class="wb-title">${esc(h)}</h1></div></header>`;
  const shell=(inner,foot)=>`<section class="artifact-reward-screen accumulating-rewards scribe-screen rw-screen wb-reskin wb-ground wb-inline wb-framed reward-open ${perm?'permanent-write':'temporary-write'}">${inner}<footer class="artifact-reward-actions">${foot}</footer></section>`;
- const chosen=`<aside class="scribe-chosen ${perm?'scribe-permanent':'scribe-temporary'}" aria-label="Chosen Inscription"><span class="scribe-mark${perm?'':' scribe-mark-temp'}">${inscriptionGlyph(i.id,{size:48})}</span><h2>${esc(i.name)}</h2><p>${cardTermTextMarkup(i.text)}</p><small class="scribe-source"><b>${esc(sourceWords)}.</b> Choose a slot.</small><small class="scribe-kind">${esc(when)}. ${esc(perm?INSCRIPTION_KIND_WORDS[i.kind]:INSCRIPTION_KIND_WORDS.temporary)}</small></aside>`;
+ const chosen=chosenAside(i,{temp:!perm,flights:p.flights,source:sourceWords});
+ // A permanent chest find: the one-screen writer (one offer, already selected).
+ if(perm)return inscriptionWriteMarkup(r,{offers:[i.id],picked:i.id,slot,kicker:'Chest find — permanent Inscription',title:'Write an Inscription',actions:{pick:'temp-pick',slot:'temp-slot',write:'temp-write'},className:'permanent-write'});
  const pv=Number.isInteger(slot)?previewPendingTemporary(r,slot):null;
  if(pv?.needsConfirm){
   if(perm){
    const old=getInscription(pv.replaces),top=pv.beneath?getInscription(pv.beneath):null;
-   return shell(head('Replace this Inscription?')+`<div class="scribe-confirm"><div class="scribe-swap" aria-hidden="true"><span>${inscriptionGlyph(old.id,{size:48})}<b>${esc(old.name)}</b></span><span>${inscriptionGlyph(i.id,{size:48})}<b>${esc(i.name)}</b></span></div><p>Slot ${slot+1} already carries <b>${esc(old.name)}</b>: ${esc(old.text)}</p><p>Writing <b>${esc(i.name)}</b> there erases it. This cannot be undone.${top?` The temporary Inscription <b>${esc(top.name)}</b> stays on top and ${esc(i.name)} works when it ends.`:''}</p></div>`,
+   return shell(head('Replace this Inscription?')+`<div class="scribe-confirm"><div class="scribe-swap" aria-hidden="true"><span>${inscriptionGlyph(old.id,{role:'large'})}<b>${esc(old.name)}</b></span><span>${inscriptionGlyph(i.id,{role:'large'})}<b>${esc(i.name)}</b></span></div><p>Slot ${slot+1} already carries <b>${esc(old.name)}</b>: ${esc(old.text)}</p><p>Writing <b>${esc(i.name)}</b> there erases it. This cannot be undone.${top?` The temporary Inscription <b>${esc(top.name)}</b> stays on top and ${esc(i.name)} works when it ends.`:''}</p></div>`,
     `<button type="button" class="wb-sign wb-sign-quiet" data-action="temp-slot-back"><span>Back</span></button><button type="button" class="wb-sign wb-sign-primary" data-action="temp-confirm" aria-label="Replace ${esc(old.name)} with ${esc(i.name)} on slot ${slot+1}"><span>Replace</span></button>`);
   }
   const old=getInscription(pv.replacesTemporary||pv.covers),covers=!pv.replacesTemporary;
   const body=covers
    ?`<p>Slot ${slot+1} carries <b>${esc(old.name)}</b>: ${esc(old.text)}</p><p><b>${esc(i.name)}</b> covers it. <b>${esc(old.name)}</b> stops working, then comes back by itself when ${esc(i.name)} ends (${esc(when.toLowerCase())}).</p>`
    :`<p>Slot ${slot+1} carries <b>${esc(old.name)}</b>, a temporary Inscription.</p><p>Writing <b>${esc(i.name)}</b> there replaces it. ${pv.covers?`The permanent Inscription beneath it, <b>${esc(getInscription(pv.covers).name)}</b>, stays covered until ${esc(i.name)} ends.`:''}</p>`;
-  return shell(head(covers?'Cover this Inscription?':'Replace this Inscription?')+`<div class="scribe-confirm"><div class="scribe-swap" aria-hidden="true"><span>${inscriptionGlyph(old.id,{size:48})}<b>${esc(old.name)}</b></span><span class="scribe-mark-temp">${inscriptionGlyph(i.id,{size:48})}<b>${esc(i.name)}</b></span></div>${body}</div>`,
+  return shell(head(covers?'Cover this Inscription?':'Replace this Inscription?')+`<div class="scribe-confirm"><div class="scribe-swap" aria-hidden="true"><span>${inscriptionGlyph(old.id,{role:'large'})}<b>${esc(old.name)}</b></span><span class="scribe-mark-temp">${inscriptionGlyph(i.id,{role:'large'})}<b>${esc(i.name)}</b></span></div>${body}</div>`,
    `<button type="button" class="wb-sign wb-sign-quiet" data-action="temp-slot-back"><span>Back</span></button><button type="button" class="wb-sign wb-sign-primary" data-action="temp-confirm" aria-label="${covers?'Cover':'Replace'} ${esc(old.name)} with ${esc(i.name)} on slot ${slot+1}"><span>${covers?'Cover':'Replace'}</span></button>`);
  }
- const foot=`<span class="artifact-choice-instruction">${esc(perm?giftSentence(i):temporaryLine(i.id,p.flights))}</span>`;
- return shell(head(perm?'Choose a slot':oath?'Oath Inscription':'Temporary Inscription')+`<div class="scribe-pick">${chosen}<div class="scribe-slots" role="group" aria-label="Chain slots" style="--slots:${slots.length}">${slots.map(n=>tempSlot(r,n,i)).join('')}</div></div>`,foot);
+  const foot=`<span class="artifact-choice-instruction">${esc(temporaryLine(i.id,p.flights))}</span>`;
+ return shell(head(oath?'Oath Inscription':'Temporary Inscription')+`<div class="scribe-pick">${chosen}<div class="scribe-slots" role="group" aria-label="Chain slots" style="--slots:${slots.length}">${slots.map(n=>tempSlot(r,n,i)).join('')}</div></div>`,foot);
 }

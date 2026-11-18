@@ -684,7 +684,7 @@ html body .dk.dk21 .dk2-station .dk21-eye{position:absolute;z-index:2;left:50%;t
 /* Chain tab: Trigger list and Play in the left column, above where the Spark starts. */
 .dk21-left{grid-row:1/4;grid-column:1;align-self:end;display:flex;flex-direction:column;gap:4px;min-width:0;padding:0 4px 6px 0}
 .dk21-thead{margin:0;font:400 11px/12px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:var(--ink-soft)}
-.dk21-chips{display:flex;flex-direction:column;gap:4px}
+.dk21-chips{display:flex;flex-direction:column;gap:6px}
 html body .dk.dk21 .dk21-chip{display:flex;align-items:center;gap:6px;min-height:44px;padding:0 6px;box-sizing:border-box;border:2px solid var(--rule);background:#ead7a6;color:var(--ink-soft);font:400 12px/13px var(--pixel,monospace);text-align:left}
 html body .dk.dk21 .dk21-chip[aria-checked="true"]{border:4px solid transparent;border-image:var(--fr-plate) 4 fill / 4px stretch;padding:0 4px;color:var(--ink);box-shadow:0 0 0 2px var(--moss)}
 .dk21-none{margin:0;font:400 11px/13px var(--pixel,monospace);color:var(--ink-soft)}
@@ -747,7 +747,7 @@ html body .dk.dk21 .dk21-tile>.dk21-eye{position:absolute;z-index:2;right:6px;to
 @media(max-height:380px){
  .dk21{--eye:40px;--tile-h:76px;--eye-top:25px;--art:40px}
  .dk21-left{gap:3px;padding-bottom:4px}
- .dk21-chips{flex-direction:row;flex-wrap:wrap;gap:4px}
+ .dk21-chips{flex-direction:row;flex-wrap:wrap;gap:6px}
  html body .dk.dk21 .dk21-chip{position:relative;width:44px;height:44px;padding:0;justify-content:center}
  html body .dk.dk21 .dk21-chip[aria-checked="true"]{padding:0}
  html body .dk.dk21 .dk21-chip>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
@@ -873,7 +873,7 @@ html body .dk.dk22[data-view="deck"] .dk22-shuffle{display:none}
  .dk22-eq{left:calc(var(--medal) / -2 - 10px);width:14px;height:10px;top:-5px;border-width:3px 0}
  .dk22-old,.dk22 .dk21-plate>b.dk22-new{font-size:15px;line-height:18px}
  /* Short screens: Trigger keywords as 44×44 icons (the shown one marked); choosing happens in the glossary panel. */
- .dk22 .dk21-chips{flex-direction:row;flex-wrap:wrap;gap:4px}
+ .dk22 .dk21-chips{flex-direction:row;flex-wrap:wrap;gap:6px}
  .dk22-trow{padding:0;width:44px;height:44px;justify-content:center}
  html body .dk.dk22 .dk22-tsel{display:none}
  html body .dk.dk22 .dk22-trow .dk22-term{width:44px;height:44px;justify-content:center;padding:0}

@@ -9,7 +9,7 @@ const PULSE_SOURCE_KINDS=new Set(['pickup','card']);
 // Reach = the far corner of the screen ahead of the wisp (visible width ahead, full height), never a Spark beyond the screen.
 export function pulseReach(engine){return Math.max(240,Math.hypot(finite(engine?.width,390)-finite(engine?.player?.x,0),finite(engine?.height,620)));}
 const clamp=(value,lo=0,hi=1)=>Math.max(lo,Math.min(hi,value));
-const REVEAL_BANDS=Object.freeze([[64,.18],[44,.26],[22,.42]]);
+export const REVEAL_BANDS=Object.freeze([[64,.18],[44,.26],[22,.42]]);
 
 // Contact is the expanding boundary reaching the visible pickup shell, never
 // membership in the illuminated disc. Return its entry radius for event order.

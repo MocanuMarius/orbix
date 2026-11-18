@@ -65,62 +65,166 @@ html body .rw-screen .reward-packed-earned>span{font:400 11px/1 var(--pixel,mono
  html body .rw-screen .flight-clear-summary strong{font-size:18px;line-height:20px}
 }
 
-/* ── The Scribe: choose an Inscription, then a slot (docs/inscriptions.md). Menu screens only. Kit colours, whole pixels.
-   Each Inscription shows its own brand mark (dist/inscription-glyphs.mjs) at 48 px. Slot choices fill the panel's height. ── */
-.scribe-screen .scribe-offers,.scribe-screen .scribe-pick{display:flex;gap:12px;align-items:stretch;justify-content:center;padding:0 12px;box-sizing:border-box;min-height:0;height:100%}
-.scribe-screen .scribe-choice,.scribe-screen .scribe-chosen{flex:1 1 0;min-width:0;max-width:280px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;box-sizing:border-box;border:2px solid #6b5335;background:#e8d6a4;color:#2a2118;text-align:center;overflow:auto}
-.scribe-screen .scribe-standalone{border-color:#536430}
+/* ── The Scribe, temporary Inscriptions and chest finds: choose an Inscription, then a slot (docs/inscriptions.md). Menu screens only.
+   Nothing here scrolls at 890×400, 915×412 or 740×333: the panel is a column (title band, content, actions) and the content shrinks.
+   Glyph sizes are whole multiples of the 24-pixel grid only (72 on an offer, 48 beside the slots and on confirms, 24 in a slot line).
+   Kit colours, whole pixels, no gradients. ── */
+/* One size per glyph role, everywhere (dist/inscription-glyphs.mjs, INSCRIPTION_GLYPH_SIZES): whole multiples of the 24 grid (26 for a
+   burned brand). These win over any generic "button svg" or icon rule; a context may only switch to another whole multiple below. */
+html body svg.ins-glyph{flex:none;image-rendering:pixelated;max-width:none;max-height:none;min-width:0;min-height:0;transform:none;filter:none}
+html body svg.ins-glyph-list{width:24px!important;height:24px!important}
+html body svg.ins-glyph-large{width:48px!important;height:48px!important}
+html body svg.ins-glyph-huge{width:72px!important;height:72px!important}
+html body svg.ins-glyph-brand{width:26px!important;height:26px!important}
+html body #dk-root .dk2-empty .dk2-ins-brand svg.ins-glyph-brand{width:52px!important;height:52px!important}
+/* The map's Scribe stop is drawn with the Whetted glyph (map-guide.mjs): whole multiples in every place a stop icon is shown, never
+   the generic stop-icon sizes (26×30, 64…) that would stretch it. Inside the scaled map picture itself it follows the map's scale. */
+html body svg.ins-glyph.map-symbol-scribe{width:48px!important;height:48px!important;image-rendering:pixelated}
+html body .support-symbol>svg.ins-glyph.map-symbol-scribe{width:72px!important;height:72px!important}
+html body :is(.route-entry-rest,.route-consequences b,.wallet-rest-marker,.skill-purchase,.tree-rest-notice,.tree-selection-status,.mock-toggle)>svg.ins-glyph.map-symbol-scribe{width:24px!important;height:24px!important}
+.scribe-screen{min-height:0;overflow:hidden}
+.scribe-screen>.artifact-reward-actions:empty{display:none}
+.scribe-screen .ins-glyph{display:block;flex:none;image-rendering:pixelated}
+/* Step 1: two wide offer cards side by side. Mark at the left, name + tag + one keyword line at the right, Choose along the bottom. */
+.scribe-screen .scribe-offers{display:grid;grid-template-columns:repeat(var(--offers,2),minmax(0,1fr));gap:12px;align-items:stretch;min-height:0;height:100%;padding:0 12px;box-sizing:border-box;max-width:820px;width:100%;margin:0 auto}
+.scribe-screen .scribe-choice{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;column-gap:12px;row-gap:8px;align-items:center;min-width:0;min-height:0;padding:10px 12px;box-sizing:border-box;border:2px solid #6b5335;background:#e8d6a4;color:#2a2118;overflow:hidden}
+.scribe-screen .scribe-choice.scribe-standalone{border-color:#536430}
 .scribe-screen .scribe-mark{display:block;flex:none;line-height:0;color:#2a2118}
-.scribe-screen .scribe-mark .ins-glyph{display:block;image-rendering:pixelated}
+.scribe-screen .scribe-copy{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0}
 .scribe-screen .scribe-choice h2,.scribe-screen .scribe-chosen h2{margin:0;font:400 18px/22px var(--pixel,monospace);letter-spacing:1px;overflow-wrap:anywhere}
-.scribe-screen .scribe-kind{font:400 12px/14px var(--pixel,monospace);color:#5a4632}
-.scribe-screen .scribe-choice p,.scribe-screen .scribe-chosen p{margin:0;flex:1 0 auto;font:400 14px/17px var(--pixel,monospace);overflow-wrap:anywhere}
-.scribe-screen .scribe-choice .wb-sign,.scribe-screen .scribe-chosen .wb-sign{align-self:stretch;flex:none;min-height:44px}
-.scribe-screen .scribe-chosen{flex:0 0 196px}
-.scribe-screen .scribe-chosen p{flex:0 1 auto}
-.scribe-screen .scribe-chosen .scribe-back{margin-top:auto}
-.scribe-screen .scribe-slots{flex:1 1 0;min-width:0;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(112px,1fr);gap:8px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity}
-.scribe-screen .scribe-slot{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;min-width:0;min-height:0;height:100%;margin:0;padding:8px 6px;box-sizing:border-box;border:2px solid #6b5335;background:#e8d6a4;color:#2a2118;text-align:center;font:400 13px/15px var(--pixel,monospace);cursor:pointer;scroll-snap-align:start;overflow:hidden}
+.scribe-screen .scribe-choice .scribe-choose{grid-column:1/-1;align-self:end;justify-self:stretch;min-height:44px;margin:0}
+/* The tag: "Card" / "Slot" (glossary links) or how long a temporary one lasts. */
+.scribe-screen .ins-tag{display:inline-flex;align-items:center;min-height:20px;padding:0 6px;box-sizing:border-box;border:2px solid #6b5335;font:400 12px/16px var(--pixel,monospace);color:#2a2118;letter-spacing:1px}
+.scribe-screen .scribe-standalone .ins-tag,.scribe-screen .scribe-chosen.scribe-standalone .ins-tag{border-color:#536430}
+.scribe-screen .ins-tag-temp{border-color:#a4561f;border-style:dashed;color:#6b3410}
+html body .scribe-screen .ins-tag .card-term{min-height:0;padding:0;border:0;background:none!important;box-shadow:none;color:inherit!important;font:inherit;letter-spacing:inherit;text-decoration:underline dotted;text-underline-offset:3px}
+/* One keyword line on the dark plaque (light text, about 12:1); linked words keep the text colour, dotted underline only. */
+.scribe-screen .scribe-rule,.scribe-screen .scribe-confirm p{margin:0;align-self:stretch;padding:6px 8px;box-sizing:border-box;background:#2a2118;color:#f6ebcc;border:2px solid #6b5335;font:400 15px/19px var(--pixel,monospace);text-align:left;overflow-wrap:anywhere}
+html body .scribe-screen :is(.scribe-rule,.scribe-confirm p) :is(.card-term,.card-term *){color:inherit!important;background:none!important;box-shadow:none!important;text-shadow:none}
+html body .scribe-screen :is(.scribe-rule,.scribe-confirm p) .card-term{display:inline;margin:0;padding:0;border:0;min-height:0;font:inherit;text-decoration:underline dotted;text-underline-offset:3px}
+html body .scribe-screen :is(.scribe-rule,.scribe-confirm p,.ins-tag) .card-term-icon{display:none!important}
+/* Step 2: the chosen Inscription beside the slots. Up to 6 slots share the width: the boxes shrink, nothing scrolls. */
+.scribe-screen .scribe-pick{display:flex;gap:10px;align-items:stretch;min-height:0;height:100%;padding:0 12px;box-sizing:border-box}
+.scribe-screen .scribe-chosen{flex:0 0 200px;min-width:0;min-height:0;display:flex;flex-direction:column;gap:6px;padding:8px;box-sizing:border-box;border:2px solid #6b5335;background:#e8d6a4;color:#2a2118;overflow:hidden}
+.scribe-screen .scribe-chosen-id{display:flex;align-items:center;gap:8px;min-width:0}
+.scribe-screen .scribe-chosen-id>div{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0}
+.scribe-screen .scribe-chosen .scribe-rule{font-size:14px;line-height:17px}
+.scribe-screen .scribe-chosen .scribe-back{margin-top:auto;align-self:stretch;min-height:44px;flex:none}
+.scribe-screen .scribe-temporary{border-color:#a4561f;border-style:dashed}
+.scribe-screen .scribe-mark-temp{padding:2px;border:2px dashed #a4561f}
+.scribe-screen .scribe-source{font:400 12px/15px var(--pixel,monospace);color:#6b3410;overflow-wrap:anywhere}
+.scribe-screen .scribe-slots{flex:1 1 0;min-width:0;min-height:0;display:grid;grid-template-columns:repeat(var(--slots,3),minmax(0,1fr));gap:6px}
+.scribe-screen .scribe-slot{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;min-width:0;min-height:0;margin:0;padding:6px 4px;box-sizing:border-box;border:2px solid #6b5335;background:#e8d6a4;color:#2a2118;text-align:center;font:400 13px/15px var(--pixel,monospace);cursor:pointer;overflow:hidden}
 .scribe-screen .scribe-slot:hover,.scribe-screen .scribe-slot:focus-visible{background:#f3e5bb;outline:2px solid #2a2118;outline-offset:-6px}
 .scribe-screen .scribe-slot:active{background:#dcc693}
 .scribe-screen .scribe-slot-inscribed{border-color:#2a2118}
 .scribe-screen .scribe-slot-empty{background:#dcc693}
-.scribe-screen .scribe-slot-n{flex:none;font:400 15px/17px var(--pixel,monospace);letter-spacing:1px}
+.scribe-screen .scribe-slot-n{flex:none;font:400 14px/16px var(--pixel,monospace);letter-spacing:1px}
 .scribe-screen .scribe-slot-pic{flex:none;display:block;width:48px;height:48px;line-height:0;border:2px solid #6b5335;background:#cdbb88}
 .scribe-screen .scribe-slot-pic>svg{display:block;width:48px;height:48px;image-rendering:pixelated}
 .scribe-screen .scribe-slot-pic-empty{border-style:dashed;background:none}
 .scribe-screen .scribe-slot-name{flex:none;max-width:100%;overflow-wrap:anywhere;hyphens:auto}
-.scribe-screen .scribe-slot-ins{flex:none;display:flex;align-items:center;justify-content:center;gap:4px;max-width:100%;margin-top:auto;padding-top:4px;border-top:2px solid #b49a68;font:400 12px/14px var(--pixel,monospace);color:#2a2118;text-align:left}
+.scribe-screen .scribe-slot-ins{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;max-width:100%;margin-top:auto;padding-top:4px;border-top:2px solid #b49a68;font:400 12px/14px var(--pixel,monospace);color:#2a2118;text-align:center}
 .scribe-screen .scribe-slot-ins>span{min-width:0;overflow-wrap:anywhere}
-.scribe-screen .scribe-slot-ins .ins-glyph{flex:none;width:16px;height:16px}
 .scribe-screen .scribe-slot-none{color:#5a4632}
-.scribe-screen .scribe-slot-warn{flex:none;max-width:100%;padding:2px 4px;box-sizing:border-box;border:2px solid #7a2f2a;font:400 11px/13px var(--pixel,monospace);color:#7a2f2a;overflow-wrap:anywhere}
-.scribe-screen .scribe-slot-warn{order:9}
-.scribe-screen .scribe-confirm,.scribe-screen .scribe-written{padding:0 16px;display:flex;flex-direction:column;gap:8px;align-items:center}
+.scribe-screen .scribe-slot-covers{color:#6b3410}
+.scribe-screen .scribe-slot-warn{order:9;flex:none;max-width:100%;padding:2px 4px;box-sizing:border-box;border:2px solid #7a2f2a;font:400 11px/13px var(--pixel,monospace);color:#7a2f2a;overflow-wrap:anywhere}
+/* Confirm and written: the two marks side by side, the consequence on the plaque, the actions in the footer. */
+.scribe-screen .scribe-confirm,.scribe-screen .scribe-written{min-height:0;padding:0 16px;display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center}
 .scribe-screen .scribe-swap{display:flex;gap:28px;align-items:flex-end}
-.scribe-screen .scribe-swap>span{display:flex;flex-direction:column;align-items:center;gap:4px;font:400 13px/15px var(--pixel,monospace)}
-.scribe-screen .scribe-swap>span:first-child{opacity:.55}
+.scribe-screen .scribe-swap>span{display:flex;flex-direction:column;align-items:center;gap:4px;font:400 13px/15px var(--pixel,monospace);color:#2a2118}
 .scribe-screen .scribe-swap b{font-weight:400}
-.scribe-screen .scribe-confirm p,.scribe-screen .scribe-result{margin:0;font:400 15px/19px var(--pixel,monospace);max-width:520px;text-align:center}
-.scribe-screen>.artifact-reward-actions:empty{display:none}
+.scribe-screen .scribe-confirm p{align-self:center;max-width:560px;text-align:center;padding:6px 12px}
+.scribe-screen .scribe-result{margin:0;font:400 15px/19px var(--pixel,monospace);text-align:center}
+.scribe-screen .scribe-written .scribe-choice{width:min(420px,100%);grid-template-rows:auto}
+.scribe-screen .scribe-second-note{margin:0 0 4px;text-align:center;font:400 13px/16px var(--pixel,monospace);color:#6b3410}
+/* Short landscape phones (740×333 and lower): smaller paddings and type; the marks keep whole multiples (72 → 48 on offers). */
 @media(orientation:landscape) and (max-height:350px){
- .scribe-screen .scribe-choice,.scribe-screen .scribe-chosen{padding:6px 8px;gap:3px}
- .scribe-screen .scribe-chosen{flex-basis:168px}
- .scribe-screen .scribe-mark .ins-glyph{width:32px;height:32px}
- .scribe-screen .scribe-choice p,.scribe-screen .scribe-chosen p{font-size:13px;line-height:15px}
- .scribe-screen .scribe-slot{padding:5px 4px;gap:3px}
+ .scribe-screen .scribe-choice{padding:6px 8px;row-gap:6px}
+ html body .scribe-screen .scribe-choice svg.ins-glyph-huge{width:48px!important;height:48px!important}
+ .scribe-screen .scribe-choice h2,.scribe-screen .scribe-chosen h2{font-size:16px;line-height:19px}
+ .scribe-screen .scribe-rule{font-size:13px;line-height:16px;padding:4px 6px}
+ .scribe-screen .scribe-chosen{flex-basis:176px;padding:6px;gap:4px}
+ html body .scribe-screen .scribe-chosen svg.ins-glyph-large{width:24px!important;height:24px!important}
+ .scribe-screen .scribe-slot{padding:4px 2px;gap:2px}
+ .scribe-screen .scribe-slot-pic,.scribe-screen .scribe-slot-pic>svg{width:36px;height:36px}
 }
-/* Inscription rule text on the kit's dark plaque colour, light text (about 12:1), padded, wrapping */
-.scribe-screen .scribe-choice p,.scribe-screen .scribe-chosen p,.scribe-screen .scribe-confirm p{align-self:stretch;padding:6px 8px;box-sizing:border-box;background:#2a2118;color:#f6ebcc;border:2px solid #6b5335;text-align:left;overflow-wrap:anywhere}
-.scribe-screen .scribe-confirm p{align-self:center;text-align:center;padding:8px 12px}
-.scribe-screen .scribe-choice p .card-term,.scribe-screen .scribe-chosen p .card-term,.scribe-screen .scribe-confirm p .card-term,.scribe-screen .scribe-choice p button,.scribe-screen .scribe-chosen p button,.scribe-screen .scribe-confirm p button{color:#f2dfad}
-html body .scribe-screen :is(.scribe-choice,.scribe-chosen,.scribe-confirm) p :is(.card-term,.card-term *,button){color:#f2dfad!important;text-shadow:none}
-.scribe-screen .scribe-temporary{border-color:#a4561f;border-style:dashed}
-.scribe-screen .scribe-slot-covers{color:#a4561f}
-.scribe-screen .scribe-swap>span:first-child{opacity:1}
-/* Temporary Inscription slot screen: the chosen glyph wears the dashed accent ring of a temporary brand; the Scribe note says a second choice follows. */
-.scribe-screen .scribe-mark-temp{padding:6px;border:3px dashed #a4561f;border-radius:50%}
-.scribe-screen .scribe-mark-temp b{display:block}
-.scribe-screen .scribe-source{font:400 13px/16px var(--pixel,monospace);color:#6b3410;overflow-wrap:anywhere}
-.scribe-screen .scribe-source b{font-weight:700}
-.scribe-screen .scribe-second-note{margin:0 0 6px;text-align:center;font:400 14px/17px var(--pixel,monospace);color:#6b3410}
+/* ── One-screen Inscription writer (dist/inscription-write.mjs): title band with the hint and Write, the offers in a row, the Chain
+   below with every slot visible (3 to 6, shrinking evenly). A stretched button selects an offer or a slot; "?" buttons and keyword
+   links sit above it and open the glossary. Nothing scrolls at 890×400, 915×412, 740×333. Glyphs: 48 on an offer, 24 in a slot. ── */
+@media(orientation:landscape){html body[data-screen=temporary]>#app{height:calc(100dvh - var(--menu-header,53px))!important;min-height:0!important;overflow:hidden}}
+/* A definite height (the viewport under the 54 px game header, less the frame's margins) so the Chain row shrinks instead of growing the page. */
+html body .scribe-screen.ins-write{display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:8px;height:calc(100dvh - 54px - 22px);max-height:calc(100dvh - 54px - 22px);min-height:0;box-sizing:border-box;overflow:hidden}
+html body .ins-write .iw-head{display:flex;align-items:center;gap:12px;min-width:0;margin:0;padding:3px 64px 3px 12px;box-sizing:border-box;background:#2a2118;border-bottom:2px solid #6b5335;color:#f6ebcc}
+.ins-write .iw-titles{flex:0 0 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
+.ins-write .iw-kicker{font:400 11px/13px var(--pixel,monospace);letter-spacing:1px;color:#d8c89a;text-transform:uppercase}
+html body .ins-write .iw-title{margin:0;font:400 18px/22px var(--pixel,monospace);letter-spacing:2px;color:#f6ebcc;text-transform:uppercase;white-space:nowrap}
+.ins-write .iw-hint{flex:1 1 auto;min-width:0;text-align:right;font:400 13px/16px var(--pixel,monospace);color:#f6ebcc;overflow-wrap:anywhere}
+html body .ins-write .iw-head .iw-write{flex:0 0 auto!important;width:auto!important;min-width:128px;max-width:200px;min-height:44px;height:44px;margin:0!important;padding:0 18px!important}
+.ins-write .iw-write:disabled{opacity:.45;cursor:not-allowed}
+.ins-write .iw-offers{display:grid;grid-template-columns:repeat(var(--offers,2),minmax(0,1fr));gap:10px;padding:0 12px;min-width:0}
+.ins-write .iw-offers[style*="--offers:1"]{grid-template-columns:minmax(0,520px);justify-content:center}
+.ins-write .iw-offer,.ins-write .iw-slot{position:relative;min-width:0;box-sizing:border-box;border:2px solid #6b5335;background:#e8d6a4;color:#2a2118}
+.ins-write .iw-offer{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"mark copy help" "mark rule rule";column-gap:10px;row-gap:3px;align-items:center;padding:3px 8px}
+.ins-write .iw-offer.scribe-standalone{border-color:#536430}
+.ins-write .iw-offer>.scribe-mark{grid-area:mark}
+.ins-write .iw-offer-copy{grid-area:copy;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;min-width:0}
+.ins-write .iw-offer-copy h2{margin:0;font:400 17px/20px var(--pixel,monospace);letter-spacing:1px}
+.ins-write .iw-offer>.iw-help{grid-area:help}
+.ins-write .iw-offer>.scribe-rule{grid-area:rule;font-size:14px;line-height:17px;padding:3px 6px}
+.ins-write .iw-select{position:absolute;inset:0;z-index:1;width:100%;height:100%;margin:0;padding:0;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ins-write .iw-select:focus-visible{outline:3px solid #2a2118;outline-offset:-5px}
+.ins-write :is(.iw-offer,.iw-slot)>:not(.iw-select){position:relative;z-index:2;pointer-events:none}
+.ins-write :is(.iw-help,.iw-brand-help,.card-term){pointer-events:auto}
+.ins-write .iw-on{background:#f6e7b8;border-color:#2a2118;box-shadow:inset 0 0 0 2px #2a2118}
+.ins-write .iw-offer.iw-on::after,.ins-write .iw-slot.iw-on::after{content:"✓";position:absolute;z-index:3;left:-2px;top:-2px;width:18px;height:18px;background:#2a2118;color:#f6ebcc;font:400 13px/18px var(--pixel,monospace);text-align:center;pointer-events:none}
+.ins-write .iw-help{display:grid;place-items:center;width:28px;height:28px;margin:-4px -4px -4px 0;padding:0;border:2px solid #6b5335;background:#f3e5bb;color:#2a2118;font:400 14px/1 var(--pixel,monospace);cursor:pointer}
+.ins-write .iw-help::before{content:"";position:absolute;inset:-8px}
+.ins-write .iw-help{position:relative}
+.ins-write .iw-chain{display:grid;grid-template-columns:repeat(var(--slots,3),minmax(0,1fr));gap:6px;padding:0 12px 4px;min-height:0;min-width:0}
+.ins-write .iw-slot{display:flex;flex-direction:column;align-items:stretch;gap:2px;min-height:0;padding:3px 4px 4px;text-align:left;overflow:hidden;font:400 12px/14px var(--pixel,monospace)}
+.ins-write .iw-slot-empty{background:#dcc693}
+.ins-write .iw-slot-head{display:flex;align-items:center;justify-content:space-between;min-height:24px}
+.ins-write .iw-slot.iw-on .iw-slot-head{padding-left:16px}
+.ins-write .iw-slot-head .scribe-slot-n{font:400 13px/16px var(--pixel,monospace);letter-spacing:1px}
+.ins-write .iw-slot-head .iw-help{width:24px;height:24px;margin:0;font-size:12px}
+.ins-write .iw-card{display:flex;align-items:center;gap:4px;min-width:0}
+.ins-write .iw-card-text{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0}
+.ins-write .iw-pic{flex:none;display:block;width:32px;height:32px;line-height:0;border:2px solid #6b5335;background:#cdbb88}
+.ins-write .iw-pic>svg{display:block;width:32px;height:32px;image-rendering:pixelated}
+.ins-write .iw-pic-empty{border-style:dashed;background:none}
+.ins-write .iw-name{max-width:100%;font:400 12px/13px var(--pixel,monospace);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ins-write .iw-plate{max-width:100%;padding:0 3px;box-sizing:border-box;background:#2a2118;color:#f6ebcc;font:400 11px/14px var(--pixel,monospace);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ins-write .iw-ins{display:flex;flex-direction:column;align-items:flex-start;gap:1px;margin-top:auto;padding-top:2px;border-top:2px solid #b49a68;min-width:0}
+.ins-write .iw-brand{display:block;max-width:100%}
+.ins-write .iw-brand-help{display:inline-flex;align-items:center;gap:4px;max-width:100%;min-height:26px;margin:0;padding:0;border:0;background:none;color:#2a2118;font:400 12px/13px var(--pixel,monospace);text-align:left;cursor:pointer}
+.ins-write .iw-brand-help{position:relative}
+.ins-write .iw-brand-help::before{content:"";position:absolute;inset:-6px -2px}
+.ins-write .iw-brand-help>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:underline dotted;text-underline-offset:3px}
+.ins-write .iw-brand-new .iw-brand-help{color:#1f3a14}
+.ins-write .iw-brand-temp .ins-glyph{outline:2px dashed #a4561f;outline-offset:-1px}
+.ins-write .iw-old{display:block;max-width:100%;color:#7a2f2a;font:400 11px/13px var(--pixel,monospace);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ins-write .iw-result{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:100%;padding:1px 3px;box-sizing:border-box;background:#2a2118;color:#f6ebcc;font:400 11px/13px var(--pixel,monospace);overflow-wrap:anywhere}
+.ins-write .iw-result.iw-warn{background:#7a2f2a;color:#fff1c5}
+.ins-write .iw-none,.ins-write .iw-under{color:#5a4632;font:400 11px/14px var(--pixel,monospace)}
+html body .ins-write .scribe-rule .card-term{display:inline;margin:0}
+@media(orientation:landscape) and (max-height:350px){
+ html body .scribe-screen.ins-write{gap:5px}
+ .ins-write .iw-offer{padding:4px 6px;row-gap:2px}
+ .ins-write .iw-offer>.scribe-rule{font-size:13px;line-height:15px;padding:2px 5px}
+ .ins-write .iw-offer-copy h2{font-size:15px;line-height:18px}
+ .ins-write .iw-slot{padding:2px 3px 4px}
+ .ins-write .iw-hint{font-size:12px;line-height:14px}
+ .ins-write .iw-kicker{display:none}
+ html body .ins-write .iw-head .iw-write{height:40px;min-height:40px}
+ .ins-write .iw-pic{display:none}
+ .ins-write .iw-name{-webkit-line-clamp:1}
+ .ins-write .iw-slot-head{min-height:18px}
+ .ins-write .iw-slot-head .iw-help{width:20px;height:20px;margin:-1px 0}
+ .ins-write .iw-brand-help{min-height:22px}
+ .ins-write .iw-ins{padding-top:1px;gap:0}
+ .ins-write .iw-slot{gap:1px;padding:2px 3px 2px}
+ .ins-write .iw-chain{gap:4px;padding-bottom:2px}
+ .ins-write .iw-slot.iw-on .iw-plate{display:none}
+ .ins-write .iw-result{-webkit-line-clamp:1}
+}

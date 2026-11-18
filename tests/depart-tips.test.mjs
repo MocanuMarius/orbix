@@ -8,8 +8,9 @@ import {TIPS,PRACTICE_TIP_IDS,words,eligibleTips,pickTip,whyLabel,departureRunSt
 import {flightEntryMarkup} from '../dist/flight-entry.mjs';
 import {art} from '../dist/depart-art.mjs';
 
-const TRIGGERS=new Set(['collect','delivery','pulse','flash','overfill','rhythm','falling-lift']);
-const FLAGS=new Set(['always','low-hearts','first-flights','collector','empty-slot','has-stored-sparks','after-death']);
+const TRIGGERS=new Set(['collect','delivery','pulse','flash','overfill','rhythm','falling-lift','save','finish','skim']);
+const ROLES=new Set(['passive','boost','repeat']);
+const FLAGS=new Set(['always','low-hearts','first-flights','collector','empty-slot','has-stored-sparks','after-death','chain-cards','inscribed','devour','rest-ahead','scribe-ahead','can-add-slot']);
 const biomeIds=new Set(BIOMES.map(b=>b.id));
 const hidden=Object.values(CARD_CATALOG).filter(c=>c.retired||c.unreleased);
 function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};}
@@ -27,6 +28,7 @@ test('every tip is short, well formed and names only real, released things',()=>
    else if(key==='trigger')assert.ok(TRIGGERS.has(value),`${tip.id}: trigger ${value}`);
    else if(key==='biome')assert.ok(biomeIds.has(value),`${tip.id}: biome ${value}`);
    else if(key==='hazard')assert.equal(value,'black-hole');
+   else if(key==='role')assert.ok(ROLES.has(value),tip.id+': role '+value);
    else assert.ok(FLAGS.has(key),`${tip.id}: context ${key}`);
   }
   assert.ok(art(tipIcon(tip)).startsWith('<svg'),`${tip.id} has a picture`);
@@ -204,4 +206,52 @@ test('the departure page: fixed slots, no old diagram, Lift line only early or i
  assert.doesNotMatch(late,/Tap again in flight/);
  const off=flightEntryMarkup(run,node,{profile:state.profile,showTips:false});
  assert.match(off,/Ready when you are/);assert.match(off,/class="entry-lift"/);assert.match(off,/wake-flight/);
+});
+
+// ── Edition 5 tutorial: every Trigger, role, Inscription kind, Devour, the strip, Rest and the Scribe has a tip, shown only in context ──
+test('every player Trigger and role, Inscriptions, Devour, the strip, Rest options and the Scribe each have a tip',()=>{
+ const contexts=TIPS.map(t=>t.context);
+ for(const t of ['collect','falling-lift','pulse','delivery','overfill','save','finish','skim'])assert.ok(contexts.some(c=>c.split('&').includes(`trigger:${t}`)),`a ${t} tip`);
+ for(const r of ROLES)assert.ok(contexts.some(c=>c.split('&').includes(`role:${r}`))||r==='repeat'&&contexts.includes('card:echo|echo-ii|echo-iii'),`a ${r} tip`);
+ for(const flag of ['inscribed','devour','chain-cards','rest-ahead','scribe-ahead'])assert.ok(contexts.some(c=>c.split('&').includes(flag)),`a ${flag} tip`);
+ for(const id of ['rest-recover','rest-add-slot','rest-forge','grow-at-rest','strip-white','strip-passive','strip-bar','scribe-ahead'])assert.ok(TIPS.some(t=>t.id===id),id);
+ // Temporary Inscriptions are leaving the game (owner, 18 November 2026): no tip names them.
+ assert.ok(!TIPS.some(t=>/temporary/i.test(t.headline+' '+t.text)));
+});
+
+test('Chain tips follow the Chain: roles, the three new Triggers, Inscriptions, Devour, a Rest or Scribe ahead',()=>{
+ const base={...typical,cards:[],chain:[],filled:0,slots:3,biome:null,hazards:[],stored:0,flight:10,companion:null};
+ const ids=state=>eligibleTips(state).map(t=>t.id);
+ assert.ok(!ids(base).some(id=>['strip-white','order-try','round-up','passive-role','boost-role','repeat-role','strip-bar','devour-takeoff','rest-recover','scribe-ahead'].includes(id)),'an empty Chain and no stop ahead: none of them');
+ const chain=list=>({...base,cards:list,chain:list,filled:list.length});
+ assert.ok(ids(chain(['body-spark'])).includes('strip-white')&&ids(chain(['body-spark'])).includes('order-try'));
+ assert.ok(ids(chain(['deep-vessel'])).includes('passive-role')&&ids(chain(['deep-vessel'])).includes('strip-passive'));
+ assert.ok(ids(chain(['crescendo'])).includes('boost-role'));assert.ok(ids(chain(['echo'])).includes('repeat-role'));
+ assert.ok(ids(chain(['home-beacon'])).includes('save-trigger'));assert.ok(ids(chain(['growth-ring'])).includes('finish-trigger'));
+ assert.ok(!ids(chain(['body-spark'])).includes('save-trigger'));
+ assert.ok(ids({...base,inscribed:true}).includes('strip-bar')&&!ids(base).includes('inscription-slot'));
+ assert.ok(ids({...base,devour:true}).includes('devour-takeoff'));
+ assert.ok(ids({...base,restAhead:true}).includes('rest-recover')&&ids({...base,restAhead:true}).includes('rest-add-slot'));
+ assert.ok(!ids({...base,restAhead:true,slots:5}).includes('rest-add-slot'),'five slots: no Add slot tip');
+ assert.ok(!ids({...base,restAhead:true}).includes('rest-forge')&&ids({...base,restAhead:true,stored:20}).includes('rest-forge'));
+ assert.ok(ids({...base,scribeAhead:true}).includes('scribe-ahead')&&!ids({...base,scribeAhead:true}).includes('scribe-replace'));
+ assert.ok(ids({...base,scribeAhead:true,inscribed:true}).includes('scribe-replace'));
+ assert.equal(whyLabel(TIPS.find(t=>t.id==='passive-role'),chain(['deep-vessel'])),'For your Passive cards');
+ assert.equal(whyLabel(TIPS.find(t=>t.id==='rest-recover'),{...base,restAhead:true}),'Rest ahead');
+});
+
+test('the adapter reads Inscriptions, Devour and the stop after this flight from the real run',()=>{
+ const {state,run,node}=freshRun('depart-e5');
+ let s=departureRunState(run,node,{profile:state.profile});
+ assert.equal(s.inscribed,false);assert.equal(s.devour,false);
+ run.slotInscriptions=[{id:'gilded'},null,null];
+ s=departureRunState(run,node,{profile:state.profile});assert.equal(s.inscribed,true);
+ run.mountedCards[2]=makeSkillCard('dream','t:dream');
+ s=departureRunState(run,node,{profile:state.profile});assert.equal(s.devour,true);
+ const all=run.map.flat(),camp=all.find(n=>n.kind==='camp'),before=all.find(n=>n.nextIds?.includes(camp.id));
+ assert.equal(departureRunState(run,before,{profile:state.profile}).restAhead,true,'a Rest right after this flight');
+ const scribeNode=all.find(n=>n.kind==='scribe'),pre=scribeNode&&all.find(n=>n.nextIds?.includes(scribeNode.id));
+ if(pre)assert.equal(departureRunState(run,pre,{profile:state.profile}).scribeAhead,true,'a Scribe right after this flight');
+ // Practice keeps its own short list.
+ const p=newState();startTutorial(p);assert.equal(departureRunState(p.run,p.run.map[0][0]).restAhead,false);
 });

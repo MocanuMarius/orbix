@@ -1517,7 +1517,9 @@ export class WispFlight {
     const receipt=resolveCardRow(this.cardExecution,{meterFraction:this.flame/this.maxFlame,...detail,...(wind?{secondWind:true}:{}),
       availableRecovery:w.enabled(this)?w.cooldown:0,availableReel:w.activeReelSeconds(),collectorReeling:w.activeReelSeconds()>0,
       guardRecovering:w.phase==='guard-recovery',kind,id:++this.cardRowSequence});
-    appendFires(this,collectReceiptFires(receipt,this.cardExecution.inscriptions));
+    const fireMarks=collectReceiptFires(receipt,this.cardExecution.inscriptions);appendFires(this,fireMarks);
+    // Practice lessons about the Chain strip stop the flight the instant a shape turns white (practice-course.mjs).
+    if(this.tutorial&&fireMarks.length){this.tutorial.fireAt=this.time;if(fireMarks.some(m=>m.kind==='bar'))this.tutorial.barAt=this.time;}
     const gain=Math.min(receipt.sparks*CARD_UNIT,Math.max(0,this.maxFlame-this.flame));
     const liveReceipt=Object.freeze({...receipt,restoredSparks:gain/CARD_UNIT});
     if(receipt.steps.some(step=>step.success&&step.operation!=='replay-row'))this.cardRowTrace=liveReceipt;
@@ -1525,6 +1527,7 @@ export class WispFlight {
     // Brimful: Sparks a Brimful card gained above the Meter become Stored Sparks (never boosted again).
     if(receipt.brimful>0){const over=Math.floor(Math.min(receipt.brimful,Math.max(0,receipt.sparks-gain/CARD_UNIT))+1e-9);if(over>0)this.resonanceStored+=over;}
     if(this.tutorial&&this.mod.practiceCards&&kind==='wave-crossing'&&gain>0)this.tutorial.harvestPaid=true;
+    if(this.tutorial&&kind==='wave-crossing'&&receipt.sparks>0)this.tutorial.pulsePaidAt=this.time;
     this.resonanceStored+=receipt.stored;
     if(receipt.recoverySeconds>0){
       const before=w.cooldown;

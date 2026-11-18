@@ -97,3 +97,33 @@ Decisions taken while building:
 - **Removed from the first flight:** the Rhythm + Resonant Harvest pair (`first-light-combo.mjs`) and the loaned Lift Guide. Cards now come at stop 5. `first-light-combo.mjs` stays only for unfinished Edition 3 saves and can be deleted in a later release.
 - **Guardian.** The Hollow Warden finale is not part of Edition 4; the brief asks for a short finish, and the guardian is taught by the real game's own briefing.
 - **Proximity and the shield are practice abilities, not cards**, so the camp Chain stays at three cards whose order matters.
+
+## Edition 5 — the card Chain, taught gradually (built 18 November 2026)
+
+Brief (owner): "the card chain thing should be explained very well and gradually, with enough tips". Code: `dist/practice-course.mjs` (stops, lessons, goals, course shaping), `dist/practice-route.mjs` (gifts, placing, practice Rest and Scribe, Edition 4 migration), app wiring in `dist/app.mjs` (`showPracticeDeck`, `renderPracticeSupport`, `practiceScribeStep`, `guideScreen`). Tests: `tests/first-light-edition5.test.mjs`. Scripted pilot: `scripts/practice-pilot.mjs` (`flyWholePractice`, `playPracticeScreen`); browser drive: `scripts/edition5-playthrough-probe.mjs`.
+
+Thirteen stops, every lesson paused, one idea, at most 24 words, at most two stops per flight with 12 s of free flight before and between in-flight stops:
+
+| # | Stop | Lessons, in order |
+| --- | --- | --- |
+| 1 | Flight · Moonlit Ruins | Lift and glide (entry) · Sparks |
+| 2 | Flight · Lantern Marsh | Meet Collector (entry) · Delivery |
+| 3 | Flight · Mourning Fields | Luminance (entry) · Flare |
+| 4 | Chain screen "Your Chain" (3 slots; gift Body Spark) | Your Chain · A gift: Body Spark (place it in Slot 2) · What it pays (the preview, +2) |
+| 5 | Flight · Glasswind Dunes | Your Chain in flight (stops the instant a shape turns white) |
+| 6 | Chain screen "Order matters" (gift Echo) | A gift: Echo · Nothing to repeat (only after a wrong placement) · Order matters (+4) |
+| 7 | Flight · Cloudbreak Isles | Black Hole |
+| 8 | Rest (Add slot, then gift Crescendo) | Rest · A gift: Crescendo · Nothing to boost (only after a wrong placement); the screen line confirms +8 |
+| 9 | Flight · Oldgrowth Pines | Hearts (entry) |
+| 10 | Chain screen "Pulse cards" (gift Resonant Harvest) | Three roles (Repeat, Boost, Passive) · A gift: Resonant Harvest |
+| 11 | Flight · Coral course | Harvest paid (stops the instant a Flare Pulse makes Harvest pay) |
+| 12 | The Scribe (two offers: Gilded, Twin Mark) | The Scribe · Choose a slot · The brand (Chain screen, read-only) |
+| 13 | Flight · Fungal course (finish) | Inscription in flight (the strip bar); then on the result screen: Your own Chain |
+
+Gifts go to the Deck with a NEW badge; the player places each one with the real Chain screen (Add or Swap on a slot, then the card; drag trades slots). "Fly with your Chain" stays shut until the screen's goal holds (`practiceGoalMet`). A wrong placement changes nothing: the card's own plate reads "No effect here", the status line says why, and the first time a paused lesson points at the misplaced card. Practice cards and Inscriptions never leave practice and cannot be melted.
+
+Dropped from Edition 4: Proximity skim lanes and the Collector's shield (practice abilities, not Chain cards); both are covered by depart tips (Skim, Save) in real runs.
+
+Saves: `PRACTICE_EDITION = 5`. A saved Edition 4 practice in progress is moved onto Edition 5 when it loads (`migratePracticeRun`): stops 1–3 are the same courses, so a player there stays at that stop; anyone further on resumes at the first Chain screen; seen lessons, the suspended real run and the New Game continuation are kept, Edition 4's loans dropped. Edition 3 still finishes as Edition 3.
+
+After the tutorial: depart tips cover every Trigger (Save, Finish and Skim added), every role, permanent Inscriptions, Devour, the strip's white/teal/bar, Rest (Recover, Add slot, Forge; Grow already) and the Scribe, each only in context. In the first two card runs, `firstRunCardLesson` (`dist/onboarding.mjs`) shows one paused card per checkpoint the first time the player meets a card reward, a chest, a Devour card, or a Rest option (Recover, then Grow, then Forge on later Rests).

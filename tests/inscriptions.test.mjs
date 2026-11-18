@@ -195,16 +195,16 @@ test('save round trip keeps slot Inscriptions; an old save loses its artifacts a
   assert.equal(M.getRunModifiers(migrated.run).artifactIds.length, 0, 'artifacts never apply');
 });
 
-test('Scribe: three offers without duplicates of written ones, then slot, replace confirm, cancel leaves nothing written', () => {
+test('Scribe: two offers without duplicates of written ones, then slot, replace confirm, cancel leaves nothing written', () => {
   const state = cardState('scribe'), run = state.run;
   const seq = (() => { let n = 7; return () => (n = (n * 48271) % 2147483647) / 2147483647; })();
   writeInscription(run, 2, 'gilded');
   const offers = offerInscriptions(run, seq);
-  assert.equal(offers.length, 3); assert.equal(new Set(offers).size, 3);
+  assert.equal(offers.length, 2); assert.equal(new Set(offers).size, 2);
   assert.ok(!offers.includes('gilded'));
   const crowded = {slotInscriptions: INSCRIPTION_IDS.slice(0, 17).map(id => ({id}))};
   const few = offerInscriptions(crowded, seq);
-  assert.equal(few.length, 3); assert.ok(few.includes(INSCRIPTION_IDS[17]), 'the one fresh offer is kept, written ones fill up');
+  assert.equal(few.length, 2); assert.ok(few.includes(INSCRIPTION_IDS[17]), 'the one fresh offer is kept, written ones fill up');
   run.flightReward = {kind: 'inscription', nodeId: 'x', offers, claimed: false};
   assert.equal(M.chooseFlightReward(state, 'hearth-not-offered', 0), false, 'only offered ones');
   assert.equal(M.chooseFlightReward(state, offers[0], 9), false, 'only real slots');
@@ -236,31 +236,60 @@ test('Chain tab: an inscribed slot, empty or not, carries its brand and etched f
   const view = createDeckView(); view.reading = run.mountedCards[0].instanceId;
   assert.match(deckScreenMarkup(run, view, {}), /Inscription: <b>Gilded<\/b>/);
 });
-test('glyphs: every Inscription has its own 16x16 brand mark, as a file and inline, and no two are alike', async () => {
+test('glyphs: every Inscription has its own 24x24 two-tone brand mark, as a file and inline, and no two are alike', async () => {
   const fs = await import('node:fs');
-  const {inscriptionGlyph, INSCRIPTION_GLYPH_IDS, inscriptionGlyphPath} = await import('../dist/inscription-glyphs.mjs');
-  const {GLYPHS, validate} = await import('../scripts/build-inscription-glyphs.mjs');
+  const {inscriptionGlyph, INSCRIPTION_GLYPH_IDS, inscriptionGlyphPath, INSCRIPTION_GLYPH_GRID, INSCRIPTION_BRAND_GRID, INSCRIPTION_GLYPH_SIZES, isWholeGlyphSize} = await import('../dist/inscription-glyphs.mjs');
+  const {GLYPHS, validate, GRID} = await import('../scripts/build-inscription-glyphs.mjs');
   const ALL_IDS = [...INSCRIPTION_IDS, ...CHEST_INSCRIPTION_IDS, ...TEMPORARY_IDS];
+  assert.equal(GRID, 24); assert.equal(INSCRIPTION_GLYPH_GRID, 24); assert.equal(INSCRIPTION_BRAND_GRID, 26);
   assert.deepEqual([...INSCRIPTION_GLYPH_IDS].sort(), [...ALL_IDS].sort());
   assert.deepEqual(validate(), []);
   const files = ALL_IDS.map(id => {
     const file = new URL(`../dist/${inscriptionGlyphPath(id)}`, import.meta.url);
     assert.ok(fs.existsSync(file), `${id} has a glyph file`);
     const text = fs.readFileSync(file, 'utf8');
-    assert.match(text, /viewBox="0 0 16 16"/); assert.match(text, /fill="currentColor"/);
+    assert.match(text, /viewBox="0 0 24 24"/); assert.match(text, /fill="currentColor"/); assert.match(text, /fill-opacity="0.5"/, `${id}: second tone`);
     return text.replace(/^[\s\S]*? d="/, '');
   });
   assert.equal(new Set(files).size, files.length, 'glyph files are pairwise different');
-  // Pairwise different by enough pixels to read apart (symmetric difference of the 16x16 grids).
-  const ids = Object.keys(GLYPHS), px = id => GLYPHS[id].join('');
+  const ids = Object.keys(GLYPHS), px = id => GLYPHS[id].join('').replace(/\+/g, '#');
   for (let a = 0; a < ids.length; a++) for (let b = a + 1; b < ids.length; b++) {
     const diff = [...px(ids[a])].filter((c, i) => c !== px(ids[b])[i]).length;
-    assert.ok(diff >= 24, `${ids[a]} and ${ids[b]} differ by only ${diff} pixels`);
+    assert.ok(diff >= 40, `${ids[a]} and ${ids[b]} differ by only ${diff} pixels`);
   }
-  assert.match(inscriptionGlyph('bell', {size: 48}), /width="48"[^>]*viewBox="0 0 16 16"/);
+  // One size per role, each a whole multiple of the grid.
+  assert.deepEqual({...INSCRIPTION_GLYPH_SIZES}, {list: 24, large: 48, huge: 72, brand: 26, brandLarge: 52});
+  for (const [role, size] of Object.entries(INSCRIPTION_GLYPH_SIZES)) assert.ok(isWholeGlyphSize(size, role.startsWith('brand')), role);
+  assert.match(inscriptionGlyph('bell', {role: 'large'}), /width="48"[^>]*viewBox="0 0 24 24"[\s\S]*ins-glyph-cut/);
   assert.match(inscriptionGlyph('bell', {size: 40}), /width="48"/, 'whole multiples only');
-  assert.match(inscriptionGlyph('bell', {size: 36, brand: true}), /width="36"[^>]*viewBox="-1 -1 18 18"[\s\S]*ins-brand-edge/);
+  assert.match(inscriptionGlyph('bell', {role: 'brand'}), /width="26"[^>]*viewBox="-1 -1 26 26"[\s\S]*ins-brand-edge/);
+  assert.equal(isWholeGlyphSize(36), false); assert.equal(isWholeGlyphSize(16), false); assert.equal(isWholeGlyphSize(32), false);
   assert.equal(inscriptionGlyph('nope'), '');
+});
+test('every place that draws a glyph asks for a role or a whole multiple, and every CSS size given to a glyph is a whole multiple', async () => {
+  const fs = await import('node:fs');
+  const {INSCRIPTION_GLYPH_IDS, INSCRIPTION_GLYPH_SIZES, isWholeGlyphSize} = await import('../dist/inscription-glyphs.mjs');
+  const files = ['inscription-ui.mjs', 'reward-screen.mjs', 'card-terms.mjs', 'inscription-write.mjs', 'map-guide.mjs', 'ui/deck-screen.mjs'];
+  for (const name of files) {
+    const src = fs.readFileSync(new URL(`../dist/${name}`, import.meta.url), 'utf8');
+    for (const m of src.matchAll(/inscriptionGlyph\(([^)]*)\)/g)) {
+      const role = m[1].match(/role:\s*'(\w+)'/)?.[1], size = m[1].match(/size:\s*(\d+)/)?.[1];
+      if (role) assert.ok(INSCRIPTION_GLYPH_SIZES[role], `${name}: unknown role ${role}`);
+      if (size) assert.ok(isWholeGlyphSize(Number(size), /brand:\s*true/.test(m[1])), `${name}: size ${size} is not a whole multiple`);
+      const id = m[1].match(/^'([\w-]+)'/)?.[1];
+      if (id) assert.ok(INSCRIPTION_GLYPH_IDS.includes(id), `${name}: no glyph for ${id}`);
+    }
+  }
+  for (const name of ['artifact-reward.css', 'ui/card-screens.css', 'card-ui.css']) {
+    const css = fs.readFileSync(new URL(`../dist/${name}`, import.meta.url), 'utf8');
+    for (const rule of css.matchAll(/([^{}]*(?:ins-glyph|ins-brand|map-symbol-scribe)[^{}]*)\{([^}]*)\}/g)) {
+      if (/ins-brand-edge|dk2-ins-brand(?![^,{]*svg|[^,{]*\.ins-)/.test(rule[1]) && !/svg|\.ins-glyph|\.ins-brand\b/.test(rule[1].replace(/dk2-ins-brand/g, ''))) continue;
+      const w = rule[2].match(/(?:^|;)\s*width:\s*(\d+)px/)?.[1];
+      if (!w) continue;
+      const brand = /ins-brand|brand/.test(rule[1]);
+      assert.ok(isWholeGlyphSize(Number(w)) || (brand && isWholeGlyphSize(Number(w), true)), `${name}: ${rule[1].trim().slice(0, 80)} sets a glyph to ${w}px`);
+    }
+  }
 });
 test('screens: brand, etched frame, inspector block with glossary words, and the three Scribe steps', async () => {
   const {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionGlyph} = await import('../dist/inscription-ui.mjs');
@@ -278,30 +307,44 @@ test('screens: brand, etched frame, inspector block with glossary words, and the
   const state = cardState('screens', ['harvest-rare', null, null]), run = state.run;
   writeInscription(run, 1, 'mirror');
   run.lastFlight = {elite: true};
-  run.flightReward = {kind: 'inscription', nodeId: 'n', offers: ['gilded', 'hollow', 'bell'], claimed: false};
-  const one = flightRewardMarkup(state, {scribe: {}});
-  assert.equal((one.match(/data-action="scribe-pick"/g) || []).length, 3); assert.match(one, /Choose an Inscription/);
-  for (const id of ['gilded', 'hollow', 'bell']) assert.match(one, new RegExp(`data-ins-glyph="${id}" width="48"`));
-  assert.match(one, /Changes the card in its slot/); assert.match(one, /Works on its own, even on an empty slot/);
-  const two = flightRewardMarkup(state, {scribe: {id: 'hollow', slot: null}});
-  assert.equal((two.match(/data-action="scribe-slot"/g) || []).length, 3); assert.match(two, /Replaces: Mirror/); assert.match(two, /data-action="scribe-back"/);
-  assert.match(two, /<h1 class="wb-title">Choose a slot<\/h1>/); assert.match(two, /No Inscription/); assert.match(two, /Empty slot/);
-  assert.doesNotMatch(two, /bare/i, 'no "Bare"');
-  assert.match(two, /<span class="scribe-slot-name">Resonant Harvest<\/span>/, 'card names sit in their own wrapping element');
-  assert.match(two, /data-card-art="harvest-rare"/, 'the mounted card picture');
-  assert.doesNotMatch(two, /Needs a card here/, 'a standalone Inscription needs no card');
-  const twoCard = flightRewardMarkup(state, {scribe: {id: 'gilded', slot: null}});
-  assert.equal((twoCard.match(/<span class="scribe-slot-warn">Needs a card here to do anything/g) || []).length, 2, 'a card-changing Inscription warns on each empty slot');
-  const three = flightRewardMarkup(state, {scribe: {id: 'hollow', slot: 1}});
-  assert.match(three, /Replace this Inscription\?/); assert.match(three, /Mirror/); assert.match(three, /Hollow/, 'the confirm names both the old and the new Inscription'); assert.match(three, /data-action="scribe-confirm"/); assert.match(three, /data-action="scribe-slot-back"/);
-  assert.ok(M.chooseFlightReward(state, 'hollow', 0));
-  assert.match(flightRewardMarkup(state, {scribe: {}}), /Written on slot 1/);
+  run.flightReward = {kind: 'inscription', nodeId: 'n', offers: ['gilded', 'hollow'], claimed: false};
+  // One screen: the offers above (nothing preselected), the Chain below, Write disabled until both are chosen.
+  const none = flightRewardMarkup(state, {scribe: {}});
+  assert.equal((none.match(/data-action="scribe-pick"/g) || []).length, 2); assert.match(none, /Write an Inscription/);
+  assert.equal((none.match(/data-action="scribe-slot"/g) || []).length, 3, 'every slot of the Chain');
+  assert.match(none, /data-action="scribe-write" disabled/); assert.doesNotMatch(none, /aria-pressed="true"/, 'nothing preselected');
+  for (const id of ['gilded', 'hollow']) assert.match(none, new RegExp(`data-ins-glyph="${id}" width="48"`));
+  assert.match(none, /data-card-term="ins-card"[^>]*>[^<]*<\/button>|data-card-term="ins-card"/); assert.match(none, /data-card-term="ins-slot"/);
+  assert.match(none, /Replaces|Mirror/); assert.match(none, /Empty slot/); assert.match(none, /data-card-art="harvest-rare"/);
+  assert.doesNotMatch(none, /bare/i, 'no "Bare"');
+  // Offer only, or slot only: still disabled.
+  assert.match(flightRewardMarkup(state, {scribe: {id: 'gilded', slot: null}}), /data-action="scribe-write" disabled/);
+  assert.match(flightRewardMarkup(state, {scribe: {id: null, slot: 0}}), /data-action="scribe-write" disabled/);
+  // Offer + card slot: enabled, the result shows on the slot with the engine's before → after.
+  const pick = flightRewardMarkup(state, {scribe: {id: 'gilded', slot: 0}});
+  assert.doesNotMatch(pick, /data-action="scribe-write" disabled/);
+  const {writePreview} = await import('../dist/inscription-write.mjs');
+  const pv = writePreview(run, 0, 'gilded');
+  assert.ok(pv.change && pv.change.before && pv.change.after && pv.change.before !== pv.change.after, 'a real change from the row preview');
+  assert.ok(pick.includes(`${pv.change.before} → ${pv.change.after} on ${pv.change.trigger}`));
+  // Card-type on an empty slot: says so.
+  assert.match(flightRewardMarkup(state, {scribe: {id: 'gilded', slot: 2}}), /Needs a card here/);
+  // Replacing: the old one struck through beside the new, no extra confirm screen.
+  const over = flightRewardMarkup(state, {scribe: {id: 'hollow', slot: 1}});
+  assert.match(over, /<s class="iw-old"[^>]*><span>Replaces Mirror<\/span><\/s>/); assert.doesNotMatch(over, /Replace this Inscription\?/);
+  assert.match(over, /data-action="scribe-write"[^>]*><span>Replace<\/span>/);
+  // Write stores {id} on that slot, replacing without another confirm.
+  assert.ok(M.chooseFlightReward(state, 'hollow', 1, {confirm: true}));
+  assert.deepEqual(run.slotInscriptions[1], {id: 'hollow'});
+  assert.match(flightRewardMarkup(state, {scribe: {}}), /Written on slot 2/);
 });
-test('the long-name wrapper is styled to wrap inside its slot box, and slot choices fill the height', async () => {
+test('the writer is styled not to scroll: fixed height, shrinking Chain row, no scrolling overflow on its parts', async () => {
   const fs = await import('node:fs');
   const css = fs.readFileSync(new URL('../dist/artifact-reward.css', import.meta.url), 'utf8');
-  assert.match(css, /\.scribe-slot-name\{[^}]*overflow-wrap:anywhere/);
-  assert.match(css, /\.scribe-slot\{[^}]*height:100%/);
+  assert.match(css, /\.scribe-screen\.ins-write\{[^}]*grid-template-rows:auto auto minmax\(0,1fr\)[^}]*height:calc\(100dvh[^}]*overflow:hidden/);
+  assert.match(css, /\.ins-write \.iw-chain\{[^}]*grid-template-columns:repeat\(var\(--slots,3\),minmax\(0,1fr\)\)/);
+  const writer = css.slice(css.indexOf('One-screen Inscription writer'));
+  assert.doesNotMatch(writer, /overflow(?:-[xy])?:\s*(?:auto|scroll)/, 'nothing in the writer scrolls');
 });
 test('dev scene: ?mock=cards&scenario=scribe opens the Scribe', async () => {
   const {openMockScribe} = await import('../dist/card-inspector.mjs');

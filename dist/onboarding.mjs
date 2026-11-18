@@ -1,6 +1,26 @@
 import {flashPowerupDuration} from './pickups.mjs?v=guide-clarity-1';
 import {resourceCycleSteps} from './resource-cycle.mjs?v=guide-clarity-1';
 import {LANTERN_THEME} from './map-theme.mjs?v=guide-clarity-1';
+// First-run lessons (Edition 5 tutorial, 18 November 2026): in a player's first two card runs, one paused card the first
+// time they meet something First Light did not reach. Menu screens only (never in flight), at most one per checkpoint,
+// each once per profile (onboarding.seen), and only while automatic tips are on.
+export const FIRST_RUN_TOPICS=Object.freeze(['card-reward','chest','devour','rest-recover','rest-grow','rest-forge']);
+export const FIRST_RUN_LIMIT=2;
+/** facts (from the app, read-only): {devour, growAvailable, stored, unseenCards} */
+export function firstRunCardLesson(view,{profile,run,facts={}}={}){
+ if(!run||run.isTutorial||run.testMode||!profile||!onboardingCanPrompt(view,{run}))return null;
+ if((profile.bankedRuns||[]).filter(id=>id!==run.id).length>=FIRST_RUN_LIMIT)return null;
+ const seen=new Set(cleanOnboarding(profile.onboarding).seen),fresh=id=>!seen.has(id);
+ if(view==='card-draft'&&fresh('card-reward'))return card('card-reward','A card for your Deck','Choose one card. It goes to your Deck with a NEW badge; you place it in your Chain yourself.','skills');
+ if(view==='chest'&&fresh('chest'))return card('chest','A chest','Take the chest’s find first. Then choose Stored Sparks or a surprise card.','site:treasure');
+ if(view==='map'&&facts.devour&&fresh('devour'))return card('devour','Devour','A Devour card eats the card to its right when you take off. You confirm first; what it gains stays on it.','dream');
+ if(view==='support'&&run.current?.kind==='camp'){
+  if(fresh('rest-recover'))return card('rest-recover','Recover','Recover restores every missing heart and refills your Spark Meter. It is one Rest action.','rest');
+  if(facts.growAvailable&&fresh('rest-grow'))return card('rest-grow','Grow','Your Growth Seeds unlock Grow: more maximum Sparks and one refill, without healing hearts.','meter');
+  if(facts.stored>0&&fresh('rest-forge'))return card('rest-forge','Forge','Forge turns Stored Sparks into a surprise card. It uses no Rest action.','forge');
+ }
+ return null;
+}
 // Normal-run onboarding is profile-owned. Prompts are contextual, one short
 // card at a time; the run owns only pacing so a new game keeps learned topics.
 export const ONBOARDING_VERSION=1;
@@ -9,7 +29,7 @@ export function automaticTipsEnabled(settings={},run){
  return run?.isTutorial===true||settings.skipTutorial!==true;
 }
 export const ONBOARDING_PROMPT_GAP_MS=30000;
-const topics=new Set(['lift','luminance','collector','collector-recovery','protector','swift','leveler','artifacts','packed','skills','rest','companions','dream','routes','black-hole','giant-hole','bad-sparks','drafts','edging','hearts','events','progression','special-sparks','lanterns']);
+const topics=new Set(['lift','luminance','collector','collector-recovery','protector','swift','leveler','artifacts','packed','skills','rest','companions','dream','routes','black-hole','giant-hole','bad-sparks','drafts','edging','hearts','events','progression','special-sparks','lanterns',...FIRST_RUN_TOPICS]);
 const topicId=value=>String(value??'').replace(/^onboarding:/,'').split(':')[0];
 const integer=value=>Math.max(0,Math.floor(Number(value)||0));
 export function cleanOnboarding(value={}){
@@ -116,7 +136,7 @@ export function nextOnboardingLesson(view,{profile,run,modifiers,flight,snapshot
  if(view==='companions'&&newTopic('companions'))return card('companions','Your Collector','Collector fetches missed Sparks and Clusters within its orbit. Its skill chapter unlocks Caches, Flare, range and recovery.','companion:'+role,'.companion-roles');
  if(view==='dream'&&newTopic('dream'))return card('dream','Rehearse the opening','Practise in golden light with free Lifts. Wake where you finished, with your pickups. Tap once to continue.','dream');
  if(view==='map'&&completed>0&&newTopic('routes'))return card('routes','Choose a connected path','Bright stops are reachable next. A fork commits your route. Campfire means Rest; chest means treasure. Tap a later stop to preview it before planning ahead.','sites','#journey-map');
- if(view==='victory'&&newTopic('artifacts')&&run.flightReward?.offers?.length&&!run.flightReward.claimed)return card('artifacts','Choose an Inscription','Elite and guardian victories offer three Inscriptions. Choose one, then the slot of your Chain to write it on.','artifact','.artifact-reward-screen');
+ if(view==='victory'&&newTopic('artifacts')&&run.flightReward?.offers?.length&&!run.flightReward.claimed)return card('artifacts','Choose an Inscription','Elite and guardian victories offer two Inscriptions. Choose one, then the slot of your Chain to write it on.','artifact','.artifact-reward-screen');
  if((view==='map-clear'||view==='result'||view==='briefing'&&run.current?.type==='finale')&&newTopic('progression'))return card('progression','Three maps make a run','Your hearts, Sparks, skills and Inscriptions continue into the next map. Clear all three maps and the final guardian to unlock the next Ascension.','site:boss');
  if(view!=='flight'||flight?.dying||flight?.completing||flight?.dream?.active||snapshot.dying||snapshot.completing)return null;
  const time=Number(flight?.time)||0;

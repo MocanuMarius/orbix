@@ -36,13 +36,14 @@ test('the engine Trigger chips have plain names, icons and glossary entries', ()
   assert.match(chipIcon('pack', 16), /width="16" height="16"/); assert.match(chipIcon('pack', 32), /width="32" height="32"/);
 });
 
-test('every card face, Deck tile and Chain tile leads with the Trigger badge; rarity is gems, not a word', () => {
+test('every Deck tile and Chain tile leads with the Trigger badge, the large card face leads its text with the trigger; rarity is gems, not a word', () => {
   for (const id of ['body-spark', 'crescendo', 'echo-iii', 'slow-wick', 'growth-seed', 'deep-vessel', 'black-hole']) {
     const card = makeSkillCard(id, `f:${id}`), chip = chipOf(card);
     for (const compact of [true, false]) {
       const face = cardFace(card, {compact});
-      if (chip.label) assert.match(face, new RegExp(`class="tbadge card-tbadge" data-chip="${chip.id}"`), `${id} badge`); else assert.doesNotMatch(face, /class="tbadge card-tbadge"/, `${id}: no chip, the text says the timing`);
-      assert.ok(face.indexOf('tbadge') < face.indexOf('card-rule-band') || compact, `${id}: the badge comes before the rules`);
+      // Large face: no chip over the picture (the trigger is the first line of its text band). Small tile: the chip is the only trigger mark.
+      if (compact) { if (chip.label) assert.match(face, new RegExp(`class="tbadge card-tbadge" data-chip="${chip.id}"`), `${id} badge`); else assert.doesNotMatch(face, /class="tbadge card-tbadge"/, `${id}: no chip, the text says the timing`); }
+      else { assert.doesNotMatch(face, /class="tbadge card-tbadge"/, `${id}: the large face shows its trigger once, in the text`); if (chip.label) assert.match(face, new RegExp('card-rule-condition[^>]*><span class="card-rule-text">[^]*?' + chip.label.split(' ')[0]), `${id}: the trigger leads the text band`); }
       const gems = (rarityPips(SKILL_CARDS[id].rarity).match(/<svg/g) || []).length;
       assert.equal(gems, {common: 1, rare: 2, legendary: 3}[SKILL_CARDS[id].rarity], `${id}: 1, 2 or 3 gems`);
       assert.match(face, /class="rpips rpips-/);

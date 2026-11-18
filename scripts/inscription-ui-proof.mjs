@@ -12,10 +12,10 @@ await fs.mkdir(OUT, {recursive: true});
 const sets = process.argv.slice(2).length ? process.argv.slice(2) : ['sheet', 'chain', 'scribe'];
 const types = {'.html': 'text/html', '.mjs': 'text/javascript', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp', '.woff2': 'font/woff2', '.json': 'application/json'};
 const SHEET = `<!doctype html><meta charset="utf-8"><style>body{margin:0;padding:12px;background:#e8d6a4;color:#2a2118;font:12px monospace}
-.g{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}.c{min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px;border:2px solid #6b5335}
-.r{display:flex;align-items:flex-end;gap:8px}.b{background:#5a4024;padding:6px;color:#2a160a}.b .ins-brand-edge{fill:#b48a52}</style>
+.g{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.c{min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px;border:2px solid #6b5335}
+.r{display:flex;align-items:flex-end;gap:8px}.b{display:flex;align-items:flex-end;gap:6px;background:#5a4024;padding:6px;color:#2a160a}.b .ins-brand-edge{fill:#b48a52}.d{background:#2a2118;color:#f6ebcc;padding:6px;line-height:0}</style>
 <div class="g" id="g"></div><script type="module">import {inscriptionGlyph, INSCRIPTION_GLYPH_IDS} from './inscription-glyphs.mjs';
-document.getElementById('g').innerHTML = INSCRIPTION_GLYPH_IDS.map(id => '<div class="c"><div class="r">' + [16, 32, 48].map(s => inscriptionGlyph(id, {size: s})).join('') + '<span class="b">' + inscriptionGlyph(id, {size: 36, brand: true}) + '</span></div><b>' + id + '</b></div>').join('');
+document.getElementById('g').innerHTML = INSCRIPTION_GLYPH_IDS.map(id => '<div class="c"><div class="r">' + [24, 48, 72].map(s => inscriptionGlyph(id, {size: s})).join('') + '<span class="b">' + inscriptionGlyph(id, {role: "brand"}) + inscriptionGlyph(id, {role: "brandLarge"}) + '</span><span class="d">' + inscriptionGlyph(id, {size: 48}) + '</span></div><b>' + id + '</b></div>').join('');
 document.body.dataset.ready = '1';</script>`;
 const server = http.createServer(async (req, res) => {
   try {
@@ -76,7 +76,7 @@ const overflow = root => ev(`(()=>{const out=[];const W=innerWidth,H=innerHeight
 
 try {
   if (sets.includes('sheet')) {
-    await size(1240, 760, false);
+    await size(1240, 1500, false);
     await go('/__glyph-sheet.html', 'body[data-ready]');
     await shot('glyphs');
   }

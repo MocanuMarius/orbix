@@ -194,7 +194,8 @@ if(mode==='hash'){
    worst=Math.max(worst,max);report.push({k,pixels:n,of:fa.w*fa.h,maxChannelDelta:max,hist,box:n?[minX,minY,maxX,maxY]:null});
    if(shots&&report.filter(r=>r.pixels).length<=12)await fs.writeFile(path.join(shots,k+'.png'),sideBySide(fb.w,fb.h,pb,pa));
   }
-  console.log(JSON.stringify({frames:ra.length,differing:report.length,worstChannelDelta:worst,report:report.slice(0,60)},null,1));
+  const hist={};for(const r of report)for(const [k,v] of Object.entries(r.hist||{}))hist[k]=(hist[k]||0)+v;
+  console.log(JSON.stringify({frames:ra.length,differing:report.length,worstChannelDelta:worst,histogram:hist,worstFrames:report.slice().sort((a,b)=>(b.maxChannelDelta||0)-(a.maxChannelDelta||0)).slice(0,10),report:report.slice(0,60)},null,1));
  }finally{await before.close();await after.close();}
 }
 

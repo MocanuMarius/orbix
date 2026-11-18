@@ -12,20 +12,20 @@ html body .game-result-head .wbf-titles>.wb-title::before,html body .game-result
 html body .wb-ground .game-result-head>.wb-sign{flex:none;width:auto;min-width:112px;height:44px;margin:0;padding:0 14px!important}
 html body .game-result-screen .game-score-image{grid-column:1;grid-row:2;display:grid;grid-template-rows:minmax(0,1fr) auto;gap:6px;min-width:0;min-height:0;margin:0}
 html body .game-result-screen .game-score-image img{display:block;width:100%;height:100%;min-height:0;object-fit:contain;object-position:left top;image-rendering:pixelated}
-html body .game-result-screen .game-score-image figcaption{margin:0;max-width:570px;font:400 12px/15px var(--pixel,monospace);color:#6b5335}
+html body .game-result-screen .game-score-image figcaption{margin:0;max-width:570px;font:400 12px/15px var(--pixel,monospace);color:#5a4328}
 html body .game-result-screen .game-result-controls{grid-column:2;grid-row:2/4;display:flex;flex-direction:column;justify-content:flex-start;gap:10px;min-width:0;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;line-height:1.15}
 html body .game-result-screen .game-score-bests{display:flex;flex-direction:column;gap:6px;margin:0}
 html body .game-result-screen .game-score-bests>div{display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:1px solid #b4976180;padding-bottom:5px}
-html body .game-result-screen .game-score-bests dt{font:400 13px/16px var(--pixel,monospace);color:#6b5335}
+html body .game-result-screen .game-score-bests dt{font:400 13px/16px var(--pixel,monospace);color:#5a4328}
 html body .game-result-screen .game-score-bests dd{margin:0;font:400 18px/20px var(--pixel,monospace);color:#2a2118;text-align:right}
 html body .game-result-screen .game-score-bests dd b,html body .game-result-screen .game-score-bests dd small{display:block;font:400 12px/14px var(--pixel,monospace);color:#3d4a22}
-html body .game-result-screen .game-score-bests dd small{color:#6b5335}
+html body .game-result-screen .game-score-bests dd small{color:#5a4328}
 html body .game-result-screen .game-score-actions{display:flex;flex-direction:column;gap:6px}
 html body .game-result-screen .game-score-actions>div,html body .game-result-screen .game-result-navigation{display:flex;gap:8px}
 html body .wb-ground .game-score-actions .wb-sign,html body .wb-ground .game-result-navigation .wb-sign{flex:1;width:auto;min-width:0;height:46px;margin:0;padding:0 8px!important}
 html body .game-result-screen .game-score-status{margin:0;font:400 12px/15px var(--pixel,monospace);color:#3d4a22}
 html body .game-result-screen .game-score-status:empty{display:none}
-html body .game-result-screen .game-score-record-note{margin:0;font:400 13px/17px var(--pixel,monospace);color:#6b5335}
+html body .game-result-screen .game-score-record-note{margin:0;font:400 13px/17px var(--pixel,monospace);color:#5a4328}
 html body .game-result-screen .game-result-recap{grid-column:1;grid-row:3;font:400 14px/18px var(--pixel,monospace);color:#2a2118;min-width:0}
 html body .game-result-screen .game-result-recap>summary{display:flex;align-items:center;min-height:44px;padding:0 2px;cursor:pointer;color:#2a2118;text-decoration:underline dotted #6b5335;text-underline-offset:4px;touch-action:manipulation}
 html body .game-result-screen .game-result-recap>summary:focus-visible{outline:3px solid #2a2118;outline-offset:2px}
@@ -33,10 +33,28 @@ html body .game-result-screen .game-result-recap[open]>:not(summary){max-height:
 html body .game-result-screen .game-result-recap .card-victory-recap{height:auto!important;max-height:none!important;overflow:visible!important;min-height:0!important;padding:6px 0!important;color:#2a2118}
 .game-score-status:not(:empty){position:fixed;left:18px;bottom:12px;max-width:calc(100vw - 36px);padding:8px 12px;background:#e4d09b;color:#2a2118;border:2px solid #8a6d44;z-index:20;pointer-events:none}
 @media(max-height:430px) and (orientation:landscape){html body .game-result-screen.wb-framed{gap:5px 16px}html body .game-result-screen .game-result-controls{gap:7px}html body .game-result-screen .game-score-bests{gap:4px}html body .game-result-screen .game-score-bests dd b,html body .game-result-screen .game-score-bests dd small{display:inline-block;margin-left:6px;font-size:11px}html body .game-result-screen .game-score-image figcaption{font-size:11px;line-height:13px}}
-@media(max-height:350px) and (orientation:landscape){html body .game-result-screen .game-score-actions{gap:4px}html body .game-result-screen .game-score-bests>div{padding-bottom:3px}html body .wb-ground .game-score-actions .wb-sign,html body .wb-ground .game-result-navigation .wb-sign{height:44px}html body .game-result-head .wbf-titles>small{display:none}}
+@media(max-height:350px) and (orientation:landscape){html body .game-result-screen .game-score-actions{gap:6px}html body .game-result-screen .game-score-bests>div{padding-bottom:3px}html body .wb-ground .game-score-actions .wb-sign,html body .wb-ground .game-result-navigation .wb-sign{height:44px}html body .game-result-head .wbf-titles>small{display:none}}
 @media(max-width:620px) and (orientation:portrait){html body .game-result-screen.wb-framed{grid-template-columns:1fr;max-width:500px;grid-template-rows:auto auto auto auto}html body .game-result-screen .game-score-image,html body .game-result-screen .game-result-controls,html body .game-result-screen .game-result-recap{grid-column:1;grid-row:auto}}
 
 /* The shared viewer is standalone and never loads game state. */
 body.scorecard-viewer{background:#0b181a;color:#dce4cd;margin:0;min-height:100dvh;font:16px/1.5 WispPixel,monospace;display:grid;place-items:center;padding:20px;box-sizing:border-box}
 .scorecard-viewer main{width:min(960px,100%)}.scorecard-viewer h1{font-size:26px;line-height:1.2;margin:0 0 12px}.scorecard-viewer img{display:block;width:100%;height:auto;image-rendering:pixelated}.scorecard-viewer nav{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}.scorecard-viewer button,.scorecard-viewer a{font:16px/1.2 WispPixel,monospace;color:#e6e7c9;background:#233a32;border:2px solid #819184;padding:11px 16px;min-height:44px;box-sizing:border-box;text-decoration:none;cursor:pointer}.scorecard-viewer p{font-size:14px;color:#b9cbb7}.scorecard-viewer #score-status{min-height:21px}.scorecard-viewer input{width:100%;box-sizing:border-box;background:#132722;color:#e7e8cd;border:1px solid #819184;padding:10px;font:13px/1.4 monospace}
 @font-face{font-family:WispPixel;src:url('./assets/fonts/pixelify-sans.ttf') format('truetype');font-weight:400 700;font-display:swap}
+
+/* Result screen v3 (2026-11-18): the panel is exactly the viewport. Header (title band, Main menu) stays pinned; the body scrolls as a whole when the recap is opened; nothing is cut at the top or bottom. */
+html body .game-result-screen.wb-framed{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);gap:0;height:calc(100dvh - 8px);max-height:calc(100dvh - 8px);overflow:hidden;box-sizing:border-box}
+html body .game-result-screen .game-result-head.wbf-head{grid-column:1;grid-row:1;position:relative;z-index:2}
+html body .game-result-screen .game-result-body{grid-column:1;grid-row:2;min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(250px,1fr);grid-template-rows:max-content max-content;gap:8px 22px;padding:8px 12px 10px;align-items:start}
+html body .game-result-screen .game-result-body>.game-score-image{grid-column:1;grid-row:1;display:block}
+html body .game-result-screen .game-result-body>.game-score-image img{display:block;width:auto;max-width:100%;height:auto;max-height:max(150px,calc(100dvh - 218px));margin:0 0 6px}
+html body .game-result-screen .game-result-body>.game-result-controls{grid-column:2;grid-row:1;overflow:visible}
+html body .game-result-screen .game-result-body>.game-result-recap{grid-column:1/-1;grid-row:2}
+html body .game-result-screen .game-result-recap[open]>:not(summary){max-height:none;overflow:visible}
+html body .game-result-screen .game-result-recap .card-victory-recap :is(small,p,li,h1,h2){color:#2a2118!important;text-shadow:none!important}
+html body .game-result-screen .game-result-recap .card-victory-recap :is(small,.card-footnote,.card-recap-maps){color:#5a4328!important}
+html body .game-result-screen .game-result-recap .card-victory-recap h1{font:400 22px/1.15 var(--pixel,monospace);margin:2px 0 4px}
+html body .game-result-screen .game-result-recap .card-victory-recap h2{font:400 15px/1.2 var(--pixel,monospace);margin:0 0 6px}
+html body .game-result-screen .game-result-recap .card-victory-recap .card-heading{padding:0}
+html body .game-result-screen .game-result-recap .card-future-capacity-receipt strong{color:#2a2118!important}
+html body .game-result-screen .game-result-recap .card-dialog-actions{display:none}
+@media(max-width:620px) and (orientation:portrait){html body .game-result-screen .game-result-body{grid-template-columns:1fr}html body .game-result-screen .game-result-body>.game-score-image,html body .game-result-screen .game-result-body>.game-result-controls,html body .game-result-screen .game-result-body>.game-result-recap{grid-column:1;grid-row:auto}html body .game-result-screen .game-result-body>.game-result-controls{position:static}}

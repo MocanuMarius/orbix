@@ -100,13 +100,14 @@ if(new URLSearchParams(location.search).get('perfcount')==='1'){
 
 // Patch the boundary inspector (served copy) to mount cards and accept
 // guardian / giant black hole / lantern theme / late-run query switches.
-const CARD_SETS={plain:[],maxRow:['echo','spillway-ii','refrain','chameleon','first-ripple'],collectorRow:['cache-handling','cast-line','ripple-glass','courier-tip','body-spark'],chain:['echo-iii','refrain','spillway-ii','prism-lens-ii','first-ripple'],twin:['twin-orbit','cast-line','echo-iii','spillway-ii','refrain']};
+const CARD_SETS={plain:[],heavy:['rhythm','spillway-ii','harvest-legendary','ripple-glass','twin-orbit'],maxRow:['echo','spillway-ii','refrain','chameleon','first-ripple'],collectorRow:['cache-handling','cast-line','ripple-glass','courier-tip','body-spark'],chain:['echo-iii','refrain','spillway-ii','prism-lens-ii','first-ripple'],twin:['twin-orbit','cast-line','echo-iii','spillway-ii','refrain']};
 function patchInspector(src){
  const version=src.match(/['"]\.\/model\.mjs(\?[^'"]*)?['"]/)?.[1]||'';
  let s=`import {makeSkillCard as __mk} from './skill-cards.mjs${version}';\n`+src;
  s=s.replace("createRun(state.profile,storm?query.get('seed')||'shepherd-study':'in-game-boundary-study',1)","createRun(state.profile,query.get('seed')||'perf-fixed-seed',1,{cards:true})");
  s=s.replace("createRun(state.profile,'in-game-boundary-study',1)","createRun(state.profile,query.get('seed')||'perf-fixed-seed',1,{cards:true})");
  s=s.replace(/return state;\s*\}/,`{const q=query,sets=${JSON.stringify(CARD_SETS)};run.cardSlots=5;run.mountedCards=(sets[q.get('cardset')||'plain']||[]).map((id,i)=>__mk(id,'perf:'+i));while(run.mountedCards.length<run.cardSlots)run.mountedCards.push(null);
+ if(q.get('ins')){const ins=q.get('ins').split(',');run.slotInscriptions=run.mountedCards.map((_,i)=>ins[i]?{id:ins[i]}:null);}
  const n=run.map[0][0];if(q.get('guardian')){Object.assign(n,{name:'Guardian',boss:true,bossId:q.get('guardian'),row:6,type:'finale'});}
  if(q.get('giant')==='1'){n.blackHoleEncounter='giant';n.row=3;n.mapIndex=1;}
  if(q.get('theme'))n.mapTheme=q.get('theme');

@@ -1,4 +1,4 @@
-import {PRACTICE_EDITION,LEGACY_PRACTICE_EDITION,isPlayablePractice,isPracticeCourseRun,loanPracticeCards,practiceModifiers,preparePracticeStop} from './practice-route.mjs?v=guide-clarity-1';
+import {PRACTICE_EDITION,LEGACY_PRACTICE_EDITION,isPlayablePractice,isPracticeCourseRun,loanPracticeCards,practiceModifiers,preparePracticeStop,practiceStopReady,migratePracticeRun,FIRST_LIGHT_NAME} from './practice-route.mjs?v=guide-clarity-1';
 import {INSCRIPTIONS,getInscription,countInscription,cleanSlotInscriptions,writeInscription,offerInscriptions,slotInscriptionId} from './inscriptions.mjs?v=guide-clarity-1';
 export {INSCRIPTIONS,getInscription,writeInscription,clearInscription,cleanSlotInscriptions} from './inscriptions.mjs?v=guide-clarity-1';
 import {PRACTICE_STOPS,practiceLessonTopics} from './practice-course.mjs?v=guide-clarity-1';
@@ -265,7 +265,7 @@ function cleanRunCompanion(run){
  if(run.skills)delete run.skills['main-bond'];
  if(run.skillPaid)delete run.skillPaid['main-bond'];
 }
-function validRun(r){if(!r||typeof r.id!=='string'||typeof r.seed!=='string'||!PHASES.has(r.phase))return false;const rows=r.map?.length;if(r.isTutorial?![3,6,7].includes(rows):![MAP_STOP_COUNT,OLD_CARD_MAP_ROWS,...CARD_MAP_ROW_COUNTS].includes(rows))return false;if(!Array.isArray(r.map)||r.map.length!==rows||!Number.isInteger(r.step)||r.step<0||r.step>rows)return false;if(r.step===rows&&!['map-clear','ended'].includes(r.phase))return false;const all=r.map.flat();if(r.map.some((row,i)=>!Array.isArray(row)||!row.length||row.length>3||row.some(n=>!n||n.row!==i||typeof n.id!=='string'||!TERRAINS[n.terrain]||!['flight','support','finale'].includes(n.type))))return false;if(new Set(all.map(n=>n.id)).size!==all.length)return false;for(const n of all)if(!Array.isArray(n.nextIds)||n.nextIds.length>3||n.row<rows-1&&!n.nextIds.length||n.nextIds.some(id=>!r.map[n.row+1]?.some(next=>next.id===id)))return false;return Array.isArray(r.path)&&Array.isArray(r.companions)&&Number.isFinite(r.lives)&&Number.isFinite(r.flame);}
+function validRun(r){if(!r||typeof r.id!=='string'||typeof r.seed!=='string'||!PHASES.has(r.phase))return false;const rows=r.map?.length;if(r.isTutorial?![3,6,7,PRACTICE_STOPS.length].includes(rows):![MAP_STOP_COUNT,OLD_CARD_MAP_ROWS,...CARD_MAP_ROW_COUNTS].includes(rows))return false;if(!Array.isArray(r.map)||r.map.length!==rows||!Number.isInteger(r.step)||r.step<0||r.step>rows)return false;if(r.step===rows&&!['map-clear','ended'].includes(r.phase))return false;const all=r.map.flat();if(r.map.some((row,i)=>!Array.isArray(row)||!row.length||row.length>3||row.some(n=>!n||n.row!==i||typeof n.id!=='string'||!TERRAINS[n.terrain]||!['flight','support','finale'].includes(n.type))))return false;if(new Set(all.map(n=>n.id)).size!==all.length)return false;for(const n of all)if(!Array.isArray(n.nextIds)||n.nextIds.length>3||n.row<rows-1&&!n.nextIds.length||n.nextIds.some(id=>!r.map[n.row+1]?.some(next=>next.id===id)))return false;return Array.isArray(r.path)&&Array.isArray(r.companions)&&Number.isFinite(r.lives)&&Number.isFinite(r.flame);}
 function restoreChapterTheme(run) {
  if(run.isTutorial)return;
  const guardian=run.map.at(-1).find(node=>node.boss);
@@ -289,7 +289,7 @@ function restoreRestRoutes(run){
  delete run.deathDetour;
 }
 export function saveState(state,storage){try{storage??=globalThis.localStorage;if(!storage?.setItem||state?.version!==7)return false;recordCompletedGameScore(state.run,storage);cleanRunCompanion(state.run);cleanRunCompanion(state.suspendedRun);const starter=getStartingCompanion(state);state.settings.startingCompanion=state.settings.testStarterCompanion=starter;state.settings.companions=[starter];state.settings.companionRole=starter;storage.setItem(SAVE_KEY,JSON.stringify(state));return true;}catch{return false;}}
-export function loadState(storage){try{storage??=globalThis.localStorage;const parsed=JSON.parse(storage?.getItem?.(SAVE_KEY)||'null');if(parsed?.version!==7)return newState();const s=newState();s.profile=cleanProfile(parsed.profile);s.settings={sound:parsed.settings?.sound!==false,reducedMotion:parsed.settings?.reducedMotion===true,cardCruisingSpeed:parsed.settings?.cardCruisingSpeed==null?null:cleanCardCruisingSpeed(parsed.settings.cardCruisingSpeed),skipTutorial:parsed.settings?.skipTutorial===true,testOverride:parsed.settings?.testOverride===true,startingCompanion:'collector',testStarterCompanion:'collector',companions:['collector'],companionRole:'collector'};if(parsed.run&&parsed.run.artifactSystem!==2)s.updateNotice='Artifacts now accumulate without slots. Your old expedition has ended; ascension and tutorial progress are preserved.';if(parsed.run?.artifactSystem===2&&validRun(parsed.run)){s.run=parsed.run;prepareScoreLedger(s.run);restoreRestRoutes(s.run);restoreChapterTheme(s.run);s.run.atlasEligible??=s.profile.stats.wins>0;restoreTreasureSites(s.run);s.run.restGlowCapacity=getRestGlowBonus(s.run);s.run.flame=clamp(s.run.flame,0,getGlowCapacity(s.run));s.run.artifacts=cleanRunArtifacts(s.run);cleanArtifactCharges(s.run);cleanRunCompanion(s.run);s.run.unlockedCompanionDifficulty=s.profile.difficulty;if(s.run.attemptActive)interrupt(s.run);settleCheckpoint(s);normalizeClearFlow(s.run);if(s.run.phase==='ended')bankRun(s);}if(s.run?.isTutorial&&parsed.suspendedRun?.artifactSystem===2&&validRun(parsed.suspendedRun)&&!parsed.suspendedRun.isTutorial&&parsed.suspendedRun.phase!=='ended'&&parsed.suspendedRun.id!==s.run.id){s.suspendedRun=parsed.suspendedRun;prepareScoreLedger(s.suspendedRun);restoreRestRoutes(s.suspendedRun);restoreChapterTheme(s.suspendedRun);restoreTreasureSites(s.suspendedRun);cleanRunCompanion(s.suspendedRun);s.suspendedRun.restGlowCapacity=getRestGlowBonus(s.suspendedRun);s.suspendedRun.flame=clamp(s.suspendedRun.flame,0,getGlowCapacity(s.suspendedRun));cleanArtifactCharges(s.suspendedRun);if(s.suspendedRun.attemptActive)interrupt(s.suspendedRun);settleCardProgress(s,s.suspendedRun);settleRunRewards(s.suspendedRun);normalizeClearFlow(s.suspendedRun);}saveState(s,storage);return s;}catch{return newState();}}
+export function loadState(storage){try{storage??=globalThis.localStorage;const parsed=JSON.parse(storage?.getItem?.(SAVE_KEY)||'null');if(parsed?.version!==7)return newState();const s=newState();s.profile=cleanProfile(parsed.profile);s.settings={sound:parsed.settings?.sound!==false,reducedMotion:parsed.settings?.reducedMotion===true,cardCruisingSpeed:parsed.settings?.cardCruisingSpeed==null?null:cleanCardCruisingSpeed(parsed.settings.cardCruisingSpeed),skipTutorial:parsed.settings?.skipTutorial===true,testOverride:parsed.settings?.testOverride===true,startingCompanion:'collector',testStarterCompanion:'collector',companions:['collector'],companionRole:'collector'};if(parsed.run&&parsed.run.artifactSystem!==2)s.updateNotice='Artifacts now accumulate without slots. Your old expedition has ended; ascension and tutorial progress are preserved.';if(parsed.run?.artifactSystem===2&&validRun(parsed.run)){s.run=parsed.run;if(s.run.isTutorial)migratePracticeRun(s.run,practiceMap());prepareScoreLedger(s.run);restoreRestRoutes(s.run);restoreChapterTheme(s.run);s.run.atlasEligible??=s.profile.stats.wins>0;restoreTreasureSites(s.run);s.run.restGlowCapacity=getRestGlowBonus(s.run);s.run.flame=clamp(s.run.flame,0,getGlowCapacity(s.run));s.run.artifacts=cleanRunArtifacts(s.run);cleanArtifactCharges(s.run);cleanRunCompanion(s.run);s.run.unlockedCompanionDifficulty=s.profile.difficulty;if(s.run.attemptActive)interrupt(s.run);settleCheckpoint(s);normalizeClearFlow(s.run);if(s.run.phase==='ended')bankRun(s);}if(s.run?.isTutorial&&parsed.suspendedRun?.artifactSystem===2&&validRun(parsed.suspendedRun)&&!parsed.suspendedRun.isTutorial&&parsed.suspendedRun.phase!=='ended'&&parsed.suspendedRun.id!==s.run.id){s.suspendedRun=parsed.suspendedRun;prepareScoreLedger(s.suspendedRun);restoreRestRoutes(s.suspendedRun);restoreChapterTheme(s.suspendedRun);restoreTreasureSites(s.suspendedRun);cleanRunCompanion(s.suspendedRun);s.suspendedRun.restGlowCapacity=getRestGlowBonus(s.suspendedRun);s.suspendedRun.flame=clamp(s.suspendedRun.flame,0,getGlowCapacity(s.suspendedRun));cleanArtifactCharges(s.suspendedRun);if(s.suspendedRun.attemptActive)interrupt(s.suspendedRun);settleCardProgress(s,s.suspendedRun);settleRunRewards(s.suspendedRun);normalizeClearFlow(s.suspendedRun);}saveState(s,storage);return s;}catch{return newState();}}
 
 // A campaign deck prevents repeat chests across map boundaries. Reserve a lens
 // for any chest immediately before the final guardian, when currency would expire.
@@ -1281,7 +1281,7 @@ export function getRouteMapState(run){
  for(const n of frontier){if(lastElite&&n.elite)continue;addEdge(currentId,n.id);visit(n,lastElite);}
  return{currentId,selectedId:selected?.id||null,availableIds,reachableIds:[...reachableIds],completedIds,pathEdges,reachableEdges};
 }
-export function selectNode(run,nodeId){if(run?.pendingTemporary||run?.pendingChest||run?.victoryPending||run?.flightReward&&!run.flightReward.claimed||!cardRewardResolved(run))return false;const n=getChoices(run).find(n=>n.id===nodeId);if(!n)return false;if(n.type!=='support'&&!run.isTutorial)n.bonusId=getRouteBonus(run,n)?.id??null;run.path=run.path.filter(id=>nodes(run).some(p=>p.id===id&&p.row<run.step));run.path.push(n.id);if(n.type!=='support')n.flightNumber=run.path.map(id=>nodes(run).find(p=>p.id===id)).filter(p=>p.type!=='support').length;run.current=n;run.lastEvent=null;run.phase=n.type==='support'?'support':'briefing';if(isCardRun(run)&&n.kind==='camp')ensureCardRest(run);if(n.kind==='scribe'){if(isCardRun(run))ensureScribeStop(run);else{run.path.pop();run.current=null;run.phase='map';return false;}}preparePracticeStop(run,n);return true;}
+export function selectNode(run,nodeId){if(run?.pendingTemporary||run?.pendingChest||run?.victoryPending||run?.flightReward&&!run.flightReward.claimed||!cardRewardResolved(run))return false;const n=getChoices(run).find(n=>n.id===nodeId);if(!n)return false;if(n.type!=='support'&&!run.isTutorial)n.bonusId=getRouteBonus(run,n)?.id??null;run.path=run.path.filter(id=>nodes(run).some(p=>p.id===id&&p.row<run.step));run.path.push(n.id);if(n.type!=='support')n.flightNumber=run.path.map(id=>nodes(run).find(p=>p.id===id)).filter(p=>p.type!=='support').length;run.current=n;run.lastEvent=null;run.phase=n.type==='support'?'support':'briefing';if(isCardRun(run)&&n.kind==='camp')ensureCardRest(run);if(n.kind==='scribe'){if(isCardRun(run))ensureScribeStop(run);else if(!isPracticeCourseRun(run)){run.path.pop();run.current=null;run.phase='map';return false;}}preparePracticeStop(run,n);return true;}
 function nextStop(run){run.step++;run.current=null;run.phase=run.step>=run.map.length?'ended':'map';}
 function reattempt(run){return run.phase==='briefing'&&run.current&&run.lastAttempt?.nodeId===run.current.id&&run.lastAttempt.success!==true;}
 function canPrepareAtCheckpoint(run){const starter=run?.mapIndex===0&&run?.step===0&&run?.phase==='map'&&!run.path?.length;return!!run&&(run.testMode===true||run.restReady===true||starter)&&!run.attemptActive&&!run.banked&&run.lives>0&&['support','map','briefing'].includes(run.phase)&&!reattempt(run);}
@@ -1403,7 +1403,7 @@ export function availableFlightArtifacts(run,node){
 }
 /** The course name the map stop page uses (e.g. "Bell Garden"), for the flight just ended; '' when unknown. */
 export function lastCourseName(run){const id=run?.lastFlight?.nodeId||run?.lastAttempt?.nodeId;const flat=(run?.map||[]).flat?.()||[];return String(flat.find(n=>n?.id===id)?.name||run?.lastAttempt?.nodeName||run?.current?.name||'');}
-export const SCRIBE_OFFER_COUNT=3;
+export const SCRIBE_OFFER_COUNT=2;
 /** Every map offers exactly two Scribes, so a run offers at most this many: 2 per map (3 maps = 6). Maps 1 and 2: a Scribe stop and the guardian; map 3: two Scribe stops (its guardian ends the run). */
 export const SCRIBE_MAX_PER_RUN=SCRIBES_PER_MAP*MAP_COUNT;
 export const SCRIBE_STOP_SUMMARY='Scribe — choose an Inscription for a slot of your Chain.';
@@ -1415,7 +1415,7 @@ export function flightRewardKind(run,node){
  if(!node.boss||(node.mapIndex??run.mapIndex)===2&&!run.isTutorial)return null;
  return 'inscription';
 }
-/** Entering a Scribe stop opens its choice at once: three Inscriptions (the same seeded draw on every visit), no flight. Safe to call again on a reload. */
+/** Entering a Scribe stop opens its choice at once: two Inscriptions (the same seeded draw on every visit), no flight. Safe to call again on a reload. */
 export function ensureScribeStop(run){
  const n=run?.current;
  if(!run||run.phase!=='support'||n?.kind!=='scribe'||!isCardRun(run))return null;
@@ -1436,7 +1436,7 @@ export function leaveScribe(run){
  if(!run||run.phase!=='support'||run.current?.kind!=='scribe'||!run.flightReward?.claimed||run.flightReward.nodeId!==run.current.id)return false;
  run.flightReward=null;nextStop(run);return true;
 }
-// The Scribe (docs/inscriptions.md): only a map’s Boss flight offers three Inscriptions, then a slot to write one on.
+// The Scribe (docs/inscriptions.md): only a map’s Boss flight offers two Inscriptions, then a slot to write one on.
 function makeFlightReward(run,source='flight'){
  const n=run.current;
  if(flightRewardKind(run,n)!=='inscription')return null;
@@ -1792,9 +1792,10 @@ function inRefundBranch(id,root,seen=new Set()){
 }
 function rawSupportChoices(run,profile=null){
  if(run?.phase!=='support')return[];const n=run.current;
+ // Edition 5: every practice screen leads on with one choice, open once its goal is met (practice-route.mjs › practiceStopReady).
+ if(isPracticeCourseRun(run))return [choice('practice-chain-ready','Fly with your Chain','Refill your Spark Meter and take your Chain into the next passage.',{flame:100})];
  if(n.kind==='scribe')return[];
  if(n.kind==='camp'){
-  if(isPracticeCourseRun(run))return [choice('practice-chain-ready','Fly with your Chain','Refill your Spark Meter and take the loaned Chain, in the order you set, into the next passage.',{flame:100})];
   if(isPlayablePractice(run))return [choice('practice-recover','Recover & borrow a combination','Restore missing hearts and all Sparks. Borrow Rhythm and Resonant Harvest for the next passage.',{lives:Math.max(0,getLifeCapacity(run)-run.lives),flame:100,rest:'recover',practiceCombo:true})];
   const growth=Math.min(REST_GLOW_TUNING.capacityStep,REST_GLOW_TUNING.capacityLimit-getRestGlowBonus(run)),hearts=Math.max(0,getLifeCapacity(run)-run.lives),fuel=Math.max(0,getGlowCapacity(run)-run.flame),recover=hearts>0||fuel>0;
   const offers=[
@@ -1814,6 +1815,7 @@ function makeSupportChoices(run,profile=null){return rawSupportChoices(run,profi
 export function resolveSupport(run,index,profile=null){
  if(!run||run.pendingTemporary||run.pendingChest||run.phase!=='support'||!Number.isInteger(index)||index<0)return false;
  if(isCardRun(run)&&run.current.kind==='camp')return resolveCardCamp(run,index);
+ if(isPracticeCourseRun(run)&&!practiceStopReady(run))return false;
  const offers=getSupportChoices(run,profile),offer=offers[index],e=offer?.effect;if(!e||offer.disabled)return false;if((e.rest||e.restContinue)&&run.restVisits?.some(v=>v.key===`${run.mapIndex}:${run.current.id}`))return false;const wallet=runWallet(run),cost=count(e.condensedCost),restBefore=e.rest||e.restContinue?{lives:run.lives,flame:run.flame}:null;
  if(e.flightPact&&(!FLIGHT_PACTS[e.flightPact]||activePactId(run)))return false;
  if(e.pilgrimVow&&(hasTemporary(run,'pilgrim-vow')||!eventNextFlights(run).length))return false;
@@ -2000,19 +2002,25 @@ export function getRunModifiers(run={}){const rank=skillProgress,companion=norma
 // The prologue has its own run wallet and entry checkpoints. Only learned
 // tutorial preferences survive leaving it; campaign resources never cross.
 export function shouldStartTutorial(state){return !!state?.profile&&!state.settings?.skipTutorial&&!state.profile.tutorialComplete;}
+/** The Edition 5 practice map, one stop per row (practice-course.mjs › PRACTICE_STOPS). */
+function practiceMap(node){
+ if(!node){const base={mapIndex:0,difficulty:1,elite:false,boss:false,bossId:null,...ROUTE_PROFILES.refuge,flightLengthScale:1,challengeId:'',challengeTarget:0,challengeBonus:0,practiceCards:true};
+  node=(row,id,type,kind,terrain,name,nextIds,extra={})=>({...base,row,id,type,kind,terrain,name,locationName:name,lane:1,duration:0,nextIds,...extra});}
+ return PRACTICE_STOPS.map((stop,row)=>[node(row,stop.id,stop.type,stop.kind||(stop.type==='finale'?'finale':'normal'),stop.terrain,stop.name,
+  PRACTICE_STOPS[row+1]?[PRACTICE_STOPS[row+1].id]:[],{...(stop.levelId?{levelId:stop.levelId,tutorialLesson:stop.lesson,duration:stop.duration}:{}),
+  ...(stop.practiceChain?{practiceChain:true}:{}),...(stop.practiceRest?{practiceRest:true}:{}),...(stop.practiceScribe?{practiceScribe:true}:{})})]);
+}
 function createTutorial(profile,edition=PRACTICE_EDITION){
  const legacy=edition===LEGACY_PRACTICE_EDITION;
  const r=createRun(profile,`practice-${freshSeed()}`);
- Object.assign(r,{isTutorial:true,tutorialEdition:legacy?LEGACY_PRACTICE_EDITION:PRACTICE_EDITION,mapIndex:0,mapName:'First Light · Seven stops',difficulty:1,
+ Object.assign(r,{isTutorial:true,tutorialEdition:legacy?LEGACY_PRACTICE_EDITION:PRACTICE_EDITION,mapIndex:0,mapName:legacy?'First Light · Seven stops':FIRST_LIGHT_NAME,difficulty:1,
   skills:{'main-sight':1},artifacts:[],artifactCharges:{},companions:['collector'],companionRole:'collector',
   practiceCondensedGlow:0,condensedGlow:0,condensedRemainder:0,lives:legacy?2:3,maxLives:3,flame:100,unlockedCompanionDifficulty:1});
  const base={mapIndex:0,difficulty:1,elite:false,boss:false,bossId:null,...ROUTE_PROFILES.refuge,flightLengthScale:1,challengeId:'',challengeTarget:0,challengeBonus:0,practiceCards:true};
  const node=(row,id,type,kind,terrain,name,nextIds,extra={})=>({...base,row,id,type,kind,terrain,name,locationName:name,lane:1,duration:0,nextIds,...extra});
  if(!legacy){
-  // Edition 4: real courses in six biomes and one camp, one idea per paused lesson (practice-course.mjs).
-  r.map=PRACTICE_STOPS.map((stop,row)=>[node(row,stop.id,stop.type,stop.kind||(stop.type==='finale'?'finale':'normal'),stop.terrain,stop.name,
-   PRACTICE_STOPS[row+1]?[PRACTICE_STOPS[row+1].id]:[],{...(stop.levelId?{levelId:stop.levelId,tutorialLesson:stop.lesson,duration:stop.duration}:{}),
-   ...(stop.practiceProximity?{practiceProximity:true}:{}),...(stop.practiceShield?{practiceShield:true}:{}),...(stop.practiceChain?{practiceChain:true}:{})})]);
+  // Edition 5: real courses and paused Chain screens, one idea per paused lesson (practice-course.mjs).
+  r.map=practiceMap(node);
   r.practiceCards=[];return r;
  }
  r.map=[

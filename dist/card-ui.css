@@ -651,7 +651,7 @@ html body .card-rest-screen .card-camp-choice>button{width:100%;min-height:38px;
  .card-rest-screen .card-camp-main{gap:6px}.card-rest-screen .card-camp-main>.card-heading h2{font-size:19px}
  html body .card-rest-screen .card-camp-choice{grid-template-rows:minmax(0,1fr) 20px 32px 24px 38px}
  .card-rest-screen .card-camp-choice h3{font-size:18px}.card-rest-screen .card-camp-choice p{font-size:12px}
- .card-rest-screen .card-camp-choice .card-camp-note{font-size:10px}.card-rest-screen .card-camp-choice>.choice-scene{max-height:59px}
+ .card-rest-screen .card-camp-choice .card-camp-note{font-size:11px}.card-rest-screen .card-camp-choice>.choice-scene{max-height:59px}
 }
 @media(max-height:295px){
  .card-rest-screen{padding:3px 7px;gap:10px}.card-rest-screen .card-rest-rail{gap:4px}.card-rest-screen .card-rest-rail>h1{font-size:17px}
@@ -865,14 +865,14 @@ html body .card-deck-equipping .card-slot-row .card-slot-pick{min-height:60px!im
 :is([data-card-term="copy"],[data-card-term-key="copy"]){--term-ink:#68416f}
 :is([data-card-term="packing"],[data-card-term-key="packing"]){--term-ink:#6b4b1b}
 :is([data-card-term="grow"],[data-card-term-key="grow"]){--term-ink:#3a5b30}
-html body button.card-term{color:var(--term-ink)!important;text-decoration-color:currentColor!important;text-decoration-thickness:1px;font-weight:500!important}
-html body button.card-term:hover{color:var(--term-ink)!important;text-decoration-style:solid}
-html body button.card-term:focus-visible{outline:2px solid var(--term-ink);outline-offset:2px;border-radius:1px!important}
+html body button.card-term{color:inherit!important;-webkit-text-fill-color:currentColor!important;background:none!important;text-decoration-color:currentColor!important;text-decoration-thickness:1px;font-weight:inherit!important}
+html body button.card-term:hover{color:inherit!important;text-decoration-style:solid}
+html body button.card-term:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:1px!important}
 .card-term-icon{width:1em;height:1em;margin-right:.13em;vertical-align:-.12em}
 .card-term-icon>svg{overflow:hidden;filter:none!important}
-.card-term-label{display:inline-block;padding:3px 6px;background:#e5d7aa;color:var(--term-ink);border-radius:2px;line-height:1.3}
+.card-term-label{display:inline;padding:0;background:none;color:inherit;line-height:inherit}
 .card-term-label>.card-term-icon{width:1.25em;height:1.25em;vertical-align:-.23em;margin-right:.35em}
-html body .card-exchange-result>.card-mechanics .card-term{background:#e5d7aa!important;padding:1px 2px!important}
+/* Linked words never get a box or a colour block: the sentence colour with a dotted underline. */
 
 /* Short triggers and results share one resource drawing at a readable size. */
 .card-rule-line{display:block}
@@ -909,8 +909,6 @@ html body .skill-card.card-readable .card-rule-band .card-mechanic-main{font:cal
 html body .skill-card.card-has-uses .card-rule-stripe:last-child{padding-bottom:30px}
 .card-mechanics>.card-mechanic-main>.card-rule-stripe .card-term-icon{width:1.1em;height:1.1em;min-width:13px;min-height:13px;vertical-align:-.18em}
 .card-rule-stripe button.card-term:has(.card-term-icon){white-space:nowrap!important}
-html body .skill-card .card-rule-stripe button.card-term{color:#254936!important}
-html body .skill-card .card-rule-condition button.card-term{color:#50401d!important}
 .card-rule-stripe .card-number{color:inherit!important}
 @media(max-height:295px){.card-rule-stripe{padding:3px 6px}.card-rule-note{padding-top:0;padding-bottom:3px}html body .skill-card.card-readable .card-rule-band .card-mechanic-main{font-size:calc(clamp(10px,6cqw,12px) + 2px)!important;line-height:1.12!important}}
 
@@ -1431,7 +1429,7 @@ html body .skill-card:is(.card-common,.card-rare,.card-legendary){padding:var(--
 html body .skill-card .card-illustration{padding:3px;border-bottom-width:2px}
 html body .skill-card.card-readable.card-has-status .card-config-status{top:calc(var(--card-frame-top) + 3px);bottom:auto;left:calc(var(--card-frame-side) + 2px)}
 html body .card-swap-face>.skill-card:is(.card-common,.card-rare,.card-legendary){padding:11px 6px 6px!important}
-html body .card-term-dialog .card-term{color:#f1dfa7!important;background:#314a36!important;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}
+html body .card-term-dialog .card-term{color:inherit!important;background:none!important;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}
 .card-term-related{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
 .card-term-related::before{content:'Related';width:100%;font-size:10px;color:#afc39f}
 .card-term-related button.card-term{min-height:36px!important;padding:5px 8px!important}
@@ -1441,7 +1439,7 @@ html body .card-term-dialog .card-term{color:#f1dfa7!important;background:#314a3
 .card-term-hover{position:fixed;z-index:1000;width:min(330px,calc(100vw - 20px));margin:0;padding:12px;border:2px solid #9eaf81;background:#1b3126;color:#d9e4c4;box-shadow:0 5px 18px #0009;font:14px/1.35 var(--pixel,monospace);max-height:min(270px,calc(100dvh - 20px));overflow:auto}
 .card-term-hover h3{margin:0 0 5px;color:#f1dfa7;font:17px/1.1 var(--pixel,monospace)}
 .card-term-hover p{margin:0}.card-term-hover small{display:block;margin-top:7px;font-size:11px;color:#b3c6a2}
-html body .card-term-hover button.card-term{background:#314a36!important;color:#f1dfa7!important;min-height:28px!important}
+html body .card-term-hover button.card-term{background:none!important;color:inherit!important;min-height:28px!important}
 @media(hover:none){.card-term-hover{display:none}}
 .card-term-dialog h2>.card-term-icon{width:1.2em;height:1.2em;vertical-align:-.2em;margin-right:.3em}
 @media(hover:none){.card-term-dialog>header button,.card-term-dialog>footer button,.card-term-related button.card-term{min-height:44px!important}.card-term-extra summary{min-height:44px}}
@@ -1765,26 +1763,83 @@ html body button.flight-card-row.card-row-stopped{filter:saturate(.3) brightness
 .ins-legend-list>li>.ins-glyph{flex:none;color:#f1dfa7;image-rendering:pixelated}
 .ins-legend-list>li>span{min-width:0;overflow-wrap:anywhere}
 .ins-legend-list b{font-weight:400;color:#f1dfa7}
-/* Glossary dialogs on the parchment kit: inline links in the kit's dark link green; the Example block is a dark panel with the kit's light text. */
-html body dialog.wb-dlg button.card-term:not(#k):not(#k){background:#314a35!important;color:#f2dfad!important}
+/* Glossary dialogs on the parchment kit: linked words keep the sentence colour (no box); the Example block is a dark panel with the kit light text. */
+html body dialog.wb-dlg button.card-term:not(#k):not(#k){background:none!important;color:inherit!important}
 html body dialog.wb-dlg .card-term-example{background:#2a2118;border-color:#6b5335}
 html body dialog.wb-dlg .card-term-example :is(figcaption,p,span,small,strong,b,li,div){color:#f6ebcc!important}
-html body dialog.wb-dlg .card-term-example button.card-term{color:#f2dfad!important}
+html body dialog.wb-dlg .card-term-example button.card-term{color:inherit!important}
 html body dialog.wb-dlg .card-term-related::before{color:#5a4632;font-size:11px}
 html body dialog.wb-dlg .ins-legend-list :is(li,span,b){color:#2a2118!important}
 html body dialog.wb-dlg .card-term-example:not(#k):not(#k) :is(figcaption,p,span,small,strong,b,li,div){color:#f6ebcc!important}
-html body dialog.wb-dlg .card-term-example:not(#k):not(#k) button.card-term,html body dialog.wb-dlg:not(.card-glossary-dialog) .card-term-definition:not(#k) button.card-term{color:#f2dfad!important}
+html body dialog.wb-dlg .card-term-example:not(#k):not(#k) button.card-term,html body dialog.wb-dlg:not(.card-glossary-dialog) .card-term-definition:not(#k) button.card-term{color:inherit!important}
 
-/* In-flight Chain strip (2026-11-18): solid card silhouettes, top centre, colour is the only channel. Whole pixels, no gradients, no text. */
-html body button.flight-card-row.chain-strip{position:absolute;inset:auto;top:max(50px,env(safe-area-inset-top));left:50%;bottom:auto;transform:translateX(-50%);display:flex;align-items:flex-start;justify-content:center;gap:3px;width:auto;max-width:none;min-height:0;height:auto;margin:0;padding:4px;border:0;border-radius:0;background:transparent;box-shadow:none;z-index:4;order:0;opacity:1;transition-property:opacity;transition-timing-function:linear;transition-duration:0ms}
+/* In-flight Chain strip (2026-11-18): mounted cards as 10x14 hollow frames in the top HUD row, centred; colour and motion only. Whole pixels, no text. */
+html body button.flight-card-row.chain-strip{position:absolute;inset:auto;--cshift:calc((var(--glass-left,0px) - var(--glass-right,0px))/2);top:calc(var(--inside-top,7px) + 7px);left:calc(50% + var(--cshift) - var(--strip-w,0px)/2);left:round(down,calc(50% + var(--cshift) - var(--strip-w,0px)/2),1px);bottom:auto;transform:none;display:flex;align-items:center;justify-content:center;gap:2px;box-sizing:border-box;width:var(--strip-w,auto);max-width:none;min-height:40px;height:40px;margin:0;padding:0 12px;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible;z-index:6;order:0;opacity:1;touch-action:manipulation;transition-property:opacity;transition-timing-function:linear;transition-duration:0ms}
 html body button.flight-card-row.chain-strip[hidden]{display:none}
-.chain-strip .chain-cell{display:flex;flex-direction:column;gap:2px;width:20px;flex:none}
-.chain-strip .chain-shape{display:block;box-sizing:border-box;width:20px;height:28px;background:var(--tone,#5d7a58)}
-.chain-strip .chain-shape.chain-empty,.chain-strip .chain-shape.chain-spent{background:transparent;box-shadow:inset 0 0 0 2px var(--tone)}
-.chain-strip .chain-shape.chain-lit{background:#fff}
-.chain-strip .chain-bar{display:block;height:0;border-top:2px solid #f0c86a}
-.chain-strip .chain-bar-none{visibility:hidden}
-.chain-strip .chain-bar-temp{border-top-style:dashed}
-.chain-strip .chain-bar.chain-lit{border-top-color:#fff}
+.chain-strip .chain-cell{position:relative;display:block;width:10px;height:14px;flex:none}
+.chain-strip .chain-frame{position:absolute;inset:0;box-sizing:border-box;border:1px solid var(--tone,#b9cfb0);background:transparent;box-shadow:0 0 0 1px #0b1210}
+.chain-strip .chain-frame.chain-spent{opacity:.5}
+.chain-strip .chain-fill{position:absolute;inset:-1px;background:#fff;opacity:0;will-change:opacity}
+.chain-strip .chain-cell.chain-lit .chain-fill{opacity:1}
+.chain-strip .chain-echo{position:absolute;inset:0;box-sizing:border-box;border:1px solid #fff;box-shadow:0 0 0 1px #0b121099;opacity:0;pointer-events:none;will-change:transform,opacity}
+.chain-strip .chain-bar{position:absolute;left:0;top:16px;width:10px;height:2px;background:#f0c86a;box-shadow:0 0 0 1px #0b1210;transform-origin:50% 50%}
+.chain-strip .chain-bar-none{display:none}
+.chain-strip .chain-bar-temp{background:linear-gradient(90deg,#f0c86a 0 3px,transparent 3px 4px,#f0c86a 4px 6px,transparent 6px 7px,#f0c86a 7px 10px);box-shadow:none}
+/* The effect icons (artifact row) leave the flight HUD while the Chain strip is up: their details stay in the paused view. The optional-objective counter sits right of the strip. */
+.flight-device:has(.chain-strip:not([hidden])) .flight-artifact-bar{display:none!important}
+.flight-device:has(.chain-strip:not([hidden])) .flight-hud .flight-bonus-counter{position:absolute;margin:0;left:calc(50% + var(--cshift,0px) + var(--strip-w,0px)/2 + 2px);top:15px;transform:none}
+.flight-device{--cshift:calc((var(--glass-left,0px) - var(--glass-right,0px))/2)}
 .flight-fps{position:absolute;z-index:3;left:max(106px,calc(env(safe-area-inset-left) + 96px));top:28px;font:10px/1 var(--pixel);color:#9fb39a;opacity:.55;pointer-events:none;text-shadow:1px 1px 0 #140e09}
 .flight-fps[hidden]{display:none}
+
+/* ===== Large card face v3 (2026-11-18): the card is as tall as its content, so a row of cards has no dead area. =====
+   Picture window: the 48x48 picture at a whole multiple (48, 96 or 144 px) chosen from the room the screen gives the card (--card-height).
+   Text block sits directly under it: trigger line (yellow), then the effect, centred in what is left, at one larger text step.
+   Uses badge: bottom-left of the picture window; rarity gems: bottom-right. Neither is ever over text. No trigger chip on this face. */
+html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *){
+  --pic:clamp(48px,round(down,calc(var(--card-height) - 150px),48px),144px);
+  --face-text:clamp(14px,8.3cqw,18px);
+  display:flex!important;flex-direction:column;grid-template-rows:none!important;
+  height:auto!important;max-height:var(--card-height)!important;aspect-ratio:auto!important;
+  width:calc(var(--card-height) * 5 / 7)!important;max-width:100%!important;
+}
+html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *) .card-face-heading{flex:none;position:relative;display:flex;align-items:center;justify-content:center;min-height:36px;padding:4px 34px 4px 34px;border-radius:0}
+html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *) .card-face-heading h3{font:clamp(13px,8.1cqw,17px)/1.1 var(--pixel);text-align:center;margin:0;overflow-wrap:normal}
+/* 40x40 touch target; the drawn circle stays 26 px. */
+html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *) button.card-help{right:-3px;top:-2px;width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;font-size:16px!important;border:0!important;border-radius:0!important;background:radial-gradient(circle,#192f25 0 12px,#a7b590 12px 13px,transparent 13.5px)!important;z-index:7}
+html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *) .card-illustration{flex:none;position:relative;display:grid;place-items:center;height:calc(var(--pic) + 6px);min-height:0;padding:3px;overflow:hidden}
+html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *) .card-illustration>.skill-card-art{width:var(--pic)!important;height:var(--pic)!important;max-width:none!important;max-height:none!important;aspect-ratio:1/1!important;object-fit:contain!important;image-rendering:pixelated;flex:none}
+html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *) .card-illustration>.card-use-counter{position:absolute;left:5px;right:auto;top:auto;bottom:5px;z-index:6}
+html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *) .card-rule-band{flex:1 1 auto;min-height:0;padding:0!important;display:flex;flex-direction:column;overflow-x:hidden;overflow-y:auto}
+html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *) .card-rule-band>.card-mechanics{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *) .card-rule-band .card-mechanic-main{flex:1 1 auto;height:auto;font:var(--face-text)/1.2 var(--pixel)!important}
+html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *) .card-rule-stripe{display:flex;flex-direction:column;justify-content:center;padding:6px 9px;min-height:30px}
+html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *) .card-rule-stripe:last-child{flex:1 1 auto;padding-bottom:6px}
+html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *) .card-rule-stripe>.card-rule-text{display:block;min-width:0}
+html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *).card-has-uses .card-rule-band{padding-bottom:0!important}
+html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *).card-has-uses .card-rule-stripe:last-child{padding-bottom:6px}
+/* The starter row: the row is the size container (it gives the height budget); cards take their own height and the row is as tall as the tallest, all equal. */
+html body .card-starter-pair.card-starter-trio{height:100%!important;max-height:100%;container-type:size;align-self:stretch;align-content:center;grid-template-rows:auto!important;align-items:stretch!important}
+html body .card-starter-trio>.card-pick{height:auto!important;container-type:normal;justify-content:flex-start;align-items:stretch;max-width:none!important}
+html body .card-starter-trio>.card-pick>.skill-card.card-readable:not(#k):not(#k):not(#k){--card-height:min(100cqh,350px);flex:1 1 auto!important;width:100%!important;max-width:none!important}
+
+/* Victory recap: the final Chain as a row of small tiles (Trigger chip, picture, name, effect line, the slot's Inscription brand), then the trophy at the same size. */
+.card-recap-row{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;min-height:0;overflow:visible}
+html body .card-recap-row>.recap-tile{position:relative;flex:none;box-sizing:border-box;width:118px;min-height:0;aspect-ratio:auto;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 5px 7px;background:#1f3328;color:#f4ecc9;border:3px solid #a6b27f;border-radius:4px;text-align:center}
+html body .card-recap-row>.recap-tile.card-rare{border-color:#8cc0d6}
+html body .card-recap-row>.recap-tile.card-legendary{border-color:#d3b779}
+.recap-top{display:flex;align-items:center;justify-content:space-between;gap:4px;width:100%;min-height:20px}
+.recap-top .tbadge{height:18px;font-size:10px;line-height:14px;min-width:0}
+.recap-top .tbadge-i{width:16px;height:14px}
+.recap-top .tbadge-i>svg{width:14px;height:14px}
+.recap-top .rpips{flex:none;position:static;background:none;padding:0}
+.recap-art{display:block;line-height:0}
+.recap-art>svg{display:block;width:48px!important;height:48px!important;max-width:none!important;max-height:none!important;aspect-ratio:1/1!important;image-rendering:pixelated}
+.recap-brand{position:absolute;right:3px;top:22px;line-height:0;color:#f1dfa7}
+.recap-name{font:400 13px/1.1 var(--pixel,monospace);color:#fff0c6!important;overflow-wrap:anywhere}
+.recap-line{font:400 11px/1.2 var(--pixel,monospace);color:#d4e0c4!important;overflow-wrap:anywhere}
+.card-winning-hand{align-items:flex-start}
+.card-recap-maps{margin:0 0 4px;font:400 13px/1.3 var(--pixel,monospace)}
+html body .card-victory-recap .card-winning-hand{overflow:visible;gap:16px;min-height:0}
+html body .card-victory-recap .card-winning-hand>aside{width:auto;flex:none}
+@media(max-width:800px){html body .card-recap-row>.recap-tile{width:98px;gap:2px;padding:4px 4px 6px}.recap-top .rpips{display:none}.recap-brand{top:26px}html body .card-victory-recap .card-winning-hand{gap:10px}.card-recap-row{gap:6px}}

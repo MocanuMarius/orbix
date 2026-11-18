@@ -53,3 +53,5 @@ body{font-variant-numeric:tabular-nums;font-synthesis:none}
 
 /* Resource feedback remains on pickups and gauges, leaving the flight header quiet. */
 .flight-event{display:none!important}
+/* The pixel font's "fi" and "fl" ligatures draw as a capital A ("first" read "Arst", "flight" read "Aight"). Ligatures are off everywhere. */
+html,html *,html *::before,html *::after{font-variant-ligatures:none;font-feature-settings:"liga" 0,"clig" 0,"calt" 0}

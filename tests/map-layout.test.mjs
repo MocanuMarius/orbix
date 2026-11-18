@@ -114,17 +114,17 @@ test('the stop page states what each stop gives, and entering the stop gives exa
   assert.equal(M.flightRewardKind(run, stop), 'inscription');
   const page = text(stopPreviewMarkup(run, stop, {available: true}));
   assert.ok(page.includes('Scribe — choose an Inscription for a slot of your Chain.'), page);
-  assert.ok(page.includes('1 Inscription (choose 1 of 3)'), page);
+  assert.ok(page.includes('1 Inscription (choose 1 of 2)'), page);
   assert.equal(getMapStopInfo(stop).summary, M.SCRIBE_STOP_SUMMARY); assert.equal(stop.rewardPreview, M.SCRIBE_STOP_REWARD);
   assert.match(mapStopIconMarkup(stop), /data-ins-glyph="whetted"/);
   assert.ok(M.selectNode(run, stop.id)); assert.equal(run.phase, 'support');
-  assert.equal(run.flightReward.kind, 'inscription'); assert.equal(run.flightReward.offers.length, 3); assert.equal(run.flightReward.claimed, false);
+  assert.equal(run.flightReward.kind, 'inscription'); assert.equal(run.flightReward.offers.length, 2); assert.equal(run.flightReward.claimed, false);
   assert.equal(run.scribesOffered, 1);
   // the stop screen: no course name, leaves for the map, never says Continue
   s.run = run;
   const html = scribeMarkup(s, {scribe: {}, title: 'Map stop', stop: true});
   assert.match(html, /Choose an Inscription/);
-  // choose one of three, write it on a bare slot, leave
+  // choose one of two, write it on a bare slot, leave
   const [pick] = run.flightReward.offers;
   assert.equal(M.previewScribeWrite(run, pick, 1).needsConfirm, false);
   assert.ok(M.chooseFlightReward(s, pick, 1)); assert.equal(slotInscriptionId(run, 1), pick);

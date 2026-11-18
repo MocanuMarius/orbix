@@ -32,8 +32,8 @@ test('preview shows earned pay and the optional condition separately, with claim
 test('Elite and Boss stops promise the Scribe, ordinary stops promise nothing extra, and the last guardian previews the expedition victory',()=>{
  const {run,render}=sample(true);
  assert.doesNotMatch(render({elite:true}),/Inscription/);
- assert.match(render({boss:true,mapIndex:0}),/1 Inscription \(choose 1 of 3\)/);
- assert.match(render({boss:true,mapIndex:1}),/1 Inscription \(choose 1 of 3\)/);
+ assert.match(render({boss:true,mapIndex:0}),/1 Inscription \(choose 1 of 2\)/);
+ assert.match(render({boss:true,mapIndex:1}),/1 Inscription \(choose 1 of 2\)/);
  assert.doesNotMatch(render({elite:true}),/relic|artifact/i);
  assert.doesNotMatch(render({}),/Inscription|relic/i);
  const last=render({boss:true,mapIndex:2});
@@ -51,8 +51,8 @@ test('the reward line of every stop type agrees with what finishFlight really aw
    const text=visibleText(flightPreviewMarkup(run,node,{available:true,level:node}));
    assert.ok(selectNode(run,node.id)&&beginFlightAttempt(run)&&finishFlight(run,{success:true,flame:70,collected:12}),type);
    const awards=run.flightReward?.kind==='inscription';
-   assert.equal(/1 Inscription \(choose 1 of 3\)/.test(text),awards,`${type} cards=${cards}: ${text}`);
-   if(awards)assert.equal(run.flightReward.offers.length,3);
+   assert.equal(/1 Inscription \(choose 1 of 2\)/.test(text),awards,`${type} cards=${cards}: ${text}`);
+   if(awards)assert.equal(run.flightReward.offers.length,2);
    assert.doesNotMatch(text,/relic|artifact/i,type);
   }
  }
@@ -62,7 +62,7 @@ test('card runs promise the guaranteed card without drawing it, including the fi
  const state=newState(),run=createRun(state.profile,'card-preview',1,{cards:true});
  const node=run.map.flat().find(n=>n.type==='flight'),before=JSON.stringify(run);
  assert.match(flightPreviewMarkup(run,node),/1 card/);
- assert.match(flightPreviewMarkup(run,{...node,boss:true,mapIndex:0}),/1 card \+ 1 Inscription \(choose 1 of 3\)/);
+ assert.match(flightPreviewMarkup(run,{...node,boss:true,mapIndex:0}),/1 card \+ 1 Inscription \(choose 1 of 2\)/);
  assert.doesNotMatch(flightPreviewMarkup(run,{...node,elite:true}),/Inscription/);
  const final=flightPreviewMarkup(run,{...node,boss:true,mapIndex:2});
  assert.match(final,/Expedition victory/);assert.match(final,/1 trophy card/);

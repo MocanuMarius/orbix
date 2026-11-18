@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createContext, runInContext } from 'node:vm';
 import * as M from '../dist/model.mjs';
+import { PRACTICE_STOPS } from '../dist/practice-course.mjs';
 import { starterCardsMarkup, starterGiftConfirmationMarkup } from '../dist/card-ui.mjs';
 import { homeMenuMarkup } from '../dist/run-menu.mjs';
 
@@ -141,7 +142,7 @@ for (const cards of [true, false]) {
   test(`${mode}: E - finishing practice ends on an explicit starting ${noun} step`, () => {
     const storage = memory(); let g = boot(storage, cards);
     g.newGame(); const r = g.state.run;
-    const last = r.map.length - 1; assert.equal(last, 6, 'seven practice stops');
+    const last = r.map.length - 1; assert.equal(last, PRACTICE_STOPS.length - 1, 'one row per practice stop');
     r.step = last; r.path = r.map.slice(0, last).map(row => row[0].id); r.phase = 'map';
     assert.ok(M.selectNode(r, M.getChoices(r)[0].id)); assert.ok(M.beginFlightAttempt(r));
     assert.ok(M.finishFlight(r, { success: true, flame: 80, practiceTopics: ['lift'] }));

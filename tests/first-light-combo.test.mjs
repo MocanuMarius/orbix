@@ -6,7 +6,7 @@ import {newState,startTutorial,getRunModifiers,createRun,leaveTutorial} from '..
 import {WispFlight} from '../dist/flight.mjs';
 import {WispFlightView} from '../dist/wisp-renderer.mjs';
 import {FIRST_LIGHT_COMBO,firstLightComboLesson,armFirstLightCombo,firstLightComboQuiet,FIRST_LIGHT_COMBO_GAP as GAP} from '../dist/first-light-combo.mjs';
-import {nextPracticeLesson} from '../dist/practice-route.mjs';
+import {nextPracticeLesson,PRACTICE_EDITION} from '../dist/practice-route.mjs';
 import {tutorialEntryLesson,FIRST_FLIGHT_STOPS} from '../dist/tutorial.mjs';
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-7,`${a} != ${b}`);
 // Edition 3 only: an unfinished Edition 3 practice save still lends this pair on its first flight.
@@ -85,9 +85,9 @@ test('production coach pauses before lending and waits for the explicit Try it a
 });
 
 
-test('Edition 4 never lends the pair on its first flight: cards wait for the camp',()=>{
+test('the current edition never lends the pair on its first flight: cards wait for the Chain screen',()=>{
  const state=newState();startTutorial(state);const run=state.run,node=run.map[0][0];
- assert.equal(run.tutorialEdition,4);assert.deepEqual(run.practiceCards,[]);
+ assert.equal(run.tutorialEdition,PRACTICE_EDITION);assert.deepEqual(run.practiceCards,[]);
  const engine=new WispFlight({canvas:{getContext:()=>({setTransform(){}}),getBoundingClientRect:()=>({width:900,height:405})},preflight:true,node,duration:node.duration,flame:100,companions:['collector'],modifiers:getRunModifiers(run)});
  try{engine.running=true;engine.tutorialAwaitingLift=false;engine.time=6;engine.paused=true;
   assert.equal(firstLightComboLesson(engine,{...run,guideSeen:{'practice:sparks':true}}),null);assert.equal(armFirstLightCombo(engine,run),false);

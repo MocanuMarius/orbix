@@ -38,7 +38,8 @@ import {drawShellArcs} from './shell-arcs.mjs?v=guide-clarity-1';
 import {drawWispWake} from './wisp-wake.mjs?v=guide-clarity-1';
 import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=guide-clarity-1';
 import {drawFallWarning} from './fall-chain-art.mjs?v=guide-clarity-1';
-import {castTerrainLight,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=guide-clarity-1';
+import {castTerrainLight,castTerrainLightGPU,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=guide-clarity-1';
+import {LightFogGPU} from './light-gpu.mjs?v=guide-clarity-1';
 import {lanternField} from './lantern-layout.mjs?v=guide-clarity-1';
 // v1.2-level ground, boulders and growth (all twelve biomes). On by default; null with ?scenery=1 or {scenery:1}.
 import {createLevelSceneryTwo} from './level-scenery-two.mjs?v=guide-clarity-1';
@@ -281,6 +282,9 @@ export class WispFlightView {
       this.fogContext = this.fog.getContext('2d');
       if (!this.context || !this.bufferContext || !this.fogContext) throw Error('Canvas 2D is unavailable.');
       this.document = document;
+      // WebGL2 light compositor, chosen once here; null (Canvas 2D fog) without WebGL2, on a software GL, or with ?gl=0.
+      this.lightGpu = LightFogGPU.create(document);
+      this.canvas.dataset.light = this.lightGpu ? 'webgl2' : 'canvas2d';
       prepareTerrainLight();
       await prepareEnvironmentArt(document);
       if(this.destroyed||e.destroyed)return false;
@@ -893,6 +897,41 @@ export class WispFlightView {
     // them is active, solid rock is re-darkened behind its exposed face.
     const unblocked = !legacy && (e.luminanceWaves?.revealCount > 0 || lanternField(e.layout)?.shutters?.length > 0 || this.flashPropsInView(e));
     const shade = !legacy && (unblocked || fogAlpha < 1) ? this.solidShade(e) : null;
+    // WebGL2 compositor (light-gpu.mjs): same lights, rock law and order, drawn on the GPU.
+    // The design lab's legacy look stays on the Canvas 2D path below.
+    const gpu = !legacy && this.lightGpu ? this.lightGpu : null;
+    if (gpu) {
+      gpu.begin(W, H);
+      castFlightFlashLights(gpu.recorder, this.lightMask(), e, light, s, distanceOf(e), yOf(e));
+      gpu.waves(e.luminanceWaves, distanceOf(e), s);
+      gpu.shade(shade, SOLID_SHADE_MAX);
+      // Lantern wake: the 2D routine removes darkness from an opaque layer; its alpha is what stays dark.
+      if (lanternField(e.layout)?.shutters?.length) {
+        const w = this.wakeLayer ??= this.document.createElement('canvas');
+        if (w.width !== W || w.height !== H) { w.width = W; w.height = H; }
+        const g = this.wakeLayerContext ??= w.getContext('2d');
+        g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.fillStyle = '#000000'; g.fillRect(0, 0, W, H);
+        revealLanternWake(g, e, { distance: distanceOf(e), playerY: yOf(e), scale: s, light });
+        gpu.wake(w);
+      }
+      let ok = castTerrainLightGPU(gpu, e, { x: playerX / s, y: playerY / s, radius: this.lightRadius, alpha: this.lightIntensity, scale: s, channel: 'main' });
+      const ahead = light.forwardLight || e.forwardLight;
+      if (ahead?.active && ahead.radius > 0) ok = castTerrainLightGPU(gpu, e, { x: Number.isFinite(ahead.screenX) ? ahead.screenX : ahead.x, y: ahead.y + yOf(e) - e.player.y,
+        radius: ahead.radius, alpha: clamp((ahead.intensity ?? 1) * this.lightIntensity, 0, 1), scale: s, channel: 'forward' }) && ok;
+      if (light.landmarkLight) { const lamp = light.landmarkLight; ok = castTerrainLightGPU(gpu, e, { x: lamp.x, y: lamp.y, radius: lamp.radius, alpha: lamp.intensity, scale: s, channel: 'landmark' }) && ok; }
+      for (let i = 0; i < fleet.length && i < 3; i++) {
+        const orb = fleet[i], glow = companionTerrainLight(orb, this.lightDimScale, this.lightIntensity);
+        ok = castTerrainLightGPU(gpu, e, { x: orb.x, y: orb.y, ...glow, scale: s, channel: `fleet${i}` }) && ok;
+      }
+      const fog = ok ? gpu.render() : null;
+      if (fog) {
+        c.globalAlpha = fogAlpha; c.drawImage(fog, 0, 0);
+        if (shade && fogAlpha < 1) { c.globalAlpha = (1 - fogAlpha) * SOLID_SHADE_MAX; c.drawImage(shade, 0, 0); }
+        c.globalAlpha = 1;
+        return;
+      }
+      gpu.stats.fallbacks++;
+    }
     f.setTransform(1, 0, 0, 1, 0, 0); f.globalCompositeOperation = 'source-over'; f.globalAlpha = 1;
     f.clearRect(0, 0, W, H); f.fillStyle = '#000000'; f.fillRect(0, 0, W, H);
     f.globalCompositeOperation = 'destination-out';
@@ -1397,6 +1436,7 @@ export class WispFlightView {
     releaseTerrainBoundaryFrame(this.engine);
     releaseTerrainForeground(this.engine);
     this.contactEdgeRaster?.destroy();this.contactEdgeRaster=null;
+    this.lightGpu?.destroy();this.lightGpu=null;
     if (this.engine.canvas.style) this.engine.canvas.style.opacity = this.originalOpacity;
     this.canvas?.remove();
     for (const item of this.terrainCache.values()) { item.canvas.width = 1; item.canvas.height = 1; if (item.growth) item.growth.canvas.width = 1; }

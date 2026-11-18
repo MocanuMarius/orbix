@@ -15,7 +15,7 @@ treasure:stop('treasure','TREASURE','Treasure','Inspect a chest to see its two o
 scribe:stop('scribe','SCRIBE','The Scribe','Scribe — choose an Inscription for a slot of your Chain.'),
 rest:stop('rest','REST','Rest','Recover missing hearts or Grow Spark capacity. Both refill Sparks.'),
 encounter:stop('encounter','ENCOUNTER','Encounter','A promise, route preparation or bargain. Preview the stakes before choosing.'),
-boss:stop('boss','ELITE / GUARDIAN','Creature','Small creature: elite. Large head: guardian. Both offer three Inscriptions; choose one to write on your Chain.'),
+boss:stop('boss','ELITE / GUARDIAN','Creature','Small creature: elite. Large head: guardian. Both offer two Inscriptions; choose one to write on your Chain.'),
 });
 // The temporary Inscriptions each event can give (docs/inscriptions.md, "Events and objectives"). The stop page names them; the offers draw from them.
 const EVENT_GIVES={0:['hollow-feather','reserve-wick'],1:['night-ledger','star-chart','reserve-wick'],2:['pilgrim-vow','hollow-feather','reserve-wick'],3:['chime','hollow-feather'],4:['reserve-wick'],5:['star-chart','reserve-wick'],6:['reserve-wick','hollow-feather','star-chart'],7:['closed-eye','reserve-wick','star-chart'],8:['silent-orbit','chime','lead-seal','hollow-feather'],9:['hollow-feather','chime'],10:['star-chart','hollow-feather'],11:['chime','star-chart']};
@@ -53,13 +53,15 @@ function kindOf(value){
 export function getMapStopInfo(node={},maxGlow=100){
  const kind=kindOf(node),base=MAP_STOP_TYPES[kind],elite=node.elite===true||node.kind==='elite';
  if(node.practiceLoan)return {...base,name:node.name,summary:'Borrow Proximity rank 1 for a revealing Surface Pulse. The loan stays in practice.',detail:'One practice loan. Your campaign build stays safe.',eventIndex:null,scenarioId:null};
+ // First Light Edition 5: the paused Chain screens (practice-course.mjs). Nothing is at risk; nothing flies.
+ if(node.practiceChain&&!node.practiceScribe)return {...base,name:node.name,summary:node.practiceRest?'Rest: take Add slot, then place a gift card in your Chain.':'A gift card waits: place it in your Chain. No flight.',detail:'Practice cards stay in practice. Your real run is safe.',eventIndex:null,scenarioId:null};
  if(node.tutorialLesson==='guardian')return {...base,label:'GUARDIAN',name:'Hollow Warden',summary:'Read the warned stone hands. A wide opening and unlimited retries teach the guardian.',detail:'Reach the waylight to finish First Light. Practice resources stay here.',eventIndex:null,scenarioId:null};
  const event=kind==='encounter'&&node.kind!=='shrine'&&Number.isInteger(node.eventIndex)?getEventScenarios({...node,maxGlow})[node.eventIndex]:null;
  const exit=kind==='flight'&&(node.type==='finale'||node.kind==='finale'),guardian=guardianNames[node.bossId]||node.name||'Guardian';
  if(kind==='treasure')return {...base,name:node.name||base.name,summary:node.rewardPreview||base.summary,detail:node.description||base.summary,eventIndex:null,scenarioId:null};
  if(kind==='scribe')return {...base,detail:base.summary,eventIndex:null,scenarioId:null};
- const summary=kind==='boss'?(node.mapIndex>=2?`Pass ${guardian} and complete the Ascension.`:`Pass ${guardian} and choose one of three Inscriptions.`):elite?`Face an elite creature for ${getFlightClearReward(node)} Stored Sparks and a choice of three Inscriptions.`:event?.summary||(node.kind==='shrine'?'Choose faster companion recovery or two free Lifts, for 3 cleared flights.':exit?`Clear this passage for ${getFlightClearReward(node)} Stored Sparks and continue to the next map.`:base.summary);
- const detail=kind==='boss'?(node.mapIndex>=2?'Reach the waylight to complete the Ascension.':`A guardian ends this map: ${getFlightClearReward(node)} Stored Sparks and one of three Inscriptions to write on your Chain.`):elite?'Choose one of three Inscriptions and write it on a slot of your Chain.':event?.detail||summary;
+ const summary=kind==='boss'?(node.mapIndex>=2?`Pass ${guardian} and complete the Ascension.`:`Pass ${guardian} and choose one of two Inscriptions.`):elite?`Face an elite creature for ${getFlightClearReward(node)} Stored Sparks and a choice of two Inscriptions.`:event?.summary||(node.kind==='shrine'?'Choose faster companion recovery or two free Lifts, for 3 cleared flights.':exit?`Clear this passage for ${getFlightClearReward(node)} Stored Sparks and continue to the next map.`:base.summary);
+ const detail=kind==='boss'?(node.mapIndex>=2?'Reach the waylight to complete the Ascension.':`A guardian ends this map: ${getFlightClearReward(node)} Stored Sparks and one of two Inscriptions to write on your Chain.`):elite?'Choose one of two Inscriptions and write it on a slot of your Chain.':event?.detail||summary;
  return{...base,label:kind==='boss'?'GUARDIAN':elite?'ELITE':exit?'EXIT':base.label,name:kind==='boss'?guardian:event?.name||(node.type==='support'?node.name:node.locationName||node.name)||base.name,summary:event?summary:glowText(summary,maxGlow),detail:event?detail:glowText(detail,maxGlow),eventIndex:event?.index??null,scenarioId:event?.id||null};
 }
 // Stop icons are the approved v2.0-icons set (ui-icons.mjs). Elite and Guardian share the boss family but keep their own drawings.

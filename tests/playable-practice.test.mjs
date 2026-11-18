@@ -28,22 +28,22 @@ test('the route uses real Rhythm wave crossings and Harvest payouts without maki
  assert.deepEqual(state.profile.stats,profile.stats);
 });
 
-test('old practice restarts into the seven Edition 4 stops while its suspended run and New Game continuation survive',()=>{
+test('old practice restarts into the current edition stops while its suspended run and New Game continuation survive',()=>{
  const state=newState();state.run=createRun(state.profile,'resume-me',1,{cards:true});startTutorial(state,{forNewGame:true,difficulty:2});
  const suspended=structuredClone(state.suspendedRun);state.run.tutorialEdition=2;
  const oldId=state.run.id;assert.ok(startTutorial(state));
- assert.notEqual(state.run.id,oldId);assert.equal(state.run.tutorialEdition,4);assert.equal(state.run.map.length,7);
+ assert.notEqual(state.run.id,oldId);assert.equal(state.run.tutorialEdition,5);assert.equal(state.run.map.length,13);
  assert.deepEqual(state.run.tutorialContinuation,{difficulty:2});assert.deepEqual(state.suspendedRun,suspended);
  assert.equal(startTutorial(state),false,'current practice continues');
 });
 
-test('an unfinished Edition 3 practice continues as Edition 3; Practice again starts Edition 4',()=>{
+test('an unfinished Edition 3 practice continues as Edition 3; Practice again starts the current edition',()=>{
  const state=newState();state.run=createRun(state.profile,'resume-me',1,{cards:true});startTutorial(state,{forNewGame:true,difficulty:1,edition:3});
  const saved=structuredClone(state.run),suspended=structuredClone(state.suspendedRun);
  assert.equal(startTutorial(state),false,'Tutorial or reload keeps the Edition 3 run');assert.deepEqual(state.run,saved);
  assert.deepEqual(state.run.map.map(row=>row[0].tutorialLesson||row[0].kind),['glide','treasure','proximity','camp','rhythm','black-hole','guardian']);
  leaveTutorial(state);assert.deepEqual(state.run,suspended);
- assert.ok(startTutorial(state));assert.equal(state.run.tutorialEdition,4);
+ assert.ok(startTutorial(state));assert.equal(state.run.tutorialEdition,5);
 });
 
 test('practice failures restore the entrance indefinitely and never spend real cards or hearts',()=>{
@@ -52,13 +52,13 @@ test('practice failures restore the entrance indefinitely and never spend real c
   if(r.phase==='retry')assert.ok(retryFlight(r));
   assert.ok(beginFlightAttempt(r));assert.ok(finishFlight(r,{success:false,flame:0,cardFutureCapacity:999,cardCharges:{}}));
   assert.equal(r.lives,3);assert.equal(r.flame,100);assert.equal(r.phase,'retry');
-  assert.deepEqual(r.practiceCards,[],'Edition 4 lends no cards before the camp');
+  assert.deepEqual(r.practiceCards,[],'no cards before the first Chain screen');
  }
 });
 
-test('Flare is a real collectible in the Luminance course and the finish',()=>{
+test('Flare is a real collectible in the Luminance course and the Pulse course',()=>{
  const state=newState();startTutorial(state);
- for(const row of [2,6]){
+ for(const row of [2,10]){
   state.run.current=state.run.map[row][0];
   const e=new WispFlight({canvas,preflight:true,node:state.run.map[row][0],duration:state.run.map[row][0].duration,flame:100,modifiers:getRunModifiers(state.run)});
   try{assert.ok(e.layout.embers.some(p=>p.kind==='sight'&&!p.collected));}finally{e.destroy();}

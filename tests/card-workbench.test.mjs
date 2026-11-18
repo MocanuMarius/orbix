@@ -144,9 +144,10 @@ test('playing-card faces print complete rules with contextual term controls and 
   // Approved plain wording (v1.0-cardtext): Trigger chip, one short line, a small uses tag.
   assert.match(plain(face), /Collect/);
   assert.match(plain(face), /\+4 Sparks/);
-  assert.match(plain(face), /6 uses/);
+  assert.match(plain(face), /6\/6/); // the uses badge on the picture; the text no longer repeats "6 uses"
+  assert.doesNotMatch(plain(face), /6 uses/);
   assert.doesNotMatch(plain(face), /:/);
-  assert.deepEqual([...face.matchAll(/data-rule-type="([^"]+)"/g)].map(match=>match[1]), ['condition','effect','note']);
+  assert.deepEqual([...face.matchAll(/data-rule-type="([^"]+)"/g)].map(match=>match[1]), ['condition','effect']);
   assert.match(face, /data-card-term="collect"/);
   assert.match(face, /data-card-term-trigger="spark-cache"/);
   assert.match(face, /aria-label="Pocket Sparks, common"/);

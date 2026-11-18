@@ -61,7 +61,7 @@ test('Scribe first, then the temporary slot screen; the two screens cannot be mi
   const state = clearGuardian(0, true), run = state.run;
   const scribe = text(flightRewardMarkup(state, {scribe: {}}));
   assert.ok(scribe.includes(SCRIBE_KICKER)); assert.match(scribe, /The Scribe — permanent Inscription/);
-  assert.match(scribe, /A second choice follows: a temporary Inscription, /);
+  assert.match(scribe, /Then: a temporary Inscription, /);
   assert.doesNotMatch(scribe, /Temporary Inscription:/);
   const temp = temporaryWriteMarkup(state, {slot: null}), t = text(temp);
   assert.match(t, /Temporary Inscription/); assert.match(t, /Objective reward: lasts 3 flights/);
@@ -69,7 +69,7 @@ test('Scribe first, then the temporary slot screen; the two screens cannot be mi
   assert.doesNotMatch(t, /The Scribe/);
   // Once the Scribe is written the note is gone.
   M.chooseFlightReward(state, run.flightReward.offers[0], 0);
-  assert.doesNotMatch(text(flightRewardMarkup(state, {scribe: {}})), /A second choice follows/);
+  assert.doesNotMatch(text(flightRewardMarkup(state, {scribe: {}})), /Then: a temporary Inscription/);
 });
 
 test('chest gifts: five permanent Inscriptions with their own glyphs, never offered by the Scribe', () => {
@@ -110,7 +110,9 @@ test('a temporary Inscription on the slot suspends a gift and gets it back; writ
   const swap = previewPendingTemporary(run, 0);
   assert.deepEqual({confirm: swap.needsConfirm, replaces: swap.replaces}, {confirm: true, replaces: 'gilded'});
   assert.equal(writePendingTemporary(run, 0), false, 'no confirm, no write');
-  assert.match(text(temporaryWriteMarkup({run}, {slot: 0})), /Replace this Inscription\?.*Gilded.*Far Lens.*cannot be undone/);
+  // The one-screen writer shows the replacement on the slot (old one struck through) and writes on Write, no separate confirm screen.
+  const over = temporaryWriteMarkup({run}, {slot: 0});
+  assert.match(over, /Replaces Gilded/); assert.match(over, /data-action="temp-write"[^>]*><span>Replace<\/span>/); assert.doesNotMatch(over, /Replace this Inscription\?/);
   assert.equal(previewPendingTemporary(run, 2).needsConfirm, false);
   // On a slot a temporary Inscription holds it is written beneath, with no confirm when nothing permanent is there.
   const beneath = previewPendingTemporary(run, 1);
@@ -134,7 +136,8 @@ test('chest finds and the stop say "Inscription: <name> — <effect>"; the offer
   // Taking the offer's gift queues exactly the Inscription its text names.
   grantTreasureGift(run, lens[0].effect.treasureGift);
   assert.equal(INSCRIPTIONS[run.pendingTemporary.id].name, 'Far Lens');
-  assert.ok(text(temporaryWriteMarkup({run}, {})).includes('Inscription: Far Lens — luminance reaches 15% farther.'));
+  const chest = text(temporaryWriteMarkup({run}, {}));
+  assert.ok(chest.includes('Far Lens') && chest.includes('Luminance reaches 15% farther.') && chest.includes('Chest find'));
   // Once written, the chest offers the alternative instead.
   writePendingTemporary(run, 0);
   assert.ok(treasureChoices('lens', run).some(o => o.id === 'lens-sell'));

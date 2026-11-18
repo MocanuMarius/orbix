@@ -119,9 +119,33 @@ test('Scribe onboarding waits for a choice, ordinary income stays quiet, and fin
  assert.equal(nextOnboardingLesson('map',{...normal,now:1000}),null);
  const elite=fresh();elite.run.flightReward={offers:['echo-bell','glow-wick'],claimed:false};
  const lesson=nextOnboardingLesson('victory',{...elite,now:1000});
- assert.equal(lesson.topic,'artifacts');assert.match(lesson.steps[0].text,/three Inscriptions/);assert.doesNotMatch(lesson.steps[0].text,/artifact|relic|melt/i);
+ assert.equal(lesson.topic,'artifacts');assert.match(lesson.steps[0].text,/two Inscriptions/);assert.doesNotMatch(lesson.steps[0].text,/artifact|relic|melt/i);
  const completed=fresh();Object.assign(completed.run,{mapIndex:2,phase:'ended',success:true,bossDefeated:true,flightReward:null,lastFlight:{success:true,boss:true}});
  assert.equal(nextOnboardingLesson('victory',{...completed,now:1000}),null,'the final guardian has no artifact choice to explain');
  const final=nextOnboardingLesson('result',{...completed,now:1000});
  assert.equal(final.topic,'progression');assert.match(final.steps[0].text,/unlock the next Ascension/);
+});
+
+// ── First-run lessons after First Light (Edition 5) ─────────────────────────────────────────
+import {firstRunCardLesson,FIRST_RUN_TOPICS} from '../dist/onboarding.mjs';
+import {tutorialVisualMarkup as visualOf} from '../dist/tutorial-visuals.mjs';
+test('first two card runs: one paused card per new thing First Light did not reach, once each, on menu screens only',()=>{
+ const profile={difficulty:1,stats:{flights:0},clearedFlights:0,bankedRuns:[],onboarding:cleanOnboarding()};
+ const run={id:'r1',mapIndex:0,step:3,stats:{flights:2,deaths:0},companions:['collector'],current:{id:'camp-1',type:'support',kind:'camp'}};
+ const lesson=view=>firstRunCardLesson(view,{profile,run,facts:{devour:true,growAvailable:true,stored:30}});
+ assert.equal(lesson('flight'),null,'never in flight');
+ const camp=lesson('support');assert.equal(camp.id,'onboarding:rest-recover','one Rest option at a time, Recover first');assert.equal(camp.steps.length,1);
+ noteOnboardingPrompt(run,'support');assert.equal(lesson('support'),null,'one card per checkpoint');
+ markOnboardingSeen(profile,camp.id);run.current={id:'camp-2',type:'support',kind:'camp'};
+ assert.equal(lesson('support').id,'onboarding:rest-grow','the next Rest teaches the next option');
+ for(const [view,id] of [['card-draft','card-reward'],['chest','chest'],['map','devour']]){
+  run.onboardingPacing={checkpoints:[]};const step=lesson(view);assert.equal(step?.id,`onboarding:${id}`,view);
+  assert.ok(step.steps[0].text.split(/\s+/).length<=24,`${id} is short`);assert.doesNotMatch(step.steps[0].text,/\d/,'no temporary numbers quoted');
+  assert.match(visualOf(step.steps[0].visual)||'<',/</);
+  markOnboardingSeen(profile,step.id);run.onboardingPacing={checkpoints:[]};assert.equal(lesson(view),null,`${id} only once`);
+ }
+ assert.ok(FIRST_RUN_TOPICS.every(id=>cleanOnboarding({seen:[id]}).seen.includes(id)),'remembered in the profile');
+ const veteran={...profile,onboarding:cleanOnboarding(),bankedRuns:['a','b']};
+ assert.equal(firstRunCardLesson('chest',{profile:veteran,run:{...run,onboardingPacing:null}}),null,'after two runs: none');
+ assert.equal(firstRunCardLesson('chest',{profile:{...profile,onboarding:cleanOnboarding()},run:{...run,isTutorial:true}}),null,'not in practice');
 });

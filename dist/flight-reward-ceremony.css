@@ -34,7 +34,7 @@ html body .flight-reward-ceremony .flight-reward-income{
 }
 .flight-reward-summary{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:8px 14px;min-width:0;min-height:54px;padding:0 12px;background:var(--wb-pagelight-2,#fff6d81a);border-bottom:1px solid #b4976180}
 .flight-reward-total-label{font:13px/1.3 var(--pixel,monospace);color:var(--wb-context,#6b5335);text-transform:uppercase;letter-spacing:1px}
-.flight-reward-summary .flight-reward-bank-status{display:block;justify-self:end;margin:0;font:12px/1.3 var(--pixel,monospace);text-align:right;color:var(--wb-fill-primary,#536430)}
+.flight-reward-summary .flight-reward-bank-status{display:block;justify-self:end;margin:0;font:12px/1.3 var(--pixel,monospace);text-align:right;color:#3d4a22}
 .flight-reward-ledger{grid-column:1;grid-row:2;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);align-items:stretch;gap:0 24px;min-width:0;min-height:0;overflow:hidden;padding:0 12px;box-sizing:border-box}
 .flight-reward-ledger.has-secondary{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .flight-reward-ledger-column{position:relative;min-width:0;min-height:0;overflow:hidden}
@@ -46,7 +46,7 @@ html body .flight-reward-ceremony .flight-reward-income{
 .flight-reward-income-total{display:flex;align-items:center;gap:6px;min-width:0;margin:0;padding:0;color:var(--wb-title,#2a2118);font:26px/1 var(--pixel,monospace);font-variant-numeric:tabular-nums;white-space:nowrap}
 .flight-reward-income-total>.resource-symbol{width:40px;height:40px;flex:none;image-rendering:pixelated}
 .flight-reward-income-total>[data-ceremony-income]{font:36px/1.1 var(--pixel,monospace);font-weight:400}
-.flight-reward-income-rows{display:grid;gap:0;min-width:0;margin:0;padding:0;font:15px/1.35 var(--pixel,monospace);color:var(--wb-title,#2a2118)}
+.flight-reward-income-rows{display:grid;gap:6px;min-width:0;margin:0;padding:0;font:15px/1.35 var(--pixel,monospace);color:var(--wb-title,#2a2118)}
 .flight-reward-income-rows>span{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;min-width:0;min-height:34px;padding:7px 0;box-sizing:border-box;border-bottom:1px solid #b4976180}
 .flight-reward-income-rows>span>span{min-width:0;overflow-wrap:anywhere}
 .flight-reward-income-rows b{color:var(--wb-title,#2a2118);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap;align-self:start}
@@ -65,7 +65,7 @@ html body .flight-reward-ceremony .flight-reward-income{
 .flight-reward-source-row>b{align-self:center}
 .flight-reward-detail-trigger>span{min-width:0}
 .flight-reward-detail-trigger>.flight-reward-effect-icon{flex:none}
-.flight-reward-detail-affordance{flex:none;margin-left:auto;color:#536430;font-size:17px;line-height:1;width:18px;text-align:center}
+.flight-reward-detail-affordance{flex:none;margin-left:auto;color:#3d4a22;font-size:17px;line-height:1;width:18px;text-align:center}
 html body .flight-reward-ceremony button.flight-reward-detail-trigger{position:relative;display:flex;align-items:center;gap:8px;width:100%;min-width:44px!important;min-height:44px!important;height:auto!important;margin:0!important;padding:6px 2px!important;box-sizing:border-box;border:0!important;border-image:none!important;border-radius:0!important;clip-path:none!important;box-shadow:none!important;background:none!important;color:var(--wb-title,#2a2118)!important;-webkit-text-fill-color:currentColor!important;font:inherit!important;text-align:left!important;text-shadow:none!important;letter-spacing:0;text-transform:none;overflow-wrap:anywhere;cursor:pointer;touch-action:manipulation}
 html body .flight-reward-ceremony button.flight-reward-detail-trigger::before,html body .flight-reward-ceremony button.flight-reward-detail-trigger::after{display:none!important}
 html body .flight-reward-ceremony button.flight-reward-detail-trigger:focus-visible{outline:2px solid #536430!important;outline-offset:-2px}
