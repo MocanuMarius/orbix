@@ -95,7 +95,11 @@ for (const cards of [true, false]) {
     assert.equal(g.state.profile.tutorialComplete, false, 'skip once is not completion');
     const id = g.pick(0);
     assert.equal(g.state.run.isTutorial, undefined); assert.equal(g.state.run.startingGiftId, id);
-    if (cards) assert.deepEqual(g.state.run.mountedCards.filter(Boolean).map(c => c.cardId).sort(), [id.slice(5), 'lift-guide'].sort());
+    if (cards) {
+      // The pick plus Lift Guide; when Lift Guide itself is the pick the second card is another offered starter.
+      const mounted = g.state.run.mountedCards.filter(Boolean).map(c => c.cardId);
+      assert.equal(mounted.length, 2); assert.ok(mounted.includes(id.slice(5))); assert.ok(mounted.includes('lift-guide'));
+    }
     assert.equal(g.state.run.practiceCards, undefined, 'loans never reach the real run');
     assert.equal(saved(storage, cards).run.startingGiftId, id);
     assert.equal(storage.getItem(keyFor(!cards)), null, 'the other mode save stays untouched');
