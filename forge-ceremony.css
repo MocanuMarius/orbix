@@ -9,7 +9,7 @@ html body .card-rest-screen .rest-opt .card-camp-consequence{display:grid;gap:2p
 html body .card-rest-screen .rest-opt p:not(#k){font-size:12px;line-height:14px;margin:0;letter-spacing:0}
 html body .card-rest-screen .rest-opt .card-camp-note:not(#k){flex:1 1 auto;min-height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;line-height:13px;margin:0}
 html body .card-rest-screen .rest-opt>button:not(#k){margin:0;width:100%;min-height:40px;flex:none}
-html body .card-rest-screen .rest-opt.unavailable:not(#k){opacity:.7}
+html body .card-rest-screen .rest-opt.unavailable:not(#k){opacity:1}
 html body .card-rest-screen .card-camp-forge:not(#k){border:2px solid #d8c98a!important;background:#2a3a2a!important}
 html body .card-rest-screen .card-camp-forge.forge-needs:not(#k){border-style:dashed!important}
 html body .card-rest-screen .card-camp-footer:not(#k){display:flex;align-items:center;justify-content:space-between;gap:10px;flex:none}
@@ -71,6 +71,6 @@ html[data-reduced-motion=true] .forge-ceremony *{animation-duration:1ms!importan
  html body .card-rest-screen .rest-opt .card-camp-consequence{min-height:0}
  html body .card-rest-screen .rest-opt:not(.card-camp-forge) .card-camp-consequence>p:nth-child(2){display:none}
  html body .card-rest-screen .rest-opt p:not(#k){font-size:11px;line-height:13px}
- html body .card-rest-screen .rest-opt .card-camp-note:not(#k){min-height:0;font-size:10px;line-height:11px}
+ html body .card-rest-screen .rest-opt .card-camp-note:not(#k){min-height:0;font-size:11px;line-height:12px}
  html body .card-rest-screen .rest-opt>button:not(#k){min-height:36px}
 }

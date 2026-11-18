@@ -1,12 +1,15 @@
-import { cardTermTextMarkup } from "./card-terms.mjs?v=pulse-2";
-import { uiIcon } from "./ui-icons.mjs?v=pulse-2";
-import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=pulse-2";
-import { chipBadge, rarityPips } from "./ui/trigger-icons.mjs?v=pulse-2";
-import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=pulse-2";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=pulse-2";
-import { activeFlightPact } from './flight-pacts.mjs?v=pulse-2';
-import { cardArt } from "./card-art.mjs?v=pulse-2";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=pulse-2';
+import { cardTermTextMarkup } from "./card-terms.mjs?v=big-1";
+import { uiIcon } from "./ui-icons.mjs?v=big-1";
+import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=big-1";
+import { chipBadge, rarityPips } from "./ui/trigger-icons.mjs?v=big-1";
+import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=big-1";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=big-1";
+import { activeFlightPact } from './flight-pacts.mjs?v=big-1';
+import { cardArt } from "./card-art.mjs?v=big-1";
+import { cardTileLine } from "./card-tile-lines.mjs?v=big-1";
+import { slotInscriptionId } from "./inscriptions.mjs?v=big-1";
+import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=big-1";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=big-1';
 import {
   getMountedCards,
   getOwnedCards,
@@ -21,13 +24,13 @@ import {
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
-} from "./model.mjs?v=pulse-2";
-import { resourceSymbol } from "./game-symbols.mjs?v=pulse-2";
-import { choiceScene } from "./choice-art.mjs?v=pulse-2";
-import { livesMarkup } from "./lives.mjs?v=pulse-2";
-import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=pulse-2";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=pulse-2";
-import {canDreamAt, dreamConfig} from './dream.mjs?v=pulse-2';
+} from "./model.mjs?v=big-1";
+import { resourceSymbol } from "./game-symbols.mjs?v=big-1";
+import { choiceScene } from "./choice-art.mjs?v=big-1";
+import { livesMarkup } from "./lives.mjs?v=big-1";
+import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=big-1";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=big-1";
+import {canDreamAt, dreamConfig} from './dream.mjs?v=big-1';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -40,7 +43,7 @@ import {
   isInventoryOnlyCard,
   SKILL_CARDS,
   cardTallyLine,
-} from "./skill-cards.mjs?v=pulse-2";
+} from "./skill-cards.mjs?v=big-1";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -89,7 +92,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=pulse-2";
+export { cardArt } from "./card-art.mjs?v=big-1";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
@@ -140,12 +143,12 @@ const conciseRuleText = text => text
   .replace(/^1 use\. Maximum 2 Collectors\. Keeps its use while Twin Orbit already provides the second\.?$/, '2 Collectors maximum. Keeps its use if Twin Orbit supplies the second.')
   .replace(/^3 uses\. Copies share uses and keep one final wave\.?$/, 'Copies share uses and keep one final Pulse.')
   .replace(/^2 successful uses\. Collector deliveries do not count\.?$/, 'Collector deliveries do not count.');
-const redundantFaceNote = (text, card) => Number.isFinite(card.charges) && /^\d+ (?:shared )?uses\. Spend 1 (?:per successful action|only when time is saved|only when this adds Sparks)\.?$/.test(text)
+const redundantFaceNote = (text, card) => Number.isFinite(card.charges) && /^\d+ (?:shared )?uses?\.?$/.test(text) /* the uses badge on the picture already says 6/6 */ || Number.isFinite(card.charges) && /^\d+ (?:shared )?uses\. Spend 1 (?:per successful action|only when time is saved|only when this adds Sparks)\.?$/.test(text)
   || /^This bonus cannot earn packing bonuses\.?$/.test(text);
 export function cardMechanicMarkup(card, { details = false, fitted = false } = {}) {
   const bands = getCardRuleBands(card, SKILL_CARDS[card?.cardId || card?.id]);
   const growth = (card.kind || SKILL_CARDS[card?.cardId || card?.id]?.kind) === 'camp-grow';
-  const main = bands.filter(({type,text})=>!redundantFaceNote(text,card) && (!fitted || type!=='note' || growth)).map(({type, text}) => `<span class="card-rule-stripe card-rule-${type}" data-rule-type="${type}">${cardTermTextMarkup(fitted ? fittedRuleText(conciseRuleText(text)) : conciseRuleText(text))}</span>`).join('');
+  const main = bands.filter(({type,text})=>!redundantFaceNote(text,card) && (!fitted || type!=='note' || growth)).map(({type, text}) => `<span class="card-rule-stripe card-rule-${type}" data-rule-type="${type}"><span class="card-rule-text">${cardTermTextMarkup(fitted ? fittedRuleText(conciseRuleText(text)) : conciseRuleText(text))}</span></span>`).join('');
   return `<span class="card-mechanics"><span class="card-mechanic-main">${main}</span></span>${details ? `<details class="card-rules"><summary>Details</summary><p>${esc(printed(card))}</p></details>` : ''}`;
 }
 const lifetime = (card) => card.charges == null ? 'While equipped' : `${amount(card.charges)} ${amount(card.charges) === 1 ? 'use' : 'uses'} left`;
@@ -212,7 +215,7 @@ function faceBadges(card, compact) {
   const def = SKILL_CARDS[card.cardId || card.id] || {};
   const chip = getCardTrigger(card, def);
   const tally = isDevourCard(card) ? devourTally(card) : null, dreamTally = def.kind === 'dream';
-  return `<span class="card-tbadge-row">${chipBadge(chip, { cls: 'card-tbadge' })}</span>${rarityPips(rarity(card))}${cardTallyLine(card) ? `<span class="card-bh-tally"><b>${cardTallyLine(card)}</b></span>` : ''}${tally && (!compact || tally.eaten) ? `<span class="card-bh-tally"><b>Devoured ${tally.eaten}</b> · ${dreamTally ? `Dream ${8 + tally.growth} s` : `+${tally.growth}${compact ? '' : ' max Sparks'}`}</span>` : ''}`;
+  return `${compact ? `<span class="card-tbadge-row">${chipBadge(chip, { cls: 'card-tbadge' })}</span>` : ''}${rarityPips(rarity(card))}${cardTallyLine(card) ? `<span class="card-bh-tally"><b>${cardTallyLine(card)}</b></span>` : ''}${tally && (!compact || tally.eaten) ? `<span class="card-bh-tally"><b>Devoured ${tally.eaten}</b> · ${dreamTally ? `Dream ${8 + tally.growth} s` : `+${tally.growth}${compact ? '' : ' max Sparks'}`}</span>` : ''}`;
 }
 export function cardFace(card, { compact = false, fitted = false, slot = null, selected = false, status = null, sightWarning = '', availability = null } = {}) {
   if (!card) return `<article class="skill-card empty-card"><div class="card-empty-art">+</div><h3>Empty slot${slot === null ? '' : ` ${slot + 1}`}</h3></article>`;
@@ -228,7 +231,7 @@ export function cardFace(card, { compact = false, fitted = false, slot = null, s
   const verbose = bands.length >= 3 || bands.map(band => band.text).join(' ').length > 130;
   const dense = status && verbose;
   const badge = finite ? compact ? `<span class="card-use-counter" role="img" aria-label="${usesLabel}">${uses}</span>` : `<button type="button" class="card-use-counter" data-card-term="uses" aria-haspopup="dialog" aria-label="${usesLabel}: help">${uses}</button>` : '';
-  return `<article class="skill-card card-${rarity(card)} card-effect-${effectState} ${compact ? 'compact-card card-thumbnail' : 'card-readable'} ${fitted ? 'card-fitted' : ''} ${finite ? 'card-has-uses' : ''} ${status ? 'card-has-status' : ''} ${dense || fitted && status ? 'card-status-dense' : ''} ${verbose ? 'card-rules-dense' : ''} ${bands.length >= 4 ? 'card-rules-long' : ''} ${selected ? 'card-selected' : ''}" data-card-effect-state="${effectState}" data-card-instance="${esc(card.instanceId || '')}" data-card-help="${esc(card.cardId || card.id)}" data-card-rank="${card.rank || 1}"${Number.isFinite(card.charges) ? ` data-card-charges="${card.charges}"` : ''} data-card-name="${esc(cardName(card))}" data-card-description="${esc(printed(card))}" aria-label="${esc(cardName(card))}, ${esc(rarity(card))}${status ? `, ${esc(cardStatusText(status))}` : ''}${effectReason && effectReason !== status?.reason ? `, ${esc(effectReason)}` : ''}"><header class="card-face-heading"><h3>${esc(cardName(card))}</h3>${compact ? '' : `<button type="button" class="card-help" data-card-term-trigger="${esc(card.cardId || card.id)}" data-card-terms="${cardTerms(card).join(' ')}" aria-haspopup="dialog" aria-label="Help with ${esc(cardName(card))}">?</button>`}</header><div class="card-illustration">${cardArt(card, { compact })}${rarityInlay(card)}${faceBadges(card, compact)}${sightWarning ? `<span class="card-sight-warning" role="img" title="${esc(sightWarning)}" aria-label="${esc(sightWarning)}">${effectState === 'partial' ? '≈' : '×'} <small>${effectState === 'partial' ? 'Light blocked' : 'Sight blocked'}</small></span>` : ''}</div>${compact ? '' : `<div class="card-rule-band" role="group" tabindex="0" aria-label="Rules for ${esc(cardName(card))}; scroll for all details">${cardMechanicMarkup(card,{fitted})}</div>`}${cardStatusMarkup(status, {compact, slot})}${badge}</article>`;
+  return `<article class="skill-card card-${rarity(card)} card-effect-${effectState} ${compact ? 'compact-card card-thumbnail' : 'card-readable'} ${fitted ? 'card-fitted' : ''} ${finite ? 'card-has-uses' : ''} ${status ? 'card-has-status' : ''} ${dense || fitted && status ? 'card-status-dense' : ''} ${verbose ? 'card-rules-dense' : ''} ${bands.length >= 4 ? 'card-rules-long' : ''} ${selected ? 'card-selected' : ''}" data-card-effect-state="${effectState}" data-card-instance="${esc(card.instanceId || '')}" data-card-help="${esc(card.cardId || card.id)}" data-card-rank="${card.rank || 1}"${Number.isFinite(card.charges) ? ` data-card-charges="${card.charges}"` : ''} data-card-name="${esc(cardName(card))}" data-card-description="${esc(printed(card))}" aria-label="${esc(cardName(card))}, ${esc(rarity(card))}${status ? `, ${esc(cardStatusText(status))}` : ''}${effectReason && effectReason !== status?.reason ? `, ${esc(effectReason)}` : ''}"><header class="card-face-heading"><h3>${esc(cardName(card))}</h3>${compact ? '' : `<button type="button" class="card-help" data-card-term-trigger="${esc(card.cardId || card.id)}" data-card-terms="${cardTerms(card).join(' ')}" aria-haspopup="dialog" aria-label="Help with ${esc(cardName(card))}">?</button>`}</header><div class="card-illustration">${cardArt(card, { compact })}${rarityInlay(card)}${faceBadges(card, compact)}${compact ? '' : badge}${sightWarning ? `<span class="card-sight-warning" role="img" title="${esc(sightWarning)}" aria-label="${esc(sightWarning)}">${effectState === 'partial' ? '≈' : '×'} <small>${effectState === 'partial' ? 'Light blocked' : 'Sight blocked'}</small></span>` : ''}</div>${compact ? '' : `<div class="card-rule-band" role="group" tabindex="0" aria-label="Rules for ${esc(cardName(card))}; scroll for all details">${cardMechanicMarkup(card,{fitted})}</div>`}${cardStatusMarkup(status, {compact, slot})}${compact ? badge : ''}</article>`;
 }
 export function starterCardsMarkup(run, gifts, existing) {
   const guide=describeSkillCard(makeSkillCard('lift-guide','included-starter-guide'));
@@ -425,6 +428,11 @@ export function cardForgeMarkup(run, preview, { notice = '', paused = false, bac
   const face = hidden ? `<div class="card-forge-mystery" role="img" aria-label="Surprise ${esc(label)} card, revealed after you pay"><strong aria-hidden="true">?</strong><span>Surprise ${esc(label)} card</span><small>Revealed after you pay</small></div>` : cardFace(preview.card);
   return `<section class="card-forge-preview"><header class="card-heading"><button class="secondary card-back" data-action="card-forge-back">Back to ${esc(backLabel)}</button><div><small>${paused ? 'FLIGHT PAUSED · ' : ''}CREATE A CARD</small><h2>Forge</h2></div>${walletMarkup(wallet)}</header><div class="card-exchange-body"><div class="card-forge-card">${face}</div><div class="card-exchange-result"><nav class="card-forge-tiers" aria-label="Forge rarity and next price in Stored Sparks">${['common', 'rare', 'legendary'].map(rarity => `<button class="secondary ${preview.rarity === rarity ? "selected" : ""}" data-action="card-preview-forge" data-rarity="${rarity}" aria-pressed="${preview.rarity === rarity}">${tier(rarity)} · ${amount(getCardForgePrice(run, rarity))}</button>`).join('')}</nav>${receipt}<span class="card-forge-destination">${hidden ? 'Surprise card' : 'Shown card'} → reserve</span><strong>−${amount(preview.price)} Stored Sparks</strong><small>${wallet >= amount(preview.price) ? `Banked wallet ${wallet} → ${wallet - amount(preview.price)}` : `Banked wallet ${wallet} · cost ${amount(preview.price)}`}</small>${notice ? `<span class="card-forge-status" role="status">${esc(notice)}</span>` : ''}${reason ? `<span class="card-forge-status" role="status">${esc(reason)}</span>` : !notice ? `<span class="card-forge-status">${hidden ? 'One random card you do not own yet. Equip it from Deck.' : isInventoryOnlyCard(preview.card) ? 'Available at Rest directly from your Deck.' : 'Equip the new card from Deck.'}</span>` : ''}<small>Next ${label} forge: ${amount(preview.nextPrice)} · each forge raises that price by half at this Rest; the next Rest starts over.</small><small>Rest service · uses no Rest action.</small></div></div><footer class="card-dialog-actions">${short ? '<button class="secondary" data-action="card-melt-mode">Melt for Sparks…</button>' : ''}<button class="primary" data-action="card-confirm-forge" data-rarity="${preview.rarity}" data-token="${esc(preview.token)}" ${!preview.eligible ? "disabled" : ""}>Forge ${label} · ${amount(preview.price)}</button></footer></section>`;
 }
+/** One small tile for the victory recap: the Deck's tile content (Trigger chip, picture, name, effect line) plus the slot's Inscription brand. */
+function recapTile(run, card, slot) {
+  const chip = getCardTrigger(card, SKILL_CARDS[card.cardId || card.id] || {}), ins = slot == null ? null : slotInscriptionId(run, slot);
+  return `<li class="recap-tile card-${rarity(card)}" data-recap-slot="${slot == null ? 'trophy' : slot + 1}"><span class="recap-top">${chipBadge(chip, { cls: 'recap-chip' })}${rarityPips(rarity(card))}</span>${ins ? `<span class="recap-brand" aria-hidden="true">${inscriptionGlyph(ins, { size: 26, brand: true })}</span>` : ''}<span class="recap-art">${cardArt(card, { compact: true })}</span><b class="recap-name">${esc(cardName(card))}</b><span class="recap-line">${esc(cardTileLine(card))}</span></li>`;
+}
 export function cardVictoryRecap(run) {
   const reward = getCardReward(run),
     trophy =
@@ -434,11 +442,9 @@ export function cardVictoryRecap(run) {
   const receipts=run.cardClearReceipts||[],legacy=run.cardVictoryReceipt?.runId===run.id?run.cardVictoryReceipt.futureCapacity||0:0;
   const gain=receipts.reduce((sum,receipt)=>sum+(receipt.futureCapacity||0),legacy),speed=receipts.reduce((sum,receipt)=>sum+(receipt.cruisingSpeed||0),0);
   const explanation=receipts.some(receipt=>receipt.futureCapacity||receipt.cruisingSpeed)?`<details><summary>Permanent progress from flight clears</summary><ol>${receipts.filter(receipt=>receipt.futureCapacity||receipt.cruisingSpeed).map(receipt=>`<li>Map ${receipt.mapIndex+1} · ${esc(receipt.nodeId)}${receipt.futureCapacity?` · +${receipt.futureCapacity} maximum Sparks`:''}${receipt.cruisingSpeed?` · +${receipt.cruisingSpeed}% cruising speed`:''}.</li>`).join('')}</ol></details>`:'';
-  const permanent=`<div class="card-future-capacity-receipt" role="status"><strong>+${gain} maximum ${gain===1?'Spark':'Sparks'} permanently this expedition</strong>${gain?`<p>Your next expedition starts full at ${30+(run.cardFutureCapacity||0)+legacy} maximum Sparks, before its starting card.</p>`:''}${speed?`<p>+${speed}% cruising speed unlocked. Choose your speed in Settings; baseline stays available.</p>`:''}${explanation}</div>`;
-  return `<section class="card-victory-recap"><header class="card-heading"><div><small>THREE GUARDIANS · RUN COMPLETE${flightPackingReceipt(run, reward)}</small><h1>The light returns</h1></div></header>${permanent}<div class="card-winning-hand"><div><h2>Your equipped cards</h2><div class="card-recap-row">${(run.winningHand || getMountedCards(run))
-    .filter(Boolean)
-    .map((c) => cardFace(c, { compact: true }))
-    .join(
-      "",
-    )}</div></div>${trophy ? `<aside><h2>Final trophy</h2>${cardFace(trophy, { compact: true })}<p>A record of this victory.</p></aside>` : ""}</div><p class="card-footnote">Ascension ${run.difficulty} conquered. Cards and Stored Sparks belong to this completed run.</p><footer class="card-dialog-actions"><button class="secondary" data-action="artifacts">Relic almanac</button><button class="primary" data-action="exit-menu">Main menu</button></footer></section>`;
+  // A gain of zero is not news: the line appears only when there is something permanent to report.
+  const permanent=gain>0||speed>0||explanation?`<div class="card-future-capacity-receipt" role="status">${gain>0?`<strong>+${gain} maximum ${gain===1?'Spark':'Sparks'} permanently this expedition</strong><p>Your next expedition starts full at ${30+(run.cardFutureCapacity||0)+legacy} maximum Sparks, before its starting card.</p>`:''}${speed?`<p>+${speed}% cruising speed unlocked. Choose your speed in Settings; baseline stays available.</p>`:''}${explanation}</div>`:'';
+  const maps=[...new Set([...(run.mapHistory||[]).map(entry=>entry.mapName),run.mapName].filter(Boolean))];
+  const chain=run.mountedCards?.some(Boolean)?getMountedCards(run):(run.winningHand||[]);
+  return `<section class="card-victory-recap"><header class="card-heading"><div><small>THREE GUARDIANS · RUN COMPLETE${flightPackingReceipt(run, reward)}</small><h1>The light returns</h1>${maps.length?`<p class="card-recap-maps">${maps.map(esc).join(' · ')}</p>`:''}</div></header>${permanent}<div class="card-winning-hand"><div><h2>Your Chain</h2><ol class="card-recap-row">${chain.map((card, slot) => card ? recapTile(run, card, slot) : '').join('')}</ol></div>${trophy ? `<aside><h2>Final trophy</h2><ol class="card-recap-row">${recapTile(run, trophy, null)}</ol></aside>` : ''}</div><p class="card-footnote">Ascension ${run.difficulty} conquered. Cards and Stored Sparks belong to this completed run.</p><footer class="card-dialog-actions"><button class="secondary" data-action="artifacts">Relic almanac</button><button class="primary" data-action="exit-menu">Main menu</button></footer></section>`;
 }

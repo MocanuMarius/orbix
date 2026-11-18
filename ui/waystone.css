@@ -163,7 +163,7 @@ html body .wb-ground .wb-stat-hearts>svg{width:32px;height:28px}
 /* ── Pause menu (v1.5-pause) ─────────────────────────────────────────────── */
 /* One column: Resume, build, Help, Settings, a carved rule, then the leave row. The same markup is
    used in flight (#pause-layer) and on the map (inside a <dialog>). */
-html body .wb-pause .wb-pause-col{display:grid;grid-template-columns:minmax(0,1fr);gap:5px;width:100%;margin:0}
+html body .wb-pause .wb-pause-col{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;width:100%;margin:0}
 html body .wb-pause .wb-page .wb-sign:not(.wb-sign-quiet,.wb-sign-danger){height:50px}
 /* The primary plaque needs a taller fill so its subtitle stays on the moss, not on the cream frame. */
 html body .wb-pause .wb-page .wb-sign.wb-sign-primary{height:56px}
@@ -181,13 +181,13 @@ html body .wb-pause .pause-bonus-rule>p{margin:4px 0 0;font-size:11px;color:var(
  html body .wb-ground .wb-flourish{display:none}
  html body .wb-ground .wb-title{font-size:22px!important}
  html body .wb-ground .wb-page::after{height:56px;background-size:24px 56px,24px 44px}
- html body .wb-pause .wb-pause-col{gap:2px}
+ html body .wb-pause .wb-pause-col{gap:6px}
  html body .wb-pause .wb-sign,html body .wb-pause .wb-page .wb-sign:not(.wb-sign-quiet,.wb-sign-danger){height:44px}
  html body .wb-pause .wb-sign-text>small{display:none}
  html body .wb-pause .wb-page .wb-rule{margin:0}
 }
 @media(max-height:310px){
- html body .wb-pause .wb-pause-col{gap:3px}
+ html body .wb-pause .wb-pause-col{gap:6px}
  html body .wb-pause .wb-page .wb-rule{margin:1px 0}
  html body .wb-ground .wb-title{font-size:20px!important}
 }
@@ -221,7 +221,7 @@ html body .wb-settings .wb-set-foot{display:grid;grid-template-columns:150px 150
 @media(max-height:340px){
  html body .wb-settings .wb-page{gap:4px}
  html body .wb-settings .wb-head{margin-bottom:2px;align-self:center;padding-right:0}
- html body .wb-settings .wb-set-grid>section{gap:3px}
+ html body .wb-settings .wb-set-grid>section{gap:6px}
  html body .wb-settings .wb-set-grid .wb-sign,html body .wb-settings .wb-set-row{height:44px;min-height:44px}
  html body .wb-settings .wb-set-grid .wb-sign-text>small{display:none}
  html body .wb-settings .wb-set-group{padding-bottom:2px}

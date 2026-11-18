@@ -1,5 +1,5 @@
-import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=pulse-2';
-import {createChainStrip, baseColor, STRIP, STRIP_COLORS} from './chain-strip.mjs?v=pulse-2';
+import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=big-1';
+import {createChainStrip, baseColor, stripLayout, STRIP, STRIP_COLORS} from './chain-strip.mjs?v=big-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number = value => Number((Number(value) || 0).toFixed(3));
 const capped = trace => Number.isFinite(trace?.restoredSparks) && Math.abs(trace.restoredSparks - trace.sparks) > 1e-7;
@@ -48,16 +48,18 @@ export function productiveCardSources(trace) {
   return {sources,replayed:sources.length>0 && productive.some(step=>step.pass>1) && trace.steps.some(step=>step.success && step.operation==='replay-row')};
 }
 
-/** The in-flight Chain strip (view). One tiny fixed set of nodes, built when the Chain changes; a flash is one Web Animation on
- * one node, the idle fade one opacity change. No text, no pictures: the exact receipt lives in the paused dialog (tap the strip). */
-export function createCardRowFeedback(root, {onInspect = () => {}, reducedMotion = false, now = () => globalThis.performance?.now?.() ?? Date.now()} = {}) {
+/** The in-flight Chain strip (view). One fixed set of nodes per MOUNTED card, built when the Chain changes; a flash is three
+ * Web Animations (white fill, beat, echo frame) that touch only transform and opacity, the idle fade one opacity change.
+ * No text, no pictures: the exact receipt lives in the paused dialog (tap the strip). */
+export function createCardRowFeedback(root, {onInspect = () => {}, reducedMotion = false, doubleEcho = STRIP.doubleEcho, now = () => globalThis.performance?.now?.() ?? Date.now(),
+  setTimer = (fn, ms) => globalThis.setTimeout(fn, ms), clearTimer = id => globalThis.clearTimeout(id)} = {}) {
   if (!root) return {update(){},destroy(){},attach(){}};
   const doc = root.ownerDocument, button = doc.createElement('button'), strip = createChainStrip({reducedMotion});
   button.type = 'button'; button.className = 'flight-card-row chain-strip'; button.hidden = true;
   button.setAttribute('aria-haspopup', 'dialog'); button.setAttribute('aria-label', 'Card chain. Pause to inspect your chain.');
   root.append(button);
-  const nodes = []; // {cell, shape, bar, fireSerial, barSerial}
-  let trace = null, sequence = -1, dialog = null, shownVersion = -1, shownFaded = null;
+  const nodes = []; // {cell, frame, fill, echo, echo2, bar, ref, fireSerial, barSerial, lit}
+  let trace = null, sequence = -1, dialog = null, shownVersion = -1, shownFaded = null, timer = null, timerDue = null, shownWidth = -1;
   const close = () => { dialog?.close(); dialog?.remove(); dialog = null; if (button.isConnected) button.focus({preventScroll: true}); };
   button.addEventListener('click', () => {
     if (!trace) return;
@@ -67,40 +69,51 @@ export function createCardRowFeedback(root, {onInspect = () => {}, reducedMotion
     doc.body.append(dialog); dialog.showModal(); dialog.querySelector('button').focus();
   });
   const reduced = () => strip.reducedMotion || !!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-  const animate = (node, frames, ms) => {
-    if (reduced() || typeof node.animate !== 'function') { node.classList.add('chain-lit'); setTimeout(() => node.classList.remove('chain-lit'), STRIP.reducedFlashMs); return; }
-    node.animate(frames, {duration: ms, easing: 'ease-out'});
-  };
+  const ms = STRIP.flashMs, ECHO_SCALE = 2.3;
+  const beat = [{transform: 'scale(1)'}, {transform: 'scale(1.15)', offset: .214}, {transform: 'scale(1)'}];
+  const fillFrames = [{opacity: 1}, {opacity: 1, offset: .33}, {opacity: 0}];
+  const echoFrames = a => [{transform: 'scale(1)', opacity: a}, {transform: `scale(${ECHO_SCALE})`, opacity: 0}];
   function paint() {
-    // Structure and base colours: only when the Chain, a slot's state or its Inscription changed.
-    while (nodes.length < strip.slots.length) {
-      const cell = doc.createElement('span'), shape = doc.createElement('i'), bar = doc.createElement('b');
-      cell.className = 'chain-cell'; shape.className = 'chain-shape'; bar.className = 'chain-bar';
-      cell.setAttribute('aria-hidden', 'true'); cell.append(shape, bar); button.append(cell);
-      nodes.push({cell, shape, bar, fireSerial: 0, barSerial: 0});
+    // Structure and base colours: only when the Chain, a card's state or its Inscription changed. Empty slots have no node.
+    const cells = strip.cells;
+    while (nodes.length < cells.length) {
+      const cell = doc.createElement('span'), frame = doc.createElement('i'), fill = doc.createElement('i'), echo = doc.createElement('i'), echo2 = doc.createElement('i'), bar = doc.createElement('b');
+      cell.className = 'chain-cell'; frame.className = 'chain-frame'; fill.className = 'chain-fill'; echo.className = 'chain-echo'; echo2.className = 'chain-echo chain-echo2'; bar.className = 'chain-bar';
+      cell.setAttribute('aria-hidden', 'true'); cell.append(echo, echo2, frame, fill, bar); button.append(cell);
+      nodes.push({cell, frame, fill, echo, echo2, bar, ref: null, fireSerial: 0, barSerial: 0, lit: false});
     }
-    while (nodes.length > strip.slots.length) nodes.pop().cell.remove();
-    strip.slots.forEach((slot, i) => {
+    while (nodes.length > cells.length) nodes.pop().cell.remove();
+    cells.forEach((slot, i) => {
       const node = nodes[i];
-      node.shape.className = `chain-shape chain-${slot.state}`; node.shape.style.setProperty('--tone', baseColor(slot));
+      if (node.ref !== slot) { node.ref = slot; node.fireSerial = slot.lit ? slot.fireSerial - 1 : slot.fireSerial; node.barSerial = slot.barSerial; node.lit = false; }
+      node.frame.className = `chain-frame chain-${slot.state}`; node.cell.style.setProperty('--tone', baseColor(slot));
       node.bar.className = `chain-bar chain-bar-${slot.bar}`;
     });
+    const width = cells.length ? stripLayout(cells.length).width : 0;
+    if (width !== shownWidth) { shownWidth = width; root.style?.setProperty('--strip-w', `${width + 2 * STRIP.padX}px`); }
     button.hidden = !strip.visible;
   }
   function flashes() {
-    const slots = strip.slots;
-    for (let i = 0; i < slots.length; i++) {
-      const slot = slots[i], node = nodes[i];
+    const cells = strip.cells, soft = reduced();
+    for (let i = 0; i < cells.length; i++) {
+      const slot = cells[i], node = nodes[i];
       if (!node) continue;
       if (slot.fireSerial !== node.fireSerial) {
         node.fireSerial = slot.fireSerial;
-        const tone = baseColor(slot), w = STRIP_COLORS.white;
-        animate(node.shape, slot.double ? [{backgroundColor: w}, {backgroundColor: tone, offset: .17}, {backgroundColor: w, offset: .22}, {backgroundColor: tone}] : [{backgroundColor: w}, {backgroundColor: tone}], slot.double ? STRIP.doubleMs : STRIP.flashMs);
+        if (!soft && typeof node.cell.animate === 'function') {
+          node.fill.animate(fillFrames, {duration: ms, easing: 'ease-out'});
+          node.cell.animate(beat, {duration: ms});
+          node.echo.animate(echoFrames(.7), {duration: ms, easing: 'ease-out'});
+          if (doubleEcho) node.echo2.animate(echoFrames(.4), {duration: ms - 120, delay: 120, easing: 'ease-out'});
+        }
       }
       if (slot.barSerial !== node.barSerial) {
         node.barSerial = slot.barSerial;
-        animate(node.bar, [{borderTopColor: STRIP_COLORS.white}, {borderTopColor: STRIP_COLORS.bar}], STRIP.flashMs);
+        if (typeof node.bar.animate === 'function' && !soft) node.bar.animate([{transform: 'scaleX(1.8)', opacity: 1}, {transform: 'scaleX(1)', opacity: .6}], {duration: ms, easing: 'ease-out'});
       }
+      // Reduced motion: solid white for the whole 0.7 s, no echo, no scale (one class toggle at the start and the end).
+      const lit = soft && slot.lit;
+      if (lit !== node.lit) { node.lit = lit; node.cell.classList[lit ? 'add' : 'remove']('chain-lit'); }
     }
   }
   function fade() {
@@ -109,11 +122,20 @@ export function createCardRowFeedback(root, {onInspect = () => {}, reducedMotion
     button.style.transitionDuration = !shownFaded || reduced() ? '0ms' : `${STRIP.fadeMs}ms`;
     button.style.opacity = shownFaded ? String(STRIP.idleOpacity) : '1';
   }
-  const listener = marks => { if (strip.fire(marks, now())) { flashes(); fade(); } };
-  return {strip, destroy() { dialog?.remove(); button.remove(); }, attach(engine) { if (engine) engine.cardFireListener = listener; },
+  // One timer, set only while a flash is playing: the next flash starts the moment the current one ends (not on the 10 Hz HUD tick).
+  function schedule() {
+    const due = strip.nextDueAt;
+    if (due === timerDue) return;
+    if (timer !== null) clearTimer(timer);
+    timer = null; timerDue = due;
+    if (due !== null) timer = setTimer(tick, Math.max(0, due - now()) + 1);
+  }
+  function tick() { timer = null; timerDue = null; strip.advance(now()); flashes(); fade(); schedule(); }
+  const listener = marks => { if (strip.fire(marks, now())) { flashes(); fade(); schedule(); } };
+  return {strip, destroy() { if (timer !== null) clearTimer(timer); timer = null; dialog?.remove(); button.remove(); root.style?.removeProperty('--strip-w'); }, attach(engine) { if (engine) engine.cardFireListener = listener; },
     update(snapshot) {
       if (strip.sync(snapshot, now()) || strip.version !== shownVersion) { shownVersion = strip.version; paint(); }
-      flashes(); fade();
+      flashes(); fade(); schedule();
       const next = snapshot?.cardRowTrace, nextSequence = Number(snapshot?.cardRowSequence);
       if (next?.steps?.length && next !== trace && nextSequence !== sequence) { sequence = nextSequence; trace = next; }
     }};

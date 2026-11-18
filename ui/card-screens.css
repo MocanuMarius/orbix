@@ -608,12 +608,26 @@ html body dialog.wb-dlg.bh-confirm .bh-confirm-acts>button{min-width:120px;min-h
 #dk-root .dk2-inscribed:has(.dk2-ins-standalone){--ins:var(--moss)}
 #dk-root .dk2-ins-frame{position:absolute;z-index:1;left:3px;right:3px;top:var(--eye);height:var(--card);box-sizing:border-box;border:2px solid var(--ins);pointer-events:none}
 #dk-root .dk2-ins-brand{position:absolute;z-index:3;left:3px;top:0;width:min(44px,calc(50% - 26px));height:var(--eye);margin:0;padding:0;border:0;background:none;display:flex;align-items:flex-end;justify-content:flex-start;cursor:pointer;color:var(--ink);-webkit-tap-highlight-color:transparent}
-#dk-root .dk2-ins-brand .ins-brand{display:block;flex:none;width:36px;height:36px;image-rendering:pixelated}
-#dk-root .dk2-empty .dk2-ins-brand{left:0;right:0;top:calc(var(--eye) + 10px);width:44px;height:44px;margin:0 auto;align-items:center;justify-content:center}
+#dk-root .dk2-ins-brand .ins-brand{display:block;flex:none;width:26px;height:26px;image-rendering:pixelated}
+#dk-root .dk2-empty .dk2-ins-brand{left:0;right:0;top:calc(var(--eye) + 10px);width:60px;height:60px;margin:0 auto;align-items:center;justify-content:center}
 #dk-root .dk2-ins-brand .ins-brand-edge{fill:var(--slip)}
 #dk-root .dk2-ins-brand:hover .ins-brand-edge{fill:#fff1c5}
 #dk-root .dk2-ins-brand:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
-@container (max-width:127px){#dk-root .dk2-station:not(.dk2-empty) .dk2-ins-brand .ins-brand{width:18px;height:18px}}
+/* The NEW badge moves to the right of the eye button on an inscribed slot, so it never sits under the brand. */
+#dk-root .dk2-inscribed .dk2-eyerow>.dk2-new{left:auto;right:2px}
+/* An empty inscribed slot: the brand takes the place of the Add plus at the top of the card area; the words sit at the bottom. */
+#dk-root .dk2-empty.dk2-inscribed .dk2-addskin{align-content:end;padding-bottom:10px}
+#dk-root .dk2-empty.dk2-inscribed .dk2-addskin>svg{display:none}
+#dk-root .dk2-empty .dk2-ins-brand{top:calc(var(--eye) + 6px)!important}
+/* Narrow slots (5 to 6 in a row): the eye button moves to the right edge so it never sits on the brand; the empty-slot brand
+   drops to its 1× size (26) so the Add words stay clear. */
+@container (max-width:118px){
+ #dk-root.dk.dk21 .dk2-inscribed .dk21-eye{left:auto;right:0;margin-left:0}
+ html body #dk-root .dk2-empty .dk2-ins-brand svg.ins-glyph-brand{width:26px!important;height:26px!important}
+ #dk-root .dk2-empty .dk2-ins-brand{width:44px!important;height:44px!important}
+ #dk-root .dk2-empty.dk2-inscribed .dk2-addskin>b{font-size:10px;line-height:12px}
+}
+@container (max-width:84px){#dk-root.dk.dk21 .dk2-inscribed .dk21-eye{width:40px;right:-2px}#dk-root .dk2-inscribed:not(.dk2-empty) .dk2-ins-brand{left:0}}
 #dk-root .dk2-inscription{margin:6px 0;padding:6px 8px;box-sizing:border-box;border:2px solid var(--rule);background:var(--slip);color:var(--ink)}
 #dk-root .dk2-inscription-standalone{border-color:var(--moss)}
 #dk-root .dk2-inscription h3{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:0 0 2px;font:400 13px/16px var(--pixel,monospace);letter-spacing:1px}

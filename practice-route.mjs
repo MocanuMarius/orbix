@@ -1,42 +1,125 @@
-import {CARD_SYSTEM,makeSkillCard,getCardModifiers,getMountedCards} from './skill-cards.mjs?v=pulse-2';
-import {practiceCourseLesson,PRACTICE_CHAIN_CARDS} from './practice-course.mjs?v=pulse-2';
+import {CARD_SYSTEM,makeSkillCard,getCardModifiers,getMountedCards} from './skill-cards.mjs?v=big-1';
+import {getInscription,permanentOnSlot,writeInscription} from './inscriptions.mjs?v=big-1';
+import {practiceCourseLesson,practiceStopById,practiceGoalMet,PRACTICE_STOPS,PRACTICE_SCRIBE_OFFERS} from './practice-course.mjs?v=big-1';
 
-// Edition 4 (17 November 2026): seven stops through real courses, one idea per
-// paused lesson. A saved Edition 3 practice in progress finishes as Edition 3.
-export const PRACTICE_EDITION=4;
+// Edition 5 (18 November 2026): thirteen stops; the card Chain is built one gift at a time on paused screens.
+// A saved Edition 4 practice in progress is moved onto Edition 5 when it loads (migratePracticeRun).
+// A saved Edition 3 practice in progress finishes as Edition 3.
+export const PRACTICE_EDITION=5;
 export const LEGACY_PRACTICE_EDITION=3;
+export const PREVIOUS_COURSE_EDITION=4;
 export const isPlayablePractice=run=>run?.isTutorial===true&&(run.tutorialEdition===PRACTICE_EDITION||run.tutorialEdition===LEGACY_PRACTICE_EDITION);
 export const isPracticeCourseRun=run=>run?.isTutorial===true&&run.tutorialEdition===PRACTICE_EDITION;
 export const isLegacyPracticeRun=run=>run?.isTutorial===true&&run.tutorialEdition===LEGACY_PRACTICE_EDITION;
-export const practiceCardRun=run=>({...run,isTutorial:false,skillSystem:CARD_SYSTEM,cardSlots:Math.max(3,(run?.practiceCards||[]).length),
- mountedCards:run?.practiceCards||[],reserveCards:[]});
+/** The practice Chain seen as a card run: the gifts in their slots, the Deck (reserve), Inscriptions and NEW badges. */
+export const practiceCardRun=run=>{
+ const cards=run?.practiceCards||[],slots=isPracticeCourseRun(run)?Math.max(Number(run.practiceSlots)||0,cards.length):Math.max(3,cards.length);
+ return {...run,isTutorial:false,skillSystem:CARD_SYSTEM,cardSlots:slots,mountedCards:Array.from({length:slots},(_,i)=>cards[i]||null),
+  reserveCards:run?.practiceReserve||[],slotInscriptions:run?.practiceInscriptions||[],unseenCardIds:run?.practiceUnseen||[]};
+};
 export const practiceCardFaces=run=>getMountedCards(practiceCardRun(run)).filter(Boolean);
+/** Edition 3: loaned cards fill the Chain directly. */
 export function loanPracticeCards(run,ids){
  if(!isPlayablePractice(run))return;
  run.practiceCards=ids.map(id=>makeSkillCard(id,`${run.id}:practice:${id}`));
 }
-/** The camp lesson's one real change: trade two loaned cards' Slots. Loans are never melted or kept. */
-export function reorderPracticeCards(run,uid,slot,expectedUid=null){
+/** Edition 5: a gift goes to the Deck with a NEW badge; the player places it. Once per card id. */
+export function givePracticeCards(run,ids){
+ if(!isPracticeCourseRun(run))return [];
+ const given=run.practiceGiven||=[],out=[];
+ for(const id of ids||[]){
+  if(given.includes(id))continue;
+  const card=makeSkillCard(id,`${run.id}:practice:${id}`);
+  (run.practiceReserve||=[]).push(card);(run.practiceUnseen||=[]).push(card.instanceId);given.push(id);out.push(card);
+ }
+ return out;
+}
+function setSlots(run,count){
+ const cards=run.practiceCards||=[],ins=run.practiceInscriptions||=[];
+ run.practiceSlots=Math.max(count,Number(run.practiceSlots)||0);
+ while(cards.length<run.practiceSlots)cards.push(null);
+ while(ins.length<run.practiceSlots)ins.push(null);
+}
+/** The Chain screen's one real change in practice: put a card in a slot. From the Deck, the card already
+ * there goes back to the Deck; from another slot, the two trade places. `expectedUid` refuses a stale move. */
+export function placePracticeCard(run,uid,slot,expectedUid=null){
  if(!isPracticeCourseRun(run)||!Array.isArray(run.practiceCards))return false;
- const cards=run.practiceCards,from=cards.findIndex(card=>card?.instanceId===uid);
- if(from<0||!Number.isInteger(slot)||slot<0||slot>=cards.length||from===slot)return false;
+ const cards=run.practiceCards,reserve=run.practiceReserve||=[];
+ if(!Number.isInteger(slot)||slot<0||slot>=cards.length)return false;
  if(expectedUid!==null&&(cards[slot]?.instanceId||null)!==expectedUid)return false;
- [cards[from],cards[slot]]=[cards[slot],cards[from]];
+ const from=cards.findIndex(card=>card?.instanceId===uid);
+ if(from===slot)return false;
+ if(from>=0)[cards[from],cards[slot]]=[cards[slot],cards[from]];
+ else{
+  const at=reserve.findIndex(card=>card?.instanceId===uid);if(at<0)return false;
+  const [card]=reserve.splice(at,1),out=cards[slot];cards[slot]=card;if(out)reserve.push(out);
+ }
+ run.practiceUnseen=(run.practiceUnseen||[]).filter(id=>id!==uid);
  run.practiceChainArranged=true;
  return true;
 }
-/** Edition 4: the camp node lends the Chain lesson's cards when the player arrives. */
+/** Kept name (Edition 4 callers and tests). */
+export const reorderPracticeCards=placePracticeCard;
+export function markPracticeCardsSeen(run,ids){
+ if(!isPracticeCourseRun(run)||!ids?.length)return false;
+ const drop=new Set(ids),before=(run.practiceUnseen||[]).length;run.practiceUnseen=(run.practiceUnseen||[]).filter(id=>!drop.has(id));
+ return run.practiceUnseen.length!==before;
+}
+/** The practice Rest: Add slot is its one action (as at a real Rest, no refill). It hands out the next gift. */
+export function practiceAddSlot(run){
+ const stop=practiceStopById(run?.current?.id);
+ if(!isPracticeCourseRun(run)||run.phase!=='support'||!stop?.practiceRest||run.practiceSlotAdded)return false;
+ setSlots(run,(run.practiceCards||[]).length+1);run.practiceSlotAdded=true;
+ givePracticeCards(run,stop.give);return true;
+}
+/** Arriving at a practice screen: its slots exist and its gift is in the Deck (the Rest gives after Add slot). */
 export function preparePracticeStop(run,node){
- if(!isPracticeCourseRun(run)||!node?.practiceChain||run.practiceCards?.length)return false;
- loanPracticeCards(run,PRACTICE_CHAIN_CARDS);return true;
+ const stop=practiceStopById(node?.id);
+ if(!isPracticeCourseRun(run)||!stop||stop.type!=='support')return false;
+ if(stop.slots)setSlots(run,stop.slots);
+ if(stop.practiceScribe)ensurePracticeScribe(run);
+ if(!stop.practiceRest)givePracticeCards(run,stop.give);
+ return true;
+}
+/** Whether this practice screen may lead on to the next flight. */
+export function practiceStopReady(run){
+ const stop=practiceStopById(run?.current?.id);
+ return !stop?.goal||practiceGoalMet(run,stop.goal);
+}
+/** The practice Scribe: the same three offers every time, written on a practice slot. */
+export function ensurePracticeScribe(run){
+ if(!isPracticeCourseRun(run))return null;
+ return run.practiceScribe||={kind:'inscription',nodeId:run.current?.id||'practice-scribe',source:'stop',sourceName:'The Scribe',offers:[...PRACTICE_SCRIBE_OFFERS],permanent:false,claimed:false};
+}
+/** Write an offered Inscription on a practice slot, with the real slot rules (inscriptions.mjs). */
+export function practiceScribeWrite(run,id,slot,{confirm=false}={}){
+ const reward=ensurePracticeScribe(run);
+ if(!reward||reward.claimed||!reward.offers.includes(id)||!getInscription(id))return false;
+ const cards=run.practiceCards||[];if(!Number.isInteger(slot)||slot<0||slot>=cards.length)return false;
+ const view={mountedCards:cards,slotInscriptions:run.practiceInscriptions||[]};
+ if(permanentOnSlot(view,slot)&&!confirm)return false;
+ const replaced=writeInscription(view,slot,id);if(replaced===false)return false;
+ run.practiceInscriptions=view.slotInscriptions;
+ Object.assign(reward,{claimed:true,chosen:id,slot,replaced:replaced||null});return true;
+}
+export const FIRST_LIGHT_NAME=`First Light · ${PRACTICE_STOPS.length} stops`;
+/** Old saves: an Edition 4 practice in progress continues on Edition 5. Its first three flights are the same courses
+ * and lessons, so a player there stays at that stop; anyone further on resumes at Edition 5's first Chain screen.
+ * Seen lessons, the suspended real run and the continuation are kept; Edition 4's loaned cards are dropped. */
+export function migratePracticeRun(run,freshMap){
+ if(run?.isTutorial!==true||run.tutorialEdition!==PREVIOUS_COURSE_EDITION||!Array.isArray(freshMap))return false;
+ const ended=run.phase==='ended',step=ended?freshMap.length:Math.min(Number(run.step)||0,3);
+ Object.assign(run,{tutorialEdition:PRACTICE_EDITION,map:freshMap,step,path:freshMap.slice(0,step).map(row=>row[0].id),current:null,
+  phase:ended?'ended':'map',attemptActive:false,attemptEntry:null,practiceCards:[],practiceReserve:[],practiceUnseen:[],practiceGiven:[],
+  practiceInscriptions:[],practiceSlots:0,practiceScribe:null,practiceSlotAdded:false,practiceChainArranged:false,mapName:FIRST_LIGHT_NAME});
+ delete run.pendingPracticeHints;
+ return true;
 }
 export function practiceModifiers(run){
  if(!isPlayablePractice(run))return {};
  const node=run.current||run.map?.[run.step]?.[0],extra={};
  if(isPracticeCourseRun(run)){
-  // Practice abilities, not cards: the camp Chain keeps three cards whose order matters.
-  if(node?.practiceProximity)extra.proximityUnlocked=true;
-  if(node?.practiceShield)extra.collectorGuard=true;
+  // Edition 5 lends no abilities: everything in flight comes from the Chain the player built.
  }
  return {...getCardModifiers(practiceCardRun(run)),practiceCards:true,...extra};
 }
@@ -44,9 +127,10 @@ export function practicePurpose(run){
  const node=run?.map?.[run.step]?.[0]||run?.current;
  return ({glide:'Lift · collect · glide',proximity:'Skim rock · catch Flare',rhythm:'Three even Lifts → Pulse → Harvest',
   'black-hole':'Keep your distance · restore light',guardian:'Read the warning · reach the waylight',
-  treasure:'Borrow cards for the next passage',camp:isPracticeCourseRun(run)?'Arrange your Chain':'Recover · prepare a card combination',
-  'course-lift':'Lift · glide · Sparks','course-collector':'Meet Collector','course-light':'Luminance · Flare',
-  'course-edge':'Skim the rock · Pulse','course-chain':'Your Chain · Black Holes','course-finale':'Hearts · Collector’s shield'})[node?.tutorialLesson||node?.kind]||'Reach the next waylight';
+  treasure:'Borrow cards for the next passage',camp:isPracticeCourseRun(run)?'Build your Chain':'Recover · prepare a card combination',scribe:'Write an Inscription',
+  'course-lift':'Lift · glide · Sparks','course-collector':'Collector · Delivery','course-light':'Luminance · Flare',
+  'course-strip':'Watch your Chain fire','course-dark':'Echo · Black Holes','course-boost':'Hearts · a doubled Chain',
+  'course-pulse':'Flare · Pulse card','course-finale':'Your Inscription'})[node?.tutorialLesson||node?.kind]||'Reach the next waylight';
 }
 
 // Return one short observation of the live world. The app gates it on the same

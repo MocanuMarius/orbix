@@ -14,11 +14,20 @@
 //   low-hearts                  one heart left          first-flights   flights 1 to 3 of the run
 //   collector                   the Collector companion is along   empty-slot   the Chain has a free Slot
 //   has-stored-sparks           Stored Sparks in the wallet        after-death  the last flight was lost
-import {CARD_CATALOG} from './card-catalog.mjs?v=pulse-2';
-import {getBiome} from './biomes.mjs?v=pulse-2';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=pulse-2';
-import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=pulse-2';
-import {onboardingFlightPlan} from './onboarding.mjs?v=pulse-2';
+//   trigger:save|finish|skim    the other three player Triggers (card-trigger-labels.mjs: Save, Finish, Skim)
+//   role:passive|boost|repeat   a card with that role is in the Chain (catalog trigger always-on, any, next)
+//   chain-cards                 at least one card sits in the Chain (the in-flight strip shows it)
+//   inscribed                   a slot carries a permanent Inscription in force
+//   devour                      a Devour card is in the Chain (card-black-hole.mjs isDevourCard)
+//   rest-ahead / scribe-ahead   a stop right after this flight is a Rest / a Scribe stop
+//   can-add-slot                the Chain has fewer than five slots
+import {CARD_CATALOG} from './card-catalog.mjs?v=big-1';
+import {getBiome} from './biomes.mjs?v=big-1';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=big-1';
+import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=big-1';
+import {onboardingFlightPlan} from './onboarding.mjs?v=big-1';
+import {isDevourCard} from './card-black-hole.mjs?v=big-1';
+import {getInscription} from './inscriptions.mjs?v=big-1';
 
 export const TIPS = Object.freeze([
  // ── General: fine in any run ──────────────────────────────────────────────────────────────
@@ -83,13 +92,34 @@ export const TIPS = Object.freeze([
  {id:'empty-slot',context:'empty-slot',icon:'chain',headline:'Fill your empty Slot',text:'A Slot with no card fires nothing. Equip one from your Reserve in the Deck.'},
  {id:'stored-rest',context:'has-stored-sparks',icon:'jar',headline:'Spend Stored Sparks at Rest',text:'At Rest, Stored Sparks pay to Forge, improve or Evolve cards.'},
  {id:'after-death',context:'after-death',icon:'spark',headline:'Try again',text:'Clear a Round to earn its rewards and choose your next stop.'},
+ // ── The Chain: the last three Triggers, the three roles, the strip, order (Edition 5 tutorial, 18 November 2026) ──
+ {id:'save-trigger',context:'trigger:save',icon:'collector',headline:'Save fires on a rescue',text:'Save cards fire when Collector stops a crash that would end the flight.'},
+ {id:'finish-trigger',context:'trigger:finish',icon:'jar',headline:'Finish pays at the end',text:'Finish cards fire once, when you clear the flight or your spare Sparks are packed.'},
+ {id:'skim-trigger',context:'trigger:skim',icon:'pulse',headline:'Skim fires near rock',text:'Skim cards fire when flying close to terrain fills Proximity. Never touch it.'},
+ {id:'passive-role',context:'role:passive',icon:'chain',headline:'Passive cards always work',text:'A Passive card needs no Trigger. It works all flight while it sits in your Chain.'},
+ {id:'boost-role',context:'role:boost',icon:'chain',headline:'A Boost strengthens leftward',text:'A Boost card strengthens the cards before it, so place it to their right.'},
+ {id:'repeat-role',context:'role:repeat',icon:'chain',headline:'Repeat looks right',text:'A Repeat card fires again with the card to its right. Keep that card there.'},
+ {id:'round-up',context:'chain-cards',icon:'spark',headline:'Sparks round up',text:'A firing that pays part of a Spark rounds up to a whole Spark.'},
+ {id:'order-try',context:'chain-cards',icon:'chain',headline:'Try another order',text:'Between flights, move cards in your Chain. Its preview shows what each order pays.'},
+ {id:'strip-white',context:'chain-cards',icon:'chain',headline:'White means it fired',text:'The shapes at the top are your slots. A shape flashes white when its card fires.'},
+ {id:'strip-passive',context:'role:passive',icon:'chain',headline:'Teal shapes stay steady',text:'A Passive card shows as a steady teal shape at the top. It never flashes.'},
+ // ── Inscriptions, Devour, Rest and the Scribe ────────────────────────────────────────────
+ {id:'strip-bar',context:'inscribed',icon:'chain',headline:'A bar marks an Inscription',text:'A bar under a top shape marks an inscribed slot. It flashes when the Inscription acts.'},
+ {id:'inscription-slot',context:'inscribed',icon:'chain',headline:'Inscriptions stay on slots',text:'Move a card away and it loses the slot’s Inscription; the next card there gets it.'},
+ {id:'devour-takeoff',context:'devour',icon:'blackhole',headline:'It eats at take-off',text:'A Devour card eats the card to its right when you take off. You confirm first.'},
+ {id:'devour-growth',context:'devour',icon:'blackhole',headline:'Growth stays on the card',text:'What a Devour card gains is stored on that card and leaves with it.'},
+ {id:'rest-recover',context:'rest-ahead',icon:'camp',headline:'Recover mends hearts',text:'At the next Rest, Recover restores missing hearts and refills your Spark Meter.'},
+ {id:'rest-add-slot',context:'rest-ahead&can-add-slot',icon:'camp',headline:'Add slot grows the Chain',text:'At Rest, Add slot gives your Chain one more slot: up to five, once per map.'},
+ {id:'rest-forge',context:'rest-ahead&has-stored-sparks',icon:'camp',headline:'Forge a surprise card',text:'At Rest, Forge turns Stored Sparks into a surprise card. It uses no Rest action.'},
+ {id:'scribe-ahead',context:'scribe-ahead',icon:'note',headline:'The Scribe is next',text:'The Scribe offers Inscriptions. Pick one, then the slot of your Chain to write it on.'},
+ {id:'scribe-replace',context:'scribe-ahead&inscribed',icon:'note',headline:'One Inscription per slot',text:'Writing on an inscribed slot replaces its old Inscription, after you confirm.'},
 ]);
 
 /** The First Light practice shows only tips that cannot contradict its own lessons (its entry lesson is its own coach card). */
 export const PRACTICE_TIP_IDS = Object.freeze(['first-tap','lift-cost','lift-sooner','pause-menu']);
 
 /** A tip without a picture of its own takes the picture of its context family. */
-const FAMILY_ICON = Object.freeze({always:'wisp',card:'chain',trigger:'spark',biome:'peaks',hazard:'blackhole','low-hearts':'heart','first-flights':'wisp',collector:'collector','empty-slot':'chain','has-stored-sparks':'jar','after-death':'spark'});
+const FAMILY_ICON = Object.freeze({role:'chain','chain-cards':'chain',inscribed:'chain',devour:'blackhole','rest-ahead':'camp','scribe-ahead':'note','can-add-slot':'camp',always:'wisp',card:'chain',trigger:'spark',biome:'peaks',hazard:'blackhole','low-hearts':'heart','first-flights':'wisp',collector:'collector','empty-slot':'chain','has-stored-sparks':'jar','after-death':'spark'});
 export const tipIcon = tip => tip.icon || FAMILY_ICON[String(tip.context).split(/[:&]/)[0]] || 'spark';
 
 export const words = s => String(s).trim().split(/\s+/).filter(Boolean).length;
@@ -98,14 +128,19 @@ export const isContextual = tip => tip.context !== 'always';
 // ── Run state the picker reads ──────────────────────────────────────────────────────────────
 // {cards:[cardId|{cardId}|null], slots, hearts, maxHearts, biome, hazards:[], flight (1-based in this run),
 //  companion:'collector', stored, lastFlightLost, practice}
-const TRIGGER_ALIAS = {wave: 'pulse'};
+const TRIGGER_ALIAS = {wave: 'pulse', clear: 'finish', pack: 'finish', 'engine-skim': 'skim'};
+const ROLE_OF = {'always-on': 'passive', any: 'boost', next: 'repeat'};
 const cardId = c => (c && typeof c === 'object') ? (c.cardId || c.id) : c;
 const usable = id => !!CARD_CATALOG[id] && !CARD_CATALOG[id].retired && !CARD_CATALOG[id].unreleased;
 export function runFacts(run) {
   const ids = (run.cards || []).map(cardId).filter(Boolean).filter(usable);
-  const triggers = new Set((run.chain || run.cards || []).map(cardId).filter(usable).map(id => CARD_CATALOG[id].trigger).filter(Boolean).map(t => TRIGGER_ALIAS[t] || t));
+  const chainIds = (run.chain || run.cards || []).map(cardId).filter(usable);
+  const triggers = new Set(chainIds.map(id => CARD_CATALOG[id].trigger).filter(Boolean).map(t => TRIGGER_ALIAS[t] || t));
+  const roles = new Set(chainIds.map(id => ROLE_OF[CARD_CATALOG[id].trigger]).filter(Boolean));
   return {
-    ids: new Set(ids), triggers,
+    ids: new Set(ids), triggers, roles, chainCards: chainIds.length > 0,
+    inscribed: !!run.inscribed, devour: !!run.devour,
+    restAhead: !!run.restAhead, scribeAhead: !!run.scribeAhead, canAddSlot: (run.slots ?? 0) > 0 && (run.slots ?? 0) < 5,
     biome: run.biome, hazards: new Set(run.hazards || []),
     lowHearts: (run.hearts ?? 3) <= 1 && (run.maxHearts ?? 3) > 1, firstFlights: (run.flight ?? 99) <= 3,
     collector: run.companion === 'collector', emptySlot: (run.slots ?? 0) > (run.filled ?? ids.length),
@@ -126,6 +161,13 @@ function partHolds(part, f) {
     case 'empty-slot': return f.emptySlot;
     case 'has-stored-sparks': return f.stored;
     case 'after-death': return f.afterDeath;
+    case 'role': return f.roles.has(value);
+    case 'chain-cards': return f.chainCards;
+    case 'inscribed': return f.inscribed;
+    case 'devour': return f.devour;
+    case 'rest-ahead': return f.restAhead;
+    case 'scribe-ahead': return f.scribeAhead;
+    case 'can-add-slot': return f.canAddSlot;
     default: return false;
   }
 }
@@ -154,7 +196,8 @@ export function pickTip(run, history = [], rand = Math.random, {recent = 8, cont
 
 // Plain words for the small context line ("For your Rhythm").
 const cardName = id => CARD_CATALOG[id]?.name || id;
-const TRIG_NAME = {collect: 'Collect', delivery: 'Delivery', pulse: 'Pulse', flash: 'Flare', overfill: 'Overfill', rhythm: 'Lift', 'falling-lift': 'Lift'};
+const TRIG_NAME = {collect: 'Collect', delivery: 'Delivery', pulse: 'Pulse', flash: 'Flare', overfill: 'Overfill', rhythm: 'Lift', 'falling-lift': 'Lift', save: 'Save', finish: 'Finish', skim: 'Skim'};
+const ROLE_NAME = {passive: 'Passive', boost: 'Boost', repeat: 'Repeat'};
 export function whyLabel(tip, run) {
   const f = runFacts(run), parts = tip.context.split('&'), first = parts.find(p => p !== 'always' && p !== 'collector') || parts[0];
   const [key, value = ''] = first.split(':');
@@ -170,6 +213,13 @@ export function whyLabel(tip, run) {
     case 'empty-slot': return 'You have a free Slot';
     case 'has-stored-sparks': return 'You hold Stored Sparks';
     case 'after-death': return 'After a lost flight';
+    case 'role': return `For your ${ROLE_NAME[value] || value} cards`;
+    case 'chain-cards': return 'Your Chain';
+    case 'inscribed': return 'Your Inscriptions';
+    case 'devour': return 'For your Devour card';
+    case 'rest-ahead': return 'Rest ahead';
+    case 'scribe-ahead': return 'The Scribe ahead';
+    case 'can-add-slot': return 'Rest ahead';
     default: return 'Good to know';
   }
 }
@@ -206,7 +256,12 @@ export function departureRunState(run, node, {profile = null} = {}) {
   const chain = mounted.filter(card => card && !isInventoryOnlyCard(card)).map(card => card.cardId || card.id);
   const held = cardsRun ? (run.reserveCards || []).filter(card => card && storedKinds.has(CARD_CATALOG[card.cardId || card.id]?.kind)).map(card => card.cardId || card.id) : [];
   const attempt = run?.lastAttempt;
+  const entries = cardsRun ? (run.slotInscriptions || []).slice(0, slots).filter(entry => entry && getInscription(entry.id)) : [];
+  const next = (node?.nextIds || []).map(id => (run?.map || []).flat().find(n => n?.id === id)).filter(Boolean);
   return {
+    inscribed: entries.some(entry => !entry.temporary),
+    devour: cardsRun && mounted.some(card => card && isDevourCard(card)),
+    restAhead: !practice && next.some(n => n.kind === 'camp'), scribeAhead: !practice && next.some(n => n.kind === 'scribe'),
     cards: [...chain, ...held], chain, slots, filled: mounted.filter(Boolean).length,
     hearts: run?.lives ?? 3, maxHearts: run?.maxLives ?? 3,
     biome: practice ? null : getBiome(node)?.id ?? null,

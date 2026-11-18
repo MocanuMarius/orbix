@@ -1,8 +1,9 @@
 // A disposable deck for phone inspection. Never reads or writes a player save.
-import { newState, createRun, advanceMap, getSupportChoices, getChoices, selectNode, beginFlightAttempt, markFlightAttemptStarted, finishFlight, settleCheckpoint } from './model.mjs?v=pulse-2';
-import { makeSkillCard } from './skill-cards.mjs?v=pulse-2';
-import { cleanSlotInscriptions, writeInscription, INSCRIPTIONS, getTemporary } from './inscriptions.mjs?v=pulse-2';
-import { writeTemporary, queueTemporary } from './temporary-inscriptions.mjs?v=pulse-2';
+import { newState, createRun, advanceMap, getSupportChoices, getChoices, selectNode, beginFlightAttempt, markFlightAttemptStarted, finishFlight, settleCheckpoint } from './model.mjs?v=big-1';
+import { makeSkillCard, describeSkillCard } from './skill-cards.mjs?v=big-1';
+import { grantTreasureGift } from './treasure.mjs?v=big-1';
+import { cleanSlotInscriptions, writeInscription, INSCRIPTIONS, getTemporary } from './inscriptions.mjs?v=big-1';
+import { writeTemporary, queueTemporary } from './temporary-inscriptions.mjs?v=big-1';
 
 export function prepareCardInspectorReward(run, cardId = 'harvest-rare') {
   if (run.cardReward && !run.cardReward.uiAcknowledged) return;
@@ -63,6 +64,27 @@ function prepareLateGamePack(state) {
   settleCheckpoint(state);
 }
 
+/** Mock run endings for the menu audit: real flags, no save. */
+function prepareEndScreen(run, kind) {
+  run.stats = { flights: 18, attempts: 21, deaths: 3, collected: 312, elites: 4, events: 5, challenges: 9 };
+  run.difficulty = 3;
+  run.cardSlots = 5;
+  run.mountedCards = ['tight-packing-iii', 'harvest-rare', 'cache-handling', 'wind-feather', 'edge-reach'].map((id, i) => makeSkillCard(id, 'sample:end:' + i));
+  if (kind === 'mapclear') { run.phase = 'map-clear'; return; }
+  if (kind === 'retry') { run.current = getChoices(run).find(n => n.type === 'flight'); run.lives = 2; run.phase = 'retry'; return; }
+  if (kind === 'death') { run.deathPending = true; run.lives = 2; run.lastAttempt = { nodeName: 'Bell Garden', livesRemaining: 2 }; return; }
+  run.phase = 'ended';
+  run.success = kind === 'victory';
+  if (kind === 'victory') {
+    run.bossDefeated = true;
+    run.winningHand = run.mountedCards.filter(Boolean);
+    run.finalCardTrophy = describeSkillCard(makeSkillCard('harvest-legendary', 'sample:end:trophy'));
+    run.cardFutureCapacity = 0;
+    run.cardClearReceipts = [];
+  } else { run.lives = 0; run.lastAttempt = { nodeName: 'Bell Garden', livesRemaining: 0 }; }
+  run.endScore = Object.freeze({ v: 1, runId: run.id, earned: 482, ascension: 3, outcome: kind === 'victory' ? 'won' : 'lost', flights: 18, version: 'mock', complete: true,
+    comparison: { ascensionBest: 482, overallBest: 482, ascensionNew: kind === 'victory', overallNew: kind === 'victory' } });
+}
 export function createCardInspectorState(params = new URLSearchParams()) {
   const state = newState();
   state.profile.tutorialComplete = true;
@@ -109,6 +131,8 @@ export function createCardInspectorState(params = new URLSearchParams()) {
     run.cardSlots = 5;
     run.mountedCards.push(makeSkillCard('chameleon', 'sample:3'), makeSkillCard('harvest-legendary', 'sample:4'));
   }
+  // Dev only: the end-of-game screens. ?scenario=victory (You won: scorecard + final Chain recap), defeat (Game over), death (a light has fallen).
+  if (['victory', 'defeat', 'death', 'mapclear', 'retry'].includes(params.get('scenario'))) prepareEndScreen(run, params.get('scenario'));
   if (params.get('scenario') === 'reward') prepareCardInspectorReward(run, params.get('reward') === 'edge-reach' ? 'edge-reach' : 'harvest-rare');
   if (params.get('scenario') === 'proximity') run.reserveCards.push(makeSkillCard('edge-reach', 'sample:edge-reach'));
   if (params.get('scenario') === 'closed-eye') {
@@ -159,7 +183,7 @@ export function createCardInspectorState(params = new URLSearchParams()) {
       .split(',').map((id, i) => makeSkillCard(id.trim(), `sample:stored:engine:${i}`)).filter(Boolean);
   } else if (params.get('chain')) {
     // Dev only (captures): any Chain and reserve, ?mock=cards&chain=id,-,id&reserve=id,id
-    const ids = params.get('chain').split(',').slice(0, 5);
+    const ids = params.get('chain').split(',').slice(0, 6);
     run.cardSlots = Math.max(3, ids.length);
     run.mountedCards = ids.map((id, i) => id && id !== '-' ? makeSkillCard(id.trim(), `sample:chain:${i}`) : null);
     if (params.get('reserve')) run.reserveCards = params.get('reserve').split(',').map((id, i) => makeSkillCard(id.trim(), `sample:stored:chain:${i}`)).filter(Boolean);
@@ -169,6 +193,8 @@ export function createCardInspectorState(params = new URLSearchParams()) {
     run.mountedCards = [null, null, null];
     run.reserveCards = [];
     delete run.cardReward;
+    // ?gifts=id,id,id: the three offered starting cards (dev only; default is the seeded draw).
+    if (params.get('gifts')) run.cardStarterOfferIds = params.get('gifts').split(',').map(id => id.trim()).slice(0, 3);
   }
   // Dev only: ?mock=cards&chain=...&slots=0:gilded,2:hollow writes Inscriptions on slots (nothing is saved).
   if (params.get('slots')) applyInscriptionSlots(run, params.get('slots'));
@@ -178,12 +204,14 @@ export function createCardInspectorState(params = new URLSearchParams()) {
   if (params.get('scenario') === 'scribe') openMockScribe(run, params.get('offers'));
   // ?scenario=temp-write&temp=mending: the slot screen for a temporary Inscription just earned (an event or an objective).
   if (params.get('scenario') === 'temp-write') queueTemporary(run, params.get('temp') || 'mending', {source: 'route-bonus', label: 'Spark Trail'});
+  // ?scenario=chest-write&gift=farLens: the slot screen for a chest gift (a permanent Inscription a chest writes).
+  if (params.get('scenario') === 'chest-write') grantTreasureGift(run, params.get('gift') || 'farLens');
   return state;
 }
 
 /** The Scribe reward of an Elite flight, offering the given Inscriptions (default: one of each kind and a third). */
 export function openMockScribe(run, offers) {
-  const ids = String(offers || 'resonant,hollow,gilded').split(',').map(id => id.trim()).filter(id => INSCRIPTIONS[id]).slice(0, 3);
+  const ids = String(offers || 'cinder,brimful').split(',').map(id => id.trim()).filter(id => INSCRIPTIONS[id]).slice(0, 2);
   if (run.cardReward) run.cardReward.uiAcknowledged = true;
   delete run.cardDraft;
   run.lastFlight = {...(run.lastFlight || {}), elite: true};

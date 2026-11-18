@@ -1,3 +1,3 @@
 // The release stamp updates this value together with the game entry point.
 // End-of-Game snapshots retain the producing version when shared later.
-export const GAME_VERSION = 'pulse-2';
+export const GAME_VERSION = 'big-1';

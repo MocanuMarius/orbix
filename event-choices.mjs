@@ -1,7 +1,7 @@
-import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=pulse-2';
-import {getCompanionAbility} from './companion-abilities.mjs?v=pulse-2';
-import {temporaryLine} from './temporary-inscriptions.mjs?v=pulse-2';
-import {activeEventFavors} from './passage-preparations.mjs?v=pulse-2';
+import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=big-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=big-1';
+import {temporaryLine} from './temporary-inscriptions.mjs?v=big-1';
+import {activeEventFavors} from './passage-preparations.mjs?v=big-1';
 
 // Values in descriptions are player-facing. Effects use the existing simulation units.
 export const EVENT_EDITION=3;

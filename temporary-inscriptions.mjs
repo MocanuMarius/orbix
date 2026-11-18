@@ -4,7 +4,7 @@
 //   {id, temporary: true, until: 'fulfilled', covers: {id}|null}  an oath: stays until a cleared flight fulfils it
 // `covers` is the permanent Inscription the temporary one hides. It is suspended (no rule sees it) and returns when this one ends.
 // A temporary Inscription written over another temporary one replaces it and keeps whatever that one covered.
-import {getTemporary, getPermanentInscription, writeInscription, TEMPORARY_INSCRIPTIONS, TEMPORARY_BY_BOON, TEMPORARY_BY_FAVOR, cleanSlotInscriptions, permanentOnSlot, migrateChestGifts} from './inscriptions.mjs?v=pulse-2';
+import {getTemporary, getPermanentInscription, writeInscription, TEMPORARY_INSCRIPTIONS, TEMPORARY_BY_BOON, TEMPORARY_BY_FAVOR, cleanSlotInscriptions, permanentOnSlot, migrateChestGifts} from './inscriptions.mjs?v=big-1';
 
 const lower = text => /^Black Holes/.test(text) ? text : text.charAt(0).toLowerCase() + text.slice(1);
 const flightsWord = n => `${n} ${n === 1 ? 'flight' : 'flights'}`;

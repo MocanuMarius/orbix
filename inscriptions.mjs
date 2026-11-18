@@ -8,32 +8,32 @@ const def = (id, name, kind, text, extra = {}) => Object.freeze({id, name, kind,
 
 export const INSCRIPTIONS = Object.freeze(Object.fromEntries([
   // Card-modifying
-  def('twin-mark', 'Twin Mark', 'card', 'The card here fires twice.', {glyph: 'twin'}),
-  def('gilded', 'Gilded', 'card', 'Each time the card here fires: +2 Sparks.', {glyph: 'gild', bonus: 2}),
-  def('resonant', 'Resonant', 'card', 'The card here also fires on a Pulse.', {glyph: 'wave', also: 'wave-crossing'}),
-  def('kindled', 'Kindled', 'card', 'The card here also fires on a Lift.', {glyph: 'lift', also: 'downbeat-lift'}),
-  def('courier', 'Courier', 'card', 'The card here also fires on a Delivery.', {glyph: 'give', also: 'collector-delivery'}),
-  def('wellspring', 'Wellspring', 'card', 'The card here also fires on an Overfill.', {glyph: 'well', also: 'natural-overfill'}),
-  def('flare', 'Sunlit', 'card', 'The card here also fires when you Collect a Flare.', {glyph: 'flash', also: 'flash-pickup'}),
-  def('mirror', 'Mirror', 'card', 'The card here fires whenever the card to its left fires.', {glyph: 'mirror'}),
-  def('brimful', 'Brimful', 'card', 'Sparks the card here gains above the Meter become Stored Sparks.', {glyph: 'brim'}),
-  def('whetted', 'Whetted', 'card', 'The card here gets 1 extra use each flight.', {glyph: 'whet'}),
+  def('twin-mark', 'Twin Mark', 'card', 'Fires twice.', {glyph: 'twin'}),
+  def('gilded', 'Gilded', 'card', '+2 Sparks each firing.', {glyph: 'gild', bonus: 2}),
+  def('resonant', 'Resonant', 'card', 'Also fires on a Pulse.', {glyph: 'wave', also: 'wave-crossing'}),
+  def('kindled', 'Kindled', 'card', 'Also fires on a Lift.', {glyph: 'lift', also: 'downbeat-lift'}),
+  def('courier', 'Courier', 'card', 'Also fires on a Delivery.', {glyph: 'give', also: 'collector-delivery'}),
+  def('wellspring', 'Wellspring', 'card', 'Also fires on an Overfill.', {glyph: 'well', also: 'natural-overfill'}),
+  def('flare', 'Sunlit', 'card', 'Also fires when you Collect a Flare.', {glyph: 'flash', also: 'flash-pickup'}),
+  def('mirror', 'Mirror', 'card', 'Fires when the card on its left fires.', {glyph: 'mirror'}),
+  def('brimful', 'Brimful', 'card', 'Its Sparks above the Meter become Stored Sparks.', {glyph: 'brim'}),
+  def('whetted', 'Whetted', 'card', '+1 use each flight.', {glyph: 'whet'}),
   // Standalone
-  def('hollow', 'Hollow', 'standalone', 'While this slot is empty: +2 Sparks on every Collect.', {glyph: 'hollow', bonus: 2}),
-  def('hearth', 'Hearth', 'standalone', '+10 maximum Sparks.', {glyph: 'hearth', capacity: 10}),
+  def('hollow', 'Hollow', 'standalone', 'Empty slot: +2 Sparks on each Collect.', {glyph: 'hollow', bonus: 2}),
+  def('hearth', 'Hearth', 'standalone', '+10 max Sparks.', {glyph: 'hearth', capacity: 10}),
   def('lantern', 'Lantern', 'standalone', '+25% Luminance.', {glyph: 'lantern', percent: 25}),
   def('long-cord', 'Long Cord', 'standalone', 'Collector reach +30%.', {glyph: 'cord', reach: 1.3}),
-  def('bell', 'Bell', 'standalone', 'Send a Pulse every 6 seconds.', {glyph: 'bell', every: 6}),
-  def('lodestone', 'Lodestone', 'standalone', 'Cards on both sides of this slot give +1 Spark each firing.', {glyph: 'lode', bonus: 1}),
-  def('ember-bed', 'Ember Bed', 'standalone', 'Finish: +3 Stored Sparks, +1 more per empty slot.', {glyph: 'bed', stored: 3}),
+  def('bell', 'Bell', 'standalone', 'A Pulse every 6 seconds.', {glyph: 'bell', every: 6}),
+  def('lodestone', 'Lodestone', 'standalone', 'Cards on both sides: +1 Spark each firing.', {glyph: 'lode', bonus: 1}),
+  def('ember-bed', 'Ember Bed', 'standalone', 'Finish: +3 Stored Sparks, +1 per empty slot.', {glyph: 'bed', stored: 3}),
   def('cinder', 'Cinder', 'standalone', 'Lift costs 1 less Spark.', {glyph: 'cinder'}),
   // Chest gifts: permanent like the 18 above, but only a chest writes them (never the Scribe's offer). They were run-long finds
   // stored loose in the run (run.treasureGifts); the numbers are unchanged. All standalone: they work on any slot.
   def('far-lens', 'Far Lens', 'standalone', 'Luminance reaches 15% farther.', {glyph: 'far-lens', chest: true, gift: 'farLens', sight: 1.15}),
-  def('quick-lens', 'Quick Lens', 'standalone', 'Companion recharge takes 15% less time.', {glyph: 'quick-lens', chest: true, gift: 'quickLens', recovery: 0.85}),
+  def('quick-lens', 'Quick Lens', 'standalone', 'Companion recharge 15% shorter.', {glyph: 'quick-lens', chest: true, gift: 'quickLens', recovery: 0.85}),
   def('mending-wick', 'Mending Wick', 'standalone', 'Recover 3 extra Sparks after each clear.', {glyph: 'mending-wick', chest: true, gift: 'wick', recoverPoints: 10}),
-  def('toll-stamp', 'Toll Stamp', 'standalone', 'Each clear with 3 body pickups: +3 Stored Sparks.', {glyph: 'toll-stamp', chest: true, gift: 'toll', bodyPickups: 3, stored: 3}),
-  def('lamplighter-seal', 'Lamplighter’s Seal', 'standalone', 'Each clear holding 12 Sparks: +3 Stored Sparks.', {glyph: 'lamplighter-seal', chest: true, gift: 'seal', holding: 12, stored: 3}),
+  def('toll-stamp', 'Toll Stamp', 'standalone', 'Clear with 3 body pickups: +3 Stored Sparks.', {glyph: 'toll-stamp', chest: true, gift: 'toll', bodyPickups: 3, stored: 3}),
+  def('lamplighter-seal', 'Lamplighter’s Seal', 'standalone', 'Clear holding 12 Sparks: +3 Stored Sparks.', {glyph: 'lamplighter-seal', chest: true, gift: 'seal', holding: 12, stored: 3}),
 ].map(item => [item.id, item])));
 
 /** The Scribe's list: the 18 permanent Inscriptions (chest gifts are not in it). */
@@ -158,9 +158,9 @@ export function migrateChestGifts(run) {
   return moved;
 }
 
-/** Deterministic pick: `random` is any () => [0,1) function. Three offers, never one already written on a slot unless fewer
- * than three others remain (then the written ones fill up the three). */
-export function offerInscriptions(run, random = Math.random, count = 3) {
+/** Deterministic pick: `random` is any () => [0,1) function. Two offers (the Scribe's count), never one already written on a slot
+ * unless fewer than two others remain (then the written ones fill up the two). */
+export function offerInscriptions(run, random = Math.random, count = 2) {
   const held = new Set((run?.slotInscriptions || []).map(entry => entry?.id).filter(Boolean));
   const shuffle = list => { const a = [...list]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const fresh = shuffle(INSCRIPTION_IDS.filter(id => !held.has(id)));
