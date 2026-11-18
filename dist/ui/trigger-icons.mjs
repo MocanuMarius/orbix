@@ -105,7 +105,7 @@ export function medalUrl(D) {
   return (medalCache[D] = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
 }
 TRIGGER_ART.rest = CAMPFIRE;
-export const triggerIcon = (kind, size = 16) => TRIGGER_ART[kind] ? pixelArt(TRIGGER_ART[kind], {size, cls: 'dk21-ticon'}) : '';
+export const triggerIcon = (kind, size = 16) => (kind = kind === 'lift-sim' ? 'downbeat-lift' : kind, TRIGGER_ART[kind]) ? pixelArt(TRIGGER_ART[kind], {size, cls: 'dk21-ticon'}) : '';
 /** A Trigger chip's icon (chip ids from card-rule-bands.mjs › CARD_TRIGGERS), 16 or 32 px. */
 export const chipIcon = (id, size = 16) => triggerIcon(triggerArtKey(id), size);
 const escB = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
