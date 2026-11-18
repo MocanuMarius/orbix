@@ -292,10 +292,11 @@ function adaptiveFuelSprite(doc,id,frame,bodyOnly,scale,reducedMotion){
   if(side<=64){
     sprite=doc.createElement('canvas');
     cache.small.set(key,sprite);
-    if(cache.small.size>256)cache.small.delete(cache.small.keys().next().value);
+    // 3 kinds x 120 frames x body/shell at one or two densities: a 256 cap re-baked sprites every frame.
+    if(cache.small.size>1536)cache.small.delete(cache.small.keys().next().value);
   }else{
     let slot;
-    if(cache.large.length<8){slot={canvas:doc.createElement('canvas')};cache.large.push(slot);}
+    if(cache.large.length<48){slot={canvas:doc.createElement('canvas')};cache.large.push(slot);}
     else{slot=cache.large[cache.next];cache.next=(cache.next+1)%cache.large.length;}
     slot.key=key;sprite=slot.canvas;
   }
@@ -458,7 +459,7 @@ function largeSprite(doc,id,frame,bodyOnly,mass,scale){
   const radius=(spec.plasma?PLASMA_SHELL_RADIUS:spec.contactRadius)*SPARK_ART_SCALE*density;
   const side=2*Math.ceil(radius*1.12+1);
   let slot;
-  if(atlas.slots.length<8){
+  if(atlas.slots.length<48){
     slot={canvas:doc.createElement('canvas')};
     atlas.slots.push(slot);
   }else{
