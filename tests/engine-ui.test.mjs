@@ -73,8 +73,8 @@ test('the Trigger collection lists every Trigger with what you do, how often, an
   assert.equal(collect.owned, true);
   assert.deepEqual(collect.cards.map(k => [k.cardId, k.count, k.inChain]), [['body-spark', 2, true], ['spark-cache', 1, true]]);
   assert.equal(book.find(t => t.id === 'always-on').cards[0].cardId, 'deep-vessel');
-  assert.equal(book.find(t => t.id === 'save').owned, false, 'no card yet');
-  assert.equal(book.length, 11, 'the 8 Triggers and 3 roles');
+  assert.equal(book.find(t => t.id === 'save'), undefined, 'Save is no longer a Trigger');
+  assert.equal(book.length, 10, 'the 7 Triggers and 3 roles');
   const html = deckScreenMarkup(run(['body-spark'], ['deep-vessel']), Object.assign(createDeckView(), {tab: 'triggers'}));
   assert.match(html, /id="dk2-tab-triggers"[^>]*aria-selected="true"/);
   assert.match(html, /No card yet/); assert.match(html, /class="dk2-btn tb-card dc-r-common tb-inchain" data-uid="u0"/);

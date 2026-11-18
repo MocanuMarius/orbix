@@ -56,7 +56,6 @@ export const CARD_TERMS = Object.freeze({
   delivery: ['Delivery', 'Trigger: Collector brings you a pickup. Some cards fire when your Collector grabs a Spark.'],
   overfill: ['Overfill', 'Trigger: a Spark brings more than your meter can hold.'],
   'falling-lift': ['Lift', 'Trigger: some cards need a Lift while falling, or a Lift on the beat (Rhythm) or on the cue (Lift Guide), or a Lift with your meter under half.'],
-  save: ['Save', 'Trigger: Watchlight or Last Orbit stops a fatal crash.'],
   clear: ['Finish', 'Trigger: you clear a flight, or you pack your spare Sparks at the end of it.'],
   engine: ['Engine', 'A chain that keeps itself going: one card’s event fires a card to its right, and a Timer sends it back to Slot 1.'],
   turn: ['Turn', 'One trip round an engine: a Timer sends its event back to Slot 1, or a Metronome ticks.'],
@@ -98,7 +97,7 @@ const CARD_TERM_DETAILS = Object.freeze({
   "grow": "Keep Growth Seeds in your Deck to unlock Grow at Rest. You hold only one Growth Seed: any Seed you gain merges into it, adds its amount and the best rarity shows. Each Seed adds its printed amount to your maximum Sparks, up to +90 total: Common +3, Rare +5, Legendary +8 (improved to +9 or +10). Grow refills the meter once and does not heal hearts. All Seeds share 3 Grow actions per journey. No active slot is needed; copying cards cannot copy Rest cards.",
   "pass": "Your chain fires only when a card in it has that Trigger, such as Collect when your wisp touches a Spark. The cards then fire left to right, from Slot 1. A card works only if its Trigger and condition match; empty Slots, always-on cards and cards with other Triggers wait. The Sparks start at zero each time: + cards add Sparks, and a Boost (× card) multiplies the Sparks and Collector time of every card to its left; Stored Sparks and forever gains always stay at their printed amount. Echo repeats the next card in its own Slot and spends that card’s uses. With Refrain, the chain fires once more from Slot 1 for the same Trigger, an Encore. Uses spent stay spent, so the Encore can give less or nothing, and it makes no extra pickup or Pulse. Card Sparks fill only the room left in your meter after the pickup’s own fuel.",
   slot: "Order matters only where a card says so: Boosts reach cards to their left, Echo and Chameleon copy the next card, Kindling Bead needs a + card before it, and Closing Chord must be the last card. You start with 3 Slots and Rest can add up to 5.",
-  trigger: "The Triggers are Collect, Lift, Pulse, Delivery, Overfill, Save, Finish and Skim. Boost cards work with all of them; Passive cards and At Rest cards do not wait for one. One touch can be two Triggers: a Spark that overfills your meter is Overfill, then Collect.",
+  trigger: "The Triggers are Collect, Lift, Pulse, Delivery, Overfill, Finish and Skim. Boost cards work with all of them; Passive cards and At Rest cards do not wait for one. One touch can be two Triggers: a Spark that overfills your meter is Overfill, then Collect.",
   boost: "Boosts sit to the right of the cards they strengthen. Several Boosts multiply together (×1.25 then ×2 is ×2.5). Fractions round up: each firing’s Sparks are rounded up to a whole number at the end (2.5 becomes 3); Collector time keeps its decimals. They also strengthen always-on cards to their left (+20% Luminance ×2 = +40%), except Boosts that have their own Trigger or limited uses. Boosts never multiply Stored Sparks rewards or gains that last beyond the journey, such as Growth Ring and Wind Feather. Caps still apply: the meter stops at 100 Sparks, and boosted time never brings Collector below half a second.",
   engine: "Events made by a card travel to the right only. A card never answers an event it made itself in the same Turn. An engine stops when a card cannot do its job, for example on a full meter; as Lift spends Sparks, the next event can start it again. Without a Timer a chain runs once.",
   timer: "Slow Wick waits 3 s, then sends a Pulse back to Slot 1. Metronome, once an event reaches it, fires the card to its right every 3 s while that card can act. Long Fuse waits 5 s, then fires your last Trigger again. Heartbeat halves every wait.",
@@ -222,7 +221,6 @@ export const TERM_CLIP_LINES = Object.freeze({
   'engine-skim': ['Fly close to terrain until Proximity fills; it then sends a Pulse.', 'The wisp hugs terrain, Proximity fills, and a Pulse follows.'],
   delivery: ['Your Collector brings a missed Spark home and cards fire.', 'The Collector fetches a missed Spark and delivers it.'],
   overfill: ['A Spark that does not fit in the full Meter spills over and fires cards.', 'The Meter is full; the extra Sparks spill and are kept.'],
-  save: ['Watchlight stops a fatal crash, and cards waiting for a Save fire.', 'A crash into the ground is stopped.'],
   devour: ['At take-off this card eats the card on its right and grows.', 'The Chain screen marks the card that take-off will eat.'],
   inscription: ['A mark on the slot, not on the card: the slot changes the card it holds.', 'A branded slot and the card on it firing.'],
   next: ['Fires again whenever the card on its right fires.', 'Echo repeats the card on its right.'],
@@ -338,13 +336,13 @@ const relatedTerms = Object.freeze({
   copy:['next','uses','shared'], grow:['rest','game','meter'], heart:['round','watchlight'], pass:['trigger','slot','boost','encore','copy'],
   trigger:['collect','wave','delivery','pass'], boost:['pass','always-on','slot','trigger'], encore:['pass','uses'], slot:['pass','next'],
   'always-on':['boost','pass'], collect:['trigger','spark','wisp'], delivery:['trigger','collector'], 
-  overfill:['trigger','meter','stored'], 'falling-lift':['trigger','lift'], save:['trigger','watchlight'], clear:['trigger','round'],
+  overfill:['trigger','meter','stored'], 'falling-lift':['trigger','lift'], clear:['trigger','round'],
   engine:['turn','timer','wave','pass'], turn:['engine','timer'], timer:['engine','turn','timers'], devour:['dream','take-off','trigger'],
   'engine-skim':['trigger','proximity'], timers:['timer','engine'],
   'take-off':['trigger'],
 });
 /** Glossary keys that are Triggers: their entries link to the Trigger collection (dist/ui/trigger-book.mjs). */
-export const TRIGGER_TERM_KEYS = Object.freeze(['collect','falling-lift','wave','delivery','overfill','save','clear','engine-skim','always-on','boost','next','trigger']);
+export const TRIGGER_TERM_KEYS = Object.freeze(['collect','falling-lift','wave','delivery','overfill','clear','engine-skim','always-on','boost','next','trigger']);
 const bookButton = () => `<button type="button" class="card-term-book" data-trigger-book>${'All Triggers'}</button>`;
 /** The glossary's Inscription entry lists every Inscription with its brand mark, name and rule. */
 export function inscriptionLegendMarkup() {
@@ -410,7 +408,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
     const heading = `card-glossary-heading-${++serial}`, dialog = doc.createElement('dialog');
     dialog.className = 'card-term-dialog card-glossary-dialog wb-dlg';
     dialog.setAttribute('aria-labelledby',heading);
-    const groups = [['Journey',['round','map','game']],['Flying & fuel',['wisp','spark','meter','dusk','cluster','heart','lift','luminance','wave','rhythm','proximity','packing','packing-efficiency','stored']],['Collector',['collector','ring','flash','cache','watchlight']],['Your cards',['pass','slot','trigger','boost','encore','always-on','next','copy','uses','shared','rest','grow','devour']],['Triggers',['collect','falling-lift','wave','delivery','overfill','save','clear','engine-skim']],['Engines',['engine','turn','timer','timers','take-off']]];
+    const groups = [['Journey',['round','map','game']],['Flying & fuel',['wisp','spark','meter','dusk','cluster','heart','lift','luminance','wave','rhythm','proximity','packing','packing-efficiency','stored']],['Collector',['collector','ring','flash','cache','watchlight']],['Your cards',['pass','slot','trigger','boost','encore','always-on','next','copy','uses','shared','rest','grow','devour']],['Triggers',['collect','falling-lift','wave','delivery','overfill','clear','engine-skim']],['Engines',['engine','turn','timer','timers','take-off']]];
     dialog.innerHTML = `<header><h2 id="${heading}">Glossary</h2><button type="button" data-card-term-close aria-label="Close glossary">×</button></header><div class="card-term-content card-glossary-list">${groups.map(([title,keys])=>`<section><h3>${esc(title)}</h3><div>${keys.map(key=>cardTermMarkup(key,CARD_TERMS[key][0])).join('')}${title==='Triggers'?bookButton():''}</div></section>`).join('')}</div><footer><button type="button" data-card-term-close>Back</button></footer>`;
     mount(dialog,button,resolveCardContext?.(button)||resolveProximityContext?.(button)||{});
   }

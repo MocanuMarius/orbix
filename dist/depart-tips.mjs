@@ -14,7 +14,7 @@
 //   low-hearts                  one heart left          first-flights   flights 1 to 3 of the run
 //   collector                   the Collector companion is along   empty-slot   the Chain has a free Slot
 //   has-stored-sparks           Stored Sparks in the wallet        after-death  the last flight was lost
-//   trigger:save|finish|skim    the other three player Triggers (card-trigger-labels.mjs: Save, Finish, Skim)
+//   trigger:finish|skim         the other two player Triggers (card-trigger-labels.mjs: Finish, Skim)
 //   role:passive|boost|repeat   a card with that role is in the Chain (catalog trigger always-on, any, next)
 //   chain-cards                 at least one card sits in the Chain (the in-flight strip shows it)
 //   inscribed                   a slot carries a permanent Inscription in force
@@ -94,7 +94,6 @@ export const TIPS = Object.freeze([
  {id:'stored-rest',context:'has-stored-sparks',icon:'jar',headline:'Spend Stored Sparks at Rest',text:'At Rest, Stored Sparks pay to Forge, improve or Evolve cards.'},
  {id:'after-death',context:'after-death',icon:'spark',headline:'Try again',text:'Clear a Round to earn its rewards and choose your next stop.'},
  // ── The Chain: the last three Triggers, the three roles, the strip, order (Edition 5 tutorial, 18 November 2026) ──
- {id:'save-trigger',context:'trigger:save',icon:'collector',headline:'Save fires on a rescue',text:'Save cards fire when Collector stops a crash that would end the flight.'},
  {id:'finish-trigger',context:'trigger:finish',icon:'jar',headline:'Finish pays at the end',text:'Finish cards fire once, when you clear the flight or your spare Sparks are packed.'},
  {id:'skim-trigger',context:'trigger:skim',icon:'pulse',headline:'Skim fires near rock',text:'Skim cards fire when flying close to terrain fills Proximity. Never touch it.'},
  {id:'passive-role',context:'role:passive',icon:'chain',headline:'Passive cards always work',text:'A Passive card needs no Trigger. It works all flight while it sits in your Chain.'},
@@ -197,7 +196,7 @@ export function pickTip(run, history = [], rand = Math.random, {recent = 8, cont
 
 // Plain words for the small context line ("For your Rhythm").
 const cardName = id => CARD_CATALOG[id]?.name || id;
-const TRIG_NAME = {collect: 'Collect', delivery: 'Delivery', pulse: 'Pulse', flash: 'Flare', overfill: 'Overfill', rhythm: 'Lift', 'falling-lift': 'Lift', save: 'Save', finish: 'Finish', skim: 'Skim'};
+const TRIG_NAME = {collect: 'Collect', delivery: 'Delivery', pulse: 'Pulse', flash: 'Flare', overfill: 'Overfill', rhythm: 'Lift', 'falling-lift': 'Lift', finish: 'Finish', skim: 'Skim'};
 const ROLE_NAME = {passive: 'Passive', boost: 'Boost', repeat: 'Repeat'};
 export function whyLabel(tip, run) {
   const f = runFacts(run), parts = tip.context.split('&'), first = parts.find(p => p !== 'always' && p !== 'collector') || parts[0];

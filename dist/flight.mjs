@@ -1517,7 +1517,7 @@ export class WispFlight {
     // Attachments act on their owner; ordinary events prefer the longest reel.
     const w=collector||([CARD_ROW_EVENTS.field,CARD_ROW_EVENTS.guard].includes(kind)?this.wisp:
       this.collectors.reduce((best,item)=>item.activeReelSeconds()>best.activeReelSeconds()?item:best,this.wisp));
-    const receipt=resolveCardRow(this.cardExecution,{meterFraction:this.flame/this.maxFlame,...detail,...(wind?{secondWind:true}:{}),
+    const receipt=resolveCardRow(this.cardExecution,{meterFraction:this.flame/this.maxFlame,heartsLeft:this.lives,lastHeart:this.lives===1,...detail,...(wind?{secondWind:true}:{}),
       availableRecovery:w.enabled(this)?w.cooldown:0,availableReel:w.activeReelSeconds(),collectorReeling:w.activeReelSeconds()>0,
       guardRecovering:w.phase==='guard-recovery',kind,id:++this.cardRowSequence});
     const fireMarks=collectReceiptFires(receipt,this.cardExecution.inscriptions);appendFires(this,fireMarks);

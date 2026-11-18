@@ -128,7 +128,6 @@ test('direct and wave Common charges spend on matching successful actions and sh
 
 test('limited recovery cards keep uses when ready, clamp short recovery and cannot replay spent time',()=>{
   for(const [id,event] of [['pacesetter',{kind:CARD_ROW_EVENTS.rhythm}],
-    ['mending-moss',{kind:CARD_ROW_EVENTS.body,guardRecovering:true}],
     ['flash-thread',{kind:CARD_ROW_EVENTS.flash}]]){
     const runtime=createCardExecution(['echo-iii',id,'refrain'].map((cardId,i)=>makeSkillCard(cardId,`time:${i}`))),cap=runtime.cards[1].charges;
     resolveCardRow(runtime,event);assert.equal(runtime.cards[1].charges,cap,id);
@@ -148,7 +147,7 @@ test('finite multipliers require an earlier payer and successful Flare, Cache an
     assert.equal(row.cards[1].charges,0);assert.equal(receipt.steps.filter(step=>step.sourceCardId===id&&step.success).length,1);
     near(receipt.sparks,SKILL_CARDS[payer].amount*3,'one doubling on the first pass, unmodified payer on replay');
   }
-  for(const [id,kind,pickupKind,expected] of [['crate-lining',CARD_ROW_EVENTS.delivery,'cache',8],['home-beacon',CARD_ROW_EVENTS.guard,null,9]]){
+  for(const [id,kind,pickupKind,expected] of [['crate-lining',CARD_ROW_EVENTS.delivery,'cache',8],]){
     const row=createCardExecution([makeSkillCard('echo',`copy:${id}`),{...makeSkillCard(id,id),charges:1},makeSkillCard('refrain',`replay:${id}`)]),
       receipt=resolveCardRow(row,{kind,pickupKind});
     near(receipt.sparks,expected);assert.equal(row.cards[1].charges,0);assert.equal(receipt.steps.filter(step=>step.sourceCardId===id&&step.success).length,1);

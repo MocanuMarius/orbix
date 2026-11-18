@@ -13,7 +13,7 @@ const EXTRA_WORDS = Object.freeze({
   'engine-turn': ['Turn', 'turn'], 'engine-any': ['Timer', 'timer'], timers: ['Timer', 'timer'],
 });
 const GROUP_KEYS = Object.freeze({collect: 'collect', lift: 'falling-lift', pulse: 'wave', delivery: 'delivery', overfill: 'overfill',
-  save: 'save', finish: 'clear', skim: 'engine-skim', passive: 'always-on', boost: 'boost', repeat: 'next'});
+  finish: 'clear', skim: 'engine-skim', passive: 'always-on', boost: 'boost', repeat: 'next'});
 
 /** Cards whose effect happens as a flight starts read "Start" with the take-off icon, though their Trigger key is Passive. */
 const START_CARDS = new Set(['twin-wick', 'use-doubler', 'dream', 'black-hole']);
@@ -55,7 +55,7 @@ const LINES = Object.freeze({
   counterweight: 'Falling: Collector 0.75 s sooner',
   'glide-prism': '×2 before it', 'courier-glass': '×2 before it', 'clear-prism': '×2 before it', 'wick-doubler': '×2 before it',
   'mending-moss': 'While recovering: 3 s sooner',
-  'last-light': '{fx} when low', 'flash-bank': '{fx} when low',
+  'home-beacon': '+3 Stored per heart left', 'last-light': 'Last heart: rewards ×2', 'flash-bank': '{fx} when low',
   'return-spring': 'Reels in 0.5 s sooner',
   'haul-winch': 'Cluster: reel 3 s sooner',
   'crate-lining': '{fx} from a Cache',

@@ -44,7 +44,7 @@ function fixtures(context) {
     add(CARD_ROW_EVENTS.attach, { pickupKind, availableRecovery: 4, availableReel: 4, collectorReeling: true }, { guard: false, recovery: false });
   }
   add(CARD_ROW_EVENTS.victory, {}, { guard: false, recovery: false });
-  add(CARD_ROW_EVENTS.clear, {carriedStored:100}, { guard: false, recovery: false });
+  add(CARD_ROW_EVENTS.clear, {carriedStored:100,heartsLeft:1}, { guard: false, recovery: false });
   if (context.rhythm) add(CARD_ROW_EVENTS.rhythm);
   if (context.guide) add(CARD_ROW_EVENTS.guideLift);
   if (context.field) for (const direction of ['up', 'down', 'right'])

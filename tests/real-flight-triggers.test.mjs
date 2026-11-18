@@ -114,15 +114,21 @@ test('Overfill: Ring Spring shortens a recovering Collector; the Wellspring Insc
   note('Overfill', 'Body Spark with Wellspring Inscription', `${over} Overfills`, slotSum(w, 0, 'fired') - collects, `${2 * over} Sparks`, 'works');
 });
 
-test('Save: Home Beacon and Last Light pay when a Watchlight stops a crash', () => {
-  const a = flights({ ids: ['home-beacon', 'watchlight'], hook: e => crashOnce(e, 6) });
-  assert.equal(slotSum(a, 0, 'fired'), 3); assert.equal(slotSum(a, 0, 'sparks'), 27);
-  note('Save', 'Home Beacon + Watchlight (flown into the floor)', '3 crashes', 3, '27 Sparks (9 each)', 'works');
-  const low = flights({ ids: ['last-light', 'watchlight'], hook: e => crashOnce(e, 3, 12) });
-  assert.equal(slotSum(low, 0, 'fired'), 3);
-  const high = flights({ ids: ['last-light', 'watchlight'], hook: e => crashOnce(e, 3, 90) });
-  assert.equal(slotSum(high, 0, 'fired'), 0, 'condition: meter 1/3 or less');
-  note('Save', 'Last Light + Watchlight (meter low / meter high)', '3 + 3 crashes', '3 / 0', '27 Sparks / 0', 'works');
+test('Finish: Home Beacon adds 3 Stored per heart left at the real clear and spends one use; Last Light doubles Spark rewards on the last heart only', () => {
+  for (const hearts of [3, 2, 1]) {
+    const r = flyRealNode({ ids: ['home-beacon'], mutate: run => { run.lives = hearts; } });
+    assert.ok(r.record.success && r.finished);
+    const rc = r.run.lastFlight.cardClearReceipt;
+    assert.equal(rc.stored, 3 * hearts, `${hearts} hearts`); assert.equal(rc.futureCapacity, 0);
+    assert.equal(r.run.mountedCards[0].charges, 2, 'one use spent');
+  }
+  note('Finish', 'Home Beacon (real clear, 3 / 2 / 1 hearts)', '3 clears', 3, '+9 / +6 / +3 Stored', 'works');
+  const hit = h => flights({ ids: ['body-spark', 'last-light'], hook: e => { e.lives = h; } });
+  const one = hit(1), three = hit(3);
+  assert.ok(slotSum(one, 0, 'fired') >= 10 && slotSum(three, 0, 'fired') >= 10);
+  assert.equal(slotSum(three, 0, 'sparks'), 2 * slotSum(three, 0, 'fired'), 'more than one heart: not doubled');
+  assert.equal(slotSum(one, 0, 'sparks'), 4 * slotSum(one, 0, 'fired'), 'last heart: Body Spark pays 4 instead of 2');
+  note('Passive', 'Last Light + Body Spark (last heart / 3 hearts)', 'Collects', slotSum(one, 0, 'fired'), '4 Sparks each / 2 each', 'works');
 });
 
 test('Finish: Growth Ring and Wayfarer Purse pay at the real clear', () => {

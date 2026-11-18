@@ -10,14 +10,14 @@ import {cardFace} from '../dist/card-ui.mjs';
 import {TRIGGER_BOOK} from '../dist/ui/chain-model.mjs';
 import {CARD_TERMS} from '../dist/card-terms.mjs';
 
-const TRIGGERS = ['Collect', 'Lift', 'Pulse', 'Delivery', 'Overfill', 'Save', 'Finish', 'Skim'], ROLES = ['Passive', 'Boost', 'Repeat'];
+const TRIGGERS = ['Collect', 'Lift', 'Pulse', 'Delivery', 'Overfill', 'Finish', 'Skim'], ROLES = ['Passive', 'Boost', 'Repeat'];
 const TEMPORARY = ['On gain']; // engine-gain: reworked later, keeps its present label
 const text = html => html.replace(/<[^>]*>/g, ' ').replace(/&middot;|&amp;/g, ' ').replace(/\s+/g, ' ');
 
-test('the display layer has 8 Triggers and 3 roles', () => {
+test('the display layer has 7 Triggers and 3 roles', () => {
   assert.deepEqual(DISPLAY_GROUPS.filter(g => g.kind === 'trigger').map(g => g.label), TRIGGERS);
   assert.deepEqual(DISPLAY_GROUPS.filter(g => g.kind === 'role').map(g => g.label), ROLES);
-  assert.deepEqual(TRIGGER_BOOK.map(t => t.label), [...TRIGGERS, ...ROLES], 'the Triggers tab lists the 8 + 3');
+  assert.deepEqual(TRIGGER_BOOK.map(t => t.label), [...TRIGGERS, ...ROLES], 'the Triggers tab lists the 7 + 3');
   for (const g of TRIGGER_BOOK) assert.ok(CARD_TERMS[g.term], `${g.label}: glossary entry`);
 });
 

@@ -6,7 +6,7 @@ import {SKILL_CARDS, makeSkillCard, describeSkillCard} from '../dist/skill-cards
 import {cardFace} from '../dist/card-ui.mjs';
 import {faceTrigger, faceEffect} from '../dist/card-face-lines.mjs';
 
-const WORDS = new Set(['Collect', 'Lift', 'Pulse', 'Delivery', 'Overfill', 'Save', 'Finish', 'Skim', 'Passive', 'Boost', 'Repeat', 'Start', 'Rest', 'Flare', 'Turn', 'Timer']);
+const WORDS = new Set(['Collect', 'Lift', 'Pulse', 'Delivery', 'Overfill', 'Finish', 'Skim', 'Passive', 'Boost', 'Repeat', 'Start', 'Rest', 'Flare', 'Turn', 'Timer']);
 const plain = html => html.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
 const FINE_PRINT = /\bup to\b|never above|per journey|\bmax(?:imum)?\b(?! Sparks?| Spark\b)|\bshares?\b|cannot|only (?:the )?first/i;
 

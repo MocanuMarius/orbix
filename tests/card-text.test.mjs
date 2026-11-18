@@ -11,7 +11,7 @@ import {getEquippedCardStatuses} from '../dist/card-status.mjs';
 
 const BANNED = [/\bpass(?:es|’s|'s)?\b/i, /\bpayers?\b/i, /\breplay/i, /matching event/i, /\bso far\b/i, /\bearlier\b/i, /\bequipped\b/i, /\bmounted\b/i, /\bbonus\b/i, /\bpays?\b/i];
 const CHIP = {'Collect':'collect','Delivery':'delivery','Latch':'latch','Wave':'wave','Flash':'flash','Flash ends':'flash-ends','Falling Lift':'falling-lift','Lift':'falling-lift',
-  'Overfill':'overfill','Rhythm':'rhythm','Save':'save','Clear':'clear','Any Trigger':'any','Next card':'next','Always on':'always-on','At Rest':'rest'};
+  'Overfill':'overfill','Rhythm':'rhythm','Clear':'clear','Any Trigger':'any','Next card':'next','Always on':'always-on','At Rest':'rest'};
 // One word for the ring of light (designer, 2026-11-17): the design-lab data still says "Wave".
 // Trigger labels were simplified (dist/card-trigger-labels.mjs); the lab table keeps the old words.
 const HEAD = {'Lift':'Lift','Flash':'Collect a Flare','Latch':'When your Collector grabs a Spark','Flash ends':'When a Flare ends','Falling Lift':'Lift while falling','Rhythm':'Lift on the beat','Clear':'Finish','Any Trigger':'Boost','Next card':'Repeat','Always on':'Passive'};
@@ -23,7 +23,7 @@ const BOOST_TEXT = {'prism-lens':'Every card before it ×1.25','prism-lens-ii':'
 test('all 85 approved cards carry their Trigger chip as data and the approved plain wording', () => {
   assert.equal(CARD_TEXT.length, 85);
   // Wave Loom came back as an engine card with its own chip (tests/card-engines.test.mjs); the lab table keeps its old line.
-  for (const entry of CARD_TEXT.filter(entry => !SKILL_CARDS[entry.id]?.engine)) {
+  for (const entry of CARD_TEXT.filter(entry => !SKILL_CARDS[entry.id]?.engine && !['home-beacon', 'last-light', 'mending-moss'].includes(entry.id))) { // reworked 2026-11-18 (Save removed); see tests/real-flight-triggers.test.mjs
     const def = SKILL_CARDS[entry.id], card = describeSkillCard(makeSkillCard(entry.id, `text:${entry.id}`));
     assert.ok(def, entry.id);
     assert.equal(def.trigger, CHIP[entry.t], `${entry.id} trigger id`);
@@ -56,7 +56,7 @@ test('no card face uses pass, payer, replay, matching event or the other dropped
 });
 
 test('glossary and Field Guide use Chain, Slots, Triggers and Encore, and drop the stale lines', () => {
-  for (const key of ['pass', 'slot', 'trigger', 'boost', 'encore', 'always-on', 'next', 'collect', 'delivery', 'overfill', 'falling-lift', 'save', 'clear'])
+  for (const key of ['pass', 'slot', 'trigger', 'boost', 'encore', 'always-on', 'next', 'collect', 'delivery', 'overfill', 'falling-lift', 'clear'])
     assert.ok(CARD_TERMS[key], key);
   assert.equal(CARD_TERMS.pass[0], 'Chain');
   for (const [title, text] of Object.values(CARD_TERMS)) for (const word of [/\bpass(?:es)?\b/i, /\bpayers?\b/i, /\breplay/i, /matching event/i])

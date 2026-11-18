@@ -8,7 +8,7 @@ import {TIPS,PRACTICE_TIP_IDS,words,eligibleTips,pickTip,whyLabel,departureRunSt
 import {flightEntryMarkup} from '../dist/flight-entry.mjs';
 import {art} from '../dist/depart-art.mjs';
 
-const TRIGGERS=new Set(['collect','delivery','pulse','flash','overfill','rhythm','falling-lift','save','finish','skim']);
+const TRIGGERS=new Set(['collect','delivery','pulse','flash','overfill','rhythm','falling-lift','finish','skim']);
 const ROLES=new Set(['passive','boost','repeat']);
 const FLAGS=new Set(['always','low-hearts','first-flights','collector','empty-slot','has-stored-sparks','after-death','chain-cards','inscribed','devour','rest-ahead','scribe-ahead','can-add-slot']);
 const biomeIds=new Set(BIOMES.map(b=>b.id));
@@ -211,7 +211,7 @@ test('the departure page: fixed slots, no old diagram, Lift line only early or i
 // ── Edition 5 tutorial: every Trigger, role, Inscription kind, Devour, the strip, Rest and the Scribe has a tip, shown only in context ──
 test('every player Trigger and role, Inscriptions, Devour, the strip, Rest options and the Scribe each have a tip',()=>{
  const contexts=TIPS.map(t=>t.context);
- for(const t of ['collect','falling-lift','pulse','delivery','overfill','save','finish','skim'])assert.ok(contexts.some(c=>c.split('&').includes(`trigger:${t}`)),`a ${t} tip`);
+ for(const t of ['collect','falling-lift','pulse','delivery','overfill','finish','skim'])assert.ok(contexts.some(c=>c.split('&').includes(`trigger:${t}`)),`a ${t} tip`);
  for(const r of ROLES)assert.ok(contexts.some(c=>c.split('&').includes(`role:${r}`))||r==='repeat'&&contexts.includes('card:echo|echo-ii|echo-iii'),`a ${r} tip`);
  for(const flag of ['inscribed','devour','chain-cards','rest-ahead','scribe-ahead'])assert.ok(contexts.some(c=>c.split('&').includes(flag)),`a ${flag} tip`);
  for(const id of ['rest-recover','rest-add-slot','rest-forge','grow-at-rest','strip-white','strip-passive','strip-bar','scribe-ahead'])assert.ok(TIPS.some(t=>t.id===id),id);
@@ -227,8 +227,8 @@ test('Chain tips follow the Chain: roles, the three new Triggers, Inscriptions, 
  assert.ok(ids(chain(['body-spark'])).includes('strip-white')&&ids(chain(['body-spark'])).includes('order-try'));
  assert.ok(ids(chain(['deep-vessel'])).includes('passive-role')&&ids(chain(['deep-vessel'])).includes('strip-passive'));
  assert.ok(ids(chain(['crescendo'])).includes('boost-role'));assert.ok(ids(chain(['echo'])).includes('repeat-role'));
- assert.ok(ids(chain(['home-beacon'])).includes('save-trigger'));assert.ok(ids(chain(['growth-ring'])).includes('finish-trigger'));
- assert.ok(!ids(chain(['body-spark'])).includes('save-trigger'));
+ assert.ok(ids(chain(['home-beacon'])).includes('finish-trigger'));assert.ok(ids(chain(['growth-ring'])).includes('finish-trigger'));
+ assert.ok(!TIPS.some(t=>t.context==='trigger:save'));
  assert.ok(ids({...base,inscribed:true}).includes('strip-bar')&&!ids(base).includes('inscription-slot'));
  assert.ok(ids({...base,devour:true}).includes('devour-takeoff'));
  assert.ok(ids({...base,restAhead:true}).includes('rest-recover')&&ids({...base,restAhead:true}).includes('rest-add-slot'));

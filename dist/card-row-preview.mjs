@@ -11,7 +11,7 @@ const labels = {
   [CARD_ROW_EVENTS.body]:'Collect', [CARD_ROW_EVENTS.wave]:'Pulse', [CARD_ROW_EVENTS.flash]:'Flare',
   [CARD_ROW_EVENTS.flashExpiry]:'Flare', [CARD_ROW_EVENTS.lift]:'Lift', [CARD_ROW_EVENTS.overfill]:'Overfill',
   [CARD_ROW_EVENTS.delivery]:'Delivery', [CARD_ROW_EVENTS.attach]:'Delivery', [CARD_ROW_EVENTS.rhythm]:'Lift', [CARD_ROW_EVENTS.guideLift]:'Lift',
-  [CARD_ROW_EVENTS.field]:'Swipe', [CARD_ROW_EVENTS.guard]:'Save', [CARD_ROW_EVENTS.clear]:'Finish',
+  [CARD_ROW_EVENTS.field]:'Swipe', [CARD_ROW_EVENTS.guard]:'Crash stopped', [CARD_ROW_EVENTS.clear]:'Finish',
   [CARD_ROW_EVENTS.victory]:'Third Guardian defeated',
 };
 const zeroTotals = () => ({sparks:0, stored:0, futureCapacity:0, cruisingSpeed:0, recoverySeconds:0, reelSeconds:0});
@@ -62,7 +62,7 @@ export function getCardRowPreviewEvents(run = {}) {
       : kind === CARD_ROW_EVENTS.field ? [{guardRecovering:false,collectorReeling:false,availableRecovery:10,availableReel:0}]
       : [CARD_ROW_EVENTS.clear,CARD_ROW_EVENTS.victory].includes(kind) ? [states[0]] : states;
     for (const pickupKind of pickups) for (const meterFraction of meters) for (const firstCrossing of crossings) for (const direction of directions) for (const state of allowedStates) {
-      const event = {kind,pickupKind,meterFraction,firstCrossing,direction,...state,carriedStored:carryIn(run),cruisingSpeedRoom:speedRoom(run)};
+      const event = {kind,pickupKind,meterFraction,firstCrossing,direction,...state,carriedStored:carryIn(run),heartsLeft:Math.max(0,Number(run.lives)||0),lastHeart:run.lives===1,cruisingSpeedRoom:speedRoom(run)};
       const unavailableReason = issueForEvent(event,context);
       const qualifiers = [];
       if ([CARD_ROW_EVENTS.body,CARD_ROW_EVENTS.delivery,CARD_ROW_EVENTS.attach].includes(kind) && (pickups.length > 1 || pickupKind !== 'light')) qualifiers.push(pickupKind === 'light' ? 'Spark' : pickupKind === 'dusk' ? 'Dusk' : pickupKind === 'cluster' ? 'Cluster' : 'Cache');

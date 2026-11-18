@@ -239,7 +239,7 @@ test('every declarative catalog rule executes with its exact approved event and 
     }
     rows.push(def.id);
     if(def.row.perEmptySlot)rows.push(null);
-    const event={kind,carriedStored:100,availableRecovery:10,availableReel:10,collectorReeling:true,meterFraction:.2,pickupKind:def.row.when?.pickupKind||'light',
+    const event={kind,carriedStored:100,availableRecovery:10,availableReel:10,collectorReeling:true,meterFraction:.2,heartsLeft:3,pickupKind:def.row.when?.pickupKind||'light',
       firstCrossing:def.row.when?.firstCrossing??true,direction:def.row.when?.direction||'up',guardRecovering:true};
     const result=previewCardRow(cards(rows),event);
     assert.ok(result.steps.some(s=>s.actingCardId===def.id&&s.success),def.id);
@@ -306,8 +306,8 @@ test('Rhythm, directional Field and guard rewards pay from actual physical succe
   const guard=flight(['watchlight','home-beacon','last-light','prism-lens','refrain']);
   try{
     guard.flame=0;guard.player.y=-20;guard.hit(null);assert.equal(guard.dying,false);
-    assert.equal(guard.cardRowTrace.sparks,46);assert.equal(guard.cardRowTrace.event.meterFraction,0); // whole Sparks: each firing rounds UP
-    assert.equal(guard.flame,guard.maxFlame);assert.equal(guard.luminanceWaves.waves.length,1);
+    assert.equal(guard.cardRowTrace,null,'Save is no longer a Trigger: Home Beacon and Last Light hear nothing from a rescue');
+    assert.equal(guard.flame,0);assert.equal(guard.luminanceWaves.waves.length,1);
   }finally{guard.destroy();}
 });
 
