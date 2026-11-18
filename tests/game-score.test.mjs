@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as M from '../dist/model.mjs';
-import {writeTemporary,writePendingTemporary} from '../dist/temporary-inscriptions.mjs';
 import {makeSkillCard} from '../dist/skill-cards.mjs';
 import {SCORE_BOOK_KEY,completedGameScore,readScoreBook,recordCompletedGameScore} from '../dist/game-score.mjs';
 import {cleanScorecard,scorecardLink,scorecardFromHash} from '../dist/scorecard.mjs';
@@ -27,12 +26,12 @@ test('score counts banked clear/overflow once, survives spending, excludes faile
 
 test('Closed Eye uncapped packing bonus reaches wallet, score and reward ceremony exactly once across reloads',()=>{
  const storage=memory(),state=fresh('closed-eye-score'),r=state.run;
- r.mountedCards=[makeSkillCard('tight-packing','contract:packing')];writeTemporary(r,0,'closed-eye');
+ r.mountedCards=[makeSkillCard('tight-packing','contract:packing')];r.pendingOath={id:'closed-eye'};
  const wallet=r.condensedGlow;enter(state);
  assert.ok(M.finishFlight(r,{success:true,flame:100,condensedGlow:999}));
  const f=r.lastFlight,packed=f.pickupCondensedGlow+f.exitPacking.amount;
  assert.equal(f.pickupCondensedGlow,20,'base overflow allowance stays capped');
- assert.equal(f.pactBonus,packed*2);assert.ok(f.pactBonus>40);
+ assert.equal(f.pactBonus,75,'a won Closed Eye wager is a flat prize: 5 x 15 Stored Sparks on map 1');
  assert.ok(f.cardPackingBonus>0,'Tight Packing bonus is separate from contract multiplication');
  const earned=f.completionBonus+packed+f.cardPackingBonus+f.pactBonus;
  assert.equal(r.scoreLedger.earned,f.securedCondensedGlow,'score follows secured income, including ordinary automatic settlement');
@@ -47,7 +46,7 @@ test('Closed Eye uncapped packing bonus reaches wallet, score and reward ceremon
 });
 
 test('a failed Closed Eye attempt grants no packing multiplier and cannot inflate completed score',()=>{
- const state=fresh('closed-eye-failure'),r=state.run;writeTemporary(r,0,'closed-eye');
+ const state=fresh('closed-eye-failure'),r=state.run;r.pendingOath={id:'closed-eye'};
  r.scoreLedger.earned=17;lose(state);
  assert.equal(r.endScore.earned,17);assert.equal(r.lastFlight?.pactBonus,undefined);
 });
@@ -66,9 +65,9 @@ test('abandon, test, tutorial and migrated partial Games cannot set bests',()=>{
  const testState=fresh('test');testState.run.testMode=true;lose(testState);M.saveState(testState,storage);assert.equal(testState.run.endScore,undefined);assert.equal(storage.getItem(SCORE_BOOK_KEY),null);
 });
 test('support purses earn score, resource sales do not, and replayed support choice is refused',()=>{
- for(const [eventIndex,id,expected] of [[5,'archive-packed',16],[1,'bargain',0],[8,'bargain-burden',0]]){
-  const state=fresh('support:'+eventIndex),r=state.run;const node=r.map.flat().find(n=>n.type==='support'&&n.kind!=='camp');Object.assign(node,{kind:'event',eventIndex,eventEdition:3});Object.assign(r,{current:node,step:node.row,phase:'support',path:[node.id],flame:100});if(!r.mountedCards?.length)r.mountedCards=[null];writeTemporary(r,0,'night-ledger');delete r.supportOffers;
-  const index=M.getSupportChoices(r).findIndex(c=>c.id===id);assert.ok(index>=0,id);assert.ok(M.resolveSupport(r,index));if(r.pendingTemporary)assert.ok(writePendingTemporary(r,0,{confirm:true}));assert.equal(r.scoreLedger.earned,expected,id);assert.equal(M.resolveSupport(r,index),false);
+ for(const [eventIndex,id,expected] of [[5,'archive-packed',16],[6,'dice-safe',10],[11,'shrine-packed',12]]){
+  const state=fresh('support:'+eventIndex),r=state.run;const node=r.map.flat().find(n=>n.type==='support'&&n.kind!=='camp');Object.assign(node,{kind:'event',eventIndex,eventEdition:3});Object.assign(r,{current:node,step:node.row,phase:'support',path:[node.id],flame:100});if(!r.mountedCards?.length)r.mountedCards=[null];r.pendingOath={id:'night-ledger'};delete r.supportOffers;
+  const index=M.getSupportChoices(r).findIndex(c=>c.id===id);assert.ok(index>=0,id);assert.ok(M.resolveSupport(r,index));assert.equal(r.scoreLedger.earned,expected,id);assert.equal(M.resolveSupport(r,index),false);
  }
 });
 test('stateless share payload is bounded, keeps producing version, rejects malformed/hostile inputs',()=>{

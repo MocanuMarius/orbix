@@ -14,7 +14,7 @@ import {setCollectorPreference} from './model.mjs?v=guide-clarity-1';
 import {menuIcon as icon} from './menu-icons.mjs?v=guide-clarity-1';
 import {installationState,installationInstructions,onInstallationChange,requestInstall,refreshBuild,registerUpdateClient,updateCheckpoint} from './pwa.mjs?v=guide-clarity-1';
 import {prepareRouteOffer} from './route-offers.mjs?v=guide-clarity-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=guide-clarity-1';
+import {ROUTE_BONUSES,bonusRewardLine} from './route-bonuses.mjs?v=guide-clarity-1';
 import {updateBonusGauge,bonusProgressText} from './route-bonus-ui.mjs?v=guide-clarity-1';
 import {forecastCheckpointMarkup} from './night-atlas.mjs?v=guide-clarity-1';
 import {markFlightAttemptStarted,previewAtlasMap,CAMPAIGN_MAP_NAMES} from './model.mjs?v=guide-clarity-1';
@@ -400,7 +400,7 @@ let cardRewardEquipping=false,cardRewardNotice='',cardSwapPending=null;
 let cardSelectedId=null,cardInspecting=false,cardBrowsing=false,cardDeckScroll=0,cardMeltScroll=0,cardEquipMode=false,cardTargetSlot=null,cardMeltMode=false,cardMeltIds=new Set(),cardMeltToken=null,cardDeckNotice='',cardFlightEditing=false,cardForgeRarity='rare',cardForgeNotice='';
 // These contexts belong to the open menu only. No temporary choice enters a save.
 let cardView='deck',cardDeckOrigin='game',cardReaderOrigin='equipped',cardMeltOrigin=null,cardMeltSingle=false,cardForgeOrigin=null,cardLastForged=null;
-let cardWorkshopOrigin=false,cardWorkshopFromDeck=false;
+let cardWorkshopOrigin=false,cardWorkshopFromDeck=false,cardWorkshopService=null;
 const deckView=createDeckView();
 const deckDragging=bindDeckDragging({
  canEdit:()=>!flightLoading&&!cardMeltMode&&!cardSwapPending&&canEditDeck(),
@@ -511,7 +511,7 @@ const deckScreenActions={
  takeOut:(slot,id)=>{if(canEditDeck()&&unequipMountedCard(state.run,slot,id))repaintDeck();else showCards();},
  meltQuote:id=>{if(!canEditDeck())return {eligible:false};const preview=getCardMeltPreview(state.run,[id]);return {eligible:!!preview.eligible,reason:preview.reason,amount:Math.floor(preview.amount||0),token:preview.token,wallet:Math.floor(getSkillWallet(state).condensedGlow||0)};},
  meltConfirm:(id,token)=>{if(canEditDeck()&&token&&meltOwnedCards(state,[id],token))repaintDeck();else{deckView.note='This card changed. Open it again to Melt.';deckView.noteTone='dk2-note-warn';showCards();}},
- workshop:()=>{if(!canUseCardCampServices(state.run))return;cardWorkshopFromDeck=true;showCardWorkshop();},
+ workshop:()=>{if(!canUseCardCampServices(state.run))return;cardWorkshopFromDeck=true;showCardWorkshop('',null);},
  back:to=>{if(to==='forge'){cardReaderOrigin='equipped';previewCardForge();}else showCards();},
 };
 // "All Triggers" from the glossary when the Deck is not open: open the Deck on its Triggers tab (Close returns).
@@ -585,11 +585,11 @@ function previewCardImprove(id=cardSelectedId){
  if(!canEditDeck())return;const card=getOwnedCards(state.run).find(c=>c.instanceId===id),preview=getCardImprovePreview(state.run,id);if(!card||!preview.after||(!preview.kind&&preview.after.cardId===card.cardId&&preview.after.rank<=card.rank))return;
  cardView='improve';openSheet(cardExchangeMarkup(card,{kind:'improve',preview,wallet:getSkillWallet(state).condensedGlow,backLabel:cardWorkshopOrigin?'Back to Workshop':'Back to card'}),'card-sheet card-exchange-sheet');
 }
-function showCardWorkshop(notice=''){
+function showCardWorkshop(notice='',service=cardWorkshopService){
  if(!canUseCardCampServices(state.run))return;
  if(!document.querySelector('dialog.card-sheet[open]'))beginDeckSession();
  cardWorkshopOrigin=true;cardView='workshop';cardEquipMode=false;cardMeltMode=false;
- openSheet(cardWorkshopMarkup(state.run,{notice}),'card-sheet card-bench-sheet card-workshop-sheet');
+ cardWorkshopService=service;openSheet(cardWorkshopMarkup(state.run,{notice,only:service}),'card-sheet card-bench-sheet card-workshop-sheet');
 }
 function previewCardRefill(id){
  if(!canUseCardCampServices(state.run))return;
@@ -682,7 +682,7 @@ function confirmCardForge(rarity,token){
  if(!forged){cardForgeNotice='This price changed. Check the Forge again before paying.';previewCardForge(rarity);return;}
  // Forge v3 reveals the surprise card only after payment.
  saveDeckEdits();cardLastForged={instanceId:forged.instanceId,name:cardName(forged),card:forged,price:preview.price,rarity};
- cardForgeNotice=`Revealed: ${cardLastForged.name} added to reserve · ${preview.price} Stored Sparks spent.`;
+ cardForgeNotice=`${cardLastForged.name} added to your deck.`;
  const sheet=document.querySelector('dialog.card-forge-sheet[open]');
  if(!sheet){previewCardForge(rarity);return;}
  // Source Sparks slide in, strike, reveal; a tap or reduced motion goes straight to the result view.
@@ -707,7 +707,7 @@ function backCardSheet(){
 }
 
 let scribe={id:null,slot:null};
-// Temporary Inscriptions earned from events and objectives: choose a slot, confirm only when it covers or replaces something.
+// Chest finds (permanent Inscriptions): choose a slot, confirm only when it replaces something.
 let tempWrite={slot:null};
 function tempStep(action,slot){
  const r=state.run;if(!r?.pendingTemporary)return false;
@@ -755,6 +755,18 @@ function claimFlightReward(id){
 }
 function keepFlightReward(id){return claimFlightReward(id);}
 
+/** Rest screen: a second tap on a selected card, or its Confirm button, spends the Rest choice. */
+function restConfirm(key,index,token){
+ restSelected=null;if(!Number.isInteger(index))return;
+ takeSupport(index,key==='grow'?token:null);
+}
+/** Continue before any Rest choice asks once; after a choice (a second action may still be open) it leaves directly. */
+function restContinue(index){
+ const camp=getCardCampPreview(state.run);if(!camp||camp.completed||!Number.isInteger(index))return;
+ restSelected=null;
+ if(!camp.used.length&&camp.actions.some(a=>a.key&&!a.disabled)){openSheet(`<h2>Leave without resting?</h2><p class="run-pause-note">You will not recover, grow or add a slot at this Rest.</p><div class="run-pause-actions"><button class="secondary" data-action="close-sheet">Stay</button><button class="primary" data-action="card-rest-leave" data-index="${index}">Leave</button></div>`,'run-confirm-sheet');return;}
+ takeSupport(index);
+}
 function takeSupport(index,confirmedGrowToken=null){
  const camp=getCardCampPreview(state.run),grow=camp?.actions.find(action=>action.index===index&&action.key==='grow');
  if(grow){
@@ -775,7 +787,7 @@ function takeSupport(index,confirmedGrowToken=null){
 function showChestForge(card){
  const reduced=!!(state.settings.reducedMotion||globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
  const sheet=openSheet('','card-forge-sheet chest-forge-sheet');
- forgeCeremony=runForgeCeremony(sheet,{...card,name:card.name||cardName(card)},{price:0,reduced,onDone:()=>{forgeCeremony=null;sheet.innerHTML=`<h2>${esc(card.name||cardName(card))}</h2><p class="run-pause-note">1 surprise card from the chest. It is in your deck. No Stored Sparks spent.</p><button class="primary" data-action="close-sheet">Continue</button>`;}});
+ forgeCeremony=runForgeCeremony(sheet,{...card,name:card.name||cardName(card)},{price:0,reduced,onDone:()=>{forgeCeremony=null;sheet.innerHTML=`<h2>${esc(card.name||cardName(card))}</h2><p class="run-pause-note">Added to your deck.</p><button class="primary" data-action="close-sheet">Continue</button>`;}});
 }
 function prepareOffer(r,n){return prepareRouteOffer(r,n,{profile:state.profile,width:innerWidth,height:innerHeight});}
 function commitNode(id){
@@ -834,9 +846,11 @@ function renderBriefing(){const r=state.run,n=r.current,loc=nodeLocation(n);retu
 function supportValues(effect={},{compact=false}={}){const r=state.run,items=[],add=(kind,value,label)=>items.push(`<span class="boon-resource-value ${String(value).startsWith('−')||String(value).startsWith('-')?'cost':'gain'}" title="${label}" aria-label="${value} ${label}">${kind==='heart'?lifeHeartSvg():resourceSymbol(kind)}<b>${value}</b>${compact?'':`<small>${label}</small>`}</span>`);if(effect.flame){const maximum=getGlowCapacity(r)+Math.max(0,Number(effect.glowCapacity)||0),amount=effect.flame>=100?maximum-r.flame:effect.flame>0?Math.min(effect.flame,maximum-r.flame):effect.flame;add('glow',compact?`${amount>=0?'+':''}${formatGlow(amount)}`:effect.flame>=100?'FULL':`${amount>0?'+':''}${formatGlow(amount)}`,'Sparks')}if(effect.pickupGlow){const p=previewGlowReward(r,effect.pickupGlow,{removeArtifact:effect.sell});if(p.restored>0)add('glow','+'+formatGlow(p.restored),'Sparks');if(p.condensedGlow>0)add('packed','+'+p.condensedGlow,'Stored Sparks');if(!p.restored&&!p.condensedGlow)add('packed','<1','Stored Spark toward the next whole unit')}if(effect.packedReward)add('packed','+'+effect.packedReward,'Stored Sparks');if(effect.packedLight)add('packed','+'+effect.packedLight,'Stored Sparks');if(effect.salvagePackedLight)add('packed','+'+effect.salvagePackedLight,'Stored Sparks');if(effect.condensedCost)add('packed','−'+effect.condensedCost,'Stored Sparks');if(effect.lives)add('heart','+'+effect.lives,effect.lives===1?'heart':'hearts');return items.join('')}
 
 function restGlowReadout(r){const max=getGlowCapacity(r);return `<span class="rest-glow" aria-label="${formatGlow(r.flame)} of ${formatGlow(max)} Sparks">${resourceSymbol('glow')}<b>${formatGlow(r.flame)}<small>/${formatGlow(max)}</small></b></span>`}
-function renderRestBenefits(r,n,choices,options={}){if(isPlayablePractice(r))return `<section class="practice-stop practice-rest-ready">${tutorialCheckpoint()}<div class="practice-stop-place"><h1>Recovered & ready</h1><p>${r.earlyComboIntroduced?'Practise Rhythm and Resonant Harvest again in your next flight.':'Rhythm and Resonant Harvest are loaned for your next flight.'}</p><button class="primary" data-action="node" data-id="${getChoices(r)[0]?.id}">Try the combination ${icon('arrow')}</button></div>${practiceCardsMarkup(r)}</section>`;if(isCardRun(r))return cardRestMarkup(r,n,choices.length?choices:getSupportChoices(r,state.profile));const markup=restBenefitsMarkup(r,n,choices,options);return r.isTutorial?markup.replace('<aside class="rest-rail">','<aside class="rest-rail">'+tutorialCheckpoint()+'<p class="prologue-rest-note">Practice starts one heart short. Recover restores hearts; both choices refill Sparks. Ordinary flight failures cost one heart.</p>'):markup}
+let restSelected=null;
+function renderRestBenefits(r,n,choices,options={}){if(isPlayablePractice(r))return `<section class="practice-stop practice-rest-ready">${tutorialCheckpoint()}<div class="practice-stop-place"><h1>Recovered & ready</h1><p>${r.earlyComboIntroduced?'Practise Rhythm and Resonant Harvest again in your next flight.':'Rhythm and Resonant Harvest are loaned for your next flight.'}</p><button class="primary" data-action="node" data-id="${getChoices(r)[0]?.id}">Try the combination ${icon('arrow')}</button></div>${practiceCardsMarkup(r)}</section>`;if(isCardRun(r))return cardRestMarkup(r,n,choices.length?choices:getSupportChoices(r,state.profile),{selected:restSelected});const markup=restBenefitsMarkup(r,n,choices,options);return r.isTutorial?markup.replace('<aside class="rest-rail">','<aside class="rest-rail">'+tutorialCheckpoint()+'<p class="prologue-rest-note">Practice starts one heart short. Recover restores hearts; both choices refill Sparks. Ordinary flight failures cost one heart.</p>'):markup}
 function eventArt(c){
  if(c.effect?.artifact)return artifactIcon(c.effect.artifact);
+ if(c.art==='card')return icon('star');
  if(c.art==='lens')return icon('long-flash');
  if(c.art==='feather')return skillIcon({id:'main-drift'});
  if(c.art==='wick')return resourceSymbol('energy');
@@ -845,7 +859,7 @@ function eventArt(c){
  if(c.art==='companion')return companionArtSvg(state.run.companions[0]);
  if(c.effect.lives)return lifeHeartSvg();
  if(c.effect.packedReward)return resourceSymbol('packed');
- if(c.effect.pilgrimVow||c.effect.routePreparation)return icon('route');
+ if(c.effect.oath||c.effect.routePreparation)return icon('route');
  return resourceSymbol('energy');
 }
 function renderSupport(){
@@ -861,7 +875,7 @@ function renderSupport(){
  ${forecastMarkup(n)}${artifactsRevealed()?`<button class="secondary" data-action="artifacts">${icon('star')}Collection</button>`:''}</aside>
  <div class="support-offers">${choices.map((c,i)=>`<button class="route-choice boon-choice event-offer" data-action="support" data-index="${i}">
  <span class="boon-emblem" aria-hidden="true">${eventArt(c)}</span>
- <h3>${esc(c.title)}</h3>${c.effect?.pilgrimVow||c.effect?.flightPact||c.effect?.treasurePact==='wager'?'<small class="support-temporary-label">Oath Inscription</small>':c.effect?.eventFavor||c.effect?.dice?'<small class="support-temporary-label">'+(c.effect.eventFavor==='burden'?'Temporary Inscription · 1 flight':'Temporary Inscription')+'</small>':c.effect?.routePreparation?'<small class="support-temporary-label">Next flight</small>':''}<div class="boon-values">${supportValues(c.effect)}</div><p>${esc(c.description)}</p>
+ <h3>${esc(c.title)}</h3>${c.effect?.oath?'<small class="support-temporary-label">Wager · next flight only</small>':c.effect?.routePreparation?'<small class="support-temporary-label">Next flight</small>':''}<div class="boon-values">${supportValues(c.effect)}</div><p>${esc(c.description)}</p>
  ${c.effect?.upgrade?`<p class="support-upgrade-effect">${esc(glowText(SKILLS[c.effect.upgrade]?.consequence||SKILLS[c.effect.upgrade]?.description||'',getGlowCapacity(r)))}${SKILLS[c.effect.upgrade]?.choiceGroup?' · Commits this path for the run.':''}</p>`:''}
  </button>`).join('')}</div></section>`;
 }
@@ -1015,7 +1029,7 @@ async function refreshFromMenu(button) {
 // Practice shows hearts and the Spark Meter only; its Stored Sparks are not part of the lesson.
 function pauseRunStatus(r,snap){const spark=snap?snap.flame:r.flame,max=snap?snap.maxFlame:getGlowCapacity(r);return {lives:snap?.lives??r.lives,maxLives:snap?.maxLives??getLifeCapacity(r),spark:formatGlow(spark),sparkMax:formatGlow(max),stored:r.isTutorial?null:Math.floor(snap?.condensedTotal??getSkillWallet(state).condensedGlow??0)};}
 function showMenu(){if(flightLoading)return;stopCountdown();if(engine?.dream?.phase==='awakening')return;if(engine?.dying||engine?.completing)return;if(engine)pauseFlight();const r=state.run,inside=screen!=='home'&&r&&r.phase!=='ended',flight=!!engine;if(!inside){showSettings();return}const rememberedBonus=flight&&lastSnapshot?.routeBonus?.eligible&&ROUTE_BONUSES[lastSnapshot.routeBonus.id];
- const bonusReminder=rememberedBonus?`<details class="pause-bonus-rule"><summary>Optional challenge · ${esc(bonusProgressText(lastSnapshot.routeBonus))}</summary><p>${esc(rememberedBonus.condition)}</p><p>${esc(rememberedBonus.reward)}</p></details>`:'';
+ const bonusReminder=rememberedBonus?`<details class="pause-bonus-rule"><summary>Optional challenge · ${esc(bonusProgressText(lastSnapshot.routeBonus))}</summary><p>${esc(rememberedBonus.condition)}</p><p>${esc(bonusRewardLine(r,rememberedBonus.id))}</p></details>`:'';
  // Pause menu v1.5-pause (ui/pause-menu.mjs, styles ui/waystone.css). Audio, Field Guide/Glossary/Map Guide and
  // Artifacts entries moved: sound is the level control, Help opens the Field Guide (Glossary and Map guide live there).
  const content=pauseMenuMarkup({practice:!!r.isTutorial,flight,onMap:!flight,context:pauseContextLine(r),heading:restInspector?'Rest preview':lanternInspector?'Lantern map preview':'Paused',deckLabel:isPlayablePractice(r)?'Loaned Cards':isCardRun(r)?'Deck':'Skills',showDeck:isCardRun(r)||featureAvailable('skills'),showCollection:artifactsRevealed(),status:pauseRunStatus(r,flight?lastSnapshot:null),bonusReminder,mock:!!mockMode,...soundLevels()});
@@ -1453,8 +1467,13 @@ document.addEventListener('click',e=>{
  const action=button.dataset.action,index=Number(button.dataset.index);
  if(action==='close-sheet'&&button.closest('dialog.card-bench-sheet')){e.stopImmediatePropagation();doneDeck();return;}
  if(action!=='cards'&&!action?.startsWith('card-')&&!action?.startsWith('flight-reward-'))return;
+ if(button.closest('.rest2,.forge2')&&button.getAttribute('aria-disabled')==='true')return;
  switch(action){
   case 'cards':openDeck();break;
+  case 'card-rest-select':{const key=button.dataset.key;if(restSelected===key){restConfirm(key,Number(button.dataset.index),button.closest('[data-rest-card]')?.querySelector('[data-token]')?.dataset.token||null);break;}restSelected=key;render(screen);app.querySelector('[data-rest-card="'+key+'"] .rest2-pick')?.focus({preventScroll:true});break;}
+  case 'card-rest-confirm':restConfirm(button.dataset.key,Number(button.dataset.index),button.dataset.token||null);break;
+  case 'card-rest-continue':restContinue(Number(button.dataset.index));break;
+  case 'card-rest-leave':closeSheet();takeSupport(Number(button.dataset.index));break;
   case 'card-select':selectDeckCard(button.dataset.id);break;
   case 'card-reading-back':backDeckReader();break;
   case 'card-open-collection':cardBrowsing=true;cardDeckNotice='';showCards();break;
@@ -1497,7 +1516,7 @@ document.addEventListener('click',e=>{
   case 'card-confirm-grow':takeSupport(index,button.dataset.token);break;
   case 'card-cancel-grow':closeSheet();break;
   case 'card-confirm-improve':if(canEditDeck()&&improveOwnedCard(state,button.dataset.id,Number(button.dataset.rank),button.dataset.token)){if(cardWorkshopOrigin){saveDeckEdits();showCardWorkshop('Card improved · remaining uses preserved.');}else repaintDeck();notify('Card improved · uses preserved');}break;
-  case 'card-workshop':showCardWorkshop();break;
+  case 'card-workshop':showCardWorkshop('',button.dataset.service||undefined);break;
   case 'card-workshop-back':backDeckWorkshop();break;
   case 'card-workshop-improve':cardWorkshopOrigin=true;previewCardImprove(button.dataset.id);break;
   case 'card-workshop-refill':previewCardRefill(button.dataset.id);break;

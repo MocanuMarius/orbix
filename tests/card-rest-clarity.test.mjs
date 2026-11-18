@@ -24,12 +24,13 @@ test('Rest quote leaves a fresh arrival untouched and uses the live Second Ember
   const before = structuredClone(run), initial = M.getCardCampPreview(run);
   assert.deepEqual(run, before);
   assert.equal(initial.remaining, 2);
-  assert.match(render(run), /Choose up to two different actions/);
+  assert.match(render(run), /Rest: choose two/);
+  assert.match(render(run), /0 of 2 chosen/);
   const source = run.mountedCards[0];
   run.mountedCards[0] = null;
   run.reserveCards.push(source);
   assert.equal(M.getCardCampPreview(run).remaining, 2);
-  assert.match(render(run), /Choose up to two/);
+  assert.match(render(run), /Rest: choose two/);
   source.charges = 0;
   assert.equal(M.getCardCampPreview(run).remaining, 1);
 });
@@ -56,7 +57,7 @@ test('Rest previews match real Recover, Add slot and amplified Grow commits', ()
       const remaining = M.getCardCampPreview(run);
       assert.equal(remaining.remaining, 1);
       assert.equal(remaining.actions.find(choice => choice.key === key).taken, true);
-      assert.match(render(run), /Choose one more/);
+      assert.match(render(run), /1 of 2 chosen/);
       assert.ok(M.resolveSupport(run, remaining.actions.find(choice => choice.effect?.restContinue).index));
       assert.equal(run.mountedCards[0].charges, 1, 'leaving preserves the unused extra action');
     }
@@ -71,11 +72,11 @@ test('full vitals and unavailable upgrades explain their limits and keep Leave r
   const quote = M.getCardCampPreview(run);
   assert.ok(quote.actions.filter(choice => choice.key).every(choice => choice.disabled));
   const html = render(run);
-  assert.match(html, /No actions available/);
-  assert.match(html, /Hearts and meter full/);
+  assert.match(html, /Rest: choose one/);
+  assert.match(html, /Hearts and Sparks full/);
   assert.match(html, /All 5 slots unlocked/);
-  assert.match(html, /Find a Growth Seed to Grow/);
-  assert.match(html, /Leave Rest/);
+  assert.match(html, /Needs a Growth Seed/);
+  assert.match(html, /data-action="card-rest-continue"/);
   assert.ok(M.resolveSupport(run, quote.actions.find(choice => choice.effect?.restContinue).index));
   assert.equal(run.phase, 'map');
 });

@@ -22,10 +22,6 @@ export function bonusIcon(id) {
    : `<path fill="#544d49" transform="translate(0 1)" d="${pair[1]}"/><path fill="${pair[0]}" fill-rule="evenodd" d="${pair[1]}"/>`;
  return `<svg class="passage-bonus-icon" viewBox="-4 -4 25 25" shape-rendering="crispEdges" aria-hidden="true"><path fill="#c5a36a" d="M-3 4v-6h6v2h-4v4zm23 8v6h-6v-2h4v-4z"/>${central}<path class="bonus-glint" fill="#fff0af" d="M-3-2h3v1h-3zm20 18h3v1h-3z"/></svg>`;
 }
-export function boonMarkup(value){
- const entries=typeof value==='string'?[[value,1]]:Object.entries(value||{});
- return entries.filter(([id,left])=>ROUTE_BONUSES[id]&&left>0).map(([id,left])=>`<span class="passage-boon">${bonusIcon(id)}<span><b>${left} cleared ${left===1?'flight':'flights'} left</b> ${esc(ROUTE_BONUSES[id].reward.replaceAll('3 cleared flights','the remaining flights'))} Failures do not spend it.</span></span>`).join('');
-}
 export function bonusProgressText(bonus){
  const b=ROUTE_BONUSES[bonus?.id];if(!b)return '';
  if(bonus.failed)return '×';if(bonus.complete)return '✓';

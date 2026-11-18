@@ -47,11 +47,11 @@ test('production connected-route Rest actions render saved completion and contin
     assert.equal(r.phase, 'map'); assert.equal(r.current, null); assert.equal(r.restReady, true);
     assert.equal(M.getCardCampPreview(r).completed, true);
     const html = cardRestMarkup(r, node, []);
-    assert.match(html, /Rest complete/); assert.match(html, /Choose next route/);
+    assert.match(html, /Rest: (done|skipped)/); assert.match(html, /class="rest2-go" data-action="view-route"/);
     assert.doesNotMatch(html, /data-action="support"/);
     assert.equal(M.resolveSupport(r, 0), false, 'double tap cannot repeat the action');
     state = reload(state); r = state.run;
-    assert.match(cardRestMarkup(r, node, []), /Rest complete/);
+    assert.match(cardRestMarkup(r, node, []), /Rest: (done|skipped)/);
     const stale = structuredClone(r);
     Object.assign(stale, { current: stale.map.flat().find(site => site.id === node.id), step: node.row, phase: 'support' });
     assert.equal(M.resolveSupport(stale, 0), false, 'reopening a completed site cannot grant another action');

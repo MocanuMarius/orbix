@@ -4,8 +4,8 @@ import * as M from '../dist/model.mjs';
 import {WispFlight} from '../dist/flight.mjs';
 import {MAP_STOP_COUNT} from '../dist/route-recipes.mjs';
 import {getFlightPackingLimit} from '../dist/condensed-glow.mjs';
-import {FLIGHT_PACTS,pactOffers} from '../dist/flight-pacts.mjs';
-import {writePendingTemporary,activePactId} from '../dist/temporary-inscriptions.mjs';
+import {FLIGHT_PACTS,pactOffers,pactOfOath} from '../dist/flight-pacts.mjs';
+import {oathReward} from '../dist/oaths.mjs';
 import {getFlightClearReward} from '../dist/checkpoint-rewards.mjs';
 import {LIGHT_PACKET_TUNING} from '../dist/vitality.mjs';
 import {rewardEarnings,rewardEarningsDetailMarkup} from '../dist/reward-screen.mjs';
@@ -45,50 +45,48 @@ test('natural overflow is limited to twenty; specialized storage expands that ce
 });
 
 function visitPact(index){
- const s=game('pact-'+index),r=s.run,next=r.map[1][0];r.mountedCards=[null,null,null]; // oaths are Inscriptions on the Chain
-
+ const s=game('pact-'+index),r=s.run,next=r.map[1][0];
  const event={...r.map[0][0],type:'support',kind:'event',eventIndex:index,nextIds:[next.id]};r.map[0]=[event];
  assert.ok(M.selectNode(r,event.id));return s;
 }
-test('pacts apply one declared penalty and their clear-only bonus, with no stacking or replay income',()=>{
+test('wagers apply one declared handicap to the next flight only and pay a flat prize on a clear, with no stacking or replay income',()=>{
  for(const index of [1,7,8])for(const success of [true,false]){
-  const s=visitPact(index),r=s.run,offers=M.getSupportChoices(r),id=offers[0].effect.flightPact,pact=FLIGHT_PACTS[id];
-  assert.equal(offers.length,2);assert.ok(M.resolveSupport(r,0));assert.equal(r.pendingTemporary.id,pact.id==='blind-pilgrim'?'closed-eye':id);assert.ok(writePendingTemporary(r,2));assert.equal(activePactId(r),id);assert.equal(r.slotInscriptions[2].until,'fulfilled');
-  assert.equal(pactOffers({...r,current:{eventIndex:index}}),null);
+  const s=visitPact(index),r=s.run,offers=M.getSupportChoices(r),oath=offers[0].effect.oath,id=pactOfOath(oath),pact=FLIGHT_PACTS[id];
+  assert.equal(offers.length,2);assert.ok(M.resolveSupport(r,0));assert.equal(r.pendingOath.id,oath);assert.equal(r.pendingTemporary,undefined);
+  assert.equal(pactOffers({...r,current:{eventIndex:index}}),null,'one wager at a time');
   if(id==='blind-pilgrim')r.skills['main-sight']=1;
-  const baseline=M.getRunModifiers({...r,slotInscriptions:[null,null,null]}),mod=M.getRunModifiers(r);
+  const baseline=M.getRunModifiers({...r,pendingOath:undefined}),mod=M.getRunModifiers(r);
   if(pact.sight)assert.equal(mod.lightRadius,id==='blind-pilgrim'?LIGHT_PACKET_TUNING.baseRadius*pact.sight:baseline.lightRadius*pact.sight);
   if(id==='blind-pilgrim'){assert.equal(mod.closedEye,true);assert.equal(mod.cardLuminancePercent,0);}
   if(pact.reach)assert.equal(mod.attract,baseline.attract*pact.reach);
-  assert.ok(M.selectNode(r,M.getChoices(r)[0].id));const clear=getFlightClearReward(r.current,r),wallet=r.condensedGlow;
-  assert.ok(M.beginFlightAttempt(r));assert.equal(r.attemptEntry.flightPact,id);assert.equal(activePactId(r),id,'the oath stays on the Chain once the flight begins');
+  assert.ok(M.selectNode(r,M.getChoices(r)[0].id));const clear=getFlightClearReward(r.current,r),wallet=r.condensedGlow,prize=oathReward(r,oath);
+  assert.ok(M.beginFlightAttempt(r));assert.equal(r.attemptEntry.flightPact,id);assert.equal(r.pendingOath,undefined,'the flight takes the wager');
   assert.ok(M.finishFlight(r,{success,flame:70,condensedGlow:10}));M.settleCheckpoint(s);
-  assert.equal(r.condensedGlow,wallet+(success?clear+13+Math.min(pact.bonusLimit,13*(pact.multiplier-1)):0));
+  assert.equal(r.condensedGlow,wallet+(success?clear+13+prize:0));
   assert.equal(M.finishFlight(r,{success:true,condensedGlow:999}),false);
-  // A cleared flight fulfils the oath; a fall leaves it in place until one does.
-  assert.equal(activePactId(r),success?null:id);
-  if(success)assert.equal(r.lastFlight.pactBonus,Math.min(pact.bonusLimit,13*(pact.multiplier-1)));
+  assert.equal(r.pendingOath,undefined,'gone after that one flight, won or not');
+  if(success)assert.equal(r.lastFlight.pactBonus,prize);
  }
- const s=visitPact(1);assert.ok(M.resolveSupport(s.run,1));assert.equal(activePactId(s.run),null);assert.equal(s.run.pendingTemporary,undefined);
+ const s=visitPact(1);assert.ok(M.resolveSupport(s.run,1));assert.equal(s.run.pendingOath,undefined);assert.equal(s.run.pendingTemporary,undefined);
 });
 
-test('Closed Eye triples all genuine base packing above the old bonus cap, while preserving the ordinary overflow limit',()=>{
+test('a won Closed Eye wager is a flat prize, not a multiple of packing',()=>{
  const s=visitPact(7),r=s.run;
  r.skills={'main-afterglow':1,'afterglow-vessel':2,'afterglow-retention':2};
- assert.ok(M.resolveSupport(r,0));assert.ok(writePendingTemporary(r,0));assert.ok(M.selectNode(r,M.getChoices(r)[0].id));
- const wallet=r.condensedGlow,clear=getFlightClearReward(r.current,r);assert.ok(M.beginFlightAttempt(r));
+ assert.ok(M.resolveSupport(r,0));assert.ok(M.selectNode(r,M.getChoices(r)[0].id));
+ const wallet=r.condensedGlow,clear=getFlightClearReward(r.current,r),prize=oathReward(r,'closed-eye');assert.ok(M.beginFlightAttempt(r));
  assert.ok(M.finishFlight(r,{success:true,flame:100,condensedGlow:999}));
  const f=r.lastFlight,packed=f.pickupCondensedGlow+f.exitPacking.amount;
- assert.equal(f.pickupCondensedGlow,50,'contract does not uncap ordinary overflow packing');
- assert.ok(packed>20);assert.equal(f.pactBonus,packed*2);assert.ok(f.pactBonus>40);
- assert.equal((r.pendingRewards.length?r.pendingRewards:r.lastCheckpointReward.rewards).find(reward=>reward.kind==='flight-pact').amount,packed*2);
+ assert.equal(f.pickupCondensedGlow,50,'the wager does not uncap ordinary overflow packing');
+ assert.equal(f.pactBonus,prize);
+ assert.equal((r.pendingRewards.length?r.pendingRewards:r.lastCheckpointReward.rewards).find(reward=>reward.kind==='flight-pact').amount,prize);
  assert.equal(f.completionBonus,clear,'clear pay remains separate');
  M.settleCheckpoint(s);
- const earned=f.completionBonus+packed*3;
+ const earned=f.completionBonus+packed+prize;
  assert.equal(r.condensedGlow,wallet+earned);assert.equal(f.securedCondensedGlow,earned);
- assert.equal(rewardEarnings(r).rows.find(row=>row.label==='Pact').amount,packed*2);
+ assert.equal(rewardEarnings(r).rows.find(row=>row.label==='Pact').amount,prize);
  assert.equal(rewardEarnings(r).total,earned);
- assert.ok(rewardEarningsDetailMarkup(r).includes(`<dd>+${packed*2}</dd>`));
+ assert.ok(rewardEarningsDetailMarkup(r).includes('<dd>+'+prize+'</dd>'));
  const balance=r.condensedGlow;assert.equal(M.finishFlight(r,{success:true,condensedGlow:999}),false);
  M.settleCheckpoint(s);assert.equal(r.condensedGlow,balance);
 });

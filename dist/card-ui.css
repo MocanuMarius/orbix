@@ -1784,7 +1784,6 @@ html body button.flight-card-row.chain-strip[hidden]{display:none}
 .chain-strip .chain-echo{position:absolute;inset:0;box-sizing:border-box;border:1px solid #fff;box-shadow:0 0 0 1px #0b121099;opacity:0;pointer-events:none;will-change:transform,opacity}
 .chain-strip .chain-bar{position:absolute;left:0;top:16px;width:10px;height:2px;background:#f0c86a;box-shadow:0 0 0 1px #0b1210;transform-origin:50% 50%}
 .chain-strip .chain-bar-none{display:none}
-.chain-strip .chain-bar-temp{background:linear-gradient(90deg,#f0c86a 0 3px,transparent 3px 4px,#f0c86a 4px 6px,transparent 6px 7px,#f0c86a 7px 10px);box-shadow:none}
 /* The effect icons (artifact row) leave the flight HUD while the Chain strip is up: their details stay in the paused view. The optional-objective counter sits right of the strip. */
 .flight-device:has(.chain-strip:not([hidden])) .flight-artifact-bar{display:none!important}
 .flight-device:has(.chain-strip:not([hidden])) .flight-hud .flight-bonus-counter{position:absolute;margin:0;left:calc(50% + var(--cshift,0px) + var(--strip-w,0px)/2 + 2px);top:15px;transform:none}
@@ -1821,7 +1820,7 @@ html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *).ca
 /* The starter row: the row is the size container (it gives the height budget); cards take their own height and the row is as tall as the tallest, all equal. */
 html body .card-starter-pair.card-starter-trio{height:100%!important;max-height:100%;container-type:size;align-self:stretch;align-content:center;grid-template-rows:auto!important;align-items:stretch!important}
 html body .card-starter-trio>.card-pick{height:auto!important;container-type:normal;justify-content:flex-start;align-items:stretch;max-width:none!important}
-html body .card-starter-trio>.card-pick>.skill-card.card-readable:not(#k):not(#k):not(#k){--card-height:min(100cqh,350px);flex:1 1 auto!important;width:100%!important;max-width:none!important}
+html body .card-starter-trio>.card-pick>.skill-card.card-readable:not(#k):not(#k):not(#k){--card-height:min(100cqh,350px);flex:1 1 auto!important;width:calc(var(--card-height) * 5 / 7)!important;max-width:100%!important;align-self:center}
 
 /* Victory recap: the final Chain as a row of small tiles (Trigger chip, picture, name, effect line, the slot's Inscription brand), then the trophy at the same size. */
 .card-recap-row{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;min-height:0;overflow:visible}
@@ -1843,3 +1842,12 @@ html body .card-recap-row>.recap-tile.card-legendary{border-color:#d3b779}
 html body .card-victory-recap .card-winning-hand{overflow:visible;gap:16px;min-height:0}
 html body .card-victory-recap .card-winning-hand>aside{width:auto;flex:none}
 @media(max-width:800px){html body .card-recap-row>.recap-tile{width:98px;gap:2px;padding:4px 4px 6px}.recap-top .rpips{display:none}.recap-brand{top:26px}html body .card-victory-recap .card-winning-hand{gap:10px}.card-recap-row{gap:6px}}
+/* Short screens (browser tab 924x308 / 870x280): the large face is tighter so its text still fits without scrolling. */
+@media(max-height:340px){
+  html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *){--face-text:clamp(12px,7.4cqw,14px)}
+  html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *) .card-face-heading{min-height:30px;padding-block:2px}
+  html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *) .card-rule-stripe{padding:3px 7px;min-height:24px}
+  html body .card-starter .card-heading>button{min-height:40px!important}
+}
+html body .skill-card.card-readable:not(#k):not(#k) .card-illustration>.card-use-counter{font-size:11px!important;min-height:22px!important}
+@media(max-height:340px){html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *) .card-face-heading h3{font-size:12px!important;line-height:1.1}html body .card-starter .card-heading>button.secondary:not(#k){min-height:40px!important;height:40px!important}}

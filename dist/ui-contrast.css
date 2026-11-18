@@ -206,9 +206,22 @@ html body .game-result-screen .game-result-recap .card-victory-recap .card-headi
   html body .wb-pause .wb-pause-col>.wb-sign-primary,html body .wb-pause .wb-pause-col>.wb-split{grid-column:1/-1}
   html body .wb-pause .wb-pause-col .wb-sign{min-height:40px}
   html body .wb-pause .wb-page{max-height:100dvh;overflow-y:auto;overscroll-behavior:contain}
-  /* Card reader: the info column scrolls (Close stays pinned at its foot) when the card and text cannot fit the height. */
-  #dk-root .dk2-read{align-items:stretch;padding-top:54px;box-sizing:border-box}
-  #dk-root .dk2-dialog{max-height:100%;align-items:flex-start}
-  #dk-root .dk2-info{max-height:100%;overflow-y:auto;align-content:start;overscroll-behavior:contain}
-  #dk-root .dk2-info>.dk2-close{position:sticky;bottom:0}
 }
+/* Card reader (Chain and Deck tabs): starts below the tab bar (deck-screen.mjs sizeFace), card on the left at a height that fits, text column on the right.
+   The column is fixed: body (rarity, trigger, status, Inscription) scrolls as one area if it must; the actions and Close are pinned at its foot. */
+html body #dk-root.dk.dk2 .dk2-dialog{height:100%;max-height:100%;min-height:0;align-items:center}
+html body #dk-root.dk.dk2 .dk2-info{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:8px;height:100%;max-height:100%;min-height:0;width:min(320px,42vw)}
+html body #dk-root.dk.dk2 .dk2-info-body{display:grid;gap:8px;justify-items:start;align-content:center;min-height:0;flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain}
+html body #dk-root.dk.dk2 .dk2-info-foot{flex:none;display:flex;flex-wrap:wrap;gap:8px;padding-bottom:6px}
+html body #dk-root.dk.dk2 .dk2-info-foot .dk2-acts{display:contents}
+html body #dk-root.dk.dk2 .dk2-info .dk2-here{font-size:15px;line-height:19px}
+html body #dk-root.dk.dk2 .dk2-info .dk2-inscription{padding:6px 8px;gap:3px}
+html body #dk-root.dk.dk2 .dk2-info .dk2-inscription *{line-height:1.25}
+@media(max-height:340px){html body #dk-root.dk.dk2 .dk2-info .dk2-here{font-size:13px;line-height:16px}html body #dk-root.dk.dk2 .dk2-info .dk2-rar{padding:2px 8px}}
+/* The status line lives in the tab bar on one line; a longer sentence is cut with an ellipsis (the full text stays in the page for screen readers). */
+html body #dk-root.dk.dk2 .dk2-context{min-width:0}
+html body #dk-root.dk.dk2 .dk2-note{display:block;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;-webkit-line-clamp:unset}
+/* The "new cards" mark sits in its own space at the end of the Deck tab, clear of the label. */
+html body #dk-root.dk.dk2 .dk2-tab:has(.dk2-tabdot){padding-right:26px}
+html body #dk-root.dk.dk2 .dk2-tabdot{top:50%;right:8px;transform:translateY(-50%)}
+html body #dk-root.dk.dk2 .dk2-read{grid-template-rows:minmax(0,1fr);grid-template-columns:minmax(0,1fr)}

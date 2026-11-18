@@ -2,8 +2,7 @@
 import { newState, createRun, advanceMap, getSupportChoices, getChoices, selectNode, beginFlightAttempt, markFlightAttemptStarted, finishFlight, settleCheckpoint } from './model.mjs?v=guide-clarity-1';
 import { makeSkillCard, describeSkillCard } from './skill-cards.mjs?v=guide-clarity-1';
 import { grantTreasureGift } from './treasure.mjs?v=guide-clarity-1';
-import { cleanSlotInscriptions, writeInscription, INSCRIPTIONS, getTemporary } from './inscriptions.mjs?v=guide-clarity-1';
-import { writeTemporary, queueTemporary } from './temporary-inscriptions.mjs?v=guide-clarity-1';
+import { cleanSlotInscriptions, writeInscription, INSCRIPTIONS } from './inscriptions.mjs?v=guide-clarity-1';
 
 export function prepareCardInspectorReward(run, cardId = 'harvest-rare') {
   if (run.cardReward && !run.cardReward.uiAcknowledged) return;
@@ -39,7 +38,7 @@ function prepareLateGamePack(state) {
   run.artifactCharges = { 'glow-wick': 3, 'flash-stone': 2 };
   run.treasureGifts = { vessel: 1, wick: 1, toll: 1, seal: 1 };
   run.treasureCapacity = 10;
-  writeTemporary(run, 1, 'night-ledger');
+  run.pendingOath = { id: 'night-ledger' };
 
   // Follow actual connected map sites to a late ordinary round. This keeps the
   // draft, challenge, chapter and route identities consistent with a real run.
@@ -138,7 +137,7 @@ export function createCardInspectorState(params = new URLSearchParams()) {
   if (params.get('scenario') === 'closed-eye') {
     run.mountedCards = ['lantern-lens', 'climb', 'harvest-common'].map((id, slot) =>
       makeSkillCard(id, 'sample:closed-eye:' + slot));
-    writeTemporary(run, 0, 'closed-eye');
+    run.pendingOath = { id: 'closed-eye' };
   }
   if (params.get('scenario') === 'combos') {
     run.companions=['collector'];run.companionRole='collector';
@@ -170,6 +169,11 @@ export function createCardInspectorState(params = new URLSearchParams()) {
     run.step = node.row;
     run.path = [node.id];
     run.phase = 'support';
+    // Dev only (captures): ?stored=N Stored Sparks, ?hearts=N, ?meter=N, ?slotdone=1 (slot already added this map), ?cardslots=5.
+    if (params.has('stored')) run.condensedGlow = Number(params.get('stored')) || 0;
+    if (params.has('hearts')) run.lives = Number(params.get('hearts'));
+    if (params.has('meter')) run.flame = Number(params.get('meter'));
+    if (params.get('slotdone')) run.cardSlotMaps.push(run.mapIndex);
     getSupportChoices(run, state.profile);
   }
   // Dev only: unreleased engine cards in a Chain (default: the Chime loop). ?mock=engine, or
@@ -202,8 +206,6 @@ export function createCardInspectorState(params = new URLSearchParams()) {
   if (params.get('new')) run.unseenCardIds = [...run.reserveCards, run.mountedCards.find(Boolean)].filter(Boolean).map(c => c.instanceId);
   // Dev only: ?mock=cards&scenario=scribe opens the Scribe after an Elite (offers=id,id,id; pick=id jumps to the slot step).
   if (params.get('scenario') === 'scribe') openMockScribe(run, params.get('offers'));
-  // ?scenario=temp-write&temp=mending: the slot screen for a temporary Inscription just earned (an event or an objective).
-  if (params.get('scenario') === 'temp-write') queueTemporary(run, params.get('temp') || 'mending', {source: 'route-bonus', label: 'Spark Trail'});
   // ?scenario=chest-write&gift=farLens: the slot screen for a chest gift (a permanent Inscription a chest writes).
   if (params.get('scenario') === 'chest-write') grantTreasureGift(run, params.get('gift') || 'farLens');
   return state;
@@ -219,14 +221,12 @@ export function openMockScribe(run, offers) {
   run.victoryPending = true;
   return run.flightReward;
 }
-/** `0:gilded,2:hollow` → Inscriptions on those slots; unknown ids and slots are ignored. A temporary one may carry its flights: `1:mending~2`. */
+/** `0:gilded,2:hollow` → Inscriptions on those slots; unknown ids and slots are ignored. */
 export function applyInscriptionSlots(run, text) {
   cleanSlotInscriptions(run);
   for (const part of String(text || '').split(',')) {
     const [index, idText] = part.split(':');
-    const [id, flights] = (idText || '').trim().split('~');
-    if (getTemporary(id)) writeTemporary(run, Number(index), id, {flights: flights ? Number(flights) : undefined});
-    else writeInscription(run, Number(index), id);
+    writeInscription(run, Number(index), (idText || '').trim());
   }
   return run.slotInscriptions;
 }

@@ -1,14 +1,13 @@
 import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=guide-clarity-1';
 import {getCompanionAbility} from './companion-abilities.mjs?v=guide-clarity-1';
-import {activeEventFavors} from './passage-preparations.mjs?v=guide-clarity-1';
-import {hasTemporary,temporaryLine,queueInscriptionWrite} from './temporary-inscriptions.mjs?v=guide-clarity-1';
+import {queueInscriptionWrite} from './temporary-inscriptions.mjs?v=guide-clarity-1';
+import {oathLine,oathReward} from './oaths.mjs?v=guide-clarity-1';
 import {INSCRIPTIONS,ownsInscription,hasActiveInscription} from './inscriptions.mjs?v=guide-clarity-1';
 
 export const TREASURE_KINDS = Object.freeze(['vessel', 'lens', 'tithe', 'wager']);
 export const LENS_SIGHT = 1.15;
 export const LENS_RECOVERY = .85;
 const WAGER_TARGET = 12;
-const WAGER_REWARD = 24;
 const BODY_TARGET = 3;
 const DIVIDEND = 3;
 const limits = Object.freeze({vessel:2, farLens:1, quickLens:1, wick:1, toll:1, seal:1});
@@ -20,7 +19,7 @@ const heldGift=(run,id)=>ownsInscription(run,GIFT_INSCRIPTION[id]);
 /** "Inscription: Far Lens — Luminance reaches 15% farther." The one line the chest's find and the stop page use. */
 export const giftLine=id=>{const i=INSCRIPTIONS[GIFT_INSCRIPTION[id]];return `Inscription: ${i.name} — ${i.text.charAt(0).toLowerCase()}${i.text.slice(1)}`;};
 
-/** 0 or 1 for a gift Inscription that is written AND in force (a temporary Inscription covering its slot suspends it); the Vessel's rank otherwise. */
+/** 0 or 1 for a gift Inscription that is written on a slot; the Vessel's rank otherwise. */
 export function treasureRank(run,id){
   if(GIFT_INSCRIPTION[id])return hasActiveInscription(run,GIFT_INSCRIPTION[id])?1:0;
   return Math.max(0,Math.min(limits[id]||0,Math.floor(Number(run?.treasureGifts?.[id])||0)));
@@ -66,15 +65,10 @@ function offer(id, title, description, icon, effect, disabledReason = '') {
 
 function duplicateOffer(run){
   if(run.lives<getLifeCapacity(run))return offer('chest-heart','Relight a heart','Restore one missing attempt.','heart',{lives:1});
-    const prepared=activeEventFavors(run);
-  if(!prepared.includes('feather'))return offer('chest-feather','Carry a hollow feather',temporaryLine('hollow-feather'),'feather',{eventFavor:'feather'});
-  if(!prepared.includes('haste'))return offer('chest-blessing','Polish the chime',temporaryLine('chime'),'companion',{eventFavor:'haste'});
-  if(!prepared.includes('wick'))return offer('chest-reserve','Carry a reserve wick',temporaryLine('reserve-wick'),'energy',{eventFavor:'wick'});
-  if(!prepared.includes('lens'))return offer('chest-chart','Read a star chart',temporaryLine('star-chart'),'sight',{eventFavor:'lens'});
-  // Every ordinary preparation is already packed. Offer a distinct run-long
-  // exchange: one additional capacity step in return for leaving the purse.
+  // Nothing lasting is left to offer: spare coins, or one capacity step in return for leaving the purse.
+  if((run.restGlowCapacity||0)>=30)return offer('chest-coins','Take the spare coins','Gain 20 Stored Sparks for skills.','packed',{packedReward:20});
   return offer('chest-recast','Recast the fittings','Add 3 maximum Sparks permanently and fill the new space.','capacity',{glowCapacity:10,flame:10},
-    (run.restGlowCapacity||0)>=30?'Spark capacity fittings are full.':'');
+    '');
 }
 
 export function treasureChoices(kind, run) {
@@ -114,11 +108,7 @@ export function treasureChoices(kind, run) {
     }
     case 'wager': return [
       purse('wager-purse', 'Break the seal', 18),
-      hasTemporary(run,'sealed-purse')?repairs:offer('wager-carry','Carry the sealed purse',
-        treasureRank(run,'seal')
-          ?`Oath Inscription: Sealed Purse — clear a flight holding ${WAGER_TARGET} Sparks to win 36 Stored Sparks. Stays until fulfilled.`
-          :`Oath Inscription: Sealed Purse — clear a flight holding ${WAGER_TARGET} Sparks to win ${WAGER_REWARD} Stored Sparks and a slot for the ${giftLine('seal')}. Stays until fulfilled.`,
-        'wager',{treasurePact:'wager'})
+      run.pendingOath?repairs:offer('wager-carry','Carry the sealed purse',oathLine(run,'sealed-purse'),'wager',{oath:'sealed-purse'})
     ];
     default: return [];
   }
@@ -127,16 +117,14 @@ export function treasureChoices(kind, run) {
 export function treasureFlightNotice(pact,run) {
   if (pact === 'sight') return 'Far Lens · +35% Luminance this attempt';
   if (pact === 'recharge') return 'Quick Lens · 30% shorter companion recharge this attempt';
-  if (pact === 'wager') return `Sealed purse · Finish with ${WAGER_TARGET} Sparks before recovery for ${treasureRank(run,'seal')?36:WAGER_REWARD} Stored Sparks`;
   return '';
 }
 
 export function settleTreasureWager(result,run) {
   if(!result.success)return null;
   const remaining = glowPoints(result.flame);
-  const completed = result.success && remaining >= WAGER_TARGET;
-  const amount=treasureRank(run,'seal')?36:WAGER_REWARD,held=heldGift(run,'seal');
-  return {completed, reward:completed ? amount : 0, gift:completed&&!held?'seal':null,
-    message:completed ? `Seal opened · +${amount} Stored Sparks${held?'':' · +3 on later clears holding 12 Sparks'}`
-      : `Seal still closed · finished with ${remaining}/${WAGER_TARGET} Sparks. It stays until you open it.`};
+  const completed = remaining >= WAGER_TARGET, reward = completed ? oathReward(run,'sealed-purse') : 0;
+  return {completed, reward,
+    message:completed ? `Wager won · +${reward} Stored Sparks`
+      : `Wager not met · finished with ${remaining}/${WAGER_TARGET} Sparks. Nothing is lost.`};
 }

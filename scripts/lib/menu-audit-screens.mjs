@@ -29,6 +29,8 @@ export const SCREENS = [
   {name: 'deck-filter-menu', open: async c => { await c.go(CHAIN + '&new=1', '#dk-root .dk2-station'); await c.click('#dk2-tab-deck'); await c.click('#dk2-filter'); }},
   {name: 'triggers-tab', open: async c => { await deck(c); await c.click('#dk2-tab-triggers'); }},
   {name: 'card-inspector', open: async c => { await deck(c); await c.click('.dk21-eye'); await c.delay(300); }},
+  {name: 'card-reader-plain', open: async c => { await deck(c); await c.ev("document.querySelectorAll('.dk21-eye')[1].click()"); await c.delay(500); }},
+  {name: 'card-reader-long-note', open: async c => { await deck(c); await c.click('.dk21-eye'); await c.delay(400); await c.ev("(()=>{const n=document.getElementById('dk2-note');n.className='dk2-note dk2-note-receipt';n.textContent='Recorded: Dusk Wick II is in slot 3, Lift Guide in slot 1.'})()"); await c.delay(200); }},
   {name: 'chain-swap-picker', open: async c => { await deck(c); await c.click('.dk21-swap'); await c.delay(300); }},
   // Map and stops
   {name: 'map', open: map},

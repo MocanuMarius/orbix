@@ -238,18 +238,11 @@ test('Mirror and Lodestone flash their own bar (receipt marks)', () => {
   assert.equal(engineBars({k: 'gain', slot: 0}), null);
 });
 
-test('temporary Inscriptions flash their bar when the effect triggers', async () => {
-  const {FlightBoon} = await import('../dist/flight-boons.mjs');
+test('an Inscription that acts flashes the bar of the slot that carries it', async () => {
   const {WispFlight} = await import('../dist/flight.mjs');
-  const acted = [], host = {cardExecution: {inscriptions: [null, {id: 'mending', temporary: true}, {id: 'hollow-feather', temporary: true}]}};
-  const engine = Object.assign(host, {flame: 0, maxFlame: 100, flameRestored: 0, setEvent() {}, mod: {flightBoons: ['spark-trail'], eventFavors: ['feather']},
-    inscriptionActed: id => acted.push(id)});
-  const boon = new FlightBoon(engine, null);
-  assert.ok(boon.tryReserve() > 0); assert.deepEqual(acted, ['mending']);
-  assert.equal(boon.spendLift(10), 0); assert.deepEqual(acted, ['mending', 'hollow-feather']);
-  // The flight turns the report into a bar mark on the slot carrying that Inscription.
-  const e = {cardExecution: host.cardExecution, cardFires: []};
-  WispFlight.prototype.inscriptionActed.call(e, 'hollow-feather');
+  const cardExecution = {inscriptions: [null, {id: 'hollow'}, {id: 'gilded'}]};
+  const e = {cardExecution, cardFires: []};
+  WispFlight.prototype.inscriptionActed.call(e, 'gilded');
   WispFlight.prototype.inscriptionActed.call(e, 'not-carried');
   assert.deepEqual(e.cardFires.map(m => [m.slot, m.kind]), [[2, 'bar']]);
 });

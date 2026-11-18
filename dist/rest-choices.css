@@ -25,106 +25,127 @@
 
 @media(orientation:landscape) and (max-height:340px){.rest-rules p{font-size:10px;line-height:1.3;margin-bottom:6px}.rest-rules>div{padding:9px}}
 
-/* ═══ Card Rest · v2.5-theme (kit: ui/waystone.css) ═══════════════════════════════════════════════
-   The Recover / Add slot / Grow screen is drawn by card-ui.mjs (cardRestMarkup) and its base styles live in
-   card-ui.css; this stylesheet owns the reskin so the markup stays as it is. Art is named directly (this file
-   is outside dist/ui/, so the kit's art variables would break on the published site). Roles: the three
-   actions are the decision of the screen (moss); Deck and Workshop open something (leather); Leave Rest steps
-   back to the route (paper slip), and once the Rest is done "Choose next route" is the way forward (moss).
-   The :not(#k):not(#j) keeps these above the generic production button rules, which use !important. */
-html body .card-rest-screen:not(#k){position:relative;isolation:isolate;box-sizing:border-box;width:calc(100% - 8px);height:calc(100% - 8px);margin:4px;padding:3px max(14px,env(safe-area-inset-right)) 3px max(14px,env(safe-area-inset-left));border:12px solid transparent;border-image:url('assets/ui/waystone/plaque-page.svg') 6 fill / 12px stretch;background:none;color:#2a2118;overflow:hidden;text-shadow:none}
-html body .card-rest-screen:not(#k)::after{content:'';position:absolute;top:-12px;right:8px;width:52px;height:64px;background:url('assets/ui/waystone/ribbon-wine.svg') left top/24px 64px no-repeat,url('assets/ui/waystone/ribbon-olive.svg') right top/24px 48px no-repeat;image-rendering:pixelated;pointer-events:none}
-html body .card-rest-screen .card-rest-rail>small{font:400 11px/13px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#5a4632}
-html body .card-rest-screen .card-rest-rail>small:last-child{font-size:11px;line-height:13px;letter-spacing:0;text-transform:none;color:#5a4632}
-html body .card-rest-screen .card-rest-rail>h1{margin:0;font:400 23px/25px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#2a2118;text-wrap:balance}
-html body .card-rest-screen .card-rest-vitals>span{color:#2a2118}
-html body .card-rest-screen .card-rest-deck-links{flex-direction:column;align-self:stretch;gap:6px}
-html body .card-rest-screen .card-camp-main>.card-heading{position:relative;padding:0 64px 6px 0;min-height:0}
-html body .card-rest-screen .card-camp-main>.card-heading::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent 0 4px,#6b5335 4px calc(50% - 5px),transparent calc(50% - 5px) calc(50% - 2px),#7a2f2a calc(50% - 2px) calc(50% + 2px),transparent calc(50% + 2px) calc(50% + 5px),#6b5335 calc(50% + 5px) calc(100% - 4px),transparent calc(100% - 4px))}
-html body .card-rest-screen .card-camp-main>.card-heading h2{margin:0;font:400 21px/23px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#2a2118}
-html body .card-rest-screen .card-camp-main>.card-heading p{color:#5a4632}
-html body .card-rest-screen .card-camp-alternatives{font:400 11px/13px var(--pixel,monospace);color:#5a4632}
-html body .card-rest-screen .card-camp-alternatives>span{font-size:11px;color:#7a2f2a}
-html body .card-rest-screen .card-camp-choices .card-camp-choice:not(#k){background:#e6d4a2!important;border:2px solid #4a3828!important;color:#2a2118}
-html body .card-rest-screen .card-camp-choice.unavailable:not(#k){background:#d6bf8a!important;border-color:#a58c57!important}
-html body .card-rest-screen .card-camp-choice h3{font:400 20px/22px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#2a2118}
-html body .card-rest-screen .card-camp-choice.unavailable h3{color:#5a4632}
-html body .card-rest-screen .card-camp-choice p,html body .card-rest-screen .card-camp-choice .card-camp-note{color:#5a4632}
-html body .card-rest-screen .card-camp-consequence b{color:#2a2118}
-html body .card-rest-screen .card-camp-choice.card-camp-taken .card-camp-note{color:#3d4a22}
-html body .card-rest-screen .card-camp-footer p{font-size:12px;color:#5a4632}
-/* Plaques */
-html body .card-rest-screen button:not(#k):not(#j){box-sizing:border-box;border:12px solid transparent!important;border-image:url('assets/ui/waystone/plaque-leather.svg') 6 / 12px stretch!important;border-radius:0!important;clip-path:none!important;box-shadow:none!important;background:#5a4632 padding-box!important;background-image:none!important;color:#f6ebcc!important;-webkit-text-fill-color:currentColor!important;font:400 15px/15px var(--pixel,monospace)!important;letter-spacing:1px!important;text-transform:uppercase;text-shadow:1px 2px #2a1d12!important;image-rendering:pixelated;white-space:nowrap;width:auto;min-width:96px;height:44px;min-height:44px!important;padding:0 10px!important;margin:0;cursor:pointer;touch-action:manipulation}
-html body .card-rest-screen .card-camp-choice>button.primary:not(#k):not(#j){border-image-source:url('assets/ui/waystone/plaque-moss.svg')!important;background:#536430 padding-box!important;color:#fff6d8!important;text-shadow:1px 2px #1c230f!important;width:100%}
-html body .card-rest-screen .card-camp-choice>button.secondary:not(#k):not(#j){border-image-source:url('assets/ui/waystone/plaque-slip.svg')!important;background:#e4d09b padding-box!important;color:#3b2d20!important;text-shadow:none!important;width:100%;opacity:1;color:#4a3828!important}
-html body .card-rest-screen .card-camp-footer>button[data-action="view-route"]:not(#k):not(#j),html body .card-rest-screen .card-camp-footer>button[data-action="node"]:not(#k):not(#j){border-image-source:url('assets/ui/waystone/plaque-moss.svg')!important;background:#536430 padding-box!important;color:#fff6d8!important;text-shadow:1px 2px #1c230f!important}
-html body .card-rest-screen .card-camp-footer>button[data-action="support"]:not(#k):not(#j){border-image-source:url('assets/ui/waystone/plaque-slip.svg')!important;background:#e4d09b padding-box!important;color:#3b2d20!important;text-shadow:none!important}
-html body .card-rest-screen button.card-camp-help:not(#k):not(#j){min-width:44px;width:44px;padding:0!important;border-image-source:url('assets/ui/waystone/plaque-slip.svg')!important;background:#e4d09b padding-box!important;color:#3b2d20!important;text-shadow:none!important}
-html body .card-rest-screen button:not(#k):not(#j):focus-visible{outline:3px solid #2a2118!important;outline-offset:2px}
-html body .card-rest-screen button:not(#k):not(#j):active:not(:disabled){transform:translateY(2px)}
-html body .card-rest-screen .card-rest-deck-links>button:not(#k):not(#j){width:100%}
-@media(orientation:landscape) and (max-height:350px){
- html body .card-rest-screen:not(#k){margin:2px;width:calc(100% - 4px);height:calc(100% - 4px);padding-block:0}
- html body .card-rest-screen .card-rest-rail>h1{font-size:19px;line-height:21px}
- html body .card-rest-screen .card-camp-main>.card-heading h2{font-size:18px;line-height:20px}
- html body .card-rest-screen .card-camp-choice h3{font-size:17px;line-height:19px}
- html body .card-rest-screen button:not(#k):not(#j){font-size:14px!important;letter-spacing:.5px!important;min-width:80px}
+/* ═══ Rest · v3.0-rest (kit: ui/waystone.css) ═════════════════════════════════════════════════════════════
+   One screen for the whole Rest, drawn by cardRestMarkup (card-ui.mjs): header with place and status chips,
+   "Rest: choose one" (three cards: select, then Confirm), "Spend Stored Sparks" (Forge, Improve, Refill: never
+   use up the Rest choice) and a footer with the one way on. The root is a paper page; the cards are paper
+   panels, selected = moss rule and check, done = moss paper, unavailable = darker paper with the reason in ink.
+   Buttons are real buttons: unavailable ones use aria-disabled (not :disabled) so the global disabled style
+   does not turn paper into slate. :not(#k):not(#j) keeps these above the generic production button rules. */
+html body .rest2:not(#k){position:relative;isolation:isolate;box-sizing:border-box;width:calc(100% - 8px);height:calc(100% - 8px);margin:4px;padding:4px max(14px,env(safe-area-inset-right)) 4px max(14px,env(safe-area-inset-left));border:12px solid transparent;border-image:url('assets/ui/waystone/plaque-page.svg') 6 fill / 12px stretch;background:none;color:#2a2118;overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:6px;font:400 14px/1.2 var(--pixel,monospace);text-align:left;text-shadow:none}
+html body .rest2 *{box-sizing:border-box}
+html body .rest2:not(#k)::after{content:'';position:absolute;top:-12px;right:8px;width:52px;height:64px;background:url('assets/ui/waystone/ribbon-wine.svg') left top/24px 64px no-repeat,url('assets/ui/waystone/ribbon-olive.svg') right top/24px 48px no-repeat;image-rendering:pixelated;pointer-events:none}
+/* Header */
+.rest2-head{display:flex;align-items:center;gap:12px;min-width:0;padding:0 58px 4px 0;border-bottom:2px solid #6b5335}
+html body .rest2 .rest2-place{margin:0;flex:none;font:400 20px/22px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#2a2118;white-space:nowrap}
+html body .rest2 .rest2-place small{display:inline;margin-left:8px;font:400 12px/14px var(--pixel,monospace);letter-spacing:1px;color:#5a4632}
+.rest2-chips{display:flex;align-items:center;gap:6px;margin:0;padding:0;list-style:none;min-width:0}
+html body .rest2 .rest2-chip{display:flex;align-items:center;gap:5px;height:34px;padding:0 8px;background:#d6bf8a;border:2px solid #8a7048;color:#2a2118;white-space:nowrap}
+html body .rest2 .rest2-chip b{font:400 15px/1 var(--pixel,monospace);color:#2a2118}
+html body .rest2 .rest2-chip small{font:400 11px/1 var(--pixel,monospace);color:#5a4632}
+html body .rest2 .rest2-chip svg{width:20px;height:20px;flex:none}
+html body .rest2 .rest2-chip .hearts{display:flex;gap:2px}
+html body .rest2 .rest2-chip .hearts svg{width:20px;height:18px}
+.rest2-head-end{margin-left:auto;display:flex;gap:8px;flex:none}
+/* Plaque buttons: Deck (leather: opens something), ? (paper slip), Continue (moss: the way on) */
+html body .rest2 :is(.rest2-btn,.rest2-go):not(#k):not(#j){box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:12px solid transparent!important;border-image:url('assets/ui/waystone/plaque-leather.svg') 6 / 12px stretch!important;border-radius:0!important;clip-path:none!important;box-shadow:none!important;background:#5a4632 padding-box!important;background-image:none!important;color:#f6ebcc!important;-webkit-text-fill-color:currentColor!important;font:400 15px/15px var(--pixel,monospace)!important;letter-spacing:1px!important;text-transform:uppercase;text-shadow:1px 2px #2a1d12!important;image-rendering:pixelated;white-space:nowrap;min-width:84px;height:44px;min-height:44px!important;padding:0 8px!important;margin:0;cursor:pointer;touch-action:manipulation}
+html body .rest2 .rest2-btn svg{width:16px;height:16px;flex:none}
+html body .rest2 .rest2-help:not(#k):not(#j){min-width:44px;width:44px;padding:0!important;border-image-source:url('assets/ui/waystone/plaque-slip.svg')!important;background:#e4d09b padding-box!important;color:#3b2d20!important;text-shadow:none!important}
+html body .rest2 .rest2-go:not(#k):not(#j){border-image-source:url('assets/ui/waystone/plaque-moss.svg')!important;background:#536430 padding-box!important;color:#fff6d8!important;text-shadow:1px 2px #1c230f!important;min-width:150px;height:56px;font-size:16px!important}
+html body .rest2 :is(.rest2-btn,.rest2-go,.rest2-pick,.rest2-confirm,.rest2-tile):not(#k):not(#j):focus-visible{outline:3px solid #2a2118!important;outline-offset:2px}
+html body .rest2 :is(.rest2-btn,.rest2-go,.rest2-confirm):not(#k):not(#j):active{transform:translateY(2px)}
+/* Sections */
+.rest2-sec{min-height:0;display:flex;flex-direction:column;gap:4px;margin:0}
+html body .rest2 .rest2-sec>h2{margin:0;flex:none;font:400 13px/16px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#2a2118;background:none;white-space:nowrap}
+html body .rest2 .rest2-sec>h2 small{margin-left:8px;font:400 11px/14px var(--pixel,monospace);letter-spacing:0;text-transform:none;color:#5a4632}
+html body .rest2 .rest2-count{margin-left:10px;letter-spacing:0;text-transform:none;color:#2f4a1c;font-size:12px}
+/* Rest cards */
+.rest2-free{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);column-gap:12px}
+.rest2-free>h2{grid-column:1}.rest2-free>.rest2-note{grid-column:2;justify-self:end;align-self:center}.rest2-free>.rest2-cards{grid-column:1/-1}
+html body .rest2 .rest2-note{margin:0;font:400 12px/15px var(--pixel,monospace);color:#5a4632;text-align:right}
+.rest2-cards{min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:minmax(0,1fr);gap:10px}
+html body .rest2 .rest2-card{position:relative;min-width:0;min-height:0;display:grid;grid-template-rows:minmax(0,1fr) 46px;background:#e6d4a2;border:2px solid #4a3828;color:#2a2118}
+html body .rest2 .rest2-pick:not(#k):not(#j){position:relative;display:grid;grid-template-columns:48px minmax(0,1fr);grid-template-rows:auto auto auto;align-content:center;align-items:center;column-gap:10px;row-gap:2px;width:100%;height:100%;min-height:0!important;min-width:0;margin:0;padding:6px 30px 4px 8px!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:none!important;color:#2a2118!important;-webkit-text-fill-color:currentColor!important;text-align:left;text-shadow:none!important;font:400 14px/1.2 var(--pixel,monospace)!important;letter-spacing:0!important;cursor:pointer;touch-action:manipulation}
+html body .rest2 .rest2-pick[aria-disabled="true"]:not(#k):not(#j){cursor:default}
+.rest2-ico{display:block;line-height:0}
+.rest2-pick .rest2-ico{grid-row:1/4;grid-column:1}
+.rest2-ico svg{width:32px;height:32px}
+.rest2-pick .ico-l{width:48px;height:48px}.rest2-pick .ico-s{display:none}
+.rest2-name{font:400 20px/22px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#2a2118;white-space:nowrap;overflow:hidden;text-overflow:clip}
+.rest2-name,.rest2-num,.rest2-more{grid-column:2}
+.rest2-num{margin-top:3px;font:400 14px/18px var(--pixel,monospace);color:#2a2118;white-space:nowrap}
+.rest2-num b,.rest2-more b{font-weight:400;font-size:20px;line-height:22px;color:#2a2118}
+.rest2-more{font:400 12px/14px var(--pixel,monospace);color:#5a4632;white-space:nowrap}
+.rest2-more b{font-size:13px;line-height:14px;color:#5a4632}
+.rest2-mark{position:absolute;top:5px;right:5px;width:22px;height:22px;display:grid;place-items:center;background:#536430;border:2px solid #2f3a18;line-height:0}
+.rest2-mark svg{width:16px;height:16px}
+.rest2-act{display:flex;align-items:center;justify-content:center;gap:6px;min-width:0;padding:0 6px;border-top:2px solid #b69c62}
+html body .rest2 .rest2-hint{font:400 12px/14px var(--pixel,monospace);color:#5a4632}
+html body .rest2 .rest2-why{font:400 13px/15px var(--pixel,monospace);color:#3b2d20;text-align:center}
+html body .rest2 .rest2-tag{display:inline-flex;align-items:center;gap:5px;font:400 14px/16px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#3b2d20}
+html body .rest2 .rest2-tag svg{width:16px;height:16px}
+html body .rest2 .rest2-confirm:not(#k):not(#j){width:100%;height:100%;min-height:40px!important;min-width:0;margin:0;padding:0 8px!important;border:2px solid #2f3a18!important;border-radius:0!important;box-shadow:none!important;background:#536430!important;color:#fff6d8!important;-webkit-text-fill-color:currentColor!important;font:400 15px/15px var(--pixel,monospace)!important;letter-spacing:1px!important;text-transform:uppercase;text-shadow:1px 2px #1c230f!important;cursor:pointer;touch-action:manipulation}
+.rest2-card.is-selected{background:#f3e6bc;border-color:#536430;box-shadow:inset 0 0 0 2px #536430}
+.rest2-card.is-selected .rest2-act{padding:0;border-top:0}
+.rest2-card.is-done{background:#d5deaa;border-color:#536430}
+.rest2-card.is-done .rest2-act{border-top-color:#536430}
+html body .rest2 .rest2-card.is-done .rest2-tag{color:#1f3010}
+.rest2-card.is-off,.rest2-card.is-passed{background:#d6bf8a;border-color:#a58c57}
+.rest2-card.is-off .rest2-name,.rest2-card.is-passed .rest2-name,.rest2-card.is-off .rest2-num,.rest2-card.is-passed .rest2-num{color:#4a3828}
+.rest2-card.is-off .rest2-num b,.rest2-card.is-passed .rest2-num b{color:#4a3828}
+.rest2-card.is-off .rest2-ico,.rest2-card.is-passed .rest2-ico{opacity:.7}
+/* Spend Stored Sparks */
+.rest2-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+html body .rest2 .rest2-tile:not(#k):not(#j){display:grid;grid-template-columns:32px minmax(0,1fr) auto;grid-template-rows:auto auto;align-items:center;column-gap:8px;row-gap:1px;width:100%;min-height:48px!important;margin:0;padding:4px 8px!important;border:2px solid #2a1d12!important;border-radius:0!important;box-shadow:none!important;background:#5a4632!important;background-image:none!important;color:#fff1c5!important;-webkit-text-fill-color:currentColor!important;text-align:left;text-shadow:none!important;font:400 14px/1.2 var(--pixel,monospace)!important;letter-spacing:0!important;cursor:pointer;touch-action:manipulation}
+.rest2-tile .rest2-ico{grid-row:1/3;background:#e6d4a2}
+.rest2-tname{font:400 16px/18px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#fff1c5;white-space:nowrap}
+.rest2-price{display:flex;align-items:center;gap:4px;justify-self:end;color:#f2d78f}
+.rest2-price svg{width:20px;height:20px;flex:none}
+.rest2-price b{font:400 15px/16px var(--pixel,monospace);color:#f2d78f}
+.rest2-tline{grid-column:2;font:400 12px/14px var(--pixel,monospace);color:#f1e2b8;white-space:nowrap;overflow:hidden;text-overflow:clip}
+.rest2-tstate{justify-self:end;font:400 12px/14px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#c9e29a}
+html body .rest2 .rest2-tile.is-off:not(#k):not(#j){background:#d6bf8a!important;border-color:#a58c57!important;color:#3b2d20!important;cursor:default}
+.rest2-tile.is-off .rest2-tname{color:#3b2d20}
+.rest2-tile.is-off .rest2-tline{color:#4a3828}
+.rest2-tile.is-off .rest2-price,.rest2-tile.is-off .rest2-price b{color:#4a3828}
+.rest2-tile.is-off .rest2-ico{opacity:.7}
+/* Bottom row: the three Stored Sparks tiles, then the one way on */
+.rest2-bottom{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;min-width:0}
+.rest2-gowrap{display:flex;align-items:flex-end}
+/* Compact: 924x308 and shorter */
+@media(max-height:340px){
+ html body .rest2:not(#k){margin:2px;width:calc(100% - 4px);height:calc(100% - 4px);padding-block:2px;gap:4px}
+ .rest2-head{gap:8px;padding-bottom:2px}
+ html body .rest2 .rest2-place{font-size:17px;line-height:19px}
+ html body .rest2 .rest2-place small{margin-left:6px;font-size:11px}
+ html body .rest2 .rest2-chip{height:28px;padding:0 6px}
+ html body .rest2 :is(.rest2-btn,.rest2-go):not(#k):not(#j){height:40px;min-height:40px!important;font-size:14px!important}
+ html body .rest2 .rest2-go:not(#k):not(#j){height:42px;min-height:42px!important;min-width:140px}
+ .rest2-sec{gap:2px}
+ html body .rest2 .rest2-sec>h2{font-size:12px;line-height:14px}
+ html body .rest2 .rest2-sec>h2 small{font-size:11px}
+ .rest2-cards,.rest2-tiles{gap:8px}
+ html body .rest2 .rest2-card{grid-template-rows:minmax(0,1fr) 40px}
+ html body .rest2 .rest2-pick:not(#k):not(#j){padding:2px 28px 2px 6px!important;row-gap:0;column-gap:8px;grid-template-columns:32px minmax(0,1fr);grid-template-rows:auto auto}
+ .rest2-pick .rest2-ico{grid-row:1/3}.rest2-pick .ico-l{display:none}.rest2-pick .ico-s{display:block}
+ .rest2-name{font-size:17px;line-height:18px}
+ .rest2-num{margin-top:0;font-size:12px;line-height:15px}
+ .rest2-num b{font-size:17px;line-height:18px}
+ .rest2-more{display:none}
+ .rest2-mark{top:3px;right:3px;width:20px;height:20px}
+ html body .rest2 .rest2-confirm:not(#k):not(#j){font-size:14px!important}
+ html body .rest2 .rest2-tile:not(#k):not(#j){min-height:40px!important;padding:0 6px!important}
+ .rest2-tname{font-size:15px;line-height:16px}
+ .rest2-tline{font-size:11px;line-height:12px}
+ html body .rest2 .rest2-note{font-size:11px;line-height:13px}
 }
-/* Compact Rest: the page (12px border) and 44px plaques leave less room, so the decorative stop icon goes first,
-   then the scenes on the shortest screens. Nothing readable or tappable is removed. */
-@media(orientation:landscape) and (max-height:430px){
- html body .card-rest-screen .card-rest-rail>svg{display:none}
- html body .card-rest-screen .card-rest-rail{gap:5px}
- html body .card-rest-screen .card-camp-main{gap:6px}
- html body .card-rest-screen .card-camp-choice>.choice-scene{max-height:56px}
- html body .card-rest-screen .card-camp-choice:not(#k){grid-template-rows:minmax(0,1fr) auto auto auto 44px;gap:3px;padding:6px!important}
- html body .card-rest-screen .card-camp-footer{min-height:0}
- html body .card-rest-screen .card-camp-choice .card-camp-note{font-size:11px}
+@media(max-height:300px){
+ html body .rest2 .rest2-tile:not(#k):not(#j){min-height:40px!important}
+ .rest2-tstate{display:none}
+ .rest2-head{padding-right:50px}
 }
-@media(orientation:landscape) and (max-height:350px){
- html body .card-rest-screen .card-camp-choice>.choice-scene{display:none}
- html body .card-rest-screen .card-camp-choice:not(#k){grid-template-rows:auto auto auto 44px;align-content:space-between;padding:4px 6px!important}
- html body .card-rest-screen .card-camp-choice p{font-size:12px;line-height:14px}
- html body .card-rest-screen .card-camp-main>.card-heading{padding-bottom:3px}
- html body .card-rest-screen .card-camp-footer p{font-size:11px;line-height:13px}
- html body .card-rest-screen .card-rest-rail{gap:3px}
- html body .card-rest-screen .card-rest-rail>small:last-child{font-size:11px;line-height:12px}
-}
-@media(orientation:landscape) and (max-height:350px){
- html body .card-rest-screen .card-camp-main>.card-heading>div{display:flex;align-items:baseline;gap:12px;flex-wrap:nowrap}
- html body .card-rest-screen .card-camp-main>.card-heading{align-items:center}
- html body .card-rest-screen .card-camp-main>.card-heading p{margin:0}
- html body .card-rest-screen .card-camp-alternatives{display:none}
- html body .card-rest-screen .card-camp-main>.card-heading h2{white-space:nowrap}
- html body .card-rest-screen .card-camp-choices{overflow:visible}
-}
-@media(orientation:landscape) and (max-height:350px){
- html body .card-rest-screen .card-camp-main{gap:4px}
- html body .card-rest-screen .card-camp-main>.card-heading{padding-bottom:0}
- html body .card-rest-screen .card-camp-main>.card-heading::after{bottom:-2px}
- html body .card-rest-screen .card-camp-choice:not(#k){padding:3px 5px!important;gap:2px}
- html body .card-rest-screen .card-camp-choice h3{font-size:17px;line-height:18px}
- html body .card-rest-screen .card-camp-choice p{font-size:12px;line-height:13px}
- html body .card-rest-screen .card-camp-choices{gap:8px}
-}
-@media(orientation:landscape) and (max-height:350px){
- html body .card-rest-screen:not(#k){grid-template-columns:152px minmax(0,1fr);gap:10px}
- html body .card-rest-screen .card-rest-rail{justify-content:flex-start}
- html body .card-rest-screen .card-rest-rail>small:last-child{font-size:11px;line-height:12px}
-}
-@media(orientation:landscape) and (max-height:350px){
- html body .card-rest-screen .card-camp-choice p,html body .card-rest-screen .card-camp-choice .card-camp-note{font-size:11px;line-height:13px;letter-spacing:-.2px}
- html body .card-rest-screen .card-camp-choices{gap:6px}
-}
-@media(orientation:landscape) and (max-height:350px){
- /* An action that cannot be taken keeps its reason, not numbers for a change that will not happen. */
- html body .card-rest-screen .card-camp-choice.unavailable .card-camp-consequence{display:none}
- html body .card-rest-screen .card-camp-choice.unavailable:not(#k){grid-template-rows:auto minmax(0,1fr) 44px}
-}
-@media(orientation:landscape) and (max-height:350px){
- html body .card-rest-screen .card-rest-rail>small:first-of-type{display:none}
- html body .card-rest-screen .card-rest-rail>h1{font-size:17px;line-height:19px}
-}
+@media(orientation:portrait){html body .rest2:not(#k){height:auto;min-height:calc(100% - 8px);overflow:visible}.rest2-cards,.rest2-tiles{grid-template-columns:1fr}.rest2-head{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){html body .rest2 *{transition:none!important}}
 
 /* ═══ Rest choice screen (Recover / Grow, and the preparation area after it) · v2.5-theme ═══════════════
    rest-choice-view.mjs puts the kit's inline paper page on the root (wb-reskin wb-ground wb-inline wb-framed;
@@ -287,3 +308,34 @@ html body .card-workshop-services p:not(#k),html body .card-workshop .card-dialo
 html body .card-workshop-notice:not(#k){color:#3d4a22!important}
 html body :is(.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) .card-exchange-result :is(small,p,.card-forge-destination):not(#k){color:#5a4632!important}
 html body :is(.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) .card-exchange-result :is(strong,h3,.card-forge-status):not(#k){color:#2a2118!important}
+
+/* ═══ Forge result · v3.0-rest ═══════════════════════════════════════════════════════════════════════════
+   The new card shown whole beside one line ("Added to your deck."), one way back and one way to forge again.
+   The card sits in a box of known pixel height (--fh) so its face is laid out at one size: container-relative
+   sizing (cqh) collapsed the old frame. No prices, balances or negative numbers: the wallet tab in the header
+   already shows the Stored Sparks left. */
+html body .forge2.card-forge-preview>.forge2-head{flex:none;display:flex;align-items:center;gap:12px;min-height:44px;padding:0 58px 4px 0;border-bottom:2px solid #6b5335}
+html body .forge2 .forge2-head h2{margin:0;flex:1;min-width:0;font:400 22px/26px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#2a2118;background:none;background-image:none;white-space:nowrap}
+html body .forge2 .forge2-head h2:not(#k):not(#j){text-align:left;text-shadow:none!important;-webkit-text-fill-color:currentColor!important;filter:none!important;color:#2a2118!important}
+html body .forge2 .forge2-body{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;gap:32px;padding:4px 0;overflow:hidden}
+html body .forge2 .forge2-card{position:relative;flex:none;--fh:clamp(150px,calc(100dvh - 124px),300px);height:var(--fh);display:flex;align-items:center;justify-content:center}
+html body .forge2 .forge2-card>.skill-card{--card-height:var(--fh)}
+html body .forge2 .forge2-new{position:absolute;top:-4px;left:-8px;z-index:3;padding:2px 6px;background:#536430;border:2px solid #2a1d12;color:#fff6d8;font:400 13px/15px var(--pixel,monospace);letter-spacing:1px}
+html body .forge2 .forge2-side{flex:0 1 330px;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:14px}
+html body .forge2 .forge2-line{margin:0;font:400 22px/26px var(--pixel,monospace);color:#2a2118}
+html body .forge2 .forge2-actions{display:flex;flex-direction:column;gap:10px}
+html body .forge2 .forge2-actions button:not(.skill-card *):not(#k):not(#j){width:100%;min-width:0;height:48px;min-height:44px!important}
+html body .forge2 .forge2-again[aria-disabled="true"]:not(.skill-card *):not(#k):not(#j){border-image-source:url('assets/ui/waystone/plaque-slip.svg')!important;background:#e4d09b padding-box!important;color:#4a3828!important;text-shadow:none!important;cursor:default}
+html body .forge2 .forge2-need{font:400 13px/15px var(--pixel,monospace);color:#4a3828;text-align:center}
+@media(max-height:340px){
+ html body .forge2 .forge2-card{--fh:clamp(140px,calc(100dvh - 90px),300px)}
+ html body .forge2 .forge2-body{padding:0}
+ html body .forge2 .forge2-line{font-size:19px;line-height:22px}
+ html body .forge2 .forge2-body{gap:24px}
+ html body .forge2 .forge2-actions{gap:8px}
+ html body .forge2 .forge2-actions button:not(.skill-card *):not(#k):not(#j){height:44px}
+ html body .forge2 .forge2-side{gap:10px}
+}
+/* Improve a card / Refill uses open the Workshop list for that one service, full width. */
+html body .card-workshop-single .card-workshop-services{display:grid;grid-template-columns:minmax(0,1fr)}
+html body .card-workshop-single .card-workshop-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:6px}

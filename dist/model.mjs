@@ -9,7 +9,7 @@ import {CARD_UNIT as ENGINE_CARD_UNIT} from './skill-cards.mjs?v=guide-clarity-1
 import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=guide-clarity-1';
 import {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,isInventoryOnlyCard,getInventoryCampCards,makeSkillCard,cleanCardRun,settleCardReward,getCardStarterOffers,drawSkillCard,drawSkillCardDraft,describeSkillCard,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,getCardModifiers,getCardPackingBonus,getCardGrowthUses,getCardGrowthBonus,cleanCardFutureCapacity,createCardExecution,resolveCardRow,CARD_ROW_EVENTS,commitCardCharges,recordCardEvent,drawForgeCard,CARD_FORGE_RARITIES} from './skill-cards.mjs?v=guide-clarity-1';
 export {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,commitCardCharges} from './skill-cards.mjs?v=guide-clarity-1';
-import {FLIGHT_PACTS,pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=guide-clarity-1';
+import {pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=guide-clarity-1';
 import {chestRewardPair} from './chest-rewards.mjs?v=guide-clarity-1';
 import {STARTING_GIFTS,STARTING_SKILL_COST_LIMIT} from './starting-gifts.mjs?v=guide-clarity-1';
 import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=guide-clarity-1';
@@ -30,10 +30,10 @@ export {getCondensationRules} from './condensed-glow.mjs?v=guide-clarity-1';
 import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,MAP_STOP_COUNT,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=guide-clarity-1';
 import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=guide-clarity-1';
 import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=guide-clarity-1';
-import {activePassageBoons,activeEventFavors,spendPreparationClear} from './passage-preparations.mjs?v=guide-clarity-1';
-import {queueTemporary,writePendingTemporary,previewPendingTemporary,migrateLooseEffects,activePactId,activeOathIds,hasTemporary,endTemporary,temporaryLine,temporaryEntries} from './temporary-inscriptions.mjs?v=guide-clarity-1';
-import {TEMPORARY_BY_FAVOR,TEMPORARY_INSCRIPTIONS,permanentOnSlot} from './inscriptions.mjs?v=guide-clarity-1';
-export {writePendingTemporary,previewPendingTemporary,queueTemporary,temporaryLine,temporaryEntries} from './temporary-inscriptions.mjs?v=guide-clarity-1';
+import {getOath,oathLine,cleanPendingOath} from './oaths.mjs?v=guide-clarity-1';
+import {writePendingTemporary,previewPendingTemporary,dropTemporaryRemnants} from './temporary-inscriptions.mjs?v=guide-clarity-1';
+import {permanentOnSlot} from './inscriptions.mjs?v=guide-clarity-1';
+export {writePendingTemporary,previewPendingTemporary} from './temporary-inscriptions.mjs?v=guide-clarity-1';
 import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText,GLOW_CAPACITY_LIMIT_UNITS} from './vitality.mjs?v=guide-clarity-1';
 import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=guide-clarity-1';
 import {MAX_ASCENSION} from './ascent.mjs?v=guide-clarity-1';
@@ -244,8 +244,8 @@ function commitArtifactCharges(run,result){
 // restoring an attempt. Artifact capacity is an independent system.
 function cleanRunCompanion(run){
  if(!run)return;
- cleanCardRun(run);
- if(isCardRun(run)){cleanSlotInscriptions(run);migrateLooseEffects(run);const owned=new Set([...(run.mountedCards||[]),...(run.reserveCards||[])].filter(Boolean).map(c=>String(c.instanceId)));run.unseenCardIds=[...new Set((Array.isArray(run.unseenCardIds)?run.unseenCardIds:[]).filter(id=>typeof id==='string'&&owned.has(id)))];}
+ cleanCardRun(run);cleanPendingOath(run);
+ if(isCardRun(run)){dropTemporaryRemnants(run);cleanSlotInscriptions(run);const owned=new Set([...(run.mountedCards||[]),...(run.reserveCards||[])].filter(Boolean).map(c=>String(c.instanceId)));run.unseenCardIds=[...new Set((Array.isArray(run.unseenCardIds)?run.unseenCardIds:[]).filter(id=>typeof id==='string'&&owned.has(id)))];}
  // Artifacts were retired: an older run simply drops what it held (docs/inscriptions.md).
  run.artifacts=[];run.artifactCharges={};
  const fatal=run.lastFatal;
@@ -1304,7 +1304,7 @@ export function beginFlightAttempt(run){
  run.restReady=false;
  run.attemptEntry={
   step:run.step,nodeId:run.current.id,bonusId:run.current.bonusId??null,
-  flightPact:activePactId(run),oaths:activeOathIds(run),flightBoon:null,flightBoons:activePassageBoons(run),eventFavors:activeEventFavors(run),started:false,
+  flightPact:getOath(run.pendingOath?.id)?.pact??null,oaths:getOath(run.pendingOath?.id)&&!getOath(run.pendingOath.id).pact?[run.pendingOath.id]:[],oath:getOath(run.pendingOath?.id)?{id:run.pendingOath.id}:undefined,started:false,
   slotInscriptions:Array.isArray(run.slotInscriptions)?copy(run.slotInscriptions):undefined,
   flame:run.flame,restGlowCapacity:getRestGlowBonus(run),
   condensedGlow:run.condensedGlow,practiceCondensedGlow:run.practiceCondensedGlow,practiceLives:run.lives,practiceMaxLives:run.maxLives,skillPaid:{...run.skillPaid},condensedRemainder:run.condensedRemainder,
@@ -1314,7 +1314,8 @@ export function beginFlightAttempt(run){
   ...(isCardRun(run)?{mountedCards:copy(run.mountedCards),cardCarriedStored:count(run.condensedGlow),cardPackingRemainder:count(run.cardPackingRemainder,3),cardGrowUses:getCardGrowthUses(run),cardGrowCapacity:getCardGrowthBonus(run)}:{})
  };
  // Lead Seal is spent when the flight begins, a fall or not (as the old next-attempt burden was). An unstarted entry puts it back (interrupt).
- for(const e of temporaryEntries(run))if(e.def.endsOnStart)endTemporary(run,e.id);
+ // A wager covers this one flight: it leaves run.pendingOath now (an unstarted entry puts it back on interrupt) and never returns.
+ delete run.pendingOath;
  run.attemptActive=true;run.stats.attempts++;
  return true;
 }
@@ -1345,12 +1346,8 @@ function reopenSurveyFork(run,preparation){
 function interrupt(run){
  const entry=run.attemptEntry;
  if(entry&&!entry.started&&entry.slotInscriptions)run.slotInscriptions=copy(entry.slotInscriptions);
- else if(entry&&!entry.started){
-  // An entry made before temporary Inscriptions: put its loose effects back, then move them onto the Chain.
-  if(entry.flightPact)run.nextFlightPact=entry.flightPact;
-  if(entry.eventFavors?.length)run.eventFavors=[...entry.eventFavors];
-  migrateLooseEffects(run);
- }
+ if(entry&&!entry.started&&entry.oath&&getOath(entry.oath.id))run.pendingOath={id:entry.oath.id};
+ cleanSlotInscriptions(run);
  if(entry?.started){reopenSurveyFork(run,run.routePreparation);delete run.routePreparation;}
  restoreEntry(run);
  run.lastAttempt={success:false,interrupted:true,nodeId:run.current?.id,livesLost:0,livesRemaining:run.lives};
@@ -1493,9 +1490,9 @@ export function finishFlight(run,result){
    lifts: count(result.stats?.flaps),
   });
  }
- // Oaths (Oath Inscriptions on the Chain) are settled by a cleared flight only: a fall leaves them in place.
+ // A wager was spent when the flight began. A cleared flight settles it (won: Stored Sparks, not met: nothing); a fall just loses it.
  const oaths=attempt?.oaths||[],preparation=run.routePreparation;
- const vow=oaths.includes('pilgrim-vow')?resolvePilgrimVow(true,result):null;
+ const vow=oaths.includes('pilgrim-vow')?resolvePilgrimVow(true,result,run):null;
  const wager=oaths.includes('sealed-purse')?settleTreasureWager(result,run):null;
  delete run.routePreparation;
  if(vow)run.lastVow=vow;
@@ -1544,11 +1541,7 @@ export function finishFlight(run,result){
  const keptLightDividend=completionBonus&&!run.isTutorial?count(attempt?.keptLightDividend,10):0;
  const storageBonus=completionBonus&&!run.isTutorial?count(result.storageBonus,run.skills['packing-deep-cache']?4:run.skills['packing-hand-seal']?2:0):0;
  const resonanceStored=!run.isTutorial&&(rank(run.skills,'main-resonant-bounty')||getCardModifiers(run).cardHarvestStoredPerWave>0||livePacking)?count(result.resonanceStored):0;
- spendPreparationClear(run,attempt);
- if(vow?.completed)endTemporary(run,'pilgrim-vow');
- if(wager?.completed)endTemporary(run,'sealed-purse');
- if(attempt?.flightPact)endTemporary(run,Object.values(TEMPORARY_INSCRIPTIONS).find(t=>t.pact===attempt.flightPact)?.id);
- const routeBonus=awardRouteBonus(run,n,attempt,result,completionBonus,pickupCondensedGlow,oaths.includes('pilgrim-vow')||oaths.includes('sealed-purse'));
+ const routeBonus=awardRouteBonus(run,n,attempt,result,completionBonus,pickupCondensedGlow,['pilgrim-vow','sealed-purse'].includes(attempt?.oath?.id));
  max=getGlowCapacity(run);
  const challengeComplete=attempt?.bonusId?!!routeBonus:result.challengeComplete===true;
  const rate=recovery.rate+(remaining<max*.2?recovery.rescue:0)+(challengeComplete?recovery.challenge:0),amount=max*rate+10*treasureRank(run,'wick');
@@ -1605,7 +1598,7 @@ export function finishFlight(run,result){
   recordCardEvent(run,'packing',{base:cardPackingEligible,bonus:cardPackingBonus,sources:packingModifiers.cardPackingSources,remainder:run.cardPackingRemainder});
  }
  run.lastFlight.recovery.before=0;
- const pactIncome=pactBonus(attempt?.flightPact,result,pickupCondensedGlow+exitPacking.amount);
+ const pactIncome=pactBonus(attempt?.flightPact,result,run);
  if(pactIncome){queue(run,pactIncome,'flight-pact');run.condensedEarned+=pactIncome;run.lastFlight.pactBonus=pactIncome;run.lastFlight.flightPact=attempt.flightPact;}
  const chestIncome=treasureClearDividend(run,result);
  if(chestIncome.amount){
@@ -1783,7 +1776,48 @@ export function bankRun(state){
 
 const choice=(id,title,description,effect)=>{if(effect.pickupGlow){const old=effect.pickupGlow,amount=Math.max(20,Math.round(old/20)*20);description=description.replace(`${old} Sparks`,`${amount} Sparks`);effect={...effect,pickupGlow:amount};}return {id,title,description,detail:description,effect};};
 function eventNextFlights(run){const n=run.current,lastElite=previousElite(run);return(n?.nextIds||[]).map(id=>nodes(run).find(node=>node.id===id)).filter(node=>node&&node.row===n.row+1&&node.type!=='support'&&!(lastElite&&node.elite));}
-function shrineBlessing(){return choice('shrine-blessing','Carry a shrine blessing',temporaryLine('chime'),{eventFavor:'haste'});}
+// Events that act on a card pick it for the player: the first card (Chain left to right, then the Deck) that can use the outcome.
+export function eventCardTargets(run){
+ if(!isCardRun(run))return {};
+ let improve=null,refill=null;
+ for(const card of [...(run.mountedCards||[]),...(run.reserveCards||[])].filter(Boolean)){
+  const name=SKILL_CARDS[card.cardId]?.name;if(!name)continue;
+  if(!improve){const p=getCardImprovePreview(run,card.instanceId);if(p.kind&&p.before&&!(SKILL_CARDS[card.cardId].charges&&!(card.charges>0)))improve={instanceId:card.instanceId,name,rank:p.after.rank??card.rank,kind:p.kind,afterName:SKILL_CARDS[p.after.cardId]?.name||name};}
+  if(!refill){const p=getCardRefillPreview(run,card.instanceId);if(p.supported&&p.missing>0&&count(card.charges)>0)refill={instanceId:card.instanceId,name,missing:p.missing};}
+ }
+ return {improve,refill};
+}
+/** A free Improve (rank up or evolution, the existing rules, no price). Returns {name, rank} or false. */
+function freeImproveCard(run,instanceId){
+ const preview=getCardImprovePreview(run,instanceId),owned=findOwnedCard(run,instanceId),card=owned?.card;
+ if(!card||!preview.kind||!preview.before)return false;
+ card.cardId=preview.after.cardId;card.rank=preview.after.rank;clampCardFuel(run);
+ recordCardEvent(run,'improve',{slot:owned.slot,kind:preview.kind,price:0,before:preview.before,after:describeSkillCard(card),source:'event'});
+ return {name:SKILL_CARDS[card.cardId].name,rank:card.rank};
+}
+/** A free refill of one card's uses. Returns {name} or false. */
+function freeRefillCard(run,instanceId){
+ const preview=getCardRefillPreview(run,instanceId),card=findOwnedCard(run,instanceId)?.card;
+ if(!card||!preview.supported||!preview.missing)return false;
+ card.charges=preview.maximum;
+ recordCardEvent(run,'refill',{price:0,before:preview.before,after:preview.after,source:'event'});
+ return {name:SKILL_CARDS[card.cardId].name};
+}
+/** An event's free card: the normal claim path (reserve, NEW badge, auto-mount only when nothing is mounted). One per event stop. */
+export function grantEventCard(run){
+ const node=run?.current;
+ if(!isCardRun(run)||!node)return null;
+ const key=run.mapIndex+':'+node.id;
+ if((run.eventCards??={})[key])return null;
+ const card=drawSkillCard(run,'event',node);
+ if(!card||!SKILL_CARDS[card.cardId])return null;
+ run.cardReward={id:card.instanceId,card:copy(card),source:'event',sourceName:'Event',claimed:false};
+ settleCardReward(run);markCardNew(run,card.instanceId);placeClaimedCard(run,run.cardReward);
+ const revealed=describeSkillCard(card);
+ recordCardEvent(run,'event-card',{card:revealed,nodeId:node.id});
+ run.eventCards[key]=card.instanceId;
+ return {...revealed,name:SKILL_CARDS[card.cardId].name};
+}
 function inRefundBranch(id,root,seen=new Set()){
  if(seen.has(id))return false;seen.add(id);
  if(id===root||root==='main-efficiency'&&SKILLS[id]?.branch==='afterglow')return true;
@@ -1806,9 +1840,9 @@ function rawSupportChoices(run,profile=null){
   return offers;
  }
  const pact=pactOffers(run);if(pact)return pact;
- const contextual=contextualEventChoices(run,eventNextFlights(run));if(contextual)return contextual;
+ const targets=eventCardTargets(run),contextual=contextualEventChoices(run,eventNextFlights(run),targets);if(contextual)return contextual;
  const refunds=n.eventIndex===10?MAIN_WISP_BRANCHES.map(b=>({...b,refund:Object.keys(run.skillPaid||{}).filter(id=>id!==run.startingSkill&&inRefundBranch(id,b.root)).reduce((sum,id)=>sum+count(run.skillPaid[id]),0)})):[];
- return eventChoices(run,{refunds})||[];
+ return eventChoices(run,{refunds,targets})||[];
 
 }
 function makeSupportChoices(run,profile=null){return rawSupportChoices(run,profile).map(c=>({...c,description:c.displayUnits?c.description:glowText(c.description,getGlowCapacity(run)),detail:c.displayUnits?c.detail:glowText(c.detail,getGlowCapacity(run)),...(c.effect.pickupGlow?{glowPreview:previewGlowReward(run,c.effect.pickupGlow,{removeArtifact:c.effect.sell})}:{})}));}
@@ -1817,8 +1851,10 @@ export function resolveSupport(run,index,profile=null){
  if(isCardRun(run)&&run.current.kind==='camp')return resolveCardCamp(run,index);
  if(isPracticeCourseRun(run)&&!practiceStopReady(run))return false;
  const offers=getSupportChoices(run,profile),offer=offers[index],e=offer?.effect;if(!e||offer.disabled)return false;if((e.rest||e.restContinue)&&run.restVisits?.some(v=>v.key===`${run.mapIndex}:${run.current.id}`))return false;const wallet=runWallet(run),cost=count(e.condensedCost),restBefore=e.rest||e.restContinue?{lives:run.lives,flame:run.flame}:null;
- if(e.flightPact&&(!FLIGHT_PACTS[e.flightPact]||activePactId(run)))return false;
- if(e.pilgrimVow&&(hasTemporary(run,'pilgrim-vow')||!eventNextFlights(run).length))return false;
+ if(e.oath&&(!getOath(e.oath)||run.pendingOath||!eventNextFlights(run).length))return false;
+ if(e.eventCard&&!isCardRun(run))return false;
+ if(e.improveCard&&eventCardTargets(run).improve?.instanceId!==e.improveCard)return false;
+ if(e.refillCard&&eventCardTargets(run).refill?.instanceId!==e.refillCard)return false;
  if(e.routePreparation&&!eventNextFlights(run).some(node=>node.id===e.routePreparation.nodeId))return false;
  if(wallet.condensedGlow<cost||run.flame+Math.min(0,finite(e.flame))<0)return false;
  if(e.lives&&run.lives>=getLifeCapacity(run))return false;
@@ -1838,14 +1874,14 @@ export function resolveSupport(run,index,profile=null){
   run.flame+=Math.max(0,getGlowCapacity(run)-capacity);
  }
  if(e.treasureGift)grantTreasureGift(run,e.treasureGift);
- // Lasting rewards become temporary Inscriptions the player writes on a slot of the Chain (run.pendingTemporary, own screen).
- if(e.treasurePact==='wager')queueTemporary(run,'sealed-purse',{source:'event'});else if(e.treasurePact)run.treasurePact=e.treasurePact;
- if(e.flightPact)queueTemporary(run,Object.values(TEMPORARY_INSCRIPTIONS).find(t=>t.pact===e.flightPact)?.id,{source:'event'});
+ if(e.treasurePact)run.treasurePact=e.treasurePact;
  if(e.sell)sellArtifact({run,profile},e.sell);
  if(e.artifactReward||e.packedReward){const amount=e.packedReward||25;grantArtifactMelt(run,amount);if(e.packedReward&&!cost&&!e.sell&&!(e.flame<0)&&offer.art!=='trade')awardScoreStores(run,amount);}
- if(e.eventFavor)queueTemporary(run,TEMPORARY_BY_FAVOR[e.eventFavor],{source:'event'});
  if(e.burden)run.nextFlightBurden=true;if(e.blessing)run.nextFlightBlessing=true;
- if(e.pilgrimVow){queueTemporary(run,'pilgrim-vow',{source:'event'});run.lastEvent={title:'Vow accepted',message:`${temporaryLine('pilgrim-vow')} Dream pickups and Collector deliveries do not count. Missing it costs nothing; the oath stays.`};}
+ if(e.oath){run.pendingOath={id:e.oath};run.lastEvent={title:'Wager taken',message:oathLine(run,e.oath)};}
+ if(e.eventCard){const card=grantEventCard(run);if(card)run.lastEvent={title:'A card',message:card.name+' is in your Deck.'};}
+ if(e.improveCard){const done=freeImproveCard(run,e.improveCard);if(done)run.lastEvent={title:'Card improved',message:done.name+' is now rank '+done.rank+'.'};}
+ if(e.refillCard){const done=freeRefillCard(run,e.refillCard);if(done)run.lastEvent={title:'Uses refilled',message:done.name+' has all its uses again.'};}
  if(e.routePreparation){
   const source=nodes(run).find(node=>node.id===run.current.id)||run.current;
   run.routePreparation={...e.routePreparation,originalNextIds:[...source.nextIds]};
@@ -1856,8 +1892,8 @@ export function resolveSupport(run,index,profile=null){
  if(e.glowCapacity)run.restGlowCapacity=getRestGlowBonus({restGlowCapacity:getRestGlowBonus(run)+e.glowCapacity});
  run.flame=e.flame>=100?getGlowCapacity(run):clamp(run.flame+finite(e.flame),0,getGlowCapacity(run));
  if(e.pickupGlow&&!e.sell)grantGlowPickup(run,e.pickupGlow,'offering');
- if(e.dice){const face=1+Math.floor(rng(`${run.seed}:${run.current.id}:dice`)()*6),prize=rollPrism(run,face,e.diceField);
- if(prize.favor)queueTemporary(run,TEMPORARY_BY_FAVOR[prize.favor],{source:'event'});if(prize.packed){grantArtifactMelt(run,prize.packed);awardScoreStores(run,prize.packed);}if(prize.capacity)run.treasureCapacity=(run.treasureCapacity||0)+prize.capacity;if(prize.energy||prize.capacity)run.flame=getGlowCapacity(run);
+ if(e.dice){const face=1+Math.floor(rng(`${run.seed}:${run.current.id}:dice`)()*6),prize=rollPrism(run,face,eventCardTargets(run));
+ if(prize.card){const card=grantEventCard(run);if(!card)prize.packed=22;}if(prize.improve){const t=eventCardTargets(run).improve,done=t&&freeImproveCard(run,t.instanceId);if(!done)prize.packed=22;}if(prize.packed){grantArtifactMelt(run,prize.packed);awardScoreStores(run,prize.packed);}
  run.lastEvent={title:'Prism Dice',face,message:`Rolled ${face}: ${prize.message}`};}
  run.maxLives=getLifeCapacity(run);if(e.lives)run.lives=Math.min(run.maxLives,run.lives+e.lives);
  if(e.rest||e.restContinue){if(e.rest&&run.isTutorial)run.practiceTopics=[...new Set([...(run.practiceTopics||[]),'rest'])];if(e.rest&&run.isTutorial&&run.current.id==='practice-dream-rest')run.skills['main-dream']=1;run.lifeRestClaimed=e.rest==='recover';const key=`${run.mapIndex}:${run.current.id}`,boon=e.rest||'skip';(run.restVisits??=[]).push({key,mapIndex:run.mapIndex,row:run.step,nodeId:run.current.id,boon});run.restReady=true;run.lastRest={nodeId:run.current.id,row:run.step,mapIndex:run.mapIndex,boon,heartsRestored:Math.max(0,run.lives-restBefore.lives),sparksRestored:Math.max(0,run.flame-restBefore.flame)};}
@@ -1979,9 +2015,6 @@ export function getRunModifiers(run={}){const rank=skillProgress,companion=norma
   if(treasureRank(run,'quickLens'))m.treasureRecoveryScale=LENS_RECOVERY;
   if(run.treasurePact==='sight')m.lightRadius*=1.35;
   if(run.treasurePact==='recharge')m.treasureRecoveryScale=(m.treasureRecoveryScale||1)*.7;
-  m.eventFavors=run.attemptActive?run.attemptEntry?.eventFavors||[]:activeEventFavors(run);
-  m.flightBoon=run.attemptActive?run.attemptEntry?.flightBoon??null:null;
-  m.flightBoons=run.attemptActive?run.attemptEntry?.flightBoons||[]:activePassageBoons(run);
   const pact=activeFlightPact(run);
   if(pact?.id==='blind-pilgrim')m.closedEye=true;
   else if(pact?.sight)m.lightRadius*=pact.sight;

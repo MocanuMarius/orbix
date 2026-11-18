@@ -4,7 +4,7 @@
 // the old one struck through ("Replaces Gilded"), and the card's before → after from the same row preview the Chain tab uses.
 // Nothing is written until "Write". The "?" on a card or a brand and every keyword open the glossary as an overlay; the selection stays.
 // Menu screen only, never in flight. Nothing on it scrolls at 890×400, 915×412 or 740×333 (styles: dist/artifact-reward.css).
-import {getInscription, getPermanentInscription, slotInscriptionId, slotInscriptionList, temporaryOnSlot} from './inscriptions.mjs?v=guide-clarity-1';
+import {getInscription, getPermanentInscription, slotInscriptionId, slotInscriptionList} from './inscriptions.mjs?v=guide-clarity-1';
 import {inscriptionGlyph, inscriptionTag} from './inscription-ui.mjs?v=guide-clarity-1';
 import {cardTermTextMarkup} from './card-terms.mjs?v=guide-clarity-1';
 import {cardArt} from './card-art.mjs?v=guide-clarity-1';
@@ -34,15 +34,14 @@ export function slotPlate(run, slot) {
   return own?.label || '';
 }
 /** What writing `id` on `slot` would do, from the real row preview (the run is not changed).
- * {replaces: id|null, needsCard, waitsFor: temporary id|null, change: {trigger, before, after}|null, line} */
+ * {replaces: id|null, needsCard, change: {trigger, before, after}|null, line} */
 export function writePreview(run, slot, id) {
   const ins = getPermanentInscription(id), row = rowOf(run);
   if (!ins || !Number.isInteger(slot) || slot < 0 || slot >= row.length) return null;
-  const card = row[slot], here = slotInscriptionId(run, slot), temp = temporaryOnSlot(run, slot);
-  const replaces = temp ? (temp.covers?.id && temp.covers.id !== id ? temp.covers.id : null) : (here && here !== id ? here : null);
-  const out = {id, slot, replaces, same: !temp && here === id, needsCard: ins.kind === 'card' && !card, waitsFor: temp ? temp.id : null, change: null, line: ins.text};
+  const card = row[slot], here = slotInscriptionId(run, slot);
+  const replaces = here && here !== id ? here : null;
+  const out = {id, slot, replaces, same: here === id, needsCard: ins.kind === 'card' && !card, change: null, line: ins.text};
   if (out.needsCard) { out.line = 'Needs a card here'; return out; }
-  if (temp) { out.line = `Works when ${getInscription(temp.id)?.name || 'the temporary one'} ends`; return out; }
   if (!card || ins.kind !== 'card') return out;
   const before = slotInscriptionList(run, row) || row.map(() => null), after = before.map((x, i) => i === slot ? {id} : x);
   const kinds = [...new Set([...triggersFor(row, before), ...triggersFor(row, after)].map(t => t.kind))];
@@ -71,7 +70,7 @@ function offerCard(id, picked, action) {
 /** One slot of the Chain: number, card picture and name, its plate, what is written there; the result when chosen with an offer. */
 function slotCard(run, n, picked, chosen, action) {
   const card = run.mountedCards?.[n], def = card ? SKILL_CARDS[card.cardId] : null, name = card ? describeSkillCard(card)?.name || def?.name || 'Card' : '';
-  const temp = temporaryOnSlot(run, n), cur = getInscription(slotInscriptionId(run, n)), under = temp?.covers?.id ? getInscription(temp.covers.id) : null;
+  const cur = getInscription(slotInscriptionId(run, n));
   const pv = chosen && picked ? writePreview(run, n, picked) : null, nu = pv ? getInscription(picked) : null;
   const pic = card ? `<span class="iw-pic">${cardArt({cardId: card.cardId, rarity: card.rarity || def?.rarity, name}, {compact: true})}</span>` : '<span class="iw-pic iw-pic-empty" aria-hidden="true"></span>';
   const plate = card ? slotPlate(run, n) : '';
@@ -80,7 +79,7 @@ function slotCard(run, n, picked, chosen, action) {
   if (pv) {
     const old = pv.replaces ? getInscription(pv.replaces) : null;
     ins = `${brandLine(nu, ' iw-brand-new')}${old ? `<s class="iw-old" aria-label="Replaces ${esc(old.name)}"><span>Replaces ${esc(old.name)}</span></s>` : ''}<b class="iw-result${pv.needsCard ? ' iw-warn' : ''}">${esc(pv.same ? 'Already written here' : pv.line)}</b>`;
-  } else if (cur) ins = `${brandLine(cur, cur.temporary ? ' iw-brand-temp' : '')}${under ? `<span class="iw-under">Covers ${esc(under.name)}</span>` : ''}`;
+  } else if (cur) ins = brandLine(cur);
   else ins = '<span class="iw-none">No Inscription</span>';
   const spoken = `Slot ${n + 1}, ${card ? name : 'empty'}${plate ? `, ${plate}` : ''}. ${pv ? `${nu.name} here: ${pv.line}${pv.replaces ? `, replaces ${getInscription(pv.replaces).name}` : ''}` : cur ? `Written: ${cur.name}` : 'No Inscription'}`;
   return `<article class="iw-slot scribe-slot${chosen ? ' iw-on' : ''}${card ? '' : ' iw-slot-empty'}${cur ? ' scribe-slot-inscribed' : ''}" data-slot="${n}"${card ? ` ${cardHelp(card)}` : ''}>

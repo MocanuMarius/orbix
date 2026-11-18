@@ -6,13 +6,12 @@ import {getRunModifiers} from '../dist/model.mjs';
 import {makeSkillCard} from '../dist/skill-cards.mjs';
 import {WispFlight} from '../dist/flight.mjs';
 import {LIGHT_PACKET_TUNING} from '../dist/vitality.mjs';
-import {writeTemporary,endTemporary} from '../dist/temporary-inscriptions.mjs';
 
 function challenge() {
   const state=createCardInspectorState(new URLSearchParams());
   const run=state.run;
   run.mountedCards=['chameleon','lantern-lens','harvest-common'].map((id,i)=>makeSkillCard(id,'mounted-'+i));
-  writeTemporary(run,0,'closed-eye');
+  run.pendingOath={id:'closed-eye'};
   run.reserveCards=['climb','double-lift'].map((id,i)=>makeSkillCard(id,'reserve-'+i));
   return state;
 }
@@ -23,7 +22,7 @@ test('Closed Eye flags both a borrowed Lens and a reserve Climb, then clears the
   assert.equal(badges(cardsBenchMarkup(state)),2);
   assert.equal(badges(cardsBenchMarkup(state,{browsing:true})),1);
   assert.match(cardsBenchMarkup(state,{browsing:true,inspecting:true,selectedId:'reserve-0'}),/Spark crossings still work/);
-  endTemporary(state.run,'closed-eye');
+  delete state.run.pendingOath;
   assert.equal(badges(cardsBenchMarkup(state)),0);
 });
 

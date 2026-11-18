@@ -6,7 +6,7 @@ import {
   grantGlowPickup, previewGlowReward, resolveSupport, saveState, selectNode, settleCheckpoint, suspendRun
 } from '../dist/model.mjs';
 import {EVENT_SCENARIOS, getEventScenarios} from '../dist/map-guide.mjs';
-import {writePendingTemporary, temporaryEntries, hasTemporary, writeTemporary} from '../dist/temporary-inscriptions.mjs';
+import {makeSkillCard} from '../dist/skill-cards.mjs';
 import {getRouteForecast} from '../dist/route-forecast.mjs';
 import {getGlowCapacity, getLifeCapacity, glowPoints} from '../dist/vitality.mjs';
 import {WispFlight} from '../dist/flight.mjs';
@@ -56,7 +56,6 @@ function visit(index, {late=false, low=false, hurt=false}={}) {
   const fixture = (late ? sites.late : sites.ordinary).get(index);
   assert.ok(fixture, EVENT_SCENARIOS[index].name);
   const state = newState(), run = state.run = structuredClone(fixture);
-  run.mountedCards = [null, null, null]; // a Chain to write temporary Inscriptions on (these fixtures are ordinary-map runs)
   run.flame = low ? 10 : getGlowCapacity(run); // Three displayed Energy.
   run.lives = getLifeCapacity(run) - Number(hurt);
   return state;
@@ -66,14 +65,14 @@ function claim(state,id) {
   const index=offers.findIndex(c=>c.id===id);
   assert.notEqual(index,-1,id);
   assert.ok(resolveSupport(run,index,state.profile),id);
-  if(run.pendingTemporary)assert.ok(writePendingTemporary(run)); // the player picks the slot on its own screen; here the first open one
+  assert.equal(run.pendingTemporary,undefined,'no event opens a slot choice');
   settleCheckpoint(state);
   return offers[index];
 }
 function resourceState(run,late=false) {
   return {
-    energy:run.flame, lives:run.lives, wallet:late?null:run.condensedGlow,
-    skills:run.skills, favors:temporaryEntries(run).map(e=>e.id), vow:hasTemporary(run,'pilgrim-vow'),
+    energy:run.flame, lives:run.lives, wallet:run.condensedGlow,
+    skills:run.skills, oath:run.pendingOath?.id||null, cards:JSON.stringify([run.mountedCards,run.reserveCards,run.eventCards||null]),
     preparation:run.routePreparation?.nodeId||null
   };
 }
@@ -141,7 +140,7 @@ test('12 generated encounters supply two usable, distinct decisions in all 192 r
         assert.ok(r.lives>=1 && r.lives<=getLifeCapacity(r),label);
         assert.equal(r.stats.events,run.stats.events+1,label);
         if (late) {
-          assert.ok(!offer.effect.packedReward && !offer.effect.respec && !offer.effect.pilgrimVow,label+' spends past last Rest');
+          assert.ok(!offer.effect.respec,label+' refunds past last Rest');
           assert.ok(!offer.effect.pickupGlow || offer.glowPreview.restored>0,label+' overflow only');
         }
         assert.ok(r.condensedGlow>=wallet,label);
@@ -156,37 +155,6 @@ test('12 generated encounters supply two usable, distinct decisions in all 192 r
       }
       assert.ok(actual.size>=2,label+' equivalent choices');
     }
-});
-
-test('fuel refills cannot be packed, trades pay exact costs, and conversion preview matches receipt',()=>{
-  const refill=visit(0,{low:true}), funds=refill.run.condensedGlow;
-  const immediate=getSupportChoices(refill.run).find(c=>c.effect.flame>0);
-  claim(refill,immediate.id);
-  assert.equal(refill.run.flame,getGlowCapacity(refill.run));
-  assert.equal(refill.run.condensedGlow,funds);
-  assert.equal(getSupportChoices(visit(1,{low:true}).run).some(c=>c.effect.flame<0),false);
-  const sale=visit(1);writeTemporary(sale.run,2,'night-ledger');
-  const original=sale.run.flame;
-  claim(sale,'bargain');
-  assert.equal(glowPoints(original-sale.run.flame),6);
-  assert.equal(sale.run.condensedGlow,funds+18);
-  for(const fuel of [10,95,100]) {
-    const state=visit(2), r=state.run; r.flame=fuel;
-    const wallet=r.condensedGlow;
-    const offer=getSupportChoices(r).find(c=>!c.effect.pilgrimVow);
-    claim(state,offer.id);
-    assert.equal(r.condensedGlow,wallet,'event fuel never packs');
-    assert.equal(r.flame,fuel+(offer.effect.flame||0));
-    r.flame=fuel;
-    const preview=previewGlowReward(r,20);
-    assert.deepEqual(grantGlowPickup(r,20),preview);
-    assert.equal(r.flame,fuel+preview.restored);
-    assert.equal(r.condensedGlow,wallet+preview.condensedGlow);
-    assert.equal(r.condensedRemainder,preview.remainder);
-  }
-  const guide=getEventScenarios();
-  assert.match(guide[0].detail,/below 6/i);
-  assert.match(guide[1].detail,/Oath Inscription: Night’s Ledger — fly with 55% Luminance/);
 });
 
 test('workshop refunds actual paid ranks while preserving the starting gift and unrelated training',()=>{
@@ -208,65 +176,6 @@ test('workshop refunds actual paid ranks while preserving the starting gift and 
   assert.equal(r.skills['proximity-awakening'],1);
 });
 
-test('all six Prism faces are reproducible after reload, with a fixed seed and exactly one payout',()=>{
-  const faces=[new Set(),new Set()];
-  for(const [i,late] of [false,true].entries()){
-    for(let seed=0;seed<160 && faces[i].size<6;seed++){
-      const state=visit(6,{late}), run=state.run;
-      run.seed='event-die-'+seed;
-      const wallet=run.condensedGlow;getSupportChoices(run);
-      const restored=reload(state);
-      claim(state,'dice-roll');claim(restored,'dice-roll');
-      const face=run.lastEvent.face;
-      faces[i].add(face);
-      assert.deepEqual(restored.run.lastEvent,run.lastEvent);
-      assert.equal(restored.run.condensedGlow,run.condensedGlow);
-      const favor=face<=2?'wick':face<=4?'feather':late?'lens':null;
-      const temp={wick:'reserve-wick',feather:'hollow-feather',lens:'star-chart'}[favor];
-      assert.deepEqual(temporaryEntries(run).map(e=>e.id),favor?[temp]:[],'the prize is a temporary Inscription on the Chain');
-      assert.equal(run.eventFavors,undefined);
-      assert.equal(run.condensedGlow-wallet,favor?0:22);
-    }
-    assert.equal(faces[i].size,6);
-  }
-});
-test('the Vow pays only for a successful attempt with four body pickups and never taxes a missed target',()=>{
-  for(const [success,bodyFuelCollected,payout] of [[true,4,8],[true,3,0],[false,12,0]]) {
-    const state=visit(2),r=state.run;
-    claim(state,'pilgrim-vow');
-    nextFlight(state);
-    markFlightAttemptStarted(r);
-    const wallet=r.condensedGlow;
-    assert.ok(finishFlight(r,{success,flame:60,collected:12,bodyFuelCollected}));
-    settleCheckpoint(state);
-    // An oath is settled by a cleared flight only: a fall leaves it and shows no receipt; four body pickups keep it, fewer leave it open.
-    const receipt=success?r.lastFlight.vow:r.lastAttempt.vow;
-    if(success)assert.equal(receipt.reward,payout);else assert.equal(receipt,undefined);
-    const packed=(r.lastFlight?.pickupCondensedGlow||0)+(r.lastFlight?.exitPacking?.amount||0);
-    assert.equal(r.condensedGlow-wallet,success?(r.lastFlight?.completionBonus||0)+packed+payout:0);
-    assert.equal(hasTemporary(r,'pilgrim-vow'),!(success&&bodyFuelCollected>=4));
-    assert.equal(r.pilgrimVow,undefined);
-    assert.equal(finishFlight(r,{success,bodyFuelCollected}),false);
-  }
-});
-test('a started interruption spends the Vow or route preparation, reopens the exit, and a paused briefing preserves both',()=>{
-  for(const index of [2,4]) {
-    const state=visit(index),r=state.run,source=r.current;
-    const exits=[...source.nextIds];
-    const choice=getSupportChoices(r).find(o=>o.effect.pilgrimVow||o.effect.routePreparation);
-    assert.ok(choice);
-    claim(state,choice.id);
-    nextFlight(state);
-    assert.ok(suspendRun(state));
-    assert.ok(hasTemporary(r,'pilgrim-vow')||r.routePreparation);
-    assert.ok(beginFlightAttempt(r));
-    markFlightAttemptStarted(r);
-    assert.ok(suspendRun(state));
-    assert.equal(hasTemporary(r,'pilgrim-vow'),index===2,'an oath survives an interrupted flight; a marked passage is spent');
-    assert.equal(r.routePreparation,undefined);
-    assert.deepEqual(source.nextIds,exits);
-  }
-});
 test('marking an actual Cairn fork gives the promised terrain aid and reopens its other route after a fall',()=>{
   const state=newState(),r=state.run=createRun(state.profile,'events1');
   const cairn=r.map.flat().find(n=>n.eventIndex===4&&n.nextIds.length===2);
@@ -307,48 +216,3 @@ function flight(run) {
   g.running=true;
   return g;
 }
-test('positive preparations survive failed flights; the one-attempt lead penalty is spent on a started attempt',()=>{
-  for (const [event,choice,favor] of [[0,'reserve-wick','wick'],[0,'hollow-feather','feather'],[7,'star-chart','lens'],[3,'companion-chime','haste'],[8,'bargain-burden','burden']]) {
-    const state=visit(event); if([1,7,8].includes(event))writeTemporary(state.run,2,'night-ledger'); // a pact already held: the stop offers its plain choices
-    claim(state,choice); const node=nextFlight(state),r=state.run;
-    assert.deepEqual(getRunModifiers(r).eventFavors,[favor]);
-    assert.ok(suspendRun(state));
-    assert.deepEqual(getRunModifiers(r).eventFavors,[favor],'a gate that never opened keeps it on the Chain');
-    assert.ok(beginFlightAttempt(r));
-    assert.ok(markFlightAttemptStarted(r));
-    const suspended=structuredClone(state);
-    assert.ok(suspendRun(suspended));
-    assert.deepEqual(getRunModifiers(suspended.run).eventFavors,favor==='burden'?[]:[favor]);
-    assert.ok(finishFlight(r,{success:false}));
-    assert.ok(selectNode(r,node.id));
-    assert.ok(beginFlightAttempt(r));
-    assert.deepEqual(getRunModifiers(r).eventFavors,favor==='burden'?[]:[favor]);
-  }
-});
-test('the real flight engine enforces wick threshold, paid Lift counts, sight radius and recovery speed',()=>{
-  function engine(index,id) {const state=visit(index);if([1,7,8].includes(index))writeTemporary(state.run,2,'night-ledger');claim(state,id);nextFlight(state);return flight(state.run);}
-  const wick=engine(0,'reserve-wick');
-  wick.flame=6/.3;wick.step(1/60);
-  assert.equal(wick.flightBoon.reserveWick,true);
-  wick.flame=5/.3;wick.step(1/60);
-  assert.equal(glowPoints(wick.flame),14);
-  wick.flame=5/.3;wick.step(1/60);
-  assert.equal(glowPoints(wick.flame),5);
-  const feather=engine(0,'hollow-feather'), start=feather.flame;
-  assert.ok(feather.flap());assert.ok(feather.flap());assert.equal(feather.flame,start);
-  assert.ok(feather.flap());assert.equal(glowPoints(start-feather.flame),3);
-  const lead=engine(8,'bargain-burden');
-  for(let i=0;i<7;i++) {
-    const energy=lead.flame;
-    assert.ok(lead.flap());
-    assert.equal(glowPoints(energy-lead.flame),i<6?4:3);
-  }
-  const lens=engine(7,'star-chart');
-  assert.equal(lens.getLightState().baseRadius,lens.mod.lightRadius*1.35);
-  const swift=visit(3);
-  swift.run.companions=['swift'];swift.run.companionRole='swift';
-  claim(swift,'companion-chime');nextFlight(swift);
-  const fast=flight(swift.run);
-  const base=structuredClone(swift.run);base.attemptEntry.eventFavors=[];
-  assert.equal(fast.roleCooldown('swift'),flight(base).roleCooldown('swift')*.8);
-});

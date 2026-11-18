@@ -20,7 +20,7 @@ test('preview shows earned pay and the optional condition separately, with claim
  assert.match(html,/id="preview-optional">Optional/);
  assert.doesNotMatch(html,/Rising Constellation/);
  assert.match(html,/Optional<\/h3><\/div>\s*<p class="preview-condition">Collect the gold marks/);
- assert.match(html,/Temporary Inscription: Risen Star — the first 3 fuel pickups each flight restore \+2 missing Sparks\. 3 flights\./);
+ assert.match(html,/preview-prize"><span>\+15 \/ 25 \/ 35 Stored Sparks by map\.<\/span>/);assert.doesNotMatch(html,/Temporary Inscription/);
  assert.doesNotMatch(html,/Then clear →|preview-claim/);
  assert.doesNotMatch(html.split('<footer>')[0],/data-action=|No Rest ahead|of .* hearts/);
  assert.match(html,/data-action="close-sheet" aria-label="Back to route"><svg/);
@@ -98,7 +98,7 @@ test('approved Atlas keeps only its title and accurate side-by-side outcomes',()
  assert.match(html,/<h2 id="preview-place">Thorn Steeple<\/h2>/);
  assert.doesNotMatch(html,/Travel Guide|Route details|preview-landmark|preview-features|51 s|Briar Cathedral/);
  assert.match(html,/Fly between all 3 gold gates, then finish/);
- assert.match(html,/Temporary Inscription: Wayglass — preview the opening 2\.5 seconds before takeoff\. 3 flights\./);
+ assert.match(html,/preview-prize"><span>\+15 \/ 25 \/ 35 Stored Sparks by map\.<\/span>/);assert.doesNotMatch(html,/Temporary Inscription/);
 });
 
 test('three preview art choices decorate the shared guide without changing rewards or becoming the game default',()=>{

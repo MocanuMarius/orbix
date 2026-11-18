@@ -7,7 +7,7 @@ import {WispFlight} from '../dist/flight.mjs';
 import {makeSkillCard, createCardExecution, resolveCardRow, getCardModifiers, CARD_UNIT} from '../dist/skill-cards.mjs';
 import {CardEngine} from '../dist/card-engine.mjs';
 import {stepFlightInscriptions} from '../dist/card-engine-flight.mjs';
-import {INSCRIPTIONS, INSCRIPTION_IDS, CHEST_INSCRIPTION_IDS, TEMPORARY_IDS, cleanSlotInscriptions, writeInscription, offerInscriptions, getInscription} from '../dist/inscriptions.mjs';
+import {INSCRIPTIONS, INSCRIPTION_IDS, CHEST_INSCRIPTION_IDS, cleanSlotInscriptions, writeInscription, offerInscriptions, getInscription} from '../dist/inscriptions.mjs';
 import {applyInscriptionSlots} from '../dist/card-inspector.mjs';
 import {getGlowCapacity} from '../dist/vitality.mjs';
 
@@ -240,7 +240,7 @@ test('glyphs: every Inscription has its own 24x24 two-tone brand mark, as a file
   const fs = await import('node:fs');
   const {inscriptionGlyph, INSCRIPTION_GLYPH_IDS, inscriptionGlyphPath, INSCRIPTION_GLYPH_GRID, INSCRIPTION_BRAND_GRID, INSCRIPTION_GLYPH_SIZES, isWholeGlyphSize} = await import('../dist/inscription-glyphs.mjs');
   const {GLYPHS, validate, GRID} = await import('../scripts/build-inscription-glyphs.mjs');
-  const ALL_IDS = [...INSCRIPTION_IDS, ...CHEST_INSCRIPTION_IDS, ...TEMPORARY_IDS];
+  const ALL_IDS = [...INSCRIPTION_IDS, ...CHEST_INSCRIPTION_IDS];
   assert.equal(GRID, 24); assert.equal(INSCRIPTION_GLYPH_GRID, 24); assert.equal(INSCRIPTION_BRAND_GRID, 26);
   assert.deepEqual([...INSCRIPTION_GLYPH_IDS].sort(), [...ALL_IDS].sort());
   assert.deepEqual(validate(), []);

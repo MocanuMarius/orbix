@@ -91,22 +91,20 @@ test('TEST and explicit practice preserve flexible checkpoint access',()=>{
  assert.equal(M.canBuyCheckpointSkills(practice),true);
 });
 
-test('shrines give temporary blessings or resources, with no paid skill bypass',()=>{
+test('shrines give immediate outcomes, with no paid skill bypass and no slot choice',()=>{
  for(const eventIndex of [3,11]){
   const state=fresh(),r=state.run;
   r.current={...r.map[0][0],type:'support',kind:'event',eventIndex};
   r.map[0]=[r.current];r.path=[r.current.id];r.phase='support';
   r.supportOffers={nodeId:r.current.id,choices:[{id:'old-upgrade',effect:{upgrade:'main-sight',condensedCost:1}}]};
   const offers=M.getSupportChoices(r,state.profile);
-  assert.ok(offers.length>=2);
+  assert.equal(offers.length,2);
   assert.ok(offers.every(offer=>!offer.effect.upgrade));
-  const before=r.condensedGlow;
-  const blessing=offers.findIndex(offer=>offer.effect.eventFavor==='haste');
-  r.mountedCards=[null,null,null]; // a Chain to write on
-  assert.ok(M.resolveSupport(r,blessing,state.profile));
-  assert.equal(r.pendingTemporary.id,'chime');assert.ok(M.writePendingTemporary(r,1));
-  assert.equal(r.slotInscriptions[1].id,'chime');assert.equal(r.slotInscriptions[1].flightsLeft,3);assert.equal(r.eventFavors,undefined);
-  assert.equal(r.condensedGlow,before);
+  const before=r.condensedGlow,sparks=offers.findIndex(offer=>offer.effect.packedReward);
+  assert.ok(sparks>=0);
+  assert.ok(M.resolveSupport(r,sparks,state.profile));
+  assert.equal(r.pendingTemporary,undefined);
+  assert.ok(r.condensedGlow>before);
   assert.deepEqual(r.skills,{});
   assert.equal(M.canBuyCheckpointSkills(state),true);
  }

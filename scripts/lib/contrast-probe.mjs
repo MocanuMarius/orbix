@@ -16,7 +16,7 @@ export const COLLECT = `(() => {
     const cx = Math.min(innerWidth - 1, Math.max(0, box.left + box.width / 2)), cy = Math.min(innerHeight - 1, Math.max(0, box.top + box.height / 2));
     const top = document.elementFromPoint(cx, cy);
     if (top && !el.contains(top) && !top.contains(el)) continue; // covered by something else: not what the player reads
-    if (el.closest('button:disabled,[aria-disabled=true]')) continue; // inactive controls are exempt from contrast rules
+    if (el.closest('button:disabled,[aria-disabled=true],.dk-sr,.entry-sr,.sr-only')) continue; // inactive controls are exempt from contrast rules
     const closed = el.closest('details:not([open])'); if (closed && !el.closest('summary')) continue; // folded away
     let clipped = false;
     for (let n = el.parentElement; n && n !== document.body; n = n.parentElement) { const o = getComputedStyle(n); if (o.overflow !== 'visible' || o.overflowX !== 'visible' || o.overflowY !== 'visible') { const b = n.getBoundingClientRect(); if (box.bottom > b.bottom + 1 || box.top < b.top - 1 || box.right > b.right + 1 || box.left < b.left - 1) { clipped = true; break; } } }

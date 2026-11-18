@@ -2152,7 +2152,7 @@ export class WispFlight {
     return pickupRevealAt(this.time,this.pickupRevealStartedAt,this.pickupRevealHoldUntil,this.pickupRevealFrom,this.reducedMotion);
   }
 
-  /** A temporary Inscription acted (Mending, Hollow Feather...): the Chain strip flashes the bar of the slot that carries it. */
+  /** An Inscription acted (Hollow, Lodestone...): the Chain strip flashes the bar of the slot that carries it. */
   inscriptionActed(id){
     const slot=this.cardExecution?.inscriptions?.findIndex(entry=>entry?.id===id)??-1;
     if(slot>=0)appendFires(this,[{slot,kind:'bar'}]);

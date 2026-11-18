@@ -1,32 +1,42 @@
 import {getLifeCapacity} from './vitality.mjs?v=guide-clarity-1';
-import {activePassageBoons} from './passage-preparations.mjs?v=guide-clarity-1';
-import {queueTemporary,temporaryLine,hasTemporary} from './temporary-inscriptions.mjs?v=guide-clarity-1';
-import {TEMPORARY_BY_BOON} from './inscriptions.mjs?v=guide-clarity-1';
 import {getCardModifiers,isCardRun} from './skill-cards.mjs?v=guide-clarity-1';
 
+// Optional objectives pay at once on the result screen (no Inscription, no choice step). `reward` below is the generic line for places with
+// no run (glossary); stop pages, the pause note and the receipt use objectiveRewardLine(run, id), which is exactly what is paid.
+export const OBJECTIVE_SPARKS = Object.freeze([15, 25, 35]);
+export const objectiveSparks = run => OBJECTIVE_SPARKS[Math.max(0, Math.min(OBJECTIVE_SPARKS.length - 1, Math.floor(Number(run?.mapIndex) || 0)))];
+const RECOVERY_OBJECTIVES = new Set(['spark-trail', 'reserve-finish']);
+/** What a fulfilled objective pays: a heart for the recovery objectives while a heart is missing, Stored Sparks otherwise. */
+export function objectivePayout(run, id) {
+  if (RECOVERY_OBJECTIVES.has(id) && run && run.lives < getLifeCapacity(run)) return {kind: 'heart'};
+  return {kind: 'sparks', amount: objectiveSparks(run)};
+}
+export const objectivePayoutLine = payout => payout.kind === 'heart' ? '+1 heart' : '+' + payout.amount + ' Stored Sparks';
+export const objectiveRewardLine = (run, id) => objectivePayoutLine(objectivePayout(run, id));
 function bonus(id, name, condition, reward, target, hint='', boonId=null) {
-  // Lasting rewards are temporary Inscriptions (docs/inscriptions.md): the reward line is the Inscription's own line, so the offer and the award say the same.
-  const temporary = TEMPORARY_BY_BOON[boonId || id];
-  return Object.freeze({id, name, condition, reward: temporary ? temporaryLine(temporary) : reward, target, hint, ...(boonId?{boonId}:{}), ...(temporary?{temporary}:{})});
+  return Object.freeze({id, name, condition, reward, target, hint, ...(boonId?{boonId}:{})});
 }
 
 export const ROUTE_BONUSES = Object.freeze({
   gilded: bonus('gilded', 'Gilded Passage', 'Collect 4 of 6 marked Sparks.', 'Double this flight’s clear pay and stored surplus, up to +30 Stored Sparks.', 4),
   'three-suns': bonus('three-suns', 'Three Suns', 'Collect all 3 marked Spark Caches.', 'Restore 1 missing heart.', 3),
   precision: bonus('precision', 'Pilgrim Precision', 'Touch 4 of 6 marked Sparks with your main wisp.', '+8 Stored Sparks.', 4),
-  'wild-circuit': bonus('wild-circuit', 'Wild Circuit', 'Activate 2 marked terrain objects.', 'Companion recovery 20% faster for 3 cleared flights.', 2),
-  'flash-relay': bonus('flash-relay', 'Flare Relay', 'Catch the marked Flare, then 2 of 3 marked Sparks before it fades.', '+25% opening Luminance for 15s, for 3 cleared flights.', 2),
-  'long-glide': bonus('long-glide', 'Long Glide', 'Lift at the blue chevron. Glide through both marks without Lifting for 2s.', 'Save up to 9 Sparks on your first 3 Lifts per flight, for 3 cleared flights.', 2),
-  edgeweaver: bonus('edgeweaver', 'Edgeweaver', 'Trigger Proximity in both marked sections.', 'One collision ward per flight, for 3 cleared flights.', 2),
-  'night-sail': bonus('night-sail', 'Night Sail', 'Collect both bypass Sparks. Lose at most 3 Sparks to the marked Black Hole.', 'Black Holes drain 25% fewer Sparks for 3 cleared flights.', 2),
-  wayfinder: bonus('wayfinder', 'Wayfinder', 'Fly between all 3 gold gates, then finish.', 'Preview the opening 2.5s before takeoff for your next 3 clears.', 3, 'Gold brackets mark each gate. Fly between them; collecting a nearby Spark does not count. After you clear this flight, the opening route is revealed while paused at each start. It vanishes when you begin. Failed or interrupted flights keep the reward; each successful clear spends one of its 3 uses.'),
-  'spark-trail': bonus('spark-trail', 'Spark Trail', 'Collect 3 of 5 marked Sparks. Collector deliveries count.', 'Below 6 Sparks, restore up to 6 missing Sparks once per flight, for 3 cleared flights.', 3),
-  constellation: bonus('constellation', 'Rising Constellation', 'Collect the gold marks: Spark → Cluster → Cache.', 'First 3 fuel pickups restore +2 missing Sparks each, for 3 cleared flights.', 3, 'Only the next kind is marked. If you miss one, look for another matching mark ahead.'),
-  'reserve-finish': bonus('reserve-finish', 'Exit reserve', 'Reach the exit with at least 6 Sparks.', 'Below 6 Sparks, restore up to 6 missing Sparks once per flight, for 3 cleared flights.', 6, 'Your current Sparks may rise or fall. The reserve counts only when you reach the exit awake.', 'spark-trail'),
-  'lift-windows': bonus('lift-windows', 'Marked Lifts', 'Lift inside 2 of the 3 marked windows.', 'Save up to 9 Sparks on your first 3 Lifts per flight, for 3 cleared flights.', 2, 'Fly inside the gold window and Lift. Each window counts once; you may miss one.', 'long-glide'),
-  'draft-rider': bonus('draft-rider', 'Draft contact', 'Ride the marked draft for 0.5s.', 'Companion recovery 20% faster for 3 cleared flights.', .5, 'Stay inside the moving air while the marked draft is blowing. Approaching it does not count.', 'wild-circuit')
+  'wild-circuit': bonus('wild-circuit', 'Wild Circuit', 'Activate 2 marked terrain objects.', '+15 / 25 / 35 Stored Sparks by map.', 2),
+  'flash-relay': bonus('flash-relay', 'Flare Relay', 'Catch the marked Flare, then 2 of 3 marked Sparks before it fades.', '+15 / 25 / 35 Stored Sparks by map.', 2),
+  'long-glide': bonus('long-glide', 'Long Glide', 'Lift at the blue chevron. Glide through both marks without Lifting for 2s.', '+15 / 25 / 35 Stored Sparks by map.', 2),
+  edgeweaver: bonus('edgeweaver', 'Edgeweaver', 'Trigger Proximity in both marked sections.', '+15 / 25 / 35 Stored Sparks by map.', 2),
+  'night-sail': bonus('night-sail', 'Night Sail', 'Collect both bypass Sparks. Lose at most 3 Sparks to the marked Black Hole.', '+15 / 25 / 35 Stored Sparks by map.', 2),
+  wayfinder: bonus('wayfinder', 'Wayfinder', 'Fly between all 3 gold gates, then finish.', '+15 / 25 / 35 Stored Sparks by map.', 3, 'Gold brackets mark each gate. Fly between them; collecting a nearby Spark does not count.'),
+  'spark-trail': bonus('spark-trail', 'Spark Trail', 'Collect 3 of 5 marked Sparks. Collector deliveries count.', '+15 / 25 / 35 Stored Sparks by map.', 3),
+  constellation: bonus('constellation', 'Rising Constellation', 'Collect the gold marks: Spark → Cluster → Cache.', '+15 / 25 / 35 Stored Sparks by map.', 3, 'Only the next kind is marked. If you miss one, look for another matching mark ahead.'),
+  'reserve-finish': bonus('reserve-finish', 'Exit reserve', 'Reach the exit with at least 6 Sparks.', '+15 / 25 / 35 Stored Sparks by map.', 6, 'Your current Sparks may rise or fall. The reserve counts only when you reach the exit awake.', 'spark-trail'),
+  'lift-windows': bonus('lift-windows', 'Marked Lifts', 'Lift inside 2 of the 3 marked windows.', '+15 / 25 / 35 Stored Sparks by map.', 2, 'Fly inside the gold window and Lift. Each window counts once; you may miss one.', 'long-glide'),
+  'draft-rider': bonus('draft-rider', 'Draft contact', 'Ride the marked draft for 0.5s.', '+15 / 25 / 35 Stored Sparks by map.', .5, 'Stay inside the moving air while the marked draft is blowing. Approaching it does not count.', 'wild-circuit')
 });
 
+const UTILITY_PAYS = new Set(['wild-circuit', 'flash-relay', 'long-glide', 'edgeweaver', 'night-sail', 'wayfinder', 'constellation', 'spark-trail', 'reserve-finish', 'lift-windows', 'draft-rider']);
+/** The reward line for an objective id in the context of a run (the stop page, the pause note): what a clear would pay now. */
+export const bonusRewardLine = (run, id) => UTILITY_PAYS.has(id) ? objectiveRewardLine(run, id) : ROUTE_BONUSES[id]?.reward || '';
 const utility = ['wild-circuit', 'flash-relay', 'long-glide', 'edgeweaver', 'night-sail', 'wayfinder', 'constellation', 'spark-trail', 'reserve-finish', 'lift-windows', 'draft-rider'];
 export const routeBonusFamily = id => ({gilded:'collect',precision:'collect','three-suns':'collect',
   'spark-trail':'collect',constellation:'collect','flash-relay':'collect',wayfinder:'gates',
@@ -95,7 +105,7 @@ export function getRouteBonusCandidates(run, node) {
   const purse = flights[hash(run.seed + ':bonus-purse') % flights.length];
   const currencyId = hash(run.campaignSeed + ':gilded-map') % 3 === run.mapIndex ? 'gilded' : 'precision';
   const ids = [];
-  if (node.id === purse?.id && !hasTemporary(run, 'pilgrim-vow') && !hasTemporary(run, 'sealed-purse') && !alreadyAwarded(run, currencyId)) ids.push(currencyId);
+  if (node.id === purse?.id && !['pilgrim-vow', 'sealed-purse'].includes(run.pendingOath?.id) && !alreadyAwarded(run, currencyId)) ids.push(currencyId);
   const heartSites = flights.filter(site => site.id !== purse?.id&&(!Number.isFinite(site.duration)||site.duration>=75));
   const heart = heartSites[hash(run.seed + ':bonus-heart') % heartSites.length];
   if (node.id === heart?.id && run.lives < getLifeCapacity(run) && !alreadyAwarded(run, 'three-suns')) ids.push('three-suns');
@@ -105,9 +115,7 @@ export function getRouteBonusCandidates(run, node) {
   const prior=(run.path||[]).map(id=>run.map.flat().find(site=>site.id===id))
     .filter(site=>site&&site.row<node.row&&site.bonusId).slice(-3).map(site=>site.bonusId);
   const preference=id=>{
-    const effect=ROUTE_BONUSES[id]?.boonId||id;
-    return (activePassageBoons(run).includes(effect)?3:0)
-      +prior.reduce((cost,p,index)=>cost+(routeBonusFamily(p)===routeBonusFamily(id)?(index===prior.length-1?4:2):0)+(p===id?2:0),0);
+    return prior.reduce((cost,p,index)=>cost+(routeBonusFamily(p)===routeBonusFamily(id)?(index===prior.length-1?4:2):0)+(p===id?2:0),0);
   };
   return ids.concat([...order.slice(offset), ...order.slice(0,offset)]
     .filter(id => canOfferUtility(run, node, id)).sort((a,b)=>preference(a)-preference(b)));
@@ -122,9 +130,12 @@ export function getRouteBonus(run, node) {
   return rewardForNode(run,node,ROUTE_BONUSES[candidates[0]] || null);
 }
 
+// The reward line a player reads before flying is computed from the same function that pays it.
 function rewardForNode(run,node,definition){
- if(definition&&node?.levelId==='pinewood-fallen-giant'&&!run.fallenGiantHeartwood)
+ if(!definition)return definition;
+ if(node?.levelId==='pinewood-fallen-giant'&&!run.fallenGiantHeartwood)
   return{...definition,name:'Heartwood Trail',reward:'+3 maximum Sparks permanently.'};
+ if(UTILITY_PAYS.has(definition.id))return{...definition,reward:objectiveRewardLine(run,definition.id)};
  return definition;
 }
 
@@ -151,8 +162,10 @@ export function awardRouteBonus(run, node, attempt, result, clearPay, pickupPack
     run.lives++;
     message = 'One heart restored.';
   } else {
-    queueTemporary(run,definition.temporary,{source:'route-bonus',label:definition.name,flights:3});
-    message = definition.reward;
+    // Utility objectives pay at once: Stored Sparks by map, or a heart for the recovery ones while a heart is missing.
+    const payout = objectivePayout(run, id);
+    if (payout.kind === 'heart') { run.lives++; message = 'Objective met: +1 heart'; }
+    else { amount = payout.amount; message = 'Objective met: ' + objectivePayoutLine(payout); }
   }
   (run.routeBonusClaims ??= {})[node.id] = {id, mapIndex:run.mapIndex};
   return {id, message, amount};

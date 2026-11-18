@@ -11,7 +11,14 @@ export class ContactEdgeRaster {
   if(width!==this.width||height!==this.height){
    this.width=width;this.height=height;this.canvas.width=width;this.canvas.height=height;
    this.image=this.context.createImageData(width,height);this.pixels=new Uint8ClampedArray(width*height*4);
-  }else this.pixels.fill(0);
+   // Written column range per row (this frame, last frame): only those pixels are cleared, converted and uploaded.
+   this.rowMin=new Int32Array(height).fill(width);this.rowMax=new Int32Array(height).fill(-1);
+   this.lastMin=new Int32Array(height).fill(width);this.lastMax=new Int32Array(height).fill(-1);this.fresh=true;
+  }else{
+   const w=this.width,p=this.pixels;
+   for(let y=0;y<this.height;y++){const a=this.rowMin[y],b=this.rowMax[y];if(b>=a)p.fill(0,(y*w+a)*4,(y*w+b+1)*4);}
+   this.lastMin.set(this.rowMin);this.lastMax.set(this.rowMax);this.rowMin.fill(w);this.rowMax.fill(-1);
+  }
   this.globalAlpha=1;this.fillStyle='#000000';this.clips=[];this.stack=[];this.paths=[];return this;
  }
  save(){this.stack.push({alpha:this.globalAlpha,ink:this.fillStyle,clips:this.clips});}
@@ -39,18 +46,29 @@ export class ContactEdgeRaster {
    const n=parseInt(this.fillStyle.slice(1),16);rgb=[n>>>16&255,n>>>8&255,n&255];this.colors.set(this.fillStyle,rgb);
    if(this.colors.size>128)this.colors.delete(this.colors.keys().next().value);
   }
-  const pixels=this.pixels,alpha=Math.min(1,this.globalAlpha),[r,g,b]=rgb;
-  for(let yy=top;yy<bottom;yy++)for(let xx=left;xx<right;xx++){
-   let a=alpha;
-   for(const clip of this.clips){const cx=xx-clip.left,cy=yy-clip.top;if(cx<0||cy<0||cx>=clip.width||cy>=clip.height){a=0;break;}a*=clip.data[(cy*clip.width+cx)*4+3]/255;}
-   if(!a)continue;const i=(yy*this.width+xx)*4,inv=1-a;
-   pixels[i]=r*a+pixels[i]*inv;pixels[i+1]=g*a+pixels[i+1]*inv;pixels[i+2]=b*a+pixels[i+2]*inv;pixels[i+3]=a*255+pixels[i+3]*inv;
+  const pixels=this.pixels,alpha=Math.min(1,this.globalAlpha),[r,g,b]=rgb,clips=this.clips,nc=clips.length,W=this.width;
+  for(let yy=top;yy<bottom;yy++){
+   if(left<this.rowMin[yy])this.rowMin[yy]=left;if(right-1>this.rowMax[yy])this.rowMax[yy]=right-1;
+   for(let xx=left;xx<right;xx++){
+    let a=alpha;
+    for(let k=0;k<nc;k++){const clip=clips[k],cx=xx-clip.left,cy=yy-clip.top;if(cx<0||cy<0||cx>=clip.width||cy>=clip.height){a=0;break;}a*=clip.data[(cy*clip.width+cx)*4+3]/255;}
+    if(!a)continue;const i=(yy*W+xx)*4,inv=1-a;
+    pixels[i]=r*a+pixels[i]*inv;pixels[i+1]=g*a+pixels[i+1]*inv;pixels[i+2]=b*a+pixels[i+2]*inv;pixels[i+3]=a*255+pixels[i+3]*inv;
+   }
   }
  }
  composite(context){
-  const source=this.pixels,out=this.image.data;
-  for(let i=0;i<source.length;i+=4){const a=source[i+3];out[i+3]=a;if(a){const unpremultiply=255/a;out[i]=source[i]*unpremultiply;out[i+1]=source[i+1]*unpremultiply;out[i+2]=source[i+2]*unpremultiply;}else out[i]=out[i+1]=out[i+2]=0;}
-  this.context.putImageData(this.image,0,0);context.drawImage(this.canvas,0,0);
+  const source=this.pixels,out=this.image.data,W=this.width;
+  let x0=W,x1=-1,y0=this.height,y1=-1;
+  for(let y=0;y<this.height;y++){
+   // This frame's pixels plus last frame's (now cleared) pixels; everything else is already zero in both.
+   const a0=this.fresh?0:Math.min(this.rowMin[y],this.lastMin[y]),b0=this.fresh?W-1:Math.max(this.rowMax[y],this.lastMax[y]);if(b0<a0)continue;
+   if(a0<x0)x0=a0;if(b0>x1)x1=b0;if(y<y0)y0=y;y1=y;
+   for(let i=(y*W+a0)*4,end=(y*W+b0+1)*4;i<end;i+=4){const a=source[i+3];out[i+3]=a;if(a){const unpremultiply=255/a;out[i]=source[i]*unpremultiply;out[i+1]=source[i+1]*unpremultiply;out[i+2]=source[i+2]*unpremultiply;}else out[i]=out[i+1]=out[i+2]=0;}
+  }
+  if(this.fresh){this.context.putImageData(this.image,0,0);this.fresh=false;}
+  else if(x1>=x0)this.context.putImageData(this.image,0,0,x0,y0,x1-x0+1,y1-y0+1);
+  context.drawImage(this.canvas,0,0);
  }
  destroy(){this.canvas.width=this.canvas.height=this.maskCanvas.width=this.maskCanvas.height=1;this.image=null;this.pixels=null;this.colors.clear();}
 }

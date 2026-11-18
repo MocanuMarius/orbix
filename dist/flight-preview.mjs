@@ -5,8 +5,7 @@ import {mapStopIconMarkup} from './map-guide.mjs?v=guide-clarity-1';
 import {resourceSymbol} from './game-symbols.mjs?v=guide-clarity-1';
 import {getFlightClearReward} from './checkpoint-rewards.mjs?v=guide-clarity-1';
 import {flightRewardKind,SCRIBE_OFFER_COUNT,isCardRun} from './model.mjs?v=guide-clarity-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=guide-clarity-1';
-import {temporaryEffectsMarkup} from './inscription-ui.mjs?v=guide-clarity-1';
+import {bonusIcon} from './route-bonus-ui.mjs?v=guide-clarity-1';
 import {contextualFlightNotice} from './contextual-events.mjs?v=guide-clarity-1';
 import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=guide-clarity-1';
 import {canDreamAt,dreamConfig} from './dream.mjs?v=guide-clarity-1';
@@ -49,11 +48,10 @@ function regularReward(run,node){
 
 function flightTerms(run,node,available){
  if(!available)return '';
- const notice=contextualFlightNotice(run,node,{temporaries:false});
- const earned=temporaryEffectsMarkup(run);
- if(!notice&&!earned)return '';
- return `<details class="preview-flight-terms"><summary>Active flight effects</summary>
-   ${earned}${notice?`<p>${escapeText(notice)}</p>`:''}</details>`;
+ const notice=contextualFlightNotice(run,node);
+ if(!notice)return '';
+ return `<details class="preview-flight-terms" open><summary>Active flight effects</summary>
+   <p>${escapeText(notice)}</p></details>`;
 }
 
 export function flightPreviewMarkup(run,node,{available=false,level,bonus=null,guideArt=null}={}){

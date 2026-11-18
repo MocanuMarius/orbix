@@ -6,7 +6,7 @@ import {routeBonusNoteText,routeBonusReceiptText} from '../dist/route-bonus-copy
 import {flightPreviewMarkup} from '../dist/flight-preview.mjs';
 import {landscapeRouteView} from '../dist/landscape-map.mjs';
 import {rewardEarningsDetailMarkup} from '../dist/reward-screen.mjs';
-import {boonMarkup,updateBonusGauge} from '../dist/route-bonus-ui.mjs';
+import {updateBonusGauge} from '../dist/route-bonus-ui.mjs';
 
 test('legacy challenge receipt copy preserves its earned effect and leaves other rewards intact',()=>{
  for(const [message,effect] of [
@@ -43,7 +43,6 @@ test('all guide variants show one condition below Optional and one payoff, with 
  assert.doesNotMatch(flightPreviewMarkup(run,node),/preview-optional|Optional challenge|preview-mark-help/);
  node.bonusId='wayfinder';const view=landscapeRouteView(run);
  assert.ok(!JSON.stringify(view).includes('Wayfinder'));assert.ok(JSON.stringify(view).includes(ROUTE_BONUSES.wayfinder.condition));
- assert.doesNotMatch(boonMarkup({'wild-circuit':2}),/Wild Circuit/);
 });
 
 test('HUD status handles missed, met, fractional progress and an exit condition without a challenge name',()=>{

@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as M from '../dist/model.mjs';
-import {writeTemporary} from '../dist/temporary-inscriptions.mjs';
 import {WispFlight} from '../dist/flight.mjs';
 import {CARD_SYSTEM,SKILL_CARDS,makeSkillCard,getCardModifiers,getCardPackingBonus,getMountedCards,drawSkillCard,describeSkillCard} from '../dist/skill-cards.mjs';
 import {cardArt,cardRewardMarkup,cardMechanicMarkup} from '../dist/card-ui.mjs';
@@ -64,11 +63,11 @@ test('earned quarters survive successful clears, reload and unequip; failures an
 });
 
 test('eligible overflow plus independent exit reserve is capped first; flat income and pact do not multiply',()=>{
- const state=fresh(),run=state.run;writeTemporary(run,0,'night-ledger');
+ const state=fresh(),run=state.run;run.pendingOath={id:'night-ledger'};
  clear(state,{condensedGlow:999,cardPackingEligible:999,flame:80,storageBonus:100,resonanceStored:100});
  assert.equal(run.lastFlight.pickupCondensedGlow,20);assert.equal(run.lastFlight.exitPacking.amount,4);
  assert.equal(run.lastFlight.cardPackingEligible,24);assert.equal(run.lastFlight.cardPackingBonus,12);
- assert.equal(run.lastFlight.pactBonus,20,'pact sees only the original packing');
+ assert.equal(run.lastFlight.pactBonus,45,'a won wager is a flat prize, never a multiple of packing');
  const flat=fresh();mount(flat.run,['tight-packing','harvest-legendary']);
  clear(flat,{flame:0,condensedGlow:0,storageBonus:100,resonanceStored:7});
  assert.equal(flat.run.lastFlight.resonanceStored,7);assert.equal(flat.run.lastFlight.cardPackingBonus,0);
