@@ -4,6 +4,9 @@ import * as M from '../dist/model.mjs';
 import {drawStartBonusIds, startBonusKind, WISP_STAT_IDS, START_CARD_IDS, wispChipText} from '../dist/start-bonus.mjs';
 import {INSCRIPTION_IDS} from '../dist/inscriptions.mjs';
 import {getGlowCapacity, getLifeCapacity} from '../dist/vitality.mjs';
+import {inscriptionEffect} from '../dist/inscription-on-card.mjs';
+import {makeSkillCard} from '../dist/skill-cards.mjs';
+import {NO_EFFECT_AT_START} from '../dist/start-bonus.mjs';
 import {starterCardsMarkup} from '../dist/card-ui.mjs';
 
 const fresh = seed => { const state = M.newState(); state.profile.tutorialComplete = true; state.run = M.createRun(state.profile, seed, 1, {cards: true}); return state; };
@@ -75,4 +78,15 @@ test('a Boost never multiplies the Wisp stat and the Meter never passes 100', ()
   const run = state.run; run.mountedCards[2] = {cardId: 'crescendo', instanceId: 'cr:1', rank: 1};
   const withBoost = M.getRunModifiers(run).cardLuminancePercent; assert.equal(withBoost, 10);
   run.cardFutureCapacity = 1000; assert.ok(getGlowCapacity(run) <= 1000 / 3 + 1e-9);
+});
+
+test('no offered Inscription is a dud at run start; the excluded ones really do nothing there', () => {
+  const guide = makeSkillCard('lift-guide', 'x');
+  const offered = new Set();
+  for (let i = 0; i < 3000; i++) for (const id of drawStartBonusIds(`dud-${i}`)) if (id.startsWith('inscription:')) offered.add(id.slice(12));
+  assert.ok(offered.size >= 14);
+  for (const id of offered) { assert.ok(!NO_EFFECT_AT_START.includes(id), id); if (id !== 'hollow') assert.equal(inscriptionEffect(id, guide).works, true, id); }
+  assert.equal(inscriptionEffect('whetted', guide).works, false);
+  // Mirror and Lodestone act on neighbours; at the start slot 1 has none (Lift Guide alone, slots 2 and 3 empty).
+  for (const id of NO_EFFECT_AT_START) assert.ok(!offered.has(id), id);
 });

@@ -1891,11 +1891,13 @@ html body .start-tile-wisp>.card-face-heading{background:#1f5a58!important}
 /* Second Look: Re-roll button in the top bar of a card pack screen */
 .card-heading-actions{display:flex;gap:8px;align-items:center;flex:none}
 html body .card-reroll{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-height:44px!important;min-width:76px!important;padding:2px 10px!important;line-height:1.1}
-.card-reroll small{display:none;font:9px/1.1 var(--pixel);color:#c3cfb3;white-space:nowrap}
-.card-reroll.is-dim{opacity:.55}
+.card-reroll small{display:none;font:12px/1.15 var(--pixel);color:inherit;white-space:nowrap}
+.card-reroll.is-dim{opacity:1}
+html body .card-reroll.is-dim>span{opacity:.6}
 html body .card-reroll.is-dim small{display:block!important}
 .card-reroll.is-used{opacity:.6}
 .card-draft-option.is-rerolled .card-draft-face{animation:card-reroll-flip .4s steps(4,end) both}
 @keyframes card-reroll-flip{0%{transform:scaleX(1)}25%{transform:scaleX(.5)}50%{transform:scaleX(0)}75%{transform:scaleX(.5)}100%{transform:scaleX(1)}}
 @media(prefers-reduced-motion:reduce){.card-draft-option.is-rerolled .card-draft-face{animation:none}}
 @media(max-height:360px){.start-slot-plate small{display:none}}
+html body .card-reroll small{font-size:12px!important;line-height:1.15!important;opacity:1!important;color:#2a2118!important}

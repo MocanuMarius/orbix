@@ -82,13 +82,13 @@ test('a phase nudge moves the beat by at most 6% over two bars and never touches
  h.music.destroy();
 });
 
-test('default rotation is exactly Lantern Hours, Moss and Water, Night Ferry; ?music=1 is the original',()=>{
- assert.deepEqual(ROTATION.map(p=>p.title),['Lantern Hours','Moss and Water','Night Ferry']);
- assert.equal(PIECES.length,5,'Old Pines and Paper Lanterns keep their scores');
+test('default rotation is exactly Lantern Hours, Moss and Water, Old Pines, Night Ferry; ?music=1 is the original',()=>{
+ assert.deepEqual(ROTATION.map(p=>p.title),['Lantern Hours','Moss and Water','Old Pines','Night Ferry']);
+ assert.equal(PIECES.length,5,'Paper Lanterns keeps its score');
  const h={music:createMusicTwo({document:{hidden:false,addEventListener(){},removeEventListener(){}},AudioContextClass:fakeAudio().Context,storage:{getItem:()=>null,setItem(){}},schedule:()=>1,cancel(){},createGuide:()=>({unlock(){},update(){},stop(){},destroy(){}})})};
  const seen=new Set(),r=createRotation(ROTATION.map(p=>p.id),prng('d'));for(let i=0;i<9;i++)seen.add(r.next());
- assert.deepEqual([...seen].sort(),['ferry','lantern','moss']);
- assert.ok(['ferry','lantern','moss'].includes(h.music.info().next),'the engine rotation draws from the three');
+ assert.deepEqual([...seen].sort(),['ferry','lantern','moss','pines']);
+ assert.ok(['ferry','lantern','moss','pines'].includes(h.music.info().next),'the engine rotation draws from the four');
  h.music.destroy();
  assert.equal(musicVersion(),2,'no flag: the rotation');assert.equal(musicVersionFor(null),2);assert.equal(musicVersionFor('2'),2);assert.equal(musicVersionFor('1'),1);
 });

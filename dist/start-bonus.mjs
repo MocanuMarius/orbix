@@ -5,6 +5,8 @@
 import {INSCRIPTION_IDS} from './inscriptions.mjs?v=guide-clarity-1';
 
 export const START_BONUS_VERSION = 4;
+/** Ordinary Inscriptions that would do nothing on slot 1 at run start (Lift Guide beside two empty slots): Whetted (Lift Guide has no uses), Mirror (nothing to its left), Lodestone (it buffs the cards beside its slot, none yet). Hollow stays: Lift Guide then goes in slot 2. tests/start-bonus.test.mjs checks this list against inscriptionOnCard. */
+export const NO_EFFECT_AT_START = Object.freeze(['whetted', 'mirror', 'lodestone']);
 export const START_CARD_IDS = Object.freeze(['lift-guide', 'skim-line', 'pulse-reader', 'courier-cord', 'meter-mark', 'finish-flag']);
 /** Wisp stats: stored on the run as run.wispBonus = id. Applied in getRunModifiers (reach, light, recovery), vitality (Meter, hearts) and once at the pick (hearts filled, Stored Sparks). */
 export const WISP_STATS = Object.freeze({
@@ -36,7 +38,7 @@ function random(seed) {
   for (const c of String(seed)) s = Math.imul(s ^ c.charCodeAt(0), 16777619);
   return () => { s += 0x6d2b79f5; let n = s; n = Math.imul(n ^ (n >>> 15), n | 1); n ^= n + Math.imul(n ^ (n >>> 7), n | 61); return ((n ^ (n >>> 14)) >>> 0) / 4294967296; };
 }
-const POOLS = Object.freeze({card: START_CARD_IDS.map(id => `card:${id}`), inscription: INSCRIPTION_IDS.map(id => `inscription:${id}`), wisp: WISP_STAT_IDS.map(id => `wisp:${id}`)});
+const POOLS = Object.freeze({card: START_CARD_IDS.map(id => `card:${id}`), inscription: INSCRIPTION_IDS.filter(id => !NO_EFFECT_AT_START.includes(id)).map(id => `inscription:${id}`), wisp: WISP_STAT_IDS.map(id => `wisp:${id}`)});
 const KINDS = Object.freeze(['card', 'inscription', 'wisp']);
 export const startBonusKind = id => String(id).split(':')[0];
 export const isStartBonusId = id => typeof id === 'string' && KINDS.some(kind => POOLS[kind].includes(id));

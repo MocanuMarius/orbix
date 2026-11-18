@@ -1,6 +1,7 @@
 import {ARTIFACTS,SKILL_CARDS,getCardDraft,lastCourseName} from './model.mjs?v=guide-clarity-1';
+import {flightDevoured} from './devour-notes.mjs?v=guide-clarity-1';
 import {chipIcon} from './ui/trigger-icons.mjs?v=guide-clarity-1';
-import {cardDraftMarkup,cardDraftOffersMarkup,cardDraftRerollMarkup} from './card-ui.mjs?v=guide-clarity-1';
+import {cardArt,cardDraftMarkup,cardDraftOffersMarkup,cardDraftRerollMarkup} from './card-ui.mjs?v=guide-clarity-1';
 import {planTally,tallyStateAt,tallyLayout} from './reward-tally.mjs?v=guide-clarity-1';
 import {createTallySound} from './reward-tally-sound.mjs?v=guide-clarity-1';
 import {rewardEarnings} from './reward-screen.mjs?v=guide-clarity-1';
@@ -64,7 +65,8 @@ export function flightRewardCeremonyReceipt(run){
   {detailKey:'effect-speed',text:clear?.cruisingSpeed>0?`${sourceLabel('Cards on clear',sourceNames('cruisingSpeed'))} · +${count(clear.cruisingSpeed)}% speed, kept on the card`:null}].filter(entry=>entry.text);
  const relicEntries=Object.entries(flight.artifactActivations||{}).filter(([id,amount])=>ARTIFACTS[id]&&count(amount)>0).map(([id,amount])=>({artifactId:id,detailKey:`artifact:${id}`,text:`${ARTIFACTS[id].name} · activated ×${count(amount)}`}));
  relicEntries.push(...(Array.isArray(flight.consumedArtifacts)?flight.consumedArtifacts:[]).filter(id=>ARTIFACTS[id]).map(id=>({artifactId:id,detailKey:`artifact:${id}`,text:`${ARTIFACTS[id].name} · uses depleted this flight`})));
- const effectEntries=[...optionalNotes,...growthNotes,...relicEntries];
+ const devoured=flightDevoured(flight).map(item=>({cardId:item.cardId,detailKey:'devoured',text:`Devoured: ${item.name}`}));
+ const effectEntries=[...optionalNotes,...growthNotes,...devoured,...relicEntries];
  return {total,base:baseRows.reduce((sum,row)=>sum+row.amount,0),bonus:bonusRows.reduce((sum,row)=>sum+row.amount,0),baseRows,bonusRows,
   notes:effectEntries.map(entry=>entry.text),effectEntries,wallet:count(run?.condensedGlow)};
 }
@@ -73,7 +75,7 @@ function renderReceiptSourceRows(rows,offset=0){
  return rows.map((row,index)=>`<span class="flight-reward-source-row" data-tally-row="${index+offset}"><button ${receiptDetailAttributes(row.detailKey,row.label)}>${row.chip?`<span class="flight-reward-chip" aria-hidden="true">${chipIcon(row.chip,16)}</span>`:''}<span>${esc(row.label)}</span><span class="flight-reward-detail-affordance" aria-hidden="true">ⓘ</span></button><b data-tally-amount>+${row.amount}</b></span>`).join('');
 }
 function renderReceiptEffectRows(entries,tagged=false){
- return entries.map((entry,index)=>`<p${tagged?` data-effect="${index}"`:''}><button ${receiptDetailAttributes(entry.detailKey,entry.text)}>${entry.artifactId?`<span class="flight-reward-effect-icon" aria-hidden="true">${artifactIcon(entry.artifactId)}</span>`:''}<span>${esc(entry.text)}</span><span class="flight-reward-detail-affordance" aria-hidden="true">ⓘ</span></button></p>`).join('');
+ return entries.map((entry,index)=>`<p${tagged?` data-effect="${index}"`:''}><button ${receiptDetailAttributes(entry.detailKey,entry.text)}>${entry.cardId?`<span class="flight-reward-effect-icon flight-reward-devoured-art" aria-hidden="true">${cardArt({cardId:entry.cardId},{compact:true})}</span>`:''}${entry.artifactId?`<span class="flight-reward-effect-icon" aria-hidden="true">${artifactIcon(entry.artifactId)}</span>`:''}<span>${esc(entry.text)}</span><span class="flight-reward-detail-affordance" aria-hidden="true">ⓘ</span></button></p>`).join('');
 }
 export function flightRewardCeremonyMarkup(run){
  const draft=getCardDraft(run),stage=flightRewardCeremonyStage(run);

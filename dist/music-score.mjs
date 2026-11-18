@@ -160,9 +160,9 @@ export const PIECES=[
 for(const p of PIECES)if(!p.stems)p.bpm=LIFT_BPM*(p.beatUnit===3?3:1);
 export const PIECE_IDS=PIECES.map(p=>p.id);
 export const pieceById=id=>PIECES.find(p=>p.id===id);
-// The default rotation: the reference plus two siblings. Old Pines and Paper Lanterns keep their
-// scores (the lab plays all four) but are not scheduled in the game for now.
-export const ROTATION_IDS=['lantern','moss','ferry'];
+// The default rotation: the reference plus three siblings (Old Pines joined 2026-11-18, with its singing lead). Paper Lanterns keeps its
+// score (the lab plays all) but is not scheduled in the game for now.
+export const ROTATION_IDS=['lantern','moss','pines','ferry'];
 export const ROTATION=ROTATION_IDS.map(pieceById);
 
 // --------------------------------------------------------------- utilities
