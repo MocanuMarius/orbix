@@ -276,7 +276,7 @@ test('seeded rarity distributions follow each node tier and an exact 75/20/5 nod
 });
 
 test('the curated starter pool excludes advanced cards and tiered packing survives the model receipt', () => {
-  const starterIds = new Set(['body-spark','spark-cache','deep-vessel','tight-packing','field-impulse','harvest-common','dream','rhythm','cache-handling','flash-handling']);
+  const starterIds = new Set(['body-spark','spark-cache','deep-vessel','tight-packing','field-impulse','harvest-common','dream','rhythm','cache-handling','flash-handling','lift-guide','skim-line','pulse-reader','courier-cord','meter-mark','finish-flag']);
   for (let seed = 0; seed < 200; seed++) assert.ok(getCardStarterOffers({ seed }).every(gift => starterIds.has(gift.cardId)));
   const state = fresh('tiered-packing'), run = state.run;
   run.cardSlots = 5;

@@ -490,7 +490,7 @@ export function chooseStartingGift(state,id,expectedPreviewToken){
  if(!preview||(expectedPreviewToken!==undefined&&expectedPreviewToken!==preview.token))return false;
  const gift=preview.gift;
  if(isCardRun(run)){
-  const secondId=gift.cardId==='lift-guide'?getCardStarterOffers(run)[0].cardId:'lift-guide';
+  const secondId=gift.cardId==='lift-guide'?(getCardStarterOffers(run).find(o=>o.cardId!=='lift-guide')?.cardId||'finish-flag'):'lift-guide';
   const firstCard=makeSkillCard(gift.cardId,`${run.campaignSeed}:starter:${gift.cardId}`);
   if(isInventoryOnlyCard(firstCard))run.reserveCards.push(firstCard);
   else run.mountedCards[0]=firstCard;

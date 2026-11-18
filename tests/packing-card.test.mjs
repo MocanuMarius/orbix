@@ -107,11 +107,11 @@ test('natural packing displays the extra separately without turning it into base
  assert.equal(denied.cardPackingEligible,0);assert.equal(denied.cardPackingBonus,0);denied.destroy();
 });
 
-test('Common starter/drop pools include Tight Packing and its clear UI receipt never leaks to Forge',()=>{
+test('Common drop pool includes Tight Packing and its clear UI receipt never leaks to Forge',()=>{
  let starter=false,drop=false;
  for(let seed=0;seed<120&&(!starter||!drop);seed++){
   const state=fresh(`packing-pool-${seed}`);
-  starter ||= M.getStartingGiftOffers(state.run).some(offer=>offer.cardId==='tight-packing');
+  starter = true; // since 2026-11-18 the opening offer is three of the six starter cards (Tight Packing is a drop only)
   drop ||= drawSkillCard(state.run,'flight',{id:`drop-${seed}`},'common').cardId==='tight-packing';
  }
  assert.ok(starter);assert.ok(drop);

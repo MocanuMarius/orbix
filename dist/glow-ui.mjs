@@ -11,7 +11,7 @@ export function glowGaugeUnits(flame,maximum=100,liftCost=10){
 function unitMarkup(state){return Array.from({length:state.capacity},(_,i)=>`<span class="glow-unit${i<state.filled?' lit':''}"></span>`).join('');}
 export function glowGaugeMarkup(run){
  const state=glowGaugeUnits(run.flame,getGlowCapacity(run));
- return `<div class="flame-hud glow-side-gauge glow-gauge-v3" aria-label="Spark Meter" style="--glow-units:${state.capacity}"><span class="meter-spark-cap" aria-hidden="true">${resourceSymbol('energy')}${run.skillSystem==='cards-v1'&&!run.isTutorial?'<span class="spark-overfill-ticks"><i></i><i></i></span>':''}</span><div id="flame-meter" role="meter" aria-label="Sparks remaining" aria-valuemin="0" aria-valuemax="${state.maxValue}" aria-valuenow="${state.value}" aria-valuetext="${state.value} of ${state.maxValue} Sparks; each segment is ${state.unitCost} Sparks, one Lift"><i id="flame-fill" aria-hidden="true">${unitMarkup(state)}</i></div></div>`;
+ return `<div class="flame-hud glow-side-gauge glow-gauge-v3" aria-label="Spark Meter" style="--glow-units:${state.capacity}"><span class="meter-spark-cap" aria-hidden="true">${resourceSymbol('energy')}${run.skillSystem==='cards-v1'&&!run.isTutorial?'<span class="spark-overfill-ticks"><i></i><i></i></span>':''}</span><i class="meter-mark" aria-hidden="true" hidden></i><div id="flame-meter" role="meter" aria-label="Sparks remaining" aria-valuemin="0" aria-valuemax="${state.maxValue}" aria-valuenow="${state.value}" aria-valuetext="${state.value} of ${state.maxValue} Sparks; each segment is ${state.unitCost} Sparks, one Lift"><i id="flame-fill" aria-hidden="true">${unitMarkup(state)}</i></div></div>`;
 }
 export const PACKING_TIMING = Object.freeze({ travel: 350, packing: 1000, total: 1700 });
 
@@ -157,6 +157,7 @@ export function updateGlowGauge(gauge,s){
   gauge._filled=state.filled;
  }
  const partial=refs.units?.[state.filled];if(gauge._partial&&gauge._partial!==partial)gauge._partial.classList.remove('partial');if(partial){partial.classList.toggle('partial',state.partial>0);partial.style.setProperty('--unit-fill',(state.partial*100)+'%');}gauge._partial=partial;
+ if(s.cardMeterMark!==undefined){const mark=gauge._mark||(gauge._mark=gauge.querySelector('.meter-mark'));if(mark){if(mark.hidden===!!s.cardMeterMark)mark.hidden=!s.cardMeterMark;mark.classList.toggle('meter-mark-lit',!!s.cardMeterMark&&ratio>=.85);}}
  gauge.classList.toggle('low-glow',ratio<=.2);gauge.classList.toggle('full-glow',state.filled===state.capacity);
  updatePacking(gauge,s);
 }

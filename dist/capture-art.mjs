@@ -57,6 +57,8 @@ export function drawCollectorGrip(ctx,state,scale=1,{engine,light,playerY}={}){
     ctx.globalAlpha=alpha*.30;ctx.lineWidth=4.2*scale;ctx.stroke();
     ctx.globalAlpha=alpha*.94;ctx.strokeStyle=COLLECTOR_RING.color;ctx.lineWidth=1.8*scale;ctx.stroke();
     ctx.globalAlpha=alpha*.94;ctx.strokeStyle='#e2ffe9';ctx.lineWidth=.65*scale;ctx.stroke();
+    // Courier Cord: the cord glows brighter while it carries (two more strokes on the same path).
+    if(engine?.mod?.cardCourierCord){ctx.globalAlpha=Math.max(alpha*.6,.5);ctx.strokeStyle='#f0c86a';ctx.lineWidth=3.2*scale;ctx.stroke();ctx.globalAlpha=Math.max(alpha,.85);ctx.strokeStyle='#fffdf1';ctx.lineWidth=1.1*scale;ctx.stroke();}
     ctx.restore();return;
   }
   const grip=state.gripPose;if(!grip?.attached||!(grip.growth>0))return;
@@ -68,6 +70,7 @@ export function drawCollectorGrip(ctx,state,scale=1,{engine,light,playerY}={}){
   const line=()=>{ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(x,y);ctx.stroke();};
   ctx.strokeStyle=COLLECTOR_RING.edge;ctx.lineWidth=2.6*scale;line();
   ctx.strokeStyle=COLLECTOR_RING.color;ctx.lineWidth=1.2*scale;line();
+  if(engine?.mod?.cardCourierCord){ctx.globalAlpha=.5;ctx.strokeStyle='#f0c86a';ctx.lineWidth=3.4*scale;line();ctx.globalAlpha=1;ctx.strokeStyle='#fffdf1';ctx.lineWidth=1.2*scale;line();}
   ctx.restore();
 }
 

@@ -9,6 +9,7 @@ import {
   executeCardBodyPickup,
   getCardCharges,
   getCardStarterOffers,
+  STARTER_CARD_IDS,
 } from "../dist/skill-cards.mjs";
 import { getGlowCapacity } from "../dist/vitality.mjs";
 import { collectorCanFetch } from "../dist/collector-load.mjs";
@@ -110,19 +111,13 @@ test("starter offers three seeded cards and equips the choice plus one guarantee
       offers = M.getStartingGiftOffers(state.run);
     assert.equal(offers.length, 3);
     assert.equal(new Set(offers.map(gift=>gift.cardId)).size,3);
-    assert.ok(offers.filter(gift=>gift.rarity==='rare').length<=1);
-    assert.ok(offers.every(gift=>['common','rare'].includes(gift.rarity)));
-    assert.ok(offers.every((gift) => gift.cardId !== "lift-guide"));
-    assert.ok(
-      offers.some((gift) =>
-        gift.rarity==='common' && ["body", "capacity", "field"].includes(gift.card.kind),
-      ),
-    );
+    assert.ok(offers.every(gift=>gift.rarity==='common'&&STARTER_CARD_IDS.includes(gift.cardId)), 'three of the six starter cards');
     assert.deepEqual(M.getStartingGiftOffers(reload(state).run), offers);
-    assert.ok(M.chooseStartingGift(state, offers[0].id));
+    const pick = offers.find(gift => gift.cardId !== 'lift-guide');
+    assert.ok(M.chooseStartingGift(state, pick.id));
     assert.equal(M.chooseStartingGift(state, offers[1].id), false);
-    assert.equal(state.run.mountedCards.filter(Boolean).length, offers[0].cardId === 'camp-kit' ? 1 : 2);
-    assert.equal(M.getOwnedCards(state.run).find(card => card.cardId === offers[0].cardId).mounted, offers[0].cardId !== 'camp-kit');
+    assert.equal(state.run.mountedCards.filter(Boolean).length, 2);
+    assert.equal(M.getOwnedCards(state.run).find(card => card.cardId === pick.cardId).mounted, true);
     assert.equal(state.run.mountedCards[1].cardId, "lift-guide");
     assert.equal(state.run.mountedCards[2], null);
     assert.equal(M.getRunModifiers(state.run).cardLiftGuide, true);

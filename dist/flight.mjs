@@ -1512,6 +1512,7 @@ export class WispFlight {
     if(!this.cardExecution||!this.running||this.paused||!this.alive||this.finished||this.destroyed||this.dying||this.completing
       ||this.tutorial&&!this.mod.practiceCards||(this.dream&&this.dream.phase!=='done'))return null;
     // Second Wind (batch 3): for 5 s after a Save every Trigger fires the Chain. The time is a field of this flight only, and only counts while the card is mounted.
+    if(kind===CARD_ROW_EVENTS.delivery&&this.mod.cardCourierCord)this.courierFlashAt=this.time;
     const wind=this.cardSecondWindUntil>this.time&&this.cardExecution.cards.some(card=>card?.cardId==='second-wind');
     if(!wind&&!hasCardRowEvent(this.cardExecution,kind))return null;
     // One event shortens one Collector, so its recovery and reel budgets agree.
@@ -2677,7 +2678,7 @@ export class WispFlight {
       wisp: this.getWispState(),
       ability, companions:this.getCompanionStates().map(item=>({...item})),shield:this.getShieldState(),leveler:this.getLevelerState(),
       completing:this.completing,completionProgress:this.completionProgress,collectorAura:this.getCollectorAuraState(),dying:this.dying,dyingProgress:this.dyingProgress,deathCause:this.deathCause,
-      light: this.getLightState(),edgingPulse:this.edgingPulse.state,luminanceWaves:this.luminanceWaves.getState(),
+      light: this.getLightState(),cardMeterMark:!!this.mod.cardMeterMark,edgingPulse:this.edgingPulse.state,luminanceWaves:this.luminanceWaves.getState(),
       audioFocus:this.fx?.getFocus?.()||0,
       liftGuide:this.getLiftGuide(),
       blackHole:this.blackHoles.state,

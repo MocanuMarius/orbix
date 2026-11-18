@@ -10,7 +10,7 @@ const CUES = { // setup: staged modifiers/state; hit: when to shoot (evaluated e
   'pulse-reader': {setup: 'e.mod.cardPulseReader=true;', hit: 'e.luminanceWaves.cue&&e.luminanceWaves.cue.lead<110',
     each: 'if(e.time>1&&Math.floor(e.time*2)!==this.lw){this.lw=Math.floor(e.time*2);if(!e.luminanceWaves.waves.length)e.luminanceWaves.emit({x:e.distance+e.player.x,y:e.player.y,sourceKind:"card",source:"proof"});}'},
   'courier-cord': {setup: 'e.mod.cardCourierCord=true;', hit: 'e.collectors.some(w=>w.cargo)'},
-  'meter-mark': {setup: 'e.mod.cardMeterMark=true;e.flame=e.maxFlame*.95;', hit: 'e.time>1.2'},
+  'meter-mark': {setup: 'e.mod.cardMeterMark=true;', hit: 'e.time>1.2', each: 'e.flame=e.maxFlame*.95;'},
   'finish-flag': {setup: 'e.mod.cardFinishFlag=true;', hit: 'e.time>4'},
 };
 const cue = CUES[card]; if (!cue) throw Error('card?');
@@ -50,5 +50,5 @@ try {
   await browser.ev('__cue.prepare()');
   let shot = false, last;
   for (let i = 0; i < 600 && !shot; i++) { const s = await browser.ev('__cue.frame()'); last = s; if (s.dying) break; if (s.hit || i === 599) { await browser.shot(path.join(out, `starter-${card}.png`)); shot = s; } }
-  console.log(card, shot ? 'shot at ' + JSON.stringify(shot) : 'NO SHOT ' + JSON.stringify(last)); console.log('errors', JSON.stringify(browser.errors));
+  console.log(card, shot ? 'shot at ' + JSON.stringify(shot) : 'NO SHOT ' + JSON.stringify(last)); console.log('errors', JSON.stringify(browser.errors), 'mod', await browser.ev('JSON.stringify(__cue.engine.mod.cardCourierCord)').catch(() => '?'));
 } finally { browser.close(); server.close(); }
