@@ -157,7 +157,7 @@ export function leftAttribute(row, sol) {
   const acted = new Set(sol.steps.filter(st => st.pass === 1 && st.success && !st.copiedBy).map(st => st.slot));
   for (const st of sol.steps) {
     if (st.pass !== 1 || !st.success) continue;
-    if (st.operation !== 'add-sparks' && st.operation !== 'add-last-payout') continue;
+    if (st.operation !== 'add-sparks' && st.operation !== 'add-last-payout' && st.operation !== 'fire-first-card') continue; // Curtain Call's Sparks are its own plate
     let owner = st.slot;
     if (st.copiedBy) {
       owner = row.findIndex(c => c && c.instanceId === st.sourceInstanceId);
@@ -181,6 +181,8 @@ function whyIdle(ctx, slot, step) {
     case 'no-earlier-payout': return {why: 'there is nothing to repeat yet', fix: 'Move it after a + card.'};
     case 'incompatible-neighbor': return row[slot + 1] ? {why: `it can't repeat ${shortName(row[slot + 1])} on ${triggerName(trigger)}`, fix: ''} : {why: 'there is no card to its right', fix: 'Put a + card to its right.'};
     case 'exhausted-source': return {why: 'it has no Uses left', fix: ''};
+    case 'is-first-card': case 'empty-first-slot': case 'nothing-to-fire': return {why: 'Slot 1 is empty, is Curtain Call itself, or holds a card with no Sparks to fire', fix: 'Put a card that adds Sparks in Slot 1.'};
+    case 'no-cards-fired': return {why: 'no other card fired this flight', fix: ''};
     case 'replay-limit': return {why: 'only one Encore fires', fix: ''};
     case 'no-productive-action': return {why: 'there is no Bonus yet, so no Encore', fix: 'Put cards that Add before it.'};
     default: return {why: `it does not act on ${triggerName(trigger)}`, fix: ''};

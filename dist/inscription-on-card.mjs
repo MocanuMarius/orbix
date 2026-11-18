@@ -22,10 +22,12 @@ export function inscriptionEffect(inscription, card) {
   const once = isOncePerTriggerPayout(def, rule), listens = !!rule && !boost && !once;
   if (copier) return no('it repeats the next card, so write this on that card');
   const why = engine ? `it only fires on ${own}` : once ? `it only fires at ${own}` : boost ? 'a Boost works with whatever fires' : !rule ? 'it works without firing' : '';
+  // Curtain Call fires the Slot 1 card for its printed Sparks only: no Gilded, Brimful or Twin Mark on those Finish firings.
+  const curtain = rule?.operation === 'fire-first-card' ? 'its Slot 1 firings pay printed Sparks only' : '';
   const effect = (getCardRuleBands(card, def).find(b => b.type === 'effect')?.text || 'its effect').replace(/^[A-Z](?![A-Z])/, c => c.toLowerCase());
   switch (ins.id) {
     case 'twin-mark': return engine ? yes('fires twice each time it fires') : once ? no(`it pays once, at ${own}`) : !rule ? no(why) : boost ? yes('fires twice: its Boost applies twice') : yes('fires twice each time it fires');
-    case 'gilded': return (engine && def.engine.does?.includes('gain')) || (rule && ['add-sparks', 'add-last-payout'].includes(rule.operation)) ? yes('+2 Sparks each time it fires') : no(engine || !rule ? why : 'it pays no Sparks from the Chain');
+    case 'gilded': return (engine && def.engine.does?.includes('gain')) || (rule && ['add-sparks', 'add-last-payout'].includes(rule.operation)) ? yes('+2 Sparks each time it fires') : no(curtain || (engine || !rule ? why : 'it pays no Sparks from the Chain'));
     case 'resonant': case 'kindled': case 'courier': case 'wellspring': case 'flare': {
       if (!listens) return no(why);
       const event = ins.also, same = rule.event === event || rule.alsoEvents?.includes(event);
@@ -34,7 +36,7 @@ export function inscriptionEffect(inscription, card) {
       return yes(`also fires on ${ALSO[event]}: ${effect}`);
     }
     case 'mirror': return listens ? yes(`also fires whenever the card on its left fires: ${effect}`) : no(engine || !rule || boost ? why : `it only fires at ${own}`);
-    case 'brimful': return rule && ['add-sparks', 'add-last-payout'].includes(rule.operation) ? yes('its Sparks above the Meter become Stored Sparks') : no(engine || !rule ? why : 'it pays no Sparks from the Chain');
+    case 'brimful': return rule && ['add-sparks', 'add-last-payout'].includes(rule.operation) ? yes('its Sparks above the Meter become Stored Sparks') : no(curtain || (engine || !rule ? why : 'it pays no Sparks from the Chain'));
     case 'whetted': return Number.isFinite(def.charges) ? yes('+1 use each flight') : no('it has no uses');
     default: return yes(lower(ins.text));
   }

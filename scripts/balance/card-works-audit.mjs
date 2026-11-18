@@ -15,7 +15,7 @@ const { SKILL_CARDS, LIVE_CARDS, makeSkillCard, getCardRowRule, createCardExecut
 const PAYER = { 'body-spark': 'body-spark', 'wave-crossing': 'harvest-common', 'collector-delivery': 'courier-tip', 'downbeat-lift': 'downbeat', 'flash-pickup': 'flash-handling',
   'flash-expiry': 'diving-bell', 'rhythm-phrase': 'toll-bell', 'guide-lift': 'lift-guide', '*': 'body-spark' };
 const nums = text => [...String(text).matchAll(/\d+(?:\.\d+)?/g)].map(m => Number(m[0]));
-const KEY = { 'add-sparks': 'sparks', 'add-last-payout': 'sparks', 'add-stored': 'stored', 'carried-interest': 'stored', 'add-stored-per-heart': 'stored', 'add-tally-capacity': 'futureCapacity',
+const KEY = { 'add-sparks': 'sparks', 'add-last-payout': 'sparks', 'add-stored': 'stored', 'carried-interest': 'stored', 'add-stored-per-heart': 'stored', 'add-stored-per-fired': 'stored', 'fire-first-card': 'sparks', 'add-tally-capacity': 'futureCapacity',
   'add-cruising-speed': 'cruisingSpeed', 'shorten-recovery': 'recoverySeconds', 'shorten-reel': 'reelSeconds', 'bank-reel': 'nextReelSeconds', 'bank-recovery': 'nextRecoverySeconds', 'add-future-capacity': 'futureCapacity' };
 
 /** The chain that gives this card its best chance, and the event that should fire it. */
@@ -25,10 +25,12 @@ export function setupFor(def) {
   const ev = rule.event, row = [];
   if (ev === 'rhythm-phrase') row.push('rhythm');
   if (rule.operation === 'multiply' || rule.operation === 'add-last-payout' || rule.minimumEarlierPayers) row.push(PAYER[ev] || 'body-spark');
+  // Victory Lap and Curtain Call need an earlier card that fires (Sparks) to have something to count or to repeat.
+  if (rule.operation === 'add-stored-per-fired' || rule.operation === 'fire-first-card') row.push('body-spark');
   row.push(def.id);
   const when = rule.when || {};
   const event = { kind: ev === '*' ? 'body-spark' : ev, pickupKind: when.pickupKind || 'light', meterFraction: when.meterAtMost ? .1 : .5,
-    firstCrossing: when.firstCrossing !== false, heartsLeft: 3, lastHeart: false, carriedStored: 50, availableRecovery: 10, availableReel: 10, collectorReeling: true };
+    firstCrossing: when.firstCrossing !== false, heartsLeft: 3, lastHeart: false, carriedStored: 50, availableRecovery: 10, availableReel: 10, collectorReeling: true, firedInstanceIds: 'all' };
   return { tier: 'row', rule, row, event, slot: row.length - 1 };
 }
 
@@ -56,7 +58,7 @@ function modifierDiff(id) {
 /** A Finish is resolved by the model (finishFlight), not the flight: clear a real node with the card mounted and read the receipt. */
 function clearCheck(setup) {
   const run = makeRun(setup.row, { seed: 'audit-clear' }); run.condensedGlow = 50; const n = M.getChoices(run).find(x => x.type !== 'support');
-  M.selectNode(run, n.id); M.beginFlightAttempt(run); M.finishFlight(run, { success: true, flame: 60, collected: 3 });
+  M.selectNode(run, n.id); M.beginFlightAttempt(run); M.finishFlight(run, { success: true, flame: 60, collected: 3, cardFiredIds: run.mountedCards.filter(Boolean).map(c => c.instanceId) });
   const r = run.lastFlight?.cardClearReceipt, step = r?.steps.find(x => x.slot === setup.slot && x.success), card = run.mountedCards[setup.slot];
   return { fired: !!step, stored: r?.stored || 0, futureCapacity: r?.futureCapacity || 0, cruisingSpeed: r?.cruisingSpeed || 0, tally: card?.tally || 0 };
 }

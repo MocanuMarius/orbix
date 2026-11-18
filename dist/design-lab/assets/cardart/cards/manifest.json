@@ -1045,5 +1045,32 @@
     "line": [
       "second-look"
     ]
+  },
+  "clean-run": {
+    "file": "clean-run.svg",
+    "rarity": "common",
+    "family": "Finish",
+    "idea": "A whole heart over a finish mark",
+    "line": [
+      "clean-run"
+    ]
+  },
+  "victory-lap": {
+    "file": "victory-lap.svg",
+    "rarity": "common",
+    "family": "Finish",
+    "idea": "Sparks round a lap track with a wisp inside",
+    "line": [
+      "victory-lap"
+    ]
+  },
+  "curtain-call": {
+    "file": "curtain-call.svg",
+    "rarity": "rare",
+    "family": "Finish",
+    "idea": "Curtains open on a wisp, three Sparks above it",
+    "line": [
+      "curtain-call"
+    ]
   }
 }

@@ -127,5 +127,8 @@
  "pulse-reader": "wave",
  "courier-cord": "delivery",
  "meter-mark": "overfill",
- "finish-flag": "clear"
+ "finish-flag": "clear",
+ "clean-run": "clear",
+ "victory-lap": "clear",
+ "curtain-call": "clear"
 }

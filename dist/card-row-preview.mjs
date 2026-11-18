@@ -62,7 +62,7 @@ export function getCardRowPreviewEvents(run = {}) {
       : kind === CARD_ROW_EVENTS.field ? [{guardRecovering:false,collectorReeling:false,availableRecovery:10,availableReel:0}]
       : [CARD_ROW_EVENTS.clear,CARD_ROW_EVENTS.victory].includes(kind) ? [states[0]] : states;
     for (const pickupKind of pickups) for (const meterFraction of meters) for (const firstCrossing of crossings) for (const direction of directions) for (const state of allowedStates) {
-      const event = {kind,pickupKind,meterFraction,firstCrossing,direction,...state,carriedStored:carryIn(run),heartsLeft:Math.max(0,Number(run.lives)||0),lastHeart:run.lives===1,cruisingSpeedRoom:speedRoom(run)};
+      const event = {kind,...(kind === CARD_ROW_EVENTS.clear ? {firedInstanceIds:'all'} : {}),pickupKind,meterFraction,firstCrossing,direction,...state,carriedStored:carryIn(run),heartsLeft:Math.max(0,Number(run.lives)||0),lastHeart:run.lives===1,cruisingSpeedRoom:speedRoom(run)};
       const unavailableReason = issueForEvent(event,context);
       const qualifiers = [];
       if ([CARD_ROW_EVENTS.body,CARD_ROW_EVENTS.delivery,CARD_ROW_EVENTS.attach].includes(kind) && (pickups.length > 1 || pickupKind !== 'light')) qualifiers.push(pickupKind === 'light' ? 'Spark' : pickupKind === 'dusk' ? 'Dusk' : pickupKind === 'cluster' ? 'Cluster' : 'Cache');

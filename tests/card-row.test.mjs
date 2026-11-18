@@ -232,7 +232,7 @@ test('new Common never changes the established seeded starter pool',()=>{
 });
 
 test('every declarative catalog rule executes with its exact approved event and conditions',()=>{
-  assert.equal(Object.values(SKILL_CARDS).filter(def=>!def.unreleased&&!def.engine&&def.kind!=='black-hole').length,91);
+  assert.equal(Object.values(SKILL_CARDS).filter(def=>!def.unreleased&&!def.engine&&def.kind!=='black-hole').length,94);
   const payer={
     'body-spark':'body-spark','wave-crossing':'harvest-common','flash-pickup':'flash-handling',
     'downbeat-lift':'downbeat','collector-delivery':'courier-tip','rhythm-phrase':'toll-bell',
@@ -241,6 +241,7 @@ test('every declarative catalog rule executes with its exact approved event and 
   for(const def of Object.values(SKILL_CARDS).filter(d=>d.row&&!d.tallyEvent)){ // counting cards: tests/cards-batch-2.test.mjs
     const kind=def.row.event==='*'?CARD_ROW_EVENTS.body:def.row.event;
     const rows=[];
+    if(['add-stored-per-fired','fire-first-card'].includes(def.row.operation))rows.push('body-spark'); // Victory Lap and Curtain Call need an earlier card that fires
     if(['multiply','add-last-payout','multiply-future-capacity'].includes(def.row.operation)||def.row.minimumEarlierPayers||def.row.perCardLeft){
       const need=Math.max(1,def.row.minimumEarlierPayers||0,def.row.when?.exactlyEarlier||0,def.row.when?.endsShareTrigger?2:0);
       for(let i=0;i<need;i++)rows.push(payer[kind]);
@@ -248,7 +249,7 @@ test('every declarative catalog rule executes with its exact approved event and 
     rows.push(def.id);
     if(def.row.perEmptySlot)rows.push(null);
     const event={kind,carriedStored:100,availableRecovery:10,availableReel:10,collectorReeling:true,meterFraction:.2,heartsLeft:3,pickupKind:def.row.when?.pickupKind||'light',
-      firstCrossing:def.row.when?.firstCrossing??true,direction:def.row.when?.direction||'up',guardRecovering:true};
+      firstCrossing:def.row.when?.firstCrossing??true,direction:def.row.when?.direction||'up',guardRecovering:true,firedInstanceIds:'all'};
     const result=previewCardRow(cards(rows),event);
     assert.ok(result.steps.some(s=>s.actingCardId===def.id&&s.success),def.id);
     assert.ok(result.steps.length<=40,def.id);

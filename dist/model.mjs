@@ -1558,7 +1558,10 @@ export function finishFlight(run,result){
   const fatal=result.deathPosition;
   if(fatal&&fatal.nodeId===n.id&&fatal.seed===`${run.seed}-${n.id}`&&Number.isFinite(fatal.x)&&Number.isFinite(fatal.y)
     &&fatal.x>=0&&fatal.x<=1&&fatal.y>=0&&fatal.y<=1)run.lastFatal={nodeId:n.id,seed:fatal.seed,x:fatal.x,y:fatal.y};
-  restoreEntry(run);run.lives=Math.max(0,run.lives-1);run.stats.deaths++;run.success=false;run.victoryPending=false;
+  restoreEntry(run);run.lives=Math.max(0,run.lives-1);
+  // Clean Run: hearts lost on this node (every fall before the clear), keyed by map and node.
+  {const lostKey=`${run.mapIndex}:${n.id}`;run.nodeHeartsLost={key:lostKey,count:(run.nodeHeartsLost?.key===lostKey?count(run.nodeHeartsLost.count):0)+1};}
+  run.stats.deaths++;run.success=false;run.victoryPending=false;
   run.lastAttempt={success:false,nodeId:n.id,nodeName:n.name,livesLost:1,livesRemaining:run.lives};run.deathPending=true;
   if(wager)run.lastAttempt.treasureWager=wager;
   if(vow)run.lastAttempt.vow=vow;
@@ -1571,13 +1574,25 @@ export function finishFlight(run,result){
   ? {devourerSacrifices:[],emberFeederSacrifices:[]} : resolvePhysicalCardConsumers(run);
  run.lastAttempt.livesRemaining=run.lives;
  const consumedArtifacts=commitArtifactCharges(run,result.artifactCharges);
- let max=getGlowCapacity(run);const remaining=clamp(finite(result.flame,run.flame),0,max),recovery=getRecoveryRules(run);
+ // The Finish event the Chain hears. Clean Run reads heartsLost (falls on this node); Victory Lap reads the cards that fired during the flight.
+ const clearEvent=()=>({kind:CARD_ROW_EVENTS.clear,heartsLeft:count(run.lives),lastHeart:run.lives===1,
+  heartsLost:run.nodeHeartsLost?.key===`${run.mapIndex}:${n.id}`?count(run.nodeHeartsLost.count):0,
+  firedInstanceIds:Array.isArray(result.cardFiredIds)?result.cardFiredIds.filter(id=>typeof id==='string'):[],
+  carriedStored:count(attempt?.cardCarriedStored??attempt?.condensedGlow),cruisingSpeedRoom:6});
+ let max=getGlowCapacity(run);const flameBase=clamp(finite(result.flame,run.flame),0,max),recovery=getRecoveryRules(run);
+ // Curtain Call: the Sparks its Slot-1 card fires at the Finish go into the meter (up to its room) before the leftover packs into Stored Sparks.
+ let curtainSparks=0;
+ if(isCardRun(run)&&!run.isTutorial&&!result.dreamAttempt&&getMountedCards(run).some(card=>card?.cardId==='curtain-call')){
+  const pre=resolveCardRow(createCardExecution({cards:run.mountedCards,inscriptions:cleanSlotInscriptions(run)}),clearEvent());
+  curtainSparks=Math.max(0,Math.min(pre.sparks,(max-flameBase)/ENGINE_CARD_UNIT));
+ }
+ const remaining=flameBase+curtainSparks*ENGINE_CARD_UNIT;
  const pickupCondensedGlow=count(result.condensedGlow,getFlightPackingLimit(run.skills)),completionBonus=getFlightClearReward(n,run);
  const exitPacking=packExitReserve(remaining,{rules:getRunModifiers(run).condensationRules,
   remainder:finite(result.condensedRemainder,run.condensedRemainder)});
  // Pack Trigger (engine cards): its Sparks went into the meter before packing, so exitPacking already holds them;
  // cardPack.stored is the part of exitPacking they made, shown as its own ceremony line. Absent without Pack cards.
- const packSparks=isCardRun(run)&&!result.dreamAttempt?Math.max(0,finite(result.cardPack?.sparks)):0;
+ const packSparks=(isCardRun(run)&&!result.dreamAttempt?Math.max(0,finite(result.cardPack?.sparks)):0)+curtainSparks;
  const cardPack=packSparks>0?{sparks:Math.round(packSparks*1e6)/1e6,stored:Math.max(0,exitPacking.amount-packExitReserve(Math.max(0,remaining-packSparks*ENGINE_CARD_UNIT),{rules:getRunModifiers(run).condensationRules,
   remainder:finite(result.condensedRemainder,run.condensedRemainder)}).amount)}:null;
  const cardEngineStored=isCardRun(run)&&!run.isTutorial&&!result.dreamAttempt?count(result.cardEngineStored):0;
@@ -1666,7 +1681,7 @@ export function finishFlight(run,result){
   const clearKey=JSON.stringify([run.id,run.mapIndex,n.id]);
   if(!result.dreamAttempt&&!run.cardClearReceipts.some(receipt=>receipt.key===clearKey)){
    const hand=getMountedCards(run).filter(Boolean),runtime=createCardExecution({cards:run.mountedCards,inscriptions:cleanSlotInscriptions(run)});
-   const row=resolveCardRow(runtime,{kind:CARD_ROW_EVENTS.clear,heartsLeft:count(run.lives),lastHeart:run.lives===1,carriedStored:count(attempt?.cardCarriedStored??attempt?.condensedGlow),cruisingSpeedRoom:6});
+   const row=resolveCardRow(runtime,clearEvent());
    const sources=Object.freeze(hand.map(card=>Object.freeze({instanceId:card.instanceId,cardId:card.cardId,name:card.name,rank:card.rank||1,charges:card.charges??null,
     ...(Number.isFinite(card.chargeCapacity)?{chargeCapacity:card.chargeCapacity}:{}),...(Number.isFinite(card.fedCapacity)?{fedCapacity:card.fedCapacity}:{})})));
    const receipt=Object.freeze({...row,version:2,key:clearKey,runId:run.id,nodeId:n.id,mapIndex:run.mapIndex,sources,

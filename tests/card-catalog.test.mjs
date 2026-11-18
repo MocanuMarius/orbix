@@ -48,7 +48,7 @@ function reachCamp(state) {
   }
 }
 
-test('all 91 literal definitions have supported rules, unique IDs, honest art families and complete bands', () => {
+test('all 94 literal definitions have supported rules, unique IDs, honest art families and complete bands', () => {
   // The ordinary chain-walker catalog. Engine cards, Pack cards and Black Hole (released or held) run on the engine and are covered by
   // tests/card-engines.test.mjs and tests/engine-real-flight.test.mjs.
   const defs = Object.values(CARD_CATALOG).filter(def => !def.unreleased && !def.engine && def.kind !== 'black-hole'), supportedEvents = new Set([
@@ -58,11 +58,11 @@ test('all 91 literal definitions have supported rules, unique IDs, honest art fa
     'rhythm', 'rapid-lift', 'camp-extra', 'camp-grow', 'cache-handling', 'refrain', 'watchlight', 'wave-loom', 'spillway',
     'last-light', 'proximity', 'springboard', 'heart-stitch', 'devourer', 'use-doubler', 'ember-feeder', 'twin-orbit', 'twin-wick', 'collector-range', 'second-look']);
   // 86 since Wave Loom came back; +5 starter Commons (Skim Line, Pulse Reader, Courier Cord, Meter Mark, Finish Flag) on 2026-11-18.
-  // +1 Rare, Second Look, on 2026-11-18 (owner design).
-  assert.equal(defs.length, 91);
-  assert.equal(new Set(CARD_CATALOG_IDS.filter(id => !CARD_CATALOG[id].unreleased && !CARD_CATALOG[id].engine && CARD_CATALOG[id].kind !== 'black-hole')).size, 91);
+  // +1 Rare, Second Look, on 2026-11-18 (owner design). +3 Finish cards (Clean Run, Victory Lap, Curtain Call) on 2026-11-18.
+  assert.equal(defs.length, 94);
+  assert.equal(new Set(CARD_CATALOG_IDS.filter(id => !CARD_CATALOG[id].unreleased && !CARD_CATALOG[id].engine && CARD_CATALOG[id].kind !== 'black-hole')).size, 94);
   assert.deepEqual(defs.reduce((totals, def) => (totals[def.rarity]++, totals), { common: 0, rare: 0, legendary: 0 }),
-    { common: 52, rare: 25, legendary: 14 });
+    { common: 54, rare: 26, legendary: 14 });
   for (const [index, def] of defs.entries()) {
     assert.deepEqual(SKILL_CARDS[def.id], def);
     assert.equal(CARD_CATALOG_IDS.filter(id => !CARD_CATALOG[id].unreleased && !CARD_CATALOG[id].engine && CARD_CATALOG[id].kind !== 'black-hole')[index], def.id);
@@ -78,7 +78,7 @@ test('all 91 literal definitions have supported rules, unique IDs, honest art fa
     if (!rule) assert.ok(physicalKinds.has(def.kind), `${def.id}: supported passive or physical kind`);
     else {
       assert.ok(supportedEvents.has(rule.event), `${def.id}: event`);
-      assert.ok(['add-sparks', 'shorten-recovery', 'shorten-reel', 'multiply', 'add-last-payout', 'add-future-capacity', 'multiply-future-capacity', 'add-stored', 'carried-interest', 'add-stored-per-heart', 'add-tally-capacity', 'add-cruising-speed', 'bank-reel', 'bank-recovery'].includes(rule.operation));
+      assert.ok(['add-sparks', 'shorten-recovery', 'shorten-reel', 'multiply', 'add-last-payout', 'add-future-capacity', 'multiply-future-capacity', 'add-stored', 'carried-interest', 'add-stored-per-heart', 'add-stored-per-fired', 'fire-first-card', 'add-tally-capacity', 'add-cruising-speed', 'bank-reel', 'bank-recovery'].includes(rule.operation));
       assert.ok(Number.isFinite(rule.amount));
       if (['multiply', 'add-last-payout', 'multiply-future-capacity'].includes(rule.operation)) assert.equal(def.copyable, false);
     }
@@ -104,10 +104,10 @@ test('every numeric catalog rule produces its declared effect on a matching exec
     const kind = rule.event === '*' ? 'body-spark' : rule.event,
       event = { kind, firstCrossing: rule.when?.firstCrossing ?? true,
         pickupKind: rule.when?.pickupKind || 'light', meterFraction: 0.1,
-        direction: rule.when?.direction || 'up', guardRecovering: true, availableRecovery: 10, collectorReeling: true, availableReel: 10, carriedStored:100, heartsLeft: 3 },
+        direction: rule.when?.direction || 'up', guardRecovering: true, availableRecovery: 10, collectorReeling: true, availableReel: 10, carriedStored:100, heartsLeft: 3, firedInstanceIds: 'all' },
       prefix = Array.from({ length: Math.max(rule.minimumEarlierPayers || 0, rule.when?.exactlyEarlier || 0, rule.when?.endsShareTrigger ? 2 : 0, rule.perCardLeft ? 1 : 0,
-        ['multiply', 'add-last-payout', 'multiply-future-capacity'].includes(rule.operation) ? 1 : 0) }, (_, i) =>
-        makeSkillCard(additive[kind] || 'body-spark', `prefix:${i}`)),
+        ['multiply', 'add-last-payout', 'multiply-future-capacity', 'add-stored-per-fired', 'fire-first-card'].includes(rule.operation) ? 1 : 0) }, (_, i) =>
+        makeSkillCard((['add-stored-per-fired', 'fire-first-card'].includes(rule.operation) ? 'body-spark' : additive[kind]) || 'body-spark', `prefix:${i}`)),
       receipt = resolveCardRow(createCardExecution([...prefix, card, ...(rule.perEmptySlot ? [null] : [])]), event),
       steps = receipt.steps.filter(step => step.actingInstanceId === card.instanceId);
     assert.ok(steps.some(step => step.success), `${def.id}: its matching event works`);
