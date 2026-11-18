@@ -18,7 +18,7 @@
 // - Events only move right and each Timer holds at most one pending wait, so one instant always terminates; a hard
 //   safety counter still stops the engine (and warns once) if that is ever exceeded.
 import {SKILL_CARDS, CARD_ECONOMY, cardAmount, getCardRowRule, hasCardRowEvent, matchesRowCondition, matchesRowShape, isInventoryOnlyCard,
-  createCardExecution, resolveCardRow, getCardChargeCapacity} from './skill-cards.mjs?v=cord-2';
+  createCardExecution, resolveCardRow, getCardChargeCapacity} from './skill-cards.mjs?v=overfill-1';
 
 export const ENGINE_LIMITS = Object.freeze({ deliveriesPerInstant: 400, timersPerAdvance: 5000, logEntries: 5000, turnLog: 5000 });
 /** Player-made Triggers the engine cards listen to (not CARD_ROW_EVENTS: the ordinary walker never sees them). */
@@ -240,7 +240,7 @@ export class CardEngine {
     if (spec.cooldown) this.lowEmberAt.set(id, this.t);
     if (spec.oncePerTurn) this.bellTurn.set(id, this.turn);
     // The mask names the card that made an event (its direct maker), so that card never answers it this Turn.
-    const times = (1 + this.echoRepeats(j)) * (this.cards[j] && this.runtime?.inscriptions?.[j]?.id === 'twin-mark' ? 2 : 1), mask = 1 << j;
+    const times = spec.noRepeat ? 1 : (1 + this.echoRepeats(j)) * (this.cards[j] && this.runtime?.inscriptions?.[j]?.id === 'twin-mark' ? 2 : 1), mask = 1 << j;
     this.record({ k: 'hit', slot: j, type: ev.type, from: ev.from, times });
     if (spec.family === 'pack') this.pack.acts++;
     for (let r = 0; r < times; r++) this.act(j, ev, mask);
@@ -292,6 +292,20 @@ export class CardEngine {
           if (real > EPS) this.queue.push({ type: 'gain', from: j, mask, turn: this.turn, amount: real });
           if (spill > EPS && this.overfillHeardRightOf(j)) this.queue.push({ type: 'overfill', from: j, mask, turn: this.turn, spill, spillBase: this.baseSpill(spill) });
         }
+      } else if (what === 'arm-lift') {
+        // Pressure Valve: one free Lift is armed (it never stacks). Makes no event, so it cannot loop.
+        const armed = !this.inPack && !!this.host.armFreeLift?.(j);
+        this.record({ k: armed ? 'arm-lift' : 'arm-lift-refused', slot: j });
+      } else if (what === 'fire-all') {
+        // Floodgate: every OTHER card with a Spark-paying row rule fires once (printed Sparks, left to right, no Inscription extras).
+        // Its own bit is on every event those firings make, so the Overfill their Sparks cause never fires it again this Turn; the cooldown does the rest.
+        let fired = 0;
+        this.cards.forEach((other, k) => {
+          const def = defOf(other), rule = def && !def.engine && getCardRowRule(def, other);
+          if (k === j || !rule || rule.operation !== 'add-sparks' || rule.event === '*') return;
+          if (this.fireAction(k, mask, { pickupKind: 'light' }, mask)) fired++;
+        });
+        this.record({ k: 'flood', slot: j, fired });
       } else if (what === 'fire-collect') {
         // Harvest Home: every Collect card fires as if a plain Spark were touched; a Cluster or Dusk card fires as if its condition were met,
         // and each of those adds +2 Sparks from Harvest Home. Cards with uses spend one (fireAction).
@@ -403,10 +417,10 @@ export class CardEngine {
   }
   /** "Fire the card once": a Metronome tick or Harvest Home. Ignores the card's own Trigger, keeps its condition
    * (checked against `context`, e.g. a plain Spark for Harvest Home) and spends a real use. */
-  fireAction(slot, mask, context = {}) {
+  fireAction(slot, mask, context = {}, alsoMask = 0) {
     const card = this.cards[slot], def = defOf(card);
     if (!def || isInventoryOnlyCard(card) || (def.charges && !(card.charges > 0))) return false;
-    const own = 1 << slot;
+    const own = (1 << slot) | alsoMask;
     if (def.engine) {
       const spec = def.engine;
       if (spec.timer) { this.light(slot, { type: 'pulse', from: slot - 1, mask: own, turn: this.turn }); return true; }
@@ -467,7 +481,8 @@ export function createMeterHost({ start = 0, max = Infinity, collectorRecovery =
     startFlash: (seconds, slot) => { if (!host.canFlash()) return false; host.flashes.push({ until: host.now + seconds, slot }); return true; },
     recoveryLeft: () => host.recovery,
     shortenRecovery: s => { const g = Math.min(s, host.recovery); host.recovery -= g; return g; },
-    now: 0,
+    now: 0, freeLiftArmed: false,
+    armFreeLift: () => { host.freeLiftArmed = true; return true; },
     /** Long Fuse: the last player Trigger the Chain answered, resolved again by the ordinary walker. */
     repeatLastFiring: () => {
       if (!host.lastRow || !host.runtime) return null;

@@ -1,11 +1,11 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=cord-2";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=overfill-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=cord-2';
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=cord-2';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=cord-2';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=cord-2';
+import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=overfill-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=overfill-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=overfill-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=overfill-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -1500,6 +1500,7 @@ export function getCardModifiers(run) {
     cardLuminancePercent: 0,
     cardWaveLoom: false,
     cardOverfillEvery: 3,
+    cardBrimful: 0,
   };
   if (!isCardRun(run)) return m;
   m.dreamDuration = 0;
@@ -1519,6 +1520,7 @@ export function getCardModifiers(run) {
     if (d.kind === "pulse-reader") m.cardPulseReader = true;
     if (d.kind === "courier-cord") m.cardCourierCord = true;
     if (d.kind === "meter-mark") m.cardMeterMark = true;
+    if (d.kind === "brimful") m.cardBrimful += 1;
     if (d.kind === "finish-flag") m.cardFinishFlag = true;
     if (d.kind === "skim-line") { m.cardProximityUnlocked = true; m.cardSkimLine = true; }
     // One source adds 50% of normal reach; a boosted source counts as `factor` sources.

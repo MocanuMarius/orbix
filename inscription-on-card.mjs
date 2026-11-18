@@ -2,9 +2,9 @@
 // sentence for the card detail panel, the Scribe's write preview and the Chain tab. Menu screens only, never in flight.
 //   inscriptionOnCard('kindled', card)  ->  "Kindled: no effect on this card (it only fires at Finish)"
 //   inscriptionEffect('gilded', card)   ->  {works: true, text: '+2 Sparks each time it fires'}
-import {getInscription} from './inscriptions.mjs?v=cord-2';
-import {SKILL_CARDS, getCardRowRule, isOncePerTriggerPayout} from './skill-cards.mjs?v=cord-2';
-import {getCardTrigger, getCardRuleBands} from './card-rule-bands.mjs?v=cord-2';
+import {getInscription} from './inscriptions.mjs?v=overfill-1';
+import {SKILL_CARDS, getCardRowRule, isOncePerTriggerPayout} from './skill-cards.mjs?v=overfill-1';
+import {getCardTrigger, getCardRuleBands} from './card-rule-bands.mjs?v=overfill-1';
 
 const ALSO = {'wave-crossing': 'a Pulse', 'downbeat-lift': 'every Lift', 'collector-delivery': 'a Delivery', 'natural-overfill': 'an Overfill', 'flash-pickup': 'a Flare Collect'};
 const no = why => ({works: false, text: `no effect on this card (${why})`});
@@ -26,7 +26,7 @@ export function inscriptionEffect(inscription, card) {
   const curtain = rule?.operation === 'fire-first-card' ? 'its Slot 1 firings pay printed Sparks only' : '';
   const effect = (getCardRuleBands(card, def).find(b => b.type === 'effect')?.text || 'its effect').replace(/^[A-Z](?![A-Z])/, c => c.toLowerCase());
   switch (ins.id) {
-    case 'twin-mark': return engine ? yes('fires twice each time it fires') : once ? no(`it pays once, at ${own}`) : !rule ? no(why) : boost ? yes('fires twice: its Boost applies twice') : yes('fires twice each time it fires');
+    case 'twin-mark': return engine && def.engine.noRepeat ? no('it fires the whole Chain once per Overfill, never twice') : engine ? yes('fires twice each time it fires') : once ? no(`it pays once, at ${own}`) : !rule ? no(why) : boost ? yes('fires twice: its Boost applies twice') : yes('fires twice each time it fires');
     case 'gilded': return (engine && def.engine.does?.includes('gain')) || (rule && ['add-sparks', 'add-last-payout'].includes(rule.operation)) ? yes('+2 Sparks each time it fires') : no(curtain || (engine || !rule ? why : 'it pays no Sparks from the Chain'));
     case 'resonant': case 'kindled': case 'courier': case 'wellspring': case 'flare': {
       if (!listens) return no(why);

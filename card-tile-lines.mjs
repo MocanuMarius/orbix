@@ -2,8 +2,8 @@
 // tile where the card's own effect line (card-rule-bands.mjs › getCardRuleBands, type "effect") is too long
 // to fit. Same meaning, approved vocabulary, about 22 characters at most. The full line is always on the
 // opened card. Moved from the design lab's TILE_SHORT table (56 cards) with the Pulse wording applied.
-import {getCardRuleBands} from './card-rule-bands.mjs?v=cord-2';
-import {SKILL_CARDS, describeSkillCard, cardTallyLine} from './skill-cards.mjs?v=cord-2';
+import {getCardRuleBands} from './card-rule-bands.mjs?v=overfill-1';
+import {SKILL_CARDS, describeSkillCard, cardTallyLine} from './skill-cards.mjs?v=overfill-1';
 
 export const CARD_TILE_LINES = Object.freeze({
   'momentum': '5 Turns: +40% light',
@@ -31,7 +31,7 @@ export const CARD_TILE_LINES = Object.freeze({
   'twin-orbit': '2nd Collector fetches', 'prism-lens': 'All before ×1.25', 'prism-lens-ii': 'All before ×3',
   'keystone': 'Neighbours fire twice', 'vanguard': 'Slot 1: +3, else +1', 'bookends': 'Ends match: all ×2',
   'empty-chair': '+2 per empty Slot', 'ladder': '+1 per card to left', 'twin-flame': 'Exactly 2 before: ×3', 'spill-jar': 'Half of spill: Stored',
-  'home-beacon': '+3 Stored per heart', 'clean-run': '+5 Stored if no crash', 'victory-lap': '+1 Stored per card', 'curtain-call': 'First card fires ×3', 'last-light': 'Last heart: ×2', 'second-wind': 'Crash: all fire 5 s', 'undertow': 'Falling Lift: Collect',
+  'home-beacon': '+3 Stored per heart', 'clean-run': '+5 Stored if no crash', 'victory-lap': '+1 Stored per card', 'curtain-call': 'First card fires ×3', brimful: 'Full Meter: Collect +1', 'pressure-valve': 'Next Lift free', floodgate: 'Whole Chain fires', 'last-light': 'Last heart: ×2', 'second-wind': 'Crash: all fire 5 s', 'undertow': 'Falling Lift: Collect',
   'closing-chord': 'Last: all before ×2.5', 'ring-spring': 'Next ready 1 s sooner', 'ring-spring-ii': 'Next ready 2 s sooner',
   'pacesetter': 'Ready 3 s sooner', 'mending-moss': 'Ready 3 s sooner', 'flash-thread': 'Ready 3 s sooner',
   'chameleon-two': 'Next: any, not growth', 'slip-feather': 'A revealing Pulse', 'edge-reach': 'Pulse; reach +50%', 'double-lift': '2nd Lift is free',

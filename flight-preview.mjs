@@ -1,18 +1,18 @@
-import {getBiome} from './biomes.mjs?v=cord-2';
-import {getBossPreview} from './boss.mjs?v=cord-2';
-import {levelMapPreview} from './level-map-art.mjs?v=cord-2';
-import {mapStopIconMarkup} from './map-guide.mjs?v=cord-2';
-import {resourceSymbol} from './game-symbols.mjs?v=cord-2';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=cord-2';
-import {flightRewardKind,SCRIBE_OFFER_COUNT,isCardRun} from './model.mjs?v=cord-2';
-import {bonusIcon} from './route-bonus-ui.mjs?v=cord-2';
-import {contextualFlightNotice} from './contextual-events.mjs?v=cord-2';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=cord-2';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=cord-2';
-import {sparkHabitat} from './spark-fields.mjs?v=cord-2';
-import {lanternFlightCue} from './map-theme.mjs?v=cord-2';
-import {actionButton} from './ui/primitives.mjs?v=cord-2';
-import {cardTermTextMarkup} from './card-terms.mjs?v=cord-2';
+import {getBiome} from './biomes.mjs?v=overfill-1';
+import {getBossPreview} from './boss.mjs?v=overfill-1';
+import {levelMapPreview} from './level-map-art.mjs?v=overfill-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=overfill-1';
+import {resourceSymbol} from './game-symbols.mjs?v=overfill-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=overfill-1';
+import {flightRewardKind,SCRIBE_OFFER_COUNT,isCardRun} from './model.mjs?v=overfill-1';
+import {bonusIcon} from './route-bonus-ui.mjs?v=overfill-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=overfill-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=overfill-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=overfill-1';
+import {sparkHabitat} from './spark-fields.mjs?v=overfill-1';
+import {lanternFlightCue} from './map-theme.mjs?v=overfill-1';
+import {actionButton} from './ui/primitives.mjs?v=overfill-1';
+import {cardTermTextMarkup} from './card-terms.mjs?v=overfill-1';
 
 export const TRAVEL_GUIDE_ART=Object.freeze(['waystone','rootwood','night-atlas']);
 /** One stepped sign, mirrored for the return journey. */
