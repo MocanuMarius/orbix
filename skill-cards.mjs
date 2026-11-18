@@ -1,10 +1,10 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=fast-4";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=clear-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=fast-4';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=fast-4';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=fast-4';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=clear-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=clear-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=clear-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -949,6 +949,11 @@ export function getCardRowRule(def, card) {
 }
 /** A card whose effect is a permanent gain, a Finish or Rest moment growth, or a tally: Chameleon (two) never fires it, because
  * firing it on every Trigger would multiply what must happen once. */
+/** A card whose payout is permanent growth or Stored Sparks. It happens only on the card's own printed trigger, once: no Inscription
+ * (Kindled, Resonant, Courier, Wellspring, Sunlit, Mirror, Twin Mark) adds a second firing of it (2026-11-18). Gilded and Brimful only
+ * touch Sparks, so they never change it either. */
+export const GROWTH_OPERATIONS = Object.freeze(['add-tally-capacity', 'add-cruising-speed', 'add-future-capacity', 'add-stored', 'carried-interest', 'add-stored-per-heart']);
+export const isOncePerTriggerPayout = (def, rule) => !!def?.tallyEvent || GROWTH_OPERATIONS.includes(rule?.operation);
 export function isGrowthEffectCard(def, rule = getCardRowRule(def, def)) {
   return !!def?.tallyEvent || ['add-future-capacity', 'add-cruising-speed'].includes(rule?.operation)
     || [CARD_ROW_EVENTS.clear, CARD_ROW_EVENTS.victory].includes(rule?.event);
@@ -1158,7 +1163,7 @@ export function resolveCardRow(runtime, event = {}) {
       const source = live.get(target?.instanceId);
       const creditSlot = copy ? slot + 1 : slot;
       receipt.slotVisits++;
-      const repeats = (copy && ownDef.kind === "echo" ? Math.max(1,integer(ownDef.repeatCount || 1,CARD_ROW_LIMITS.repeats)) : 1) * (isNextToKeystone(topology, slot) ? 2 : 1) * (slotInscriptionId(runtime, creditSlot) === "twin-mark" ? 2 : 1);
+      const repeats = (copy && ownDef.kind === "echo" ? Math.max(1,integer(ownDef.repeatCount || 1,CARD_ROW_LIMITS.repeats)) : 1) * (isNextToKeystone(topology, slot) ? 2 : 1) * (slotInscriptionId(runtime, creditSlot) === "twin-mark" && !isOncePerTriggerPayout(def, def ? getCardRowRule(def, source || target) : null) ? 2 : 1);
       for (let repeatIndex = 0; repeatIndex < repeats; repeatIndex++) {
       const subtotal = total("sparks", pass), futureSubtotal = total("futureCapacity", pass);
       const step = { eventId: receipt.event.id, eventKind: kind, pass, slot, repeatIndex, creditSlot,
@@ -1202,8 +1207,9 @@ export function resolveCardRow(runtime, event = {}) {
         ? kind !== CARD_ROW_EVENTS.victory
         : ![CARD_ROW_EVENTS.victory,CARD_ROW_EVENTS.clear,CARD_ROW_EVENTS.attach].includes(kind));
       const insId = slotInscriptionId(runtime, creditSlot), insDef = getInscription(insId);
-      const alsoHeard = !!rule && rule.operation !== "multiply" && inscriptionHears(insDef, kind);
-      const mirrored = !!rule && rule.operation !== "multiply" && insId === "mirror" && firedSlots.has(creditSlot - 1);
+      const once = isOncePerTriggerPayout(def, rule);
+      const alsoHeard = !!rule && rule.operation !== "multiply" && !once && inscriptionHears(insDef, kind);
+      const mirrored = !!rule && rule.operation !== "multiply" && !once && insId === "mirror" && firedSlots.has(creditSlot - 1);
       if (rule && (rule.event === kind || rule.alsoEvents?.includes(kind) || wildcard || alsoHeard || mirrored) && matchesRowCondition(rule.when,event,pass,slot,lastOccupied) && matchesRowShape(rule.when,topology,slot)) {
       const operation = rule.operation;
       // Mirror: the card fired only because its left neighbour did (the strip flashes the Mirror's bar).
@@ -1218,7 +1224,7 @@ export function resolveCardRow(runtime, event = {}) {
         if (extra > 0) pay("sparks", extra);
         const lodes = lodestoneSlots(runtime, creditSlot);
         if (lodes.length) step.lodestoneSlots = lodes;
-        if (pass === 1 && event.firstCrossing && rule.storedFirstCrossing) {
+        if (pass === 1 && repeatIndex === 0 && event.firstCrossing && rule.storedFirstCrossing) {
           const stored = Math.max(0,Number(rule.storedFirstCrossing)||0);
           if (stored > 0) pay("stored", stored);
         }
@@ -1456,6 +1462,7 @@ export function getCardModifiers(run) {
     const factor = boost[index]?.multiplier || 1;
     if (d.kind === "luminance") m.cardLuminancePercent += cardAmount(source) * factor;
     if (d.kind === "proximity") m.cardProximityUnlocked = true;
+    if (d.kind === "skim-line") { m.cardProximityUnlocked = true; m.cardSkimLine = true; }
     // One source adds 50% of normal reach; a boosted source counts as `factor` sources.
     if (d.kind === "proximity-range") m.cardProximitySources += factor;
     if (d.kind === "rhythm") m.cardRhythm = true;

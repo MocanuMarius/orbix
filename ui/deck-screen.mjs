@@ -7,25 +7,26 @@
 // This module draws and handles everything that does not change the save. Every real change (equip, swap,
 // take out, Melt, Workshop) goes through the `actions` the app passes in, which call the model's own
 // transactions and then reopen the sheet; the view state object survives that reopen.
-import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=fast-4';
-import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=fast-4';
-import {uiIcon} from '../ui-icons.mjs?v=fast-4';
-import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=fast-4';
-import {getEquippedCardStatuses} from '../card-status.mjs?v=fast-4';
-import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=fast-4';
-import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=fast-4';
+import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=clear-1';
+import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=clear-1';
+import {uiIcon} from '../ui-icons.mjs?v=clear-1';
+import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=clear-1';
+import {getEquippedCardStatuses} from '../card-status.mjs?v=clear-1';
+import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=clear-1';
+import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=clear-1';
 import {LIFT_KIND, resolveChain, slotInfo, hereLine, fullRuleText, plateWords, whenOf, markOf, TRIGGER_BY, triggerName, RARITY_WORD, rarityOf, nameOf, shortName, isRest, num, METER_MAX, START_FLAME,
-  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=fast-4';
-import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=fast-4';
-import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=fast-4';
+  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=clear-1';
+import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=clear-1';
+import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=clear-1';
 import {triggerLabel, triggerTermKey} from '../card-trigger-labels.mjs';
-import {CARD_TERMS} from '../card-terms.mjs?v=fast-4';
-import {SKILL_CARDS} from '../skill-cards.mjs?v=fast-4';
-import {isDevourCard} from '../card-black-hole.mjs?v=fast-4';
-import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=fast-4';
-import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=fast-4';
-import {slotInscriptionId, slotInscriptionList, slotEntry} from '../inscriptions.mjs?v=fast-4';
-import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=fast-4';
+import {CARD_TERMS} from '../card-terms.mjs?v=clear-1';
+import {SKILL_CARDS} from '../skill-cards.mjs?v=clear-1';
+import {isDevourCard} from '../card-black-hole.mjs?v=clear-1';
+import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=clear-1';
+import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=clear-1';
+import {slotInscriptionId, slotInscriptionList, slotEntry} from '../inscriptions.mjs?v=clear-1';
+import {inscriptionEffect} from '../inscription-on-card.mjs?v=clear-1';
+import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=clear-1';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const SPARK_SRC = SPARK_ICON_SRC;
@@ -113,7 +114,10 @@ function stationsHTML(d, view, opts) {
     const info = chain.infos[i], col = `grid-column:${i + 2}`, lit = placing ? ' dk2-lit' : '';
     const notch = `<div class="dk2-anchor dk2-notch" style="${col}" aria-hidden="true"><i></i></div>`;
     const swap = editable ? `<button type="button" class="wb-sign wb-sign-quiet dk2-swap dk21-swap" data-slot="${i}" style="${col}" aria-label="${c ? `Swap ${esc(nameOf(c))} in slot ${i + 1} for another card` : `Add a card to slot ${i + 1}`}"><span class="wb-sign-text"><b>${c ? 'Swap' : 'Add'}</b></span></button>` : '';
-    const insId = slotInscriptionId(d.run, i), insMark = insId ? inscriptionFrame(insId) + inscriptionBrand(i, insId, slotEntry(d.run, i)) : '', insClass = insId ? ' dk2-inscribed' : '';
+    let insId = slotInscriptionId(d.run, i), insMark = insId ? inscriptionFrame(insId) + inscriptionBrand(i, insId, slotEntry(d.run, i)) : '', insClass = insId ? ' dk2-inscribed' : '';
+    // JOB I: an Inscription that does nothing for the card in its slot wears the warning mark.
+    const insIdle = insId && c && !inscriptionEffect(insId, c).works;
+    if (insIdle) insClass += ' dk2-ins-idle';
     if (!c) {
       return `<div class="dk2-station dk2-empty${insClass}${lit}" data-slot="${i}" style="${col}"><span class="dk2-eyerow"></span>
         <button type="button" class="dk2-btn dk2-card dk2-addcard" data-slot="${i}" ${editable ? '' : 'aria-disabled="true"'} aria-label="${placing ? `Put ${esc(nameOf(placing))} in slot ${i + 1}` : editable ? `Slot ${i + 1} is empty. Add a card` : `Slot ${i + 1} is empty`}"><span class="dk2-addskin">${PLUS}<b>${placing ? 'Put here' : editable ? 'Add a card' : 'Empty slot'}</b></span></button>
@@ -136,7 +140,7 @@ function stationsHTML(d, view, opts) {
     return `<div class="dk2-station dk2-k-${special ? 'eng' : info.kind}${meal ? ' dk-eaten' : ''}${insClass}${lit}" data-slot="${i}" style="${col}">
       <span class="dk2-eyerow">${d.unseen.has(c.instanceId) ? NEW_BADGE : ''}${eyeBtn(`data-slot="${i}"`, `Read ${nameOf(c)}`)}</span>
       <button type="button" class="dk2-btn dk2-card" data-slot="${i}" aria-label="${esc(label)}">${mark && ['add', 'mul', 'repeat'].includes(mark.cls) ? `<span class="dk2-mark dk-mark-${mark.cls}" aria-hidden="true">${mark.glyph}</span>` : ''}${face}${timer}${placing ? '<span class="dk2-puthere" aria-hidden="true">Put here</span>' : ''}</button>
-      ${plate}${insMark}</div>${notch}${swap}`;
+      ${plate}${insMark}${insIdle ? `<i class="dk2-warn dk2-ins-warn" aria-hidden="true">${WARN}</i>` : ''}</div>${notch}${swap}`;
   }).join('');
 }
 /** Lift choices, only the ones a mounted card needs: Falling (Downbeat family) and On the cue (Lift Guide). Shown while Lift is the shown Trigger. */
@@ -311,7 +315,7 @@ function readerHTML(d, view, opts) {
      ${chipOf(c).label ? `<p class="dk21-on"><small>${chipOf(c).kind === 'role' ? 'Role' : 'Trigger'}</small>${chipTermBtn(chipOf(c).id)}</p>` : ''}
      ${isRest(c) ? '' : `<p class="dk2-rule">${esc(fullRuleText(c))}</p>`}
      <p class="dk2-here${idle ? ' dk2-here-idle' : ''}">${idle ? `<i class="dk2-warn">${WARN}</i>` : ''}<span>${esc(hereLine(d.chain, c))}</span></p>
-     ${at >= 0 && slotInscriptionId(d.run, at) ? inscriptionBlock(at, slotInscriptionId(d.run, at), slotEntry(d.run, at)) : ''}
+     ${at >= 0 && slotInscriptionId(d.run, at) ? inscriptionBlock(at, slotInscriptionId(d.run, at), slotEntry(d.run, at), c) : ''}
      </div>
      <div class="dk2-info-foot">
      ${acts}

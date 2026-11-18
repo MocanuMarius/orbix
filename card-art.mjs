@@ -1,6 +1,6 @@
-import {SKILL_CARDS} from './skill-cards.mjs?v=fast-4';
-import {CARD_ART_FILES} from './card-art-files.mjs?v=fast-4';
-import {duskCardArt} from './dusk-card-art.mjs?v=fast-4';
+import {SKILL_CARDS} from './skill-cards.mjs?v=clear-1';
+import {CARD_ART_FILES} from './card-art-files.mjs?v=clear-1';
+import {duskCardArt} from './dusk-card-art.mjs?v=clear-1';
 /** Sixteen original scenes share one locally cached, square-cell atlas.
  * Order matches the 4×4 asset; each SVG clips exactly one 313px cell. */
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -13,6 +13,11 @@ const ART = Object.freeze({
   chameleon: {description:'A green and gold chameleon curls its tail on a mossy branch among ferns.'},
   'field-impulse': {description:'A mint wisp sweeps a glowing circular current between slender birch trees.'},
   'lift-guide': {description:'A golden luminous flight path rises through a broken stone arch above distant ruins.'},
+  'skim-line': {description:'A thin gold band hugs dark terrain beside a small wisp.'},
+  'pulse-reader': {description:'A soft gold ring tightens round a small wisp.'},
+  'courier-cord': {description:'A bright cord joins a pale Collector to a small wisp.'},
+  'meter-mark': {description:'A gold notch beside a nearly full Spark Meter.'},
+  'finish-flag': {description:'A gold flag above a bar that fills toward the finish.'},
   rhythm: {description:'Three evenly spaced golden wavefronts glow over a stream between dark cliffs.'},
   'harvest-common': {description:'A pearly luminous flower blooms above a field of small pale woodland blossoms.'},
   'harvest-rare': {description:'Three glowing blue water flowers spread ripples across a moonlit ruin pool.'},

@@ -1,9 +1,9 @@
 // A disposable deck for phone inspection. Never reads or writes a player save.
-import { newState, createRun, advanceMap, getSupportChoices, getChoices, selectNode, beginFlightAttempt, markFlightAttemptStarted, finishFlight, settleCheckpoint } from './model.mjs?v=fast-4';
-import { makeSkillCard, describeSkillCard } from './skill-cards.mjs?v=fast-4';
-import { grantTreasureGift } from './treasure.mjs?v=fast-4';
-import { cleanSlotInscriptions, writeInscription, INSCRIPTIONS } from './inscriptions.mjs?v=fast-4';
-import { ROUTE_BONUSES } from './route-bonuses.mjs?v=fast-4';
+import { newState, createRun, advanceMap, getSupportChoices, getChoices, selectNode, beginFlightAttempt, markFlightAttemptStarted, finishFlight, settleCheckpoint } from './model.mjs?v=clear-1';
+import { makeSkillCard, describeSkillCard } from './skill-cards.mjs?v=clear-1';
+import { grantTreasureGift } from './treasure.mjs?v=clear-1';
+import { cleanSlotInscriptions, writeInscription, INSCRIPTIONS } from './inscriptions.mjs?v=clear-1';
+import { ROUTE_BONUSES } from './route-bonuses.mjs?v=clear-1';
 
 export function prepareCardInspectorReward(run, cardId = 'harvest-rare', objective = 'gilded') {
   if (run.cardReward && !run.cardReward.uiAcknowledged) return;
@@ -209,6 +209,8 @@ export function createCardInspectorState(params = new URLSearchParams()) {
     // ?gifts=id,id,id: the three offered starting cards (dev only; default is the seeded draw).
     if (params.get('gifts')) run.cardStarterOfferIds = params.get('gifts').split(',').map(id => id.trim()).slice(0, 3);
   }
+  // Dev only: ?tallies=0:3,1:2 sets the count a growth card shows (slot:count).
+  if (params.get('tallies')) for (const pair of params.get('tallies').split(',')) { const [i, n] = pair.split(':').map(Number); if (run.mountedCards[i]) run.mountedCards[i].tally = n; }
   // Dev only: ?mock=cards&chain=...&slots=0:gilded,2:hollow writes Inscriptions on slots (nothing is saved).
   if (params.get('slots')) applyInscriptionSlots(run, params.get('slots'));
   // Dev only: ?new=1 marks every reserve card and the first mounted card as unseen (shows the NEW badges; nothing is saved).

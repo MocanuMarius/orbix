@@ -1,6 +1,6 @@
-import {collectorCanFetch} from './collector-load.mjs?v=fast-4';
-import {getPickupSpec,pickupKind} from './pickups.mjs?v=fast-4';
-import {sparkBodyRadius} from './spark-size.mjs?v=fast-4';
+import {collectorCanFetch} from './collector-load.mjs?v=clear-1';
+import {getPickupSpec,pickupKind} from './pickups.mjs?v=clear-1';
+import {sparkBodyRadius} from './spark-size.mjs?v=clear-1';
 
 // Capability only: range, recovery and an occupied Collector do not change the
 // circle. Body-only and harmful pickups have no attachment.
