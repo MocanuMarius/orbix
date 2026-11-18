@@ -1,5 +1,5 @@
-import {WISP_ART} from './companion-art.mjs?v=lesson-1';
-import {rectBatch,rectsOn,identityTransform} from './rect-raster.mjs?v=lesson-1';
+import {WISP_ART} from './companion-art.mjs?v=eaten-1';
+import {rectBatch,rectsOn,identityTransform} from './rect-raster.mjs?v=eaten-1';
 
 const STEP=1/60,RASTER=240/390;
 const INKS=['#9daaa0','#ccd6c6','#f0f1d8'];

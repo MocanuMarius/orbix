@@ -1,14 +1,14 @@
-import {SKILLS,getRunModifiers} from './model.mjs?v=lesson-1';
-import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=lesson-1';
-import {formatLuminance} from './luminance-units.mjs?v=lesson-1';
-import {WISP_ART} from './companion-art.mjs?v=lesson-1';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=lesson-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=lesson-1';
-import {skillIcon} from './upgrade-icons.mjs?v=lesson-1';
-import {resourceSymbol} from './game-symbols.mjs?v=lesson-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=lesson-1';
-import {skillBookChapter} from './skill-chapters.mjs?v=lesson-1';
-export {skillBookChapter} from './skill-chapters.mjs?v=lesson-1';
+import {SKILLS,getRunModifiers} from './model.mjs?v=eaten-1';
+import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=eaten-1';
+import {formatLuminance} from './luminance-units.mjs?v=eaten-1';
+import {WISP_ART} from './companion-art.mjs?v=eaten-1';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=eaten-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=eaten-1';
+import {skillIcon} from './upgrade-icons.mjs?v=eaten-1';
+import {resourceSymbol} from './game-symbols.mjs?v=eaten-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=eaten-1';
+import {skillBookChapter} from './skill-chapters.mjs?v=eaten-1';
+export {skillBookChapter} from './skill-chapters.mjs?v=eaten-1';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],

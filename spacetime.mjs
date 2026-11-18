@@ -1,4 +1,4 @@
-import {WISP_ART} from './companion-art.mjs?v=lesson-1';
+import {WISP_ART} from './companion-art.mjs?v=eaten-1';
 
 // Spacetime changes the real, local bank polygon. All solid queries therefore
 // see the same dent; Sparks, scene props and guardian geometry are never moved.

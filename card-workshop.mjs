@@ -1,9 +1,9 @@
-import {getCardImprovePreview,getCardRefillPreview,getCardForgePreview,canUseCardCampServices,eventCardOptions} from './model.mjs?v=lesson-1';
-import {cardArt} from './card-art.mjs?v=lesson-1';
-import {cardFace,cardName} from './card-ui.mjs?v=lesson-1';
-import {resourceSymbol} from './game-symbols.mjs?v=lesson-1';
-import {uiIcon} from './ui-icons.mjs?v=lesson-1';
-import {CARD_FORGE_RARITIES} from './skill-cards.mjs?v=lesson-1';
+import {getCardImprovePreview,getCardRefillPreview,getCardForgePreview,canUseCardCampServices,eventCardOptions} from './model.mjs?v=eaten-1';
+import {cardArt} from './card-art.mjs?v=eaten-1';
+import {cardFace,cardName} from './card-ui.mjs?v=eaten-1';
+import {resourceSymbol} from './game-symbols.mjs?v=eaten-1';
+import {uiIcon} from './ui-icons.mjs?v=eaten-1';
+import {CARD_FORGE_RARITIES} from './skill-cards.mjs?v=eaten-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const wallet=run=>`<span class="card-bench-wallet">${resourceSymbol('packed')} ${Math.floor(run.condensedGlow||0)}<small>Stored Sparks</small></span>`;

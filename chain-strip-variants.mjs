@@ -2,8 +2,8 @@
 // Variant A (hollow frames) stays in card-row-feedback.mjs. B and C draw the SAME state machine (createChainStrip: one 0.7 s
 // flash at a time, one pending flash per card, idle fade), so only the look differs. No text is read in flight: B floats a brief
 // large "+N" digit, C is a line with pips. Cheap DOM: one container, WAAPI on transform/opacity only, no canvas.
-import {CARD_ART_FILES} from './card-art-files.mjs?v=lesson-1';
-import {baseColor, STRIP} from './chain-strip.mjs?v=lesson-1';
+import {CARD_ART_FILES} from './card-art-files.mjs?v=eaten-1';
+import {baseColor, STRIP} from './chain-strip.mjs?v=eaten-1';
 
 export const VARIANT_GEOMETRY = Object.freeze({
   b: Object.freeze({cellW: 22, cellH: 28, gap: 3, artSize: 24, popMs: 500, numMs: 600}),

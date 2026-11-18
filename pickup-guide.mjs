@@ -1,9 +1,9 @@
-import {formatGlow} from './vitality.mjs?v=lesson-1';
-import { PICKUP_TYPES, getPickupSpec, flashPowerupDescription } from './pickups.mjs?v=lesson-1';
-import { pickupArtSvg } from './pickup-art.mjs?v=lesson-1';
-import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=lesson-1';
-import {sparkMass} from './spark-size.mjs?v=lesson-1';
-import {pickupHandlingCue} from './pickup-handling-cue.mjs?v=lesson-1';
+import {formatGlow} from './vitality.mjs?v=eaten-1';
+import { PICKUP_TYPES, getPickupSpec, flashPowerupDescription } from './pickups.mjs?v=eaten-1';
+import { pickupArtSvg } from './pickup-art.mjs?v=eaten-1';
+import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=eaten-1';
+import {sparkMass} from './spark-size.mjs?v=eaten-1';
+import {pickupHandlingCue} from './pickup-handling-cue.mjs?v=eaten-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
