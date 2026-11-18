@@ -1,5 +1,5 @@
-import {pickupArtSvg} from './pickup-art.mjs?v=lift-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=lift-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=wind-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=wind-1';
 const art={
  gilded:['#f2c76c','M4 6h10v2H4zm-1 4h12v2H3zm1 4h10v2H4z'],
  'three-suns':['#f6979c','M3 5h4v2h2V5h4v2h2v4h-2v2h-2v2H9v2H7v-2H5v-2H3v-2H1V7h2z'],

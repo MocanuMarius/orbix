@@ -1,7 +1,7 @@
-import {WispFlight} from './flight.mjs?v=lift-1';
-import {getRunModifiers} from './model.mjs?v=lift-1';
-import {wispOrbit} from './wisp.mjs?v=lift-1';
-import {formatGlow, glowPoints} from './vitality.mjs?v=lift-1';
+import {WispFlight} from './flight.mjs?v=wind-1';
+import {getRunModifiers} from './model.mjs?v=wind-1';
+import {wispOrbit} from './wisp.mjs?v=wind-1';
+import {formatGlow, glowPoints} from './vitality.mjs?v=wind-1';
 
 const frame=document.querySelector('#flight-frame'),gate=document.querySelector('#gate');
 const status=document.querySelector('#status'),meter=document.querySelector('meter'),amount=document.querySelector('#meter');

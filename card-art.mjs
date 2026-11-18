@@ -1,6 +1,6 @@
-import {SKILL_CARDS} from './skill-cards.mjs?v=lift-1';
-import {CARD_ART_FILES} from './card-art-files.mjs?v=lift-1';
-import {duskCardArt} from './dusk-card-art.mjs?v=lift-1';
+import {SKILL_CARDS} from './skill-cards.mjs?v=wind-1';
+import {CARD_ART_FILES} from './card-art-files.mjs?v=wind-1';
+import {duskCardArt} from './dusk-card-art.mjs?v=wind-1';
 /** Sixteen original scenes share one locally cached, square-cell atlas.
  * Order matches the 4×4 asset; each SVG clips exactly one 313px cell. */
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

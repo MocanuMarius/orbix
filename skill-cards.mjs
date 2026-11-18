@@ -1,10 +1,10 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=lift-1";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=wind-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=lift-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=lift-1';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=lift-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=wind-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=wind-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=wind-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -71,6 +71,14 @@ export function getCardTallyCapacity(run) {
   let total = 0;
   for (const card of run.mountedCards || []) if (['gilded-rim', 'tithe'].includes(SKILL_CARDS[card?.cardId]?.kind)) total += cleanCardFutureCapacity(integer(card.tally));
   return total * CARD_UNIT;
+}
+/** Wind Feather (2026-11-18): +1% flight speed per cleared flight while mounted, kept as `tally` on each Feather, at most +10% in all. */
+export const WIND_FEATHER_MAX = 10;
+export function getCardWindSpeed(run) {
+  if (!isCardRun(run)) return 0;
+  let total = 0;
+  for (const card of run.mountedCards || []) if (SKILL_CARDS[card?.cardId]?.kind === 'wind-feather') total += Math.min(WIND_FEATHER_MAX, integer(card.tally));
+  return Math.min(WIND_FEATHER_MAX, total);
 }
 /** Dream's Devour growth in seconds (0 to 32), from the best mounted Dream (extra Dreams keep one). */
 export const DREAM_BASE_SECONDS = 8, DREAM_MAX_BONUS_SECONDS = 32;
@@ -1227,15 +1235,19 @@ export function resolveCardRow(runtime, event = {}) {
         const increase = cleanCardFutureCapacity(amount);
         if (increase > 0) { succeed();pay("futureCapacity", increase); }
         else step.skipReason = "empty-future-capacity";
-      } else if (operation === "add-stored" || operation === "carried-interest" || operation === "add-cruising-speed") {
+      } else if (operation === "add-cruising-speed") {
+        // Wind Feather: the gain is stored on the card itself (`tally`, max WIND_FEATHER_MAX). Boosts never touch it.
         step.operation = operation;
-        const gain = operation === "carried-interest" ? Math.min(10, Math.floor(integer(event.carriedStored) / 10)) * amount
-          : operation === "add-cruising-speed" ? Math.min(amount, budget("cruisingSpeed")) : amount;
+        const gain = Math.min(amount, Math.max(0, WIND_FEATHER_MAX - integer(source.tally)));
+        if (gain > 0) { succeed();pay("cruisingSpeed", gain);source.tally = integer(source.tally) + gain; }
+        else step.skipReason = "cruising-speed-cap";
+      } else if (operation === "add-stored" || operation === "carried-interest") {
+        step.operation = operation;
+        const gain = operation === "carried-interest" ? Math.min(10, Math.floor(integer(event.carriedStored) / 10)) * amount : amount;
         if (gain > 0) {
           succeed();
-          if (operation === "add-cruising-speed") pay("cruisingSpeed", gain);
-          else pay("stored", gain, operation === "carried-interest" ? 10 * amount : undefined);
-        } else step.skipReason = operation === "add-cruising-speed" ? "cruising-speed-cap" : "no-carried-interest";
+          pay("stored", gain, operation === "carried-interest" ? 10 * amount : undefined);
+        } else step.skipReason = "no-carried-interest";
       } else if (operation === "shorten-reel") {
         step.operation = operation;
         const seconds = Math.min(amount, budget("reelSeconds"));
@@ -1331,6 +1343,7 @@ export function cardTallyLine(card) {
   if (def.kind === 'collectors-ledger') return `Deliveries ${n} · +${1 + Math.floor(n / 10)} now`;
   if (def.kind === 'old-friend') return `Flights ${n} · +${n} now`;
   if (def.kind === 'gilded-rim') return `Overfills ${n} · +${n} max Sparks`;
+  if (def.kind === 'wind-feather') return n >= WIND_FEATHER_MAX ? `+${WIND_FEATHER_MAX}% speed (max)` : `+1% speed · now +${n}%`;
   if (def.kind === 'tithe') return `Tithes ${n} · +${n} max Sparks`;
   if (def.kind === 'tributary') return `Collects ${n} · Delivery in ${3 - n % 3}`;
   return '';

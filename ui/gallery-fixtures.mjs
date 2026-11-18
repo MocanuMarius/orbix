@@ -1,6 +1,6 @@
-import {newState,createRun,ARTIFACTS,getChoices,selectNode,beginFlightAttempt,markFlightAttemptStarted,finishFlight,settleCheckpoint} from '../model.mjs?v=lift-1';
-import {makeSkillCard} from '../skill-cards.mjs?v=lift-1';
-import {prepareRouteOffer} from '../route-offers.mjs?v=lift-1';
+import {newState,createRun,ARTIFACTS,getChoices,selectNode,beginFlightAttempt,markFlightAttemptStarted,finishFlight,settleCheckpoint} from '../model.mjs?v=wind-1';
+import {makeSkillCard} from '../skill-cards.mjs?v=wind-1';
+import {prepareRouteOffer} from '../route-offers.mjs?v=wind-1';
 
 /** Preview-only data. Never load/persist a player save or start a flight. */
 export function createComponentFixture(family,variant){

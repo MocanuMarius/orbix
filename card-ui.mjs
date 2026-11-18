@@ -1,16 +1,16 @@
-import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=lift-1";
-import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=lift-1";
-import { uiIcon } from "./ui-icons.mjs?v=lift-1";
-import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=lift-1";
-import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=lift-1";
-import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=lift-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=lift-1";
-import { activeFlightPact } from './flight-pacts.mjs?v=lift-1';
-import { cardArt } from "./card-art.mjs?v=lift-1";
-import { cardTileLine } from "./card-tile-lines.mjs?v=lift-1";
-import { slotInscriptionId } from "./inscriptions.mjs?v=lift-1";
-import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=lift-1";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=lift-1';
+import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=wind-1";
+import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=wind-1";
+import { uiIcon } from "./ui-icons.mjs?v=wind-1";
+import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=wind-1";
+import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=wind-1";
+import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=wind-1";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=wind-1";
+import { activeFlightPact } from './flight-pacts.mjs?v=wind-1';
+import { cardArt } from "./card-art.mjs?v=wind-1";
+import { cardTileLine } from "./card-tile-lines.mjs?v=wind-1";
+import { slotInscriptionId } from "./inscriptions.mjs?v=wind-1";
+import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=wind-1";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=wind-1';
 import {
   getMountedCards,
   getOwnedCards,
@@ -26,13 +26,13 @@ import {
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
-} from "./model.mjs?v=lift-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=lift-1";
-import { choiceScene } from "./choice-art.mjs?v=lift-1";
-import { livesMarkup } from "./lives.mjs?v=lift-1";
-import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=lift-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=lift-1";
-import {canDreamAt, dreamConfig} from './dream.mjs?v=lift-1';
+} from "./model.mjs?v=wind-1";
+import { resourceSymbol } from "./game-symbols.mjs?v=wind-1";
+import { choiceScene } from "./choice-art.mjs?v=wind-1";
+import { livesMarkup } from "./lives.mjs?v=wind-1";
+import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=wind-1";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=wind-1";
+import {canDreamAt, dreamConfig} from './dream.mjs?v=wind-1';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -45,7 +45,7 @@ import {
   isInventoryOnlyCard,
   SKILL_CARDS,
   cardTallyLine,
-} from "./skill-cards.mjs?v=lift-1";
+} from "./skill-cards.mjs?v=wind-1";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -94,7 +94,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=lift-1";
+export { cardArt } from "./card-art.mjs?v=wind-1";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
@@ -449,10 +449,10 @@ export function cardVictoryRecap(run) {
       run.finalCardReward?.card ||
       run.finalCardTrophy;
   const receipts=run.cardClearReceipts||[],legacy=run.cardVictoryReceipt?.runId===run.id?run.cardVictoryReceipt.futureCapacity||0:0;
-  const gain=receipts.reduce((sum,receipt)=>sum+(receipt.futureCapacity||0),legacy),speed=receipts.reduce((sum,receipt)=>sum+(receipt.cruisingSpeed||0),0);
-  const explanation=receipts.some(receipt=>receipt.futureCapacity||receipt.cruisingSpeed)?`<details><summary>Permanent progress from flight clears</summary><ol>${receipts.filter(receipt=>receipt.futureCapacity||receipt.cruisingSpeed).map(receipt=>`<li>Map ${receipt.mapIndex+1} · ${esc(receipt.nodeId)}${receipt.futureCapacity?` · +${receipt.futureCapacity} maximum Sparks`:''}${receipt.cruisingSpeed?` · +${receipt.cruisingSpeed}% cruising speed`:''}.</li>`).join('')}</ol></details>`:'';
+  const gain=receipts.reduce((sum,receipt)=>sum+(receipt.futureCapacity||0),legacy);
+  const explanation=receipts.some(receipt=>receipt.futureCapacity)?`<details><summary>Permanent progress from flight clears</summary><ol>${receipts.filter(receipt=>receipt.futureCapacity).map(receipt=>`<li>Map ${receipt.mapIndex+1} · ${esc(receipt.nodeId)}${receipt.futureCapacity?` · +${receipt.futureCapacity} maximum Sparks`:''}.</li>`).join('')}</ol></details>`:'';
   // A gain of zero is not news: the line appears only when there is something permanent to report.
-  const permanent=gain>0||speed>0||explanation?`<div class="card-future-capacity-receipt" role="status">${gain>0?`<strong>+${gain} maximum ${gain===1?'Spark':'Sparks'} permanently this expedition</strong><p>Your next expedition starts full at ${30+(run.cardFutureCapacity||0)+legacy} maximum Sparks, before its starting card.</p>`:''}${speed?`<p>+${speed}% cruising speed unlocked. Choose your speed in Settings; baseline stays available.</p>`:''}${explanation}</div>`:'';
+  const permanent=gain>0||explanation?`<div class="card-future-capacity-receipt" role="status">${gain>0?`<strong>+${gain} maximum ${gain===1?'Spark':'Sparks'} permanently this expedition</strong><p>Your next expedition starts full at ${30+(run.cardFutureCapacity||0)+legacy} maximum Sparks, before its starting card.</p>`:''}${explanation}</div>`:'';
   const maps=[...new Set([...(run.mapHistory||[]).map(entry=>entry.mapName),run.mapName].filter(Boolean))];
   const chain=run.mountedCards?.some(Boolean)?getMountedCards(run):(run.winningHand||[]);
   return `<section class="card-victory-recap"><header class="card-heading"><div><small>THREE GUARDIANS · RUN COMPLETE${flightPackingReceipt(run, reward)}</small><h1>The light returns</h1>${maps.length?`<p class="card-recap-maps">${maps.map(esc).join(' · ')}</p>`:''}</div></header>${permanent}<div class="card-winning-hand"><div><h2>Your Chain</h2><ol class="card-recap-row">${chain.map((card, slot) => card ? recapTile(run, card, slot) : '').join('')}</ol></div>${trophy ? `<aside><h2>Final trophy</h2><ol class="card-recap-row">${recapTile(run, trophy, null)}</ol></aside>` : ''}</div><p class="card-footnote">Ascension ${run.difficulty} conquered. Cards and Stored Sparks belong to this completed run.</p><footer class="card-dialog-actions"><button class="secondary" data-action="artifacts">Relic almanac</button><button class="primary" data-action="exit-menu">Main menu</button></footer></section>`;

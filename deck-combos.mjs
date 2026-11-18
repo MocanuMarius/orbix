@@ -1,11 +1,11 @@
 /** Small, read-only explanations for the actual chain. */
-import {SKILL_CARDS, getMountedCards, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, CARD_ROW_EVENTS, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts} from './skill-cards.mjs?v=lift-1';
-import {rowSnapshot} from './inscriptions.mjs?v=lift-1';
-import {getCardRuleBands} from './card-rule-bands.mjs?v=lift-1';
-import {getEquippedCardStatuses} from './card-status.mjs?v=lift-1';
-import {ARTIFACTS} from './model.mjs?v=lift-1';
-import {artifactDescription} from './artifact-copy.mjs?v=lift-1';
-import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=lift-1';
+import {SKILL_CARDS, getMountedCards, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, CARD_ROW_EVENTS, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts} from './skill-cards.mjs?v=wind-1';
+import {rowSnapshot} from './inscriptions.mjs?v=wind-1';
+import {getCardRuleBands} from './card-rule-bands.mjs?v=wind-1';
+import {getEquippedCardStatuses} from './card-status.mjs?v=wind-1';
+import {ARTIFACTS} from './model.mjs?v=wind-1';
+import {artifactDescription} from './artifact-copy.mjs?v=wind-1';
+import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=wind-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number=value=>Number(Number(value||0).toFixed(3));
@@ -32,7 +32,7 @@ const stepResult=steps=>{
   if(sum('amount'))parts.push(`+${sum('amount')} Sparks`);
   if(sum('stored'))parts.push(`+${sum('stored')} Stored Sparks`);
   if(sum('futureCapacity'))parts.push(`+${sum('futureCapacity')} future maximum Sparks`);
-  if(sum('cruisingSpeed'))parts.push(`+${sum('cruisingSpeed')}% cruising speed`);
+  if(sum('cruisingSpeed'))parts.push(`+${sum('cruisingSpeed')}% speed on the card`);
   if(sum('recoverySeconds'))parts.push(`${sum('recoverySeconds')}s recovery saved`);
   if(sum('reelSeconds'))parts.push(`${sum('reelSeconds')}s reel saved`);
   return parts.join(' · ')||'No extra payout';

@@ -1,7 +1,7 @@
-import {previewEquippedCardRow} from './card-row-preview.mjs?v=lift-1';
-import {describeSkillCard} from './skill-cards.mjs?v=lift-1';
-import {cardArt} from './card-art.mjs?v=lift-1';
-import {resourceSymbol} from './game-symbols.mjs?v=lift-1';
+import {previewEquippedCardRow} from './card-row-preview.mjs?v=wind-1';
+import {describeSkillCard} from './skill-cards.mjs?v=wind-1';
+import {cardArt} from './card-art.mjs?v=wind-1';
+import {resourceSymbol} from './game-symbols.mjs?v=wind-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
 const number = value => Number((Number(value) || 0).toFixed(3));
@@ -15,7 +15,7 @@ function totalsText(totals = {}) {
     totals.futureCapacity ? `+${number(totals.futureCapacity)} future maximum Sparks` : '',
     totals.recoverySeconds ? `−${number(totals.recoverySeconds)} s recovery` : '',
     totals.reelSeconds ? `−${number(totals.reelSeconds)} s reel` : '',
-    totals.cruisingSpeed ? `+${number(totals.cruisingSpeed)}% cruising speed` : '',
+    totals.cruisingSpeed ? `+${number(totals.cruisingSpeed)}% speed on the card` : '',
   ].filter(Boolean).join(' · ');
 }
 

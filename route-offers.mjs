@@ -1,7 +1,7 @@
-import {WispFlight} from './flight.mjs?v=lift-1';
-import {getRunModifiers,getRouteBonusCandidates,getRouteBonus,nextBonusFlightNodes} from './model.mjs?v=lift-1';
-import {onboardingFlightPlan} from './onboarding.mjs?v=lift-1';
-import {routeBonusFamily} from './route-bonuses.mjs?v=lift-1';
+import {WispFlight} from './flight.mjs?v=wind-1';
+import {getRunModifiers,getRouteBonusCandidates,getRouteBonus,nextBonusFlightNodes} from './model.mjs?v=wind-1';
+import {onboardingFlightPlan} from './onboarding.mjs?v=wind-1';
+import {routeBonusFamily} from './route-bonuses.mjs?v=wind-1';
 
 // Only the selected ID is saved. Geometry and transient planning instances never enter the save.
 const memo=new WeakMap();

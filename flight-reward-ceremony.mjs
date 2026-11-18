@@ -1,14 +1,14 @@
-import {ARTIFACTS,SKILL_CARDS,getCardDraft,lastCourseName} from './model.mjs?v=lift-1';
-import {chipIcon} from './ui/trigger-icons.mjs?v=lift-1';
-import {cardDraftMarkup,cardDraftOffersMarkup} from './card-ui.mjs?v=lift-1';
-import {rewardEarnings} from './reward-screen.mjs?v=lift-1';
-import {resourceSymbol} from './game-symbols.mjs?v=lift-1';
-import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=lift-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=lift-1';
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=lift-1';
-import {sealedPackMarkup} from './flight-reward-pack-art.mjs?v=lift-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=lift-1';
-import {flightRewardReceiptDetail,FLIGHT_REWARD_SOURCE_DETAILS} from './flight-reward-details.mjs?v=lift-1';
+import {ARTIFACTS,SKILL_CARDS,getCardDraft,lastCourseName} from './model.mjs?v=wind-1';
+import {chipIcon} from './ui/trigger-icons.mjs?v=wind-1';
+import {cardDraftMarkup,cardDraftOffersMarkup} from './card-ui.mjs?v=wind-1';
+import {rewardEarnings} from './reward-screen.mjs?v=wind-1';
+import {resourceSymbol} from './game-symbols.mjs?v=wind-1';
+import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=wind-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=wind-1';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=wind-1';
+import {sealedPackMarkup} from './flight-reward-pack-art.mjs?v=wind-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=wind-1';
+import {flightRewardReceiptDetail,FLIGHT_REWARD_SOURCE_DETAILS} from './flight-reward-details.mjs?v=wind-1';
 export {flightRewardReceiptDetail};
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -59,7 +59,7 @@ export function flightRewardCeremonyReceipt(run){
  const optionalNotes=[{detailKey:'challenge',text:challengePayoutOnly ? null : routeNote?challengeName?`Optional challenge · ${challengeName}: ${routeNote}`:routeNote:flight.challengeComplete?'Optional challenge completed':null},
   {detailKey:'event-seal',text:flight.treasureWager?.message},{detailKey:'event-vow',text:flight.vow?.message},{detailKey:'event-chest',text:chestPayoutOnly?null:chestNote}].filter(entry=>entry.text);
  const growthNotes=[{detailKey:'effect-growth',text:clear?.futureCapacity>0?`${sourceLabel('Cards on clear',sourceNames('futureCapacity'))} · +${count(clear.futureCapacity)} permanent maximum Sparks`:null},
-  {detailKey:'effect-speed',text:clear?.cruisingSpeed>0?`${sourceLabel('Cards on clear',sourceNames('cruisingSpeed'))} · +${count(clear.cruisingSpeed)}% cruising speed unlocked`:null}].filter(entry=>entry.text);
+  {detailKey:'effect-speed',text:clear?.cruisingSpeed>0?`${sourceLabel('Cards on clear',sourceNames('cruisingSpeed'))} · +${count(clear.cruisingSpeed)}% speed, kept on the card`:null}].filter(entry=>entry.text);
  const relicEntries=Object.entries(flight.artifactActivations||{}).filter(([id,amount])=>ARTIFACTS[id]&&count(amount)>0).map(([id,amount])=>({artifactId:id,detailKey:`artifact:${id}`,text:`${ARTIFACTS[id].name} · activated ×${count(amount)}`}));
  relicEntries.push(...(Array.isArray(flight.consumedArtifacts)?flight.consumedArtifacts:[]).filter(id=>ARTIFACTS[id]).map(id=>({artifactId:id,detailKey:`artifact:${id}`,text:`${ARTIFACTS[id].name} · uses depleted this flight`})));
  const effectEntries=[...optionalNotes,...growthNotes,...relicEntries];

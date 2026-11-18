@@ -1,12 +1,12 @@
-import {ARTIFACTS,SKILLS,SKILL_CARDS} from './model.mjs?v=lift-1';
-import {cardFace} from './card-ui.mjs?v=lift-1';
-import {cardTermMarkup,cardTermTextMarkup} from './card-terms.mjs?v=lift-1';
-import {artifactDescriptionMarkup} from './artifact-copy.mjs?v=lift-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=lift-1';
-import {EVENT_SCENARIOS,mapStopIconMarkup} from './map-guide.mjs?v=lift-1';
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=lift-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=lift-1';
-import {describeTreasure} from './treasure.mjs?v=lift-1';
+import {ARTIFACTS,SKILLS,SKILL_CARDS} from './model.mjs?v=wind-1';
+import {cardFace} from './card-ui.mjs?v=wind-1';
+import {cardTermMarkup,cardTermTextMarkup} from './card-terms.mjs?v=wind-1';
+import {artifactDescriptionMarkup} from './artifact-copy.mjs?v=wind-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=wind-1';
+import {EVENT_SCENARIOS,mapStopIconMarkup} from './map-guide.mjs?v=wind-1';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=wind-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=wind-1';
+import {describeTreasure} from './treasure.mjs?v=wind-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const paragraph=text=>text?`<p>${cardTermTextMarkup(text)}</p>`:'';
@@ -80,7 +80,7 @@ export function flightRewardReceiptDetail(run,key){
   }
   case 'source-clear-cards':cards('Cards on clear',recordedCards(run,'stored'),'These actual cards paid Stored Sparks when this flight cleared. This payout does not earn packing extras.',['clear','stored','uses','copy']);break;
   case 'effect-growth':cards('Permanent maximum Sparks',recordedCards(run,'futureCapacity'),`This clear added ${Number(flight.cardClearReceipt?.futureCapacity)||0} permanent maximum Sparks. It does not refill the meter.`,['clear','meter','copy']);break;
-  case 'effect-speed':cards('Cruising speed unlocked',recordedCards(run,'cruisingSpeed'),`This clear unlocked +${Number(flight.cardClearReceipt?.cruisingSpeed)||0}% cruising speed. Choose an unlocked speed in Settings, including normal speed. The total unlock is capped at +6%.`,['clear','copy']);break;
+  case 'effect-speed':cards('Speed kept on the card',recordedCards(run,'cruisingSpeed'),`This clear added +${Number(flight.cardClearReceipt?.cruisingSpeed)||0}% speed to the card. It counts only while the card is in your Chain, up to +10%.`,['clear','copy']);break;
   case 'event-pact':{
    const pact=FLIGHT_PACTS[flight.flightPact];if(!pact)return null;
    const event=EVENT_SCENARIOS[{ 'night-ledger':1,'blind-pilgrim':7,'silent-orbit':8 }[pact.id]];
