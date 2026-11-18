@@ -9,8 +9,8 @@ export const EVENT_EDITION=4;
 const pick=(id,title,description,art,effect)=>({id,title,description,detail:description,art,effect,displayUnits:true});
 /** Stored Sparks an event pays, by map. */
 export const eventSparks=run=>[20,30,40][Math.max(0,Math.min(2,Math.floor(Number(run?.mapIndex)||0)))];
-const sparks=(run,id='event-sparks',title='Pocket the coins',amount=eventSparks(run))=>pick(id,title,'+'+amount+' Stored Sparks. Spend on skills at any time.','packed',{packedReward:amount});
-const heart=()=>pick('rekindle','Relight a lost heart','Restore one missing attempt.','heart',{lives:1});
+const sparks=(run,id='event-sparks',title='Pocket the coins',amount=eventSparks(run))=>pick(id,title,'+'+amount+' Stored Sparks. Spend them at Rest.','packed',{packedReward:amount});
+const heart=()=>pick('rekindle','Relight a lost heart','Restore one heart.','heart',{lives:1});
 const takeCard=run=>isCardRun(run)?pick('free-card','Take a card','A surprise card goes to your Deck.','card',{eventCard:true}):null;
 // A card outcome (improve, refill) is picked on the same screen: the offer says "a card", the player then taps which one
 // (eventCardOptions in model.mjs lists the eligible cards). With none eligible the offer stays on screen, disabled, with its reason.
@@ -49,7 +49,7 @@ export function eventChoices(run,{refunds=[],targets={}}={}){
  case 9: list=[injured?heart():room>=20?refuel(room):sparks(run),refill(run,targets)];break;
  case 10: {
   const best=refunds.filter(x=>x.refund>0).sort((a,b)=>b.refund-a.refund)[0];
-  list=[best&&training?pick('workshop-'+best.root,'Unweave '+best.name,'Remove this branch’s paid ranks. Refund '+best.refund+' Stored Sparks; keep your starting gift.','skills',{respec:best.root}):sparks(run,'workshop-scrap','Sell the scrap'),improve(run,targets)];break;
+  list=[best&&training&&!isCardRun(run)?pick('workshop-'+best.root,'Unweave '+best.name,'Remove this branch’s paid ranks. Refund '+best.refund+' Stored Sparks; keep your starting gift.','skills',{respec:best.root}):sparks(run,'workshop-scrap','Sell the scrap'),improve(run,targets)];break;
  }
  case 11: list=[improve(run,targets),sparks(run,'shrine-packed','Salvage the tuning fork',12)];break;
  default:return null;

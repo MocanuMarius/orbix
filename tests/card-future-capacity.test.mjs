@@ -66,6 +66,7 @@ test('a second real clear adds one more to the ring while it is mounted, up to t
  for(let visit=0;visit<12&&flights<4;visit++){
   const r=state.run;if(r.phase==='map-clear')assert.ok(M.advanceMap(r));
   const choices=M.getChoices(r),node=choices.find(n=>n.type==='flight'&&!n.elite&&!n.boss)||choices.find(n=>n.type==='support');if(!node||!M.selectNode(r,node.id))break;
+  if(r.pendingChest){assert.ok(M.chooseChestReward(state,'sparks'));if(r.pendingTemporary)assert.ok(M.writePendingTemporary(r,undefined,{confirm:true}));continue;}
   if(r.phase==='support'){
    if(r.current?.kind==='scribe'){assert.ok(M.chooseFlightReward(state,r.flightReward.offers[0]));assert.ok(M.leaveScribe(r));continue;}
    const options=M.getSupportChoices(r,state.profile),index=options.findIndex(c=>!c.disabled&&(c.id==='rest-continue'||c.effect?.rest==='recover'||c.effect?.restContinue));

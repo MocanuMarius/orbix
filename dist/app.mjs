@@ -24,6 +24,9 @@ import {flightPreviewMarkup} from './flight-preview.mjs?v=guide-clarity-1';
 import {collectionMarkup,COLLECTION_PAGE_SIZE} from './collection-view.mjs?v=guide-clarity-1';
 import {restBenefitsMarkup} from './rest-choice-view.mjs?v=guide-clarity-1';
 import {treasureView,chestChoiceMarkup} from './treasure-view.mjs?v=guide-clarity-1';
+import {chestStopMarkup,eventStopMarkup,eventCardStopMarkup} from './stop-screen.mjs?v=guide-clarity-1';
+import {treasureArt} from './treasure-art.mjs?v=guide-clarity-1';
+import {eventCardOptions as stopEventCardOptions,getTreasureKind} from './model.mjs?v=guide-clarity-1';
 import {getFlightClearReward} from './checkpoint-rewards.mjs?v=guide-clarity-1';
 import {artifactDescription} from './artifact-copy.mjs?v=guide-clarity-1';
 import {showNightmare} from './nightmare.mjs?v=guide-clarity-1';
@@ -169,7 +172,7 @@ function renderHeader(){
  header.innerHTML=`<div class="game-top-left">${screen==='home'?'<span class="header-wisp">W</span>':`<button class="game-round back-icon" data-action="${['briefing','support'].includes(screen)?'back-route':'exit-menu'}" aria-label="${['briefing','support'].includes(screen)?'Back':'Exit to menu'}">${icon('back')}</button>`}${route?`<div class="route-heading">${r.isTutorial?'<span>Practice</span>':`<span>Ascension ${r.difficulty}</span><b>Map ${r.mapIndex+1} / 3${chapter?` · ${chapter}`:''}</b>`}</div>`:''}</div><div class="header-end">${route?livesMarkup(r)+mapEnergy(r):''}${inside&&!(isPlayablePractice(r)&&screen!=='flight')&&r.phase!=='ended'&&(isCardRun(r)||featureAvailable('skills'))?`<button class="bank saved-wallet-bank ember-wallet condensed-wallet${affordable?' has-upgrades':''}" data-action="skills" aria-label="${walletLabel}" title="${walletLabel}"><span class="wallet-currency-icon">${condensedIconMarkup()}</span><b>${wallet}</b>${affordable?`<span class="wallet-upgrades" aria-hidden="true"><svg viewBox="0 0 24 28" shape-rendering="crispEdges"><path d="M10 2h4v4h4v4h4v4h-7v12H9V14H2v-4h4V6h4Z" fill="currentColor"/></svg><span class="wallet-upgrade-count">${affordable}</span></span>`:''}</button>`:''}${screen==='home'?'':menuButton()}</div>`;
 }
 function destroyFlight(){stopCountdown();launchTicket++;flightLoading=false;resumeArmed=false;pendingDeparture=null;hud?.activationFeedback?.destroy();hud?.rhythmScore?.destroy();hud?.firstLightCombo?.destroy();hud?.cardRowFeedback?.destroy();hud?.fps?.destroy();engine?.destroy();engine=null;hud=null;paused=false;document.body.classList.remove('playing','dream-rehearsal');hideLesson()}
-function render(view=screen){ceremonyCleanup?.();ceremonyCleanup=null;clearTimeout(ceremonyOpening);ceremonyOpening=null;updateCheckpoint();screen=view;music.setScene(view==='flight'?'flight':view==='rest-prep'?'rest':view==='victory'||view==='map-clear'||view==='card-draft'?'clear':view==='death'?'loss':'menu');document.body.dataset.screen=screen;document.body.dataset.practice=String(!!state.run?.isTutorial);document.body.dataset.companionRole=normalizeCompanionRole(roleFleet()[0]);document.body.classList.toggle('playing',screen==='flight');renderHeader();const views={home:renderHome,map:renderMap,briefing:renderBriefing,support:renderSupport,retry:renderRetry,death:()=>deathScreenMarkup(state.run),'map-clear':renderMapClear,result:renderResult,victory:renderVictory,temporary:renderTemporaryWrite,chest:()=>chestChoiceMarkup(state.run),'rest-prep':renderRestPrep,'card-draft':()=>flightRewardCeremonyMarkup(state.run),'card-reward':()=>cardRewardMarkup(state.run,{equipping:cardRewardEquipping,notice:cardRewardNotice})};app.innerHTML=(views[screen]||renderHome)();if(screen==='card-draft')mountCardDraftCeremony();if(screen==='map')drawMap();requestAnimationFrame(()=>{if(screen==='home'&&state.updateNotice){const notice=state.updateNotice;delete state.updateNotice;persist();openSheet(`<h2>Your game has changed</h2><p class="run-pause-note">${esc(notice)}</p><button class="primary" data-action="close-sheet">Got it</button>`,'run-confirm-sheet');return;}if(screen==='death')setTimeout(()=>{if(screen==='death')guideScreen('death')},1850);else guideScreen(screen);maybeAskDisplay();if(screen==='home')checkHomeUpdate()})}
+function render(view=screen){ceremonyCleanup?.();ceremonyCleanup=null;clearTimeout(ceremonyOpening);ceremonyOpening=null;updateCheckpoint();screen=view;music.setScene(view==='flight'?'flight':view==='rest-prep'?'rest':view==='victory'||view==='map-clear'||view==='card-draft'?'clear':view==='death'?'loss':'menu');document.body.dataset.screen=screen;document.body.dataset.practice=String(!!state.run?.isTutorial);document.body.dataset.companionRole=normalizeCompanionRole(roleFleet()[0]);document.body.classList.toggle('playing',screen==='flight');renderHeader();const views={home:renderHome,map:renderMap,briefing:renderBriefing,support:renderSupport,retry:renderRetry,death:()=>deathScreenMarkup(state.run),'map-clear':renderMapClear,result:renderResult,victory:renderVictory,temporary:renderTemporaryWrite,chest:()=>{const run=state.run,node=run.current||run.map?.flat().find(n=>n.id===run.pendingChest?.nodeId)||null;return chestStopMarkup(run,{node,art:treasureArt(node?getTreasureKind(run,node):'vessel')});},'rest-prep':renderRestPrep,'card-draft':()=>flightRewardCeremonyMarkup(state.run),'card-reward':()=>cardRewardMarkup(state.run,{equipping:cardRewardEquipping,notice:cardRewardNotice})};app.innerHTML=(views[screen]||renderHome)();if(screen==='card-draft')mountCardDraftCeremony();if(screen==='map')drawMap();requestAnimationFrame(()=>{if(screen==='home'&&state.updateNotice){const notice=state.updateNotice;delete state.updateNotice;persist();openSheet(`<h2>Your game has changed</h2><p class="run-pause-note">${esc(notice)}</p><button class="primary" data-action="close-sheet">Got it</button>`,'run-confirm-sheet');return;}if(screen==='death')setTimeout(()=>{if(screen==='death')guideScreen('death')},1850);else guideScreen(screen);maybeAskDisplay();if(screen==='home')checkHomeUpdate()})}
 function mountCardDraftCeremony(){
  const run=state.run,draftId=run?.cardDraft?.id;
  const animateWallet=ceremonyFreshDraftId===draftId;ceremonyFreshDraftId=null;
@@ -825,7 +828,7 @@ function previewNode(id){
  const node=run.map.flat().find(site=>site.id===id);
  if(!node)return;
  const available=getChoices(run).some(choice=>choice.id===id);
- if(node.kind==='treasure')return openSheet(treasureView(run,node,{preview:true,available}),'treasure-route-sheet');
+ if(node.kind==='treasure'&&!isCardRun(run))return openSheet(treasureView(run,node,{preview:true,available}),'treasure-route-sheet');
  if(node.type!=='support'){
   if(available)void preloadFlightEntry(state.settings.reducedMotion).catch(()=>{});
   const content=flightPreviewMarkup(run,node,{available,level:nodeLocation(node),bonus:prepareOffer(run,node)});
@@ -893,15 +896,9 @@ function renderSupport(){
  const choices=getSupportChoices(r,state.profile);
  if(n.kind==='camp')return renderRestBenefits(r,n,choices);
  const pickKind=eventPick&&eventPick.nodeId===n.id?eventPickKind(choices[eventPick.index]):null;if(!pickKind)eventPick=null;
- return `<section class="center-view compact-support">${campaignStrip(r,state.profile)}${tutorialCheckpoint()}
- <aside class="support-context"><div class="support-symbol">${mapStopIconMarkup(n)}</div><h1>${esc(n.name)}</h1>
- <div class="support-vitals">${livesMarkup(r)}<span class="glow-label">${resourceSymbol('energy')}${formatGlow(r.flame)} / ${formatGlow(getGlowCapacity(r))}</span></div>
- ${forecastMarkup(n)}${artifactsRevealed()?`<button class="secondary" data-action="artifacts">${icon('star')}Collection</button>`:''}</aside>
- ${pickKind?eventPickMarkup(r,pickKind):`<div class="support-offers">${choices.map((c,i)=>`<button class="route-choice boon-choice event-offer${c.disabled?' is-disabled':''}" data-tap-pick data-action="support" data-index="${i}" ${c.disabled?'disabled aria-disabled="true"':''}>
- <span class="boon-emblem" aria-hidden="true">${eventArt(c)}</span>
- <h3>${esc(c.title)}</h3>${c.effect?.oath?'<small class="support-temporary-label">Wager · next flight only</small>':c.effect?.routePreparation?'<small class="support-temporary-label">Next flight</small>':''}<div class="boon-values">${supportValues(c.effect)}</div><p>${esc(c.description)}</p>
- ${c.effect?.upgrade?`<p class="support-upgrade-effect">${esc(glowText(SKILLS[c.effect.upgrade]?.consequence||SKILLS[c.effect.upgrade]?.description||'',getGlowCapacity(r)))}${SKILLS[c.effect.upgrade]?.choiceGroup?' · Commits this path for the run.':''}</p>`:''}
- </button>`).join('')}</div>`}</section>`;
+ const stopArt='<div class="stop2-picture">'+mapStopIconMarkup(n,{size:96})+'</div>';
+ if(pickKind)return eventCardStopMarkup(r,n,pickKind,stopEventCardOptions(r,pickKind).slice(0,10),{art:stopArt});
+ return eventStopMarkup(r,n,choices,{art:stopArt});
 }
 
 function renderRestPrep(){const r=state.run,n=r.map.flat().find(x=>x.id===r.lastRest?.nodeId)||{name:'Rest',kind:'camp'};return renderRestBenefits(r,n,[],{nextNode:getChoices(r)[0]});}

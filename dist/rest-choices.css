@@ -405,3 +405,63 @@ html body .card-workshop.wk .wk-pick .wk-why{flex:none;font-size:12px;line-heigh
  html body .card-workshop.wk .wk-cost{font-size:13px;line-height:15px}
  html body .card-workshop.wk .wk-pick .wk-why{font-size:10px;line-height:12px}
 }
+
+/* ═══ Event and chest stops · JOB E (stop-screen.mjs) ═══
+   The house parchment page of Rest (.rest2 root, header, chips). Body: the stop's picture whole at the left, the options as large equal
+   leather tiles side by side (tap-pick). Unavailable options are paper with the reason in ink. Nothing scrolls. */
+html body .rest2.stop2:not(#k){grid-template-rows:auto minmax(0,1fr);gap:8px}
+.stop2-body{min-height:0;display:grid;grid-template-columns:minmax(104px,21%) minmax(0,1fr);gap:12px;align-items:stretch}
+.stop2-art{margin:0;min-width:0;min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto;gap:4px;place-items:center;background:#e6d4a2;border:2px solid #4a3828;padding:6px;overflow:hidden}
+html body .stop2-art :is(svg,img){display:block;width:min(100%,150px)!important;height:auto!important;max-height:100%;aspect-ratio:1;image-rendering:pixelated;--ui-size:150px}
+html body .stop2-art svg.treasure-art{aspect-ratio:76/48;width:100%!important;max-width:160px}
+.stop2-picture{display:grid;place-items:center;width:100%;height:100%;min-height:0}
+.stop2-main{min-width:0;min-height:0;display:flex;flex-direction:column;gap:6px}
+html body .stop2 .stop2-hint{margin:0;flex:none;font:400 13px/16px var(--pixel,monospace);color:#5a4632}
+.stop2-tiles{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.stop2-tiles[data-count="3"]{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+html body .stop2 button.stop2-tile:not(#k):not(#j){display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;height:100%;min-width:0;min-height:0!important;margin:0;padding:6px 4px!important;border:12px solid transparent!important;border-image:url('assets/ui/waystone/plaque-leather.svg') 6 / 12px stretch!important;border-radius:0!important;clip-path:none!important;box-shadow:none!important;background:#5a4632 padding-box!important;background-image:none!important;color:#f6ebcc!important;text-align:center;text-transform:none;letter-spacing:0!important;text-shadow:1px 2px #2a1d12!important;white-space:normal;overflow:hidden;image-rendering:pixelated}
+html body .stop2 button.stop2-tile.is-off:not(#k):not(#j){border-image-source:url('assets/ui/waystone/plaque-slip.svg')!important;background:#e4d09b padding-box!important;color:#3b2d20!important;text-shadow:none!important;cursor:default}
+html body .stop2 .stop2-tile .stop2-ico{display:block;flex:none;width:48px;height:48px;line-height:0}
+html body .stop2 .stop2-tile .stop2-ico :is(svg,img){width:48px!important;height:48px!important;display:block;--ui-size:48px}
+html body .stop2 .stop2-tile .stop2-ico>*{display:block}
+html body .stop2 .stop2-tile .stop2-ico .resource-symbol-energy{width:44px;height:44px}
+.stop2-tiles[data-tap-pick-group]{padding-top:6px}
+html body .stop2 .stop2-tile .stop2-name{font:400 20px/22px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#fff1c5;overflow-wrap:anywhere}
+html body .stop2 .stop2-tile .stop2-line{font:400 14px/17px var(--pixel,monospace);color:#e2d0a6;overflow-wrap:anywhere}
+html body .stop2 .stop2-tile .stop2-why{font:400 12px/14px var(--pixel,monospace);font-style:normal;color:#7a2f2a}
+html body .stop2 .stop2-tile.is-off :is(.stop2-name,.stop2-line){color:#5a4632}
+.stop2-tiles[data-count="3"] .stop2-tile .stop2-name{font-size:17px;line-height:19px}
+html body .stop2 :is(.stop2-tile,.stop2-card):focus-visible{outline:3px solid #2a2118!important;outline-offset:2px}
+/* Card pick (Improve / Refill): up to ten cards, two rows of five, centred */
+.stop2-cards{flex:1 1 auto;min-height:0;display:flex;flex-wrap:wrap;justify-content:center;align-content:center;align-items:stretch;gap:8px}
+html body .stop2 button.stop2-card:not(#k):not(#j){flex:0 1 calc((100% - 32px)/5);min-width:0;max-width:calc((100% - 32px)/5);max-height:calc(50% - 4px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:0!important;margin:0;padding:4px 3px!important;border:12px solid transparent!important;border-image:url('assets/ui/waystone/plaque-leather.svg') 6 / 12px stretch!important;border-radius:0!important;box-shadow:none!important;background:#5a4632 padding-box!important;color:#f6ebcc!important;text-align:center;text-shadow:1px 2px #2a1d12!important;overflow:hidden}
+.stop2-card-art{display:flex;align-items:center;justify-content:center;flex:1 1 auto;min-height:0;width:100%}
+.stop2-card-art svg{width:auto;height:100%;max-width:100%;max-height:34px}
+html body .stop2 .stop2-card b{flex:none;font:400 13px/14px var(--pixel,monospace);color:#fff1c5;overflow-wrap:anywhere}
+html body .stop2 .stop2-card small{flex:none;font:400 11px/12px var(--pixel,monospace);color:#e2d0a6}
+html body .stop2 .stop2-card i{flex:none;font:400 10px/11px var(--pixel,monospace);font-style:normal;color:#e6c77c}
+@media(max-height:340px){
+ .stop2-body{gap:8px;grid-template-columns:minmax(84px,18%) minmax(0,1fr)}
+ html body .stop2 .stop2-hint{font-size:12px;line-height:14px}
+ .stop2-tiles{gap:8px}
+ html body .stop2 button.stop2-tile:not(#k):not(#j){gap:3px;padding:2px!important}
+ html body .stop2 .stop2-tile .stop2-ico,html body .stop2 .stop2-tile .stop2-ico>*,html body .stop2 .stop2-tile .stop2-ico :is(svg,img){width:32px!important;height:32px!important;--ui-size:32px}
+ html body .stop2 .stop2-tile .stop2-ico .ui-icon{--ui-size:32px!important}
+ html body .stop2 .stop2-tile .stop2-name{font-size:16px;line-height:18px}
+ html body .stop2 .stop2-tile .stop2-line{font-size:12px;line-height:14px}
+ .stop2-tiles[data-count="3"] .stop2-tile .stop2-name{font-size:14px;line-height:16px}
+ html body .stop2 button.stop2-card:not(#k):not(#j){padding:2px!important}
+ .stop2-card-art svg{max-height:26px}
+ html body .stop2 .stop2-card small{font-size:10px;line-height:11px}
+}
+html body .stop2,html body .stop2 *{font-variant-ligatures:none;font-feature-settings:"liga" 0,"clig" 0}
+
+.stop2-art-pic{min-height:0;min-width:0;width:100%;height:100%;display:grid;place-items:center}
+html body .stop2 .stop2-found{display:flex;flex-direction:column;gap:2px;width:100%;padding-top:4px;border-top:2px solid #8a7048;text-align:left;color:#2a2118}
+html body .stop2 .stop2-found-head{display:flex;align-items:center;gap:5px;min-width:0}
+html body .stop2 .stop2-found-head small{font:400 11px/13px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#5a4632}
+html body .stop2 .stop2-found-head b{font:400 14px/16px var(--pixel,monospace);color:#2a2118;overflow-wrap:anywhere}
+html body .stop2 .stop2-found-pic{display:block;flex:none;line-height:0}
+html body .stop2 .stop2-found-pic :is(svg,img){width:24px!important;height:24px!important;--ui-size:24px}
+html body .stop2 .stop2-found-line{font:400 12px/14px var(--pixel,monospace);color:#3b2d20}
+@media(max-height:340px){html body .stop2 .stop2-found-line{font-size:11px;line-height:12px}html body .stop2 .stop2-found-head b{font-size:12px;line-height:14px}.stop2-art :is(svg,img){max-height:100%}}

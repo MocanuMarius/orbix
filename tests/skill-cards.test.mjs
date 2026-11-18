@@ -105,22 +105,27 @@ test("pilot is explicit; old saves and standard tutorial keep the book", () => {
   assert.equal(M.getRunModifiers(legacy.run).cardLiftGuide, true);
 });
 
-test("starter offers three seeded cards and equips the choice plus one guaranteed working Lift Guide", () => {
+test("start bonus offers three seeded tiles (card, Inscription or Wisp stat) and always mounts a working Lift Guide", () => {
   for (let seed = 0; seed < 100; seed++) {
     const state = fresh(`starter-${seed}`),
       offers = M.getStartingGiftOffers(state.run);
     assert.equal(offers.length, 3);
-    assert.equal(new Set(offers.map(gift=>gift.cardId)).size,3);
-    assert.ok(offers.every(gift=>gift.rarity==='common'&&STARTER_CARD_IDS.includes(gift.cardId)), 'three of the six starter cards');
+    assert.equal(new Set(offers.map(gift=>gift.id)).size,3);
+    assert.ok(offers.every(gift=>['card','inscription','wisp'].includes(gift.kind)&&(gift.kind!=='card'||STARTER_CARD_IDS.includes(gift.cardId))), 'card tiles are starter cards');
     assert.deepEqual(M.getStartingGiftOffers(reload(state).run), offers);
-    const pick = offers.find(gift => gift.cardId !== 'lift-guide');
+    const pick = offers.find(gift => gift.kind === 'card' && gift.cardId !== 'lift-guide') || offers[0];
     assert.ok(M.chooseStartingGift(state, pick.id));
     assert.equal(M.chooseStartingGift(state, offers[1].id), false);
-    assert.equal(state.run.mountedCards.filter(Boolean).length, 2);
-    assert.equal(M.getOwnedCards(state.run).find(card => card.cardId === pick.cardId).mounted, true);
-    assert.equal(state.run.mountedCards[1].cardId, "lift-guide");
-    assert.equal(state.run.mountedCards[2], null);
     assert.equal(M.getRunModifiers(state.run).cardLiftGuide, true);
+    if (pick.kind === 'card') {
+      assert.equal(state.run.mountedCards.filter(Boolean).length, 2);
+      assert.equal(M.getOwnedCards(state.run).find(card => card.cardId === pick.cardId).mounted, true);
+      assert.ok(state.run.mountedCards.some(card => card?.cardId === "lift-guide"), "Lift Guide is the guaranteed second card (Dream goes last)");
+      assert.equal(state.run.mountedCards[2], null);
+    } else {
+      assert.equal(state.run.mountedCards.filter(Boolean).length, 1);
+      assert.ok(state.run.mountedCards.some(card => card?.cardId === 'lift-guide'));
+    }
     assert.deepEqual(reload(state).run.mountedCards, state.run.mountedCards);
     assert.deepEqual(state.run.skills, {});
   }
@@ -147,7 +152,7 @@ test("pending legacy starter choices commit safely and completed or melted start
   assert.ok(legacyGuide && legacyOther);
   const state = fresh("no-starter-farm"), offer = M.getStartingGiftOffers(state.run)[0];
   assert.ok(M.chooseStartingGift(state, offer.id));
-  assert.ok(M.meltMountedCard(state, 1));
+  assert.ok(M.meltMountedCard(state, state.run.mountedCards.findIndex(card => card?.cardId === "lift-guide")));
   const wallet = state.run.condensedGlow, hand = structuredClone(state.run.mountedCards);
   const loaded = reload(state);
   assert.deepEqual(loaded.run.mountedCards, hand);
@@ -574,7 +579,7 @@ test("all three guardians and elites drop cards, final guardian records trophy w
       assert.ok(M.advanceMap(run));
       continue;
     }
-    if (run.pendingChest) assert.ok(M.chooseChestReward(state, "sparks")); // a chest left open by the previous stop: take the Stored Sparks (no card, so the card count below holds)
+    if (run.pendingChest) { assert.ok(M.chooseChestReward(state, "sparks")); if (run.pendingTemporary) assert.ok(M.writePendingTemporary(run, undefined, { confirm: true })); } // a chest left open by the previous stop: take the Stored Sparks (no card, so the card count below holds)
     const choices = M.getChoices(run),
       node =
         choices.find((n) => n.elite) ||
@@ -582,6 +587,7 @@ test("all three guardians and elites drop cards, final guardian records trophy w
         choices[0];
     if (node.type === "support") {
       assert.ok(M.selectNode(run, node.id));
+      if (run.pendingChest) { assert.ok(M.chooseChestReward(state, "sparks")); if (run.pendingTemporary) assert.ok(M.writePendingTemporary(run, undefined, { confirm: true })); continue; } // a chest in a card run opens its one choice at once
       if (node.kind === "scribe") { assert.ok(M.chooseFlightReward(state, run.flightReward.offers[0])); assert.ok(M.leaveScribe(run)); continue; }
       const offers = M.getSupportChoices(run);
       const leave = offers.findIndex(
@@ -606,7 +612,7 @@ test("all three guardians and elites drop cards, final guardian records trophy w
   assert.ok(run.finalCardTrophy);
   assert.equal(run.cardReward.trophy, true);
   assert.equal(run.cardReward.claimed, true);
-  assert.equal(run.winningHand.length, 2);
+  assert.ok(run.winningHand.length >= 1); // Lift Guide plus the start card, or Lift Guide alone after an Inscription or Wisp start bonus
   assert.equal(M.chooseCardReward(state, "melt"), false);
   assert.equal(M.chooseCardReward(state, "equip", 0), false);
   assert.equal(run.cardRewardedNodes.length, run.stats.flights);

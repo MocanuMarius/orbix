@@ -54,7 +54,7 @@ export const CHEST_CARD_LINE = '1 surprise card';
 export const chestSparks = mapIndex => [20, 30, 40][Math.min(2, Math.max(0, Math.floor(Number(mapIndex)) || 0))];
 export const chestChoiceLine = mapIndex => `Choose: +${chestSparks(mapIndex)} Stored Sparks or ${CHEST_CARD_LINE}`;
 export function describeTreasure(kind, {card = false, mapIndex = 0} = {}) {
-  const [name, description, base] = sites[kind], rewardPreview = card ? `${base} Then ${chestChoiceLine(mapIndex).charAt(0).toLowerCase()}${chestChoiceLine(mapIndex).slice(1)}.` : base;
+  const [name, description, base] = sites[kind], rewardPreview = card ? `${chestChoiceLine(mapIndex)}. The other gift stays in the chest.` : base;
   return {treasureKind:kind, name, locationName:name, description, fuelPreview:rewardPreview,
     riskPreview:description, commitment:rewardPreview, rewardPreview, reward:rewardPreview};
 }
@@ -71,6 +71,23 @@ function duplicateOffer(run){
     '');
 }
 
+// A chest's OWN FIND (JOB E, 2026-11-18): one lasting find per chest, then the Stored Sparks / surprise card choice. By site: the Hollow Vessel holds the max-Spark
+// vessel (+3 maximum Sparks for the run, fills the new space: its effect before today in card runs); the Starglass Cache a Far Lens or Quick Lens Inscription; the
+// Tollkeeper's Strongbox a Mending Wick or Toll Stamp Inscription; the Reliquary nothing (its Seal Inscription is won by the sealed-purse wager). Gifts already held are skipped.
+const FIND_CANDIDATES = Object.freeze({vessel:['vessel'], lens:['farLens','quickLens'], tithe:['wick','toll'], wager:[]});
+function findRandom(seed){let s=2166136261;for(const c of String(seed))s=Math.imul(s^c.charCodeAt(0),16777619);return()=>{s+=0x6d2b79f5;let n=s;n=Math.imul(n^(n>>>15),n|1);n^=n+Math.imul(n^(n>>>7),n|61);return((n^(n>>>14))>>>0)/4294967296;};}
+/** The gift id ('vessel', 'farLens', ...) this chest holds, or null. Seeded by the run, map and chest, so reloading never changes it. */
+export function chestFindId(run, node, kind) {
+  const free = (FIND_CANDIDATES[kind] || []).filter(id => id === 'vessel' ? treasureRank(run, id) < limits.vessel : !heldGift(run, id));
+  if (!free.length) return null;
+  return free[Math.floor(findRandom(`${run.campaignSeed || run.seed}:${run.mapIndex}:${node?.id}:chest-find`)() * free.length)];
+}
+/** What the Found line shows: {id, name, line, inscription: id|null}. */
+export function describeChestFind(id) {
+  if (id === 'vessel') return {id, name: 'Hollow Vessel', line: '+3 max Sparks for this run', inscription: null};
+  const ins = INSCRIPTIONS[GIFT_INSCRIPTION[id]];
+  return ins ? {id, name: ins.name, line: ins.text, inscription: ins.id, glyph: ins.glyph} : null;
+}
 export function treasureChoices(kind, run) {
   const purse = (id, title, amount) => offer(id, title, `Gain ${amount} Stored Sparks for skills.`, 'packed', {packedReward:amount});
   const repairs=duplicateOffer(run);

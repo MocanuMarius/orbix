@@ -45,10 +45,10 @@ test('the Choose 1 card offers are tap-pick items with no Choose buttons', () =>
 
 test('every picking screen marks its items for tap-to-pick', () => {
   const read = f => fs.readFileSync(new URL(`../dist/${f}`, import.meta.url), 'utf8');
-  for (const [file, action] of [['card-ui.mjs', 'new-gift'], ['event-pick.mjs', 'event-card'], ['treasure-view.mjs', 'chest-choice'], ['card-workshop.mjs', 'card-workshop-improve'], ['card-workshop.mjs', 'card-workshop-refill'], ['app.mjs', 'event-offer']])
+  for (const [file, action] of [['card-ui.mjs', 'new-gift'], ['stop-screen.mjs', 'event-card'], ['stop-screen.mjs', 'chest-choice'], ['card-workshop.mjs', 'card-workshop-improve'], ['card-workshop.mjs', 'card-workshop-refill'], ['stop-screen.mjs', 'stop2-tile']])
     assert.ok(read(file).includes(action), `${file} ${action}`);
-  assert.match(read('event-pick.mjs'), /data-tap-pick/);
-  assert.match(read('treasure-view.mjs'), /data-tap-pick data-action="chest-choice"/);
+  assert.match(read('stop-screen.mjs'), /data-tap-pick/);
+  assert.match(read('stop-screen.mjs'), /action:'chest-choice'/);
   assert.match(read('card-workshop.mjs'), /data-tap-pick/);
   assert.match(read('app.mjs'), /installTapPick\(\)/);
   assert.match(read('ui/card-screens.css'), /\.tp-selected/);

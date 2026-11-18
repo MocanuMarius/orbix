@@ -34,7 +34,7 @@ export function chestChoiceMarkup(run){
  const p=run?.pendingChest;if(!p)return '';
  return `<section class="treasure-room chest-choice" aria-label="Chest: choose one"><aside class="treasure-place"><div class="treasure-name"><small>CHOOSE ONE</small><h2>The chest holds two gifts</h2></div></aside>
  <div class="treasure-offers support-offers">
-  <button class="treasure-offer chest-option" data-tap-pick data-action="chest-choice" data-id="sparks"><span class="treasure-choice-icon" aria-hidden="true">${resourceSymbol('packed')}</span><span class="treasure-choice-copy"><strong>Stored Sparks: +${p.sparks}</strong><span>Taken now. Spend them on skills.</span></span><span class="treasure-pick-arrow" aria-hidden="true">›</span></button>
+  <button class="treasure-offer chest-option" data-tap-pick data-action="chest-choice" data-id="sparks"><span class="treasure-choice-icon" aria-hidden="true">${resourceSymbol('packed')}</span><span class="treasure-choice-copy"><strong>Stored Sparks: +${p.sparks}</strong><span>Taken now. Spend them at Rest.</span></span><span class="treasure-pick-arrow" aria-hidden="true">›</span></button>
   <button class="treasure-offer chest-option" data-tap-pick data-action="chest-choice" data-id="card"><span class="treasure-choice-icon" aria-hidden="true">${skillIcon({id:'main-drift'})}</span><span class="treasure-choice-copy"><strong>A surprise card</strong><span>Forged free, then added to your deck.</span></span><span class="treasure-pick-arrow" aria-hidden="true">›</span></button>
  </div><p class="treasure-card-note" role="note"><b>One or the other.</b> <span>The other gift stays in the chest.</span></p></section>`;
 }

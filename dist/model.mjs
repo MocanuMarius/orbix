@@ -47,7 +47,7 @@ import { getBiomeLevelIdentity } from './level-catalog.mjs?v=guide-clarity-1';
 import { BIOMES } from './biomes.mjs?v=guide-clarity-1';
 import { EVENT_SCENARIOS } from './map-guide.mjs?v=guide-clarity-1';
 import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=guide-clarity-1';
-import {chestSparks, TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=guide-clarity-1';
+import {chestFindId, chestSparks, TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=guide-clarity-1';
 import {routeBonusNoteText,routeBonusReceiptText} from './route-bonus-copy.mjs?v=guide-clarity-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
@@ -693,8 +693,20 @@ function placeClaimedCard(run, reward) {
 export function queueChestChoice(run) {
   const node = run?.current;
   if (!isCardRun(run) || node?.kind !== 'treasure' || node.practiceLoan || (run.chestCards ?? {})[`${run.mapIndex}:${node.id}`]) return false;
-  run.pendingChest = { nodeId: node.id, key: `${run.mapIndex}:${node.id}`, mapIndex: run.mapIndex, sparks: chestSparks(run.mapIndex) };
+  run.pendingChest = { nodeId: node.id, key: `${run.mapIndex}:${node.id}`, mapIndex: run.mapIndex, sparks: chestSparks(run.mapIndex), find: chestFindId(run, node, getTreasureKind(run, node)) };
   return true;
+}
+/** Taking the chest's choice also takes its find: an Inscription opens the slot write screen (pendingTemporary), the vessel adds +3 max Sparks and fills them. */
+function takeChestFind(run, pending) {
+  if (!pending.find) return;
+  const capacity = getGlowCapacity(run);
+  if (!grantTreasureGift(run, pending.find)) return;
+  if (pending.find === 'vessel') run.flame = Math.min(getGlowCapacity(run), run.flame + Math.max(0, getGlowCapacity(run) - capacity));
+  run.lastChestFind = pending.find;
+}
+/** The chest stop ends with its choice (the stop was selected, not resolved through resolveSupport). Old saves already moved on. */
+function finishChestStop(run, pending) {
+  if (run.phase === 'support' && run.current?.id === pending.nodeId && run.current.kind === 'treasure') { run.stats.events++; nextStop(run); }
 }
 /** Take one option of the pending chest choice: 'sparks' or 'card'. Returns the result or false. */
 export function chooseChestReward(state, option) {
@@ -705,6 +717,8 @@ export function chooseChestReward(state, option) {
     grantArtifactMelt(run, pending.sparks); awardScoreStores(run, pending.sparks);
     run.chestCards[pending.key] = 'sparks'; run.lastChestChoice = { option, sparks: pending.sparks };
     delete run.pendingChest;
+    takeChestFind(run, pending);
+    finishChestStop(run, pending);
     return { option, sparks: pending.sparks };
   }
   const prior = run.current;
@@ -715,6 +729,8 @@ export function chooseChestReward(state, option) {
   if (!card) return false;
   run.lastChestChoice = { option, card };
   delete run.pendingChest;
+  takeChestFind(run, pending);
+  finishChestStop(run, pending);
   return { option, card };
 }
 export function grantChestCard(run) {
@@ -1314,7 +1330,10 @@ export function getRouteMapState(run){
  for(const n of frontier){if(lastElite&&n.elite)continue;addEdge(currentId,n.id);visit(n,lastElite);}
  return{currentId,selectedId:selected?.id||null,availableIds,reachableIds:[...reachableIds],completedIds,pathEdges,reachableEdges};
 }
-export function selectNode(run,nodeId){if(run?.pendingTemporary||run?.pendingChest||run?.victoryPending||run?.flightReward&&!run.flightReward.claimed||!cardRewardResolved(run))return false;const n=getChoices(run).find(n=>n.id===nodeId);if(!n)return false;if(n.type!=='support'&&!run.isTutorial)n.bonusId=getRouteBonus(run,n)?.id??null;run.path=run.path.filter(id=>nodes(run).some(p=>p.id===id&&p.row<run.step));run.path.push(n.id);if(n.type!=='support')n.flightNumber=run.path.map(id=>nodes(run).find(p=>p.id===id)).filter(p=>p.type!=='support').length;run.current=n;run.lastEvent=null;run.phase=n.type==='support'?'support':'briefing';if(isCardRun(run)&&n.kind==='camp')ensureCardRest(run);if(n.kind==='scribe'){if(isCardRun(run))ensureScribeStop(run);else if(!isPracticeCourseRun(run)){run.path.pop();run.current=null;run.phase='map';return false;}}preparePracticeStop(run,n);return true;}
+export function selectNode(run,nodeId){if(run?.pendingTemporary||run?.pendingChest||run?.victoryPending||run?.flightReward&&!run.flightReward.claimed||!cardRewardResolved(run))return false;const n=getChoices(run).find(n=>n.id===nodeId);if(!n)return false;if(n.type!=='support'&&!run.isTutorial)n.bonusId=getRouteBonus(run,n)?.id??null;run.path=run.path.filter(id=>nodes(run).some(p=>p.id===id&&p.row<run.step));run.path.push(n.id);if(n.type!=='support')n.flightNumber=run.path.map(id=>nodes(run).find(p=>p.id===id)).filter(p=>p.type!=='support').length;run.current=n;run.lastEvent=null;run.phase=n.type==='support'?'support':'briefing';if(isCardRun(run)&&n.kind==='camp')ensureCardRest(run);if(n.kind==='scribe'){if(isCardRun(run))ensureScribeStop(run);else if(!isPracticeCourseRun(run)){run.path.pop();run.current=null;run.phase='map';return false;}}preparePracticeStop(run,n);
+ // A chest in a card run is ONE choice: +Stored Sparks or a surprise card (owner 2026-11-18). The old "find" step offered retired skills and relics.
+ if(isCardRun(run)&&n.kind==='treasure'&&!n.practiceLoan&&!run.isTutorial&&!isPlayablePractice(run)&&!isPracticeCourseRun(run))queueChestChoice(run);
+ return true;}
 function nextStop(run){run.step++;run.current=null;run.phase=run.step>=run.map.length?'ended':'map';}
 function reattempt(run){return run.phase==='briefing'&&run.current&&run.lastAttempt?.nodeId===run.current.id&&run.lastAttempt.success!==true;}
 function canPrepareAtCheckpoint(run){const starter=run?.mapIndex===0&&run?.step===0&&run?.phase==='map'&&!run.path?.length;return!!run&&(run.testMode===true||run.restReady===true||starter)&&!run.attemptActive&&!run.banked&&run.lives>0&&['support','map','briefing'].includes(run.phase)&&!reattempt(run);}

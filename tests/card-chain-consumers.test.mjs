@@ -136,7 +136,7 @@ test('expanded use ceilings persist through normalization and eligible paid refi
 });
 
 test('Ember Feeder consumes two exact occupied instances atomically, keeps holes and grows only itself',()=>{
-  const state=fresh(['ember-feeder',null,'growth-ring','spark-cache']);const run=state.run;
+  const state=fresh(['ember-feeder',null,'tight-packing','spark-cache']);const run=state.run;
   const baseline=getGlowCapacity(run);assert.deepEqual(getEmberFeederTargets(run.mountedCards,0).map(t=>t.slot),[2,3]);
   const before=structuredClone(run);getMountedCards(run);getEquippedCardStatuses(run);
   previewCardRow(run,{kind:'flight-clear'});assert.deepEqual(run,before);
@@ -153,18 +153,18 @@ test('Ember Feeder consumes two exact occupied instances atomically, keeps holes
 });
 
 test('fewer than two targets, failed flights and Dream never consume a partial meal',()=>{
-  for(const ids of [['ember-feeder'],['ember-feeder','spark-cache'],['ember-feeder',null,'deep-vessel']]){
+  for(const ids of [['ember-feeder'],['ember-feeder','spark-cache'],['ember-feeder',null,'tight-packing']]){
     const state=fresh(ids),expected=state.run.mountedCards.map(c=>c?.instanceId||null);
     clear(state);assert.deepEqual(state.run.mountedCards.map(c=>c?.instanceId||null),expected);
     assert.equal(getCardFeederCapacity(state.run.mountedCards[0]),0);assert.equal(state.run.lastFlight.emberFeederSacrifices,undefined);
   }
   for(const result of [{success:false},{success:true,dreamAttempt:true}]){
-    const state=fresh(['ember-feeder','deep-vessel','spark-cache']),expected=structuredClone(state.run.mountedCards);
+    const state=fresh(['ember-feeder','tight-packing','spark-cache']),expected=structuredClone(state.run.mountedCards);
     clear(state,result);assert.deepEqual(state.run.mountedCards,expected);
   }
-  const state=fresh(['ember-feeder','spark-cache','deep-vessel']);
+  const state=fresh(['ember-feeder','spark-cache','tight-packing']);
   clear(state,{cardCharges:{'chain:1':0}});
-  assert.equal(state.run.mountedCards[1],null);assert.equal(state.run.mountedCards[2].cardId,'deep-vessel');
+  assert.equal(state.run.mountedCards[1],null);assert.equal(state.run.mountedCards[2].cardId,'tight-packing');
   assert.equal(getCardFeederCapacity(state.run.mountedCards[0]),0,'a card exhausted during flight cannot count as food');
 });
 
@@ -184,10 +184,10 @@ test('growth follows the feeder instance through duplicate swaps, saves, unequip
 
 test('physical consumers resolve safely left to right, including a feeder or Devourer being eaten first',()=>{
   for(const [ids,lives,survivors,grown,healed] of [
-    [['devourer','ember-feeder','deep-vessel','body-spark'],1,['devourer',null,'deep-vessel','body-spark'],0,1],
+    [['devourer','ember-feeder','tight-packing','body-spark'],1,['devourer',null,'tight-packing','body-spark'],0,1],
     [['ember-feeder','devourer','echo-ii','body-spark'],1,['ember-feeder',null,null,'body-spark'],1,0],
-    [['ember-feeder','ember-feeder','body-spark','deep-vessel'],1,['ember-feeder',null,null,'deep-vessel'],1,0],
-    [['ember-feeder','body-spark','deep-vessel','devourer','echo-ii'],1,['ember-feeder',null,null,'devourer',null],1,1],
+    [['ember-feeder','ember-feeder','body-spark','tight-packing'],1,['ember-feeder',null,null,'tight-packing'],1,0],
+    [['ember-feeder','body-spark','tight-packing','devourer','echo-ii'],1,['ember-feeder',null,null,'devourer',null],1,1],
   ]){
     const state=fresh(ids);state.run.lives=lives;clear(state);
     assert.deepEqual(state.run.mountedCards.map(c=>c?.cardId||null),survivors,ids.join(','));
@@ -197,7 +197,7 @@ test('physical consumers resolve safely left to right, including a feeder or Dev
 });
 
 test('neither new physical action is copyable or replayable; statuses name exact consequences',()=>{
-  const state=fresh(['echo-iii','ember-feeder','spark-cache','refrain','deep-vessel']);
+  const state=fresh(['echo-iii','ember-feeder','spark-cache','refrain','tight-packing']);
   const before=structuredClone(state.run.mountedCards),runtime=createCardExecution(before);
   resolveCardRow(runtime,{kind:'flight-clear'});assert.deepEqual(runtime.cards,before);
   const printed=getMountedCards(state.run),status=getEquippedCardStatuses(state.run);

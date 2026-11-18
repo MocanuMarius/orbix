@@ -1,9 +1,10 @@
-// Chests (treasure stops): after the chest's own find, one more choice on its own screen: +N Stored Sparks now, OR a free forged surprise card.
+// Chests (treasure stops) in a card run (JOB E, 2026-11-18): selecting the chest opens ONE choice on its own screen: +N Stored Sparks now, OR a free forged surprise card. The old find step (retired skills and relics) is gone for card runs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as M from '../dist/model.mjs';
 import {SKILL_CARDS, makeSkillCard, LIVE_CARDS} from '../dist/skill-cards.mjs';
-import {treasureView, chestChoiceMarkup} from '../dist/treasure-view.mjs';
+import {treasureView} from '../dist/treasure-view.mjs';
+import {chestStopMarkup} from '../dist/stop-screen.mjs';
 import {CHEST_CARD_LINE, chestSparks, chestChoiceLine} from '../dist/treasure.mjs';
 import {forgeCeremonyMarkup, forgeCeremonyPlan} from '../dist/forge-ceremony.mjs';
 
@@ -20,23 +21,17 @@ function atChest(seed, mounted = ['body-spark', null, null]) {
   return {s, run, stop};
 }
 const owned = run => [...run.mountedCards, ...run.reserveCards].filter(Boolean);
-// The chest's own find: take one that costs nothing and gives no Stored Sparks, so the second choice is measured alone.
-function takeBase(seed, mounted) {
-  const c = atChest(seed, mounted), offers = M.getSupportChoices(c.run);
-  const free = o => !o.disabled && !o.effect.condensedCost && !(o.effect.flame < 0);
-  let index = offers.findIndex(o => free(o) && !o.effect.packedReward);
-  if (index < 0) index = offers.findIndex(free);
-  assert.ok(index >= 0); assert.ok(M.resolveSupport(c.run, index));
-  return c;
-}
+// Selecting a chest in a card run queues its one choice at once; the stop is over when it is taken.
+const takeBase = (seed, mounted) => atChest(seed, mounted);
 
-test('after the chest own find, the chest pends one choice; nothing else moves until it is taken', () => {
-  const {run} = takeBase('chest-pend');
+test('selecting a chest pends one choice; nothing else moves until it is taken', () => {
+  const {run, stop} = takeBase('chest-pend');
   assert.deepEqual({sparks: run.pendingChest.sparks, map: run.pendingChest.mapIndex}, {sparks: chestSparks(0), map: 0});
   assert.equal(M.selectNode(run, M.getChoices(run)[0]?.id), false);
   assert.equal(M.beginFlightAttempt(run), false);
-  const html = chestChoiceMarkup(run), t = text(html);
-  assert.match(t, new RegExp(`Stored Sparks: \\+${chestSparks(0)}`)); assert.match(t, /A surprise card/); assert.match(t, /One or the other/);
+  const html = chestStopMarkup(run, {node: stop}), t = text(html);
+  assert.ok(t.includes('+' + chestSparks(0) + ' Stored Sparks')); assert.match(t, /A surprise card/); assert.match(t, /Take one/);
+  assert.doesNotMatch(t, /skill|relic|artifact/i);
   assert.equal((html.match(/data-action="chest-choice"/g) || []).length, 2);
   assert.equal(M.chooseChestReward({run}, 'nonsense'), false);
 });
@@ -91,10 +86,8 @@ test('preview matches the award: the stop page and chest view say "Choose: +N St
   const {run, stop} = atChest('chest-preview');
   const line = chestChoiceLine(0);
   assert.equal(line, `Choose: +${chestSparks(0)} Stored Sparks or ${CHEST_CARD_LINE}`);
-  assert.ok(stop.rewardPreview.includes(line.charAt(0).toLowerCase() + line.slice(1)), stop.rewardPreview);
+  assert.ok(stop.rewardPreview.includes(line), stop.rewardPreview);
   assert.equal(stop.reward, stop.rewardPreview);
-  assert.ok(text(treasureView(run, stop, {preview: true, available: true})).includes(line));
-  assert.ok(text(treasureView(run, stop)).includes(line));
   const c = takeBase('chest-preview-award');
   assert.equal(c.run.pendingChest.sparks, chestSparks(0));
   const before = owned(c.run).length, wallet = c.run.condensedGlow;
