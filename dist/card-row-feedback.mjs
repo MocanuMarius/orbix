@@ -1,5 +1,6 @@
 import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=guide-clarity-1';
-import {createChainStrip, baseColor, stripLayout, STRIP, STRIP_COLORS} from './chain-strip.mjs?v=guide-clarity-1';
+import {createChainStrip, baseColor, stripLayout, STRIP, STRIP_COLORS, resolveStripVariant} from './chain-strip.mjs?v=guide-clarity-1';
+import {createVariantView} from './chain-strip-variants.mjs?v=guide-clarity-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number = value => Number((Number(value) || 0).toFixed(3));
 const capped = trace => Number.isFinite(trace?.restoredSparks) && Math.abs(trace.restoredSparks - trace.sparks) > 1e-7;
@@ -53,13 +54,15 @@ export function productiveCardSources(trace) {
 /** The in-flight Chain strip (view). One fixed set of nodes per MOUNTED card, built when the Chain changes; a flash is three
  * Web Animations (white fill, beat, echo frame) that touch only transform and opacity, the idle fade one opacity change.
  * No text, no pictures: the exact receipt lives in the paused dialog (tap the strip). */
-export function createCardRowFeedback(root, {onInspect = () => {}, reducedMotion = false, doubleEcho = STRIP.doubleEcho, now = () => globalThis.performance?.now?.() ?? Date.now(),
+export function createCardRowFeedback(root, {onInspect = () => {}, reducedMotion = false, doubleEcho = STRIP.doubleEcho, variant = resolveStripVariant(), now = () => globalThis.performance?.now?.() ?? Date.now(),
   setTimer = (fn, ms) => globalThis.setTimeout(fn, ms), clearTimer = id => globalThis.clearTimeout(id)} = {}) {
   if (!root) return {update(){},destroy(){},attach(){}};
   const doc = root.ownerDocument, button = doc.createElement('button'), strip = createChainStrip({reducedMotion});
   button.type = 'button'; button.className = 'flight-card-row chain-strip'; button.hidden = true;
   button.setAttribute('aria-haspopup', 'dialog'); button.setAttribute('aria-label', 'Card chain. Pause to inspect your chain.');
   root.append(button);
+  const view = variant === 'b' || variant === 'c' ? createVariantView(variant, {doc, button}) : null; // variant A (below) is the shipped look and is untouched
+  if (view) button.dataset.strip = variant;
   const nodes = []; // {cell, frame, fill, echo, echo2, bar, ref, fireSerial, barSerial, lit}
   let trace = null, sequence = -1, dialog = null, shownVersion = -1, shownFaded = null, timer = null, timerDue = null, shownWidth = -1;
   const close = () => { dialog?.close(); dialog?.remove(); dialog = null; if (button.isConnected) button.focus({preventScroll: true}); };
@@ -78,6 +81,11 @@ export function createCardRowFeedback(root, {onInspect = () => {}, reducedMotion
   function paint() {
     // Structure and base colours: only when the Chain, a card's state or its Inscription changed. Empty slots have no node.
     const cells = strip.cells;
+    if (view) {
+      const w = view.paint(strip);
+      if (w !== shownWidth) { shownWidth = w; root.style?.setProperty('--strip-w', `${w + 2 * STRIP.padX}px`); }
+      button.hidden = !strip.visible; return;
+    }
     while (nodes.length < cells.length) {
       const cell = doc.createElement('span'), frame = doc.createElement('i'), fill = doc.createElement('i'), echo = doc.createElement('i'), echo2 = doc.createElement('i'), bar = doc.createElement('b');
       cell.className = 'chain-cell'; frame.className = 'chain-frame'; fill.className = 'chain-fill'; echo.className = 'chain-echo'; echo2.className = 'chain-echo chain-echo2'; bar.className = 'chain-bar';
@@ -96,6 +104,7 @@ export function createCardRowFeedback(root, {onInspect = () => {}, reducedMotion
     button.hidden = !strip.visible;
   }
   function flashes() {
+    if (view) { view.flashes(strip, reduced()); return; }
     const cells = strip.cells, soft = reduced();
     for (let i = 0; i < cells.length; i++) {
       const slot = cells[i], node = nodes[i];

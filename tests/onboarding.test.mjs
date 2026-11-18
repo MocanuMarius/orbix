@@ -30,7 +30,7 @@ test('the first briefing teaches the resource cycle and keeps the initial skill 
  assert.match(lesson.steps[0].text,/Cluster adds 12 to your Spark Meter/);
  assert.match(lesson.steps[1].text,/24\/30.*Tap anywhere to Lift.*3 Sparks/);
  assert.match(lesson.steps[2].text,/spare 6 into 1 Stored Spark\..*Skills/);
- assert.ok(lesson.steps[0].text.split(/\s+/).length<40);assert.equal(lesson.steps[0].skipLabel,'Remember & skip');
+ assert.ok(lesson.steps[0].text.split(/\s+/).length<40);assert.equal(lesson.steps[0].skipLabel,false,'one step: Skip only did what Got it does, so there is one button');
  assert.deepEqual(state,before,'merely selecting a possible prompt must not write progress');
  assert.equal(onboardingFeatureAvailable(state.profile,state.run,'skills'),true);
  state.run.stats.flights=1;noteOnboardingProgress(state.profile,state.run);

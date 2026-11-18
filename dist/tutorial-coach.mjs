@@ -82,7 +82,7 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
     const width = document.documentElement.clientWidth || window.innerWidth;
     const height = window.visualViewport?.height || window.innerHeight;
     const margin = Math.min(14, width * .04), gap = 13;
-    card.style.width = `${Math.min(step.contextual?460:width >= 600 ? 820 : 600, width - margin * 2)}px`;
+    card.style.width = `${Math.min(step.contextual?460:width >= 600 ? 640 : 560, width - margin * 2)}px`;
     card.style.maxHeight = `${Math.max(100, height - margin * 2)}px`;
     const rect = visibleTarget();
     const left = rect ? clamp(rect.left, 0, width) : 0;
@@ -206,7 +206,7 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
       progress.textContent = info.label;
       root.dataset.single=String(!step.progress||/STEP 1 \/ 1$/.test(info.label));
       next.textContent = String(step.actionLabel || 'NEXT');
-      const skip=root.querySelector('[data-coach=skip]');skip.textContent=step.skipLabel||'Remember & skip';
+      const skip=root.querySelector('[data-coach=skip]');skip.textContent=step.skipLabel||'Skip';
       // A single-action card (entry hint, practice hint) offers only its explicit button.
       skip.hidden=step.skipLabel===false;
       back.disabled = typeof onBack !== 'function' || info.first;
