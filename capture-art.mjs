@@ -1,12 +1,12 @@
-import {drawCollectorVortex} from './collector-vortex.mjs?v=tally-1';
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=tally-1';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=tally-1';
-import {drawPickup} from './pickup-art.mjs?v=tally-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=tally-1';
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=tally-1';
-import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=tally-1';
-import {collectorTowPoint} from './collector-tow-geometry.mjs?v=tally-1';
-import {lightVisibility,renderLightState} from './light-field.mjs?v=tally-1';
+import {drawCollectorVortex} from './collector-vortex.mjs?v=starter-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=starter-1';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=starter-1';
+import {drawPickup} from './pickup-art.mjs?v=starter-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=starter-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=starter-1';
+import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=starter-1';
+import {collectorTowPoint} from './collector-tow-geometry.mjs?v=starter-1';
+import {lightVisibility,renderLightState} from './light-field.mjs?v=starter-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));
@@ -57,6 +57,8 @@ export function drawCollectorGrip(ctx,state,scale=1,{engine,light,playerY}={}){
     ctx.globalAlpha=alpha*.30;ctx.lineWidth=4.2*scale;ctx.stroke();
     ctx.globalAlpha=alpha*.94;ctx.strokeStyle=COLLECTOR_RING.color;ctx.lineWidth=1.8*scale;ctx.stroke();
     ctx.globalAlpha=alpha*.94;ctx.strokeStyle='#e2ffe9';ctx.lineWidth=.65*scale;ctx.stroke();
+    // Courier Cord: the cord glows brighter while it carries (two more strokes on the same path).
+    if(engine?.mod?.cardCourierCord){ctx.globalAlpha=Math.max(alpha*.6,.5);ctx.strokeStyle='#f0c86a';ctx.lineWidth=3.2*scale;ctx.stroke();ctx.globalAlpha=Math.max(alpha,.85);ctx.strokeStyle='#fffdf1';ctx.lineWidth=1.1*scale;ctx.stroke();}
     ctx.restore();return;
   }
   const grip=state.gripPose;if(!grip?.attached||!(grip.growth>0))return;
@@ -68,6 +70,7 @@ export function drawCollectorGrip(ctx,state,scale=1,{engine,light,playerY}={}){
   const line=()=>{ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(x,y);ctx.stroke();};
   ctx.strokeStyle=COLLECTOR_RING.edge;ctx.lineWidth=2.6*scale;line();
   ctx.strokeStyle=COLLECTOR_RING.color;ctx.lineWidth=1.2*scale;line();
+  if(engine?.mod?.cardCourierCord){ctx.globalAlpha=.5;ctx.strokeStyle='#f0c86a';ctx.lineWidth=3.4*scale;line();ctx.globalAlpha=1;ctx.strokeStyle='#fffdf1';ctx.lineWidth=1.2*scale;line();}
   ctx.restore();
 }
 

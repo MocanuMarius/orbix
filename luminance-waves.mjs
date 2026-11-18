@@ -1,5 +1,5 @@
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=tally-1';
-import {pickupKind,pickupShellRadius,isFuelPickup} from './pickups.mjs?v=tally-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=starter-1';
+import {pickupKind,pickupShellRadius,isFuelPickup} from './pickups.mjs?v=starter-1';
 
 export const LUMINANCE_WAVE_TUNING=Object.freeze({speed:640,interval:1,maximumWaves:48,maximumSources:16});
 const finite=(value,fallback)=>Number.isFinite(Number(value))?Number(value):fallback;
@@ -51,7 +51,7 @@ export class LuminanceWaves {
     this.waves.push(wave);if(reveal)this.revealCount++;return wave;
   }
   removeSource(id){this.sources.delete(id);}
-  clear(){this.sources.clear();this.waves.length=0;this.revealCount=0;}
+  clear(){this.sources.clear();this.waves.length=0;this.revealCount=0;this.cue=null;}
   get live(){const e=this.engine;return e.running!==false&&e.alive!==false&&!e.finished&&!e.destroyed&&!e.dying&&!e.completing;}
   get dreaming(){const d=this.engine.dream;return !!d&&d.phase!=='done';}
   get state(){return {sources:this.sources.size,waves:this.waves.length,harvesting:this.live&&!this.dreaming&&!this.engine.paused,clock:this.clock};}
@@ -98,8 +98,8 @@ export class LuminanceWaves {
     const cardMeter=Math.max(0,Number(e.mod?.cardHarvestMeter)||0),cardStored=Math.max(0,Math.floor(Number(e.mod?.cardHarvestStoredPerWave)||0));
     const orderedCards=!!(e.cardExecution&&typeof e.resolveCardRowEvent==='function');
     if(!this.dreaming){
-      let hit=false;
-      const crossings=[];
+      let hit=false,lead=Infinity;
+      const crossings=[],reader=!!e.mod?.cardPulseReader;
       for(const wave of this.waves){
         for(const packet of e.getNearbyPickups?.()||e.layout?.embers||[]){
           if(packet.collected||packet.carried||packet.generated||packet.fetchedInDream||wave.seen.has(packet))continue;
@@ -114,6 +114,8 @@ export class LuminanceWaves {
           const screenX=packet.x-(e.distance||0);
           if(screenX < -rim || (Number.isFinite(e.width)&&screenX>e.width+rim)
             || packet.y < -rim || (Number.isFinite(e.height)&&packet.y>e.height+rim))continue;
+          // Pulse Reader cue: how far (px) the nearest front still is from touching an uncollected Spark.
+          if(reader&&naturalFuel){const ahead=Math.hypot(packet.x-wave.x,packet.y-wave.y)-rim-wave.radius;if(ahead>=0&&ahead<lead)lead=ahead;}
           if(Math.abs(packet.x-wave.x)>wave.radius+rim||Math.abs(packet.y-wave.y)>wave.radius+rim)continue;
           const crossing=luminanceWaveCrossing(wave,packet);
           if(crossing===null)continue;
@@ -155,6 +157,7 @@ export class LuminanceWaves {
             if(bookFuel||cardAction){hit=true;e.burst?.(screenX,packet.y,3,'#c6ecf2');}
           }
       }
+      this.cue=reader&&lead<Infinity?{lead}:null;
       if(hit&&this.clock-this.lastCue>=.3){this.lastCue=this.clock;e.sound?.('resonate',{strength:.45});}
     }
     for(let i=this.waves.length-1;i>=0;i--)if(this.waves[i].age>=this.waves[i].maximum/LUMINANCE_WAVE_TUNING.speed){if(this.waves[i].reveal)this.revealCount--;this.waves.splice(i,1);}

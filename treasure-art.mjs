@@ -1,4 +1,4 @@
-import {fineTreasureObject,fineShape,cofferGrain} from './fine-treasure-art.mjs?v=tally-1';
+import {fineTreasureObject,fineShape,cofferGrain} from './fine-treasure-art.mjs?v=starter-1';
 const palettes = {
   vessel: ['#203e39','#356e67','#65aa96','#a8dbc4','#ebf6d2','#c49c64'],
   lens:   ['#293c49','#466775','#7cb2ab','#b8e3c9','#e8edba','#c5a05f'],

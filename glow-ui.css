@@ -66,3 +66,9 @@
 .flap-control .lift-cost>.resource-symbol-energy[hidden]{display:none}
 .run-checkpoint .front-glow{display:inline-flex;align-items:center;gap:3px}
 .run-checkpoint .front-glow>.resource-symbol-energy{width:16px;height:16px}
+/* Meter Mark: a gold notch beside the top of the Spark Meter; it glows when the Meter is nearly full (no text). */
+.glow-side-gauge .meter-mark{position:absolute;left:calc(50% + 8px);top:-2px;width:10px;height:6px;background:#d39a3a;border:1px solid #2a1d12;box-shadow:inset 0 1px #f0c86a;pointer-events:none;z-index:2}
+.glow-side-gauge .meter-mark[hidden]{display:none}
+.glow-side-gauge .meter-mark.meter-mark-lit{background:#fffdf1;box-shadow:inset 0 1px #fff,0 0 0 1px #f0c86a,0 0 7px 2px #f0c86a}
+@media(prefers-reduced-motion:no-preference){.glow-side-gauge .meter-mark.meter-mark-lit{animation:meter-mark-glow 1.2s steps(2,end) infinite}}
+@keyframes meter-mark-glow{50%{box-shadow:inset 0 1px #fff,0 0 0 1px #f0c86a,0 0 3px 1px #f0c86a}}

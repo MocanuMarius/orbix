@@ -1,10 +1,10 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=tally-1";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=starter-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=tally-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=tally-1';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=tally-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=starter-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=starter-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=starter-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -709,6 +709,8 @@ export function getCardPackingBonus(packed, sources = 0, remainder = 0) {
 export const CARD_STARTER_RARE_CHANCE = .20;
 const starterCommonIds = ['body-spark', 'spark-cache', 'deep-vessel', 'tight-packing', 'harvest-common', 'dream'];
 const starterRareIds = ['rhythm', 'cache-handling', 'flash-handling'];
+/** The six starter cards (2026-11-18): Lift Guide and five like it, each teaching one Trigger. A new run offers 3 of them at random. */
+export const STARTER_CARD_IDS = Object.freeze(['lift-guide', 'skim-line', 'pulse-reader', 'courier-cord', 'meter-mark', 'finish-flag']);
 export function getCardStarterOffers(run, { legacy = false } = {}) {
   const oldPair = legacy || isCardRun(run) && run.cardStarterVersion !== 3,
     draw = random(`${run.campaignSeed || run.seed}:card-starter:${oldPair ? 'v1' : 'v3'}`),
@@ -730,23 +732,10 @@ export function getCardStarterOffers(run, { legacy = false } = {}) {
     }
     pool = pool.slice(0, 2);
   } else if (Array.isArray(run.cardStarterOfferIds) && run.cardStarterOfferIds.length === 3 &&
-      new Set(run.cardStarterOfferIds).size === 3 && run.cardStarterOfferIds.every(id => !isUnofferedCard(id) && id !== 'lift-guide')) {
+      new Set(run.cardStarterOfferIds).size === 3 && run.cardStarterOfferIds.every(id => !isUnofferedCard(id))) {
     pool = run.cardStarterOfferIds.map(id => SKILL_CARDS[id]);
   } else {
-    pool = shuffle(starterCommonIds.map(id => SKILL_CARDS[id]).filter(Boolean));
-    // At least one of the two retained Commons works without another card.
-    const soloKinds = ['body', 'capacity', 'field'];
-    if (!pool.slice(0, 2).some(d => soloKinds.includes(d.kind))) {
-      const index = pool.findIndex(d => soloKinds.includes(d.kind));
-      [pool[0], pool[index]] = [pool[index], pool[0]];
-    }
-    pool = pool.slice(0, 3);
-    // One lineup roll at every Ascension: 80% three Commons, 20% one Rare.
-    if (draw() < CARD_STARTER_RARE_CHANCE) {
-      const rares = starterRareIds.map(id => SKILL_CARDS[id]).filter(Boolean);
-      pool[2] = rares[Math.floor(draw() * rares.length)];
-    }
-    shuffle(pool);
+    pool = shuffle(STARTER_CARD_IDS.map(id => SKILL_CARDS[id])).slice(0, 3);
   }
   return pool.map((d) => {
     const card = describeSkillCard(makeSkillCard(d.id, `starter:${d.id}`));
@@ -1462,6 +1451,10 @@ export function getCardModifiers(run) {
     const factor = boost[index]?.multiplier || 1;
     if (d.kind === "luminance") m.cardLuminancePercent += cardAmount(source) * factor;
     if (d.kind === "proximity") m.cardProximityUnlocked = true;
+    if (d.kind === "pulse-reader") m.cardPulseReader = true;
+    if (d.kind === "courier-cord") m.cardCourierCord = true;
+    if (d.kind === "meter-mark") m.cardMeterMark = true;
+    if (d.kind === "finish-flag") m.cardFinishFlag = true;
     if (d.kind === "skim-line") { m.cardProximityUnlocked = true; m.cardSkimLine = true; }
     // One source adds 50% of normal reach; a boosted source counts as `factor` sources.
     if (d.kind === "proximity-range") m.cardProximitySources += factor;
