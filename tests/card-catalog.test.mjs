@@ -48,7 +48,7 @@ function reachCamp(state) {
   }
 }
 
-test('all 86 literal definitions have supported rules, unique IDs, honest art families and complete bands', () => {
+test('all 91 literal definitions have supported rules, unique IDs, honest art families and complete bands', () => {
   // The ordinary chain-walker catalog. Engine cards, Pack cards and Black Hole (released or held) run on the engine and are covered by
   // tests/card-engines.test.mjs and tests/engine-real-flight.test.mjs.
   const defs = Object.values(CARD_CATALOG).filter(def => !def.unreleased && !def.engine && def.kind !== 'black-hole'), supportedEvents = new Set([
@@ -56,12 +56,13 @@ test('all 86 literal definitions have supported rules, unique IDs, honest art fa
     'collector-delivery', 'collector-attach', 'flight-clear', 'rhythm-phrase', 'guide-lift', 'field-swipe', 'guard-rescue',
   ]), physicalKinds = new Set(['dream', 'luminance', 'proximity-range', 'capacity', 'packing', 'echo', 'chameleon', 'field', 'guide',
     'rhythm', 'rapid-lift', 'camp-extra', 'camp-grow', 'cache-handling', 'refrain', 'watchlight', 'wave-loom', 'spillway',
-    'last-light', 'proximity', 'springboard', 'heart-stitch', 'devourer', 'use-doubler', 'ember-feeder', 'twin-orbit', 'twin-wick', 'collector-range']);
+    'last-light', 'proximity', 'springboard', 'heart-stitch', 'devourer', 'use-doubler', 'ember-feeder', 'twin-orbit', 'twin-wick', 'collector-range', 'second-look']);
   // 86 since Wave Loom came back; +5 starter Commons (Skim Line, Pulse Reader, Courier Cord, Meter Mark, Finish Flag) on 2026-11-18.
-  assert.equal(defs.length, 90);
-  assert.equal(new Set(CARD_CATALOG_IDS.filter(id => !CARD_CATALOG[id].unreleased && !CARD_CATALOG[id].engine && CARD_CATALOG[id].kind !== 'black-hole')).size, 90);
+  // +1 Rare, Second Look, on 2026-11-18 (owner design).
+  assert.equal(defs.length, 91);
+  assert.equal(new Set(CARD_CATALOG_IDS.filter(id => !CARD_CATALOG[id].unreleased && !CARD_CATALOG[id].engine && CARD_CATALOG[id].kind !== 'black-hole')).size, 91);
   assert.deepEqual(defs.reduce((totals, def) => (totals[def.rarity]++, totals), { common: 0, rare: 0, legendary: 0 }),
-    { common: 52, rare: 24, legendary: 14 });
+    { common: 52, rare: 25, legendary: 14 });
   for (const [index, def] of defs.entries()) {
     assert.deepEqual(SKILL_CARDS[def.id], def);
     assert.equal(CARD_CATALOG_IDS.filter(id => !CARD_CATALOG[id].unreleased && !CARD_CATALOG[id].engine && CARD_CATALOG[id].kind !== 'black-hole')[index], def.id);

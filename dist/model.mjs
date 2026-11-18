@@ -9,7 +9,8 @@ import {CARD_UNIT as ENGINE_CARD_UNIT} from './skill-cards.mjs?v=guide-clarity-1
 import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=guide-clarity-1';
 import {getCardRuleBands} from './card-rule-bands.mjs?v=guide-clarity-1';
 import {mergeGrowthSeeds} from './skill-cards.mjs?v=guide-clarity-1';
-import {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,isInventoryOnlyCard,getInventoryCampCards,makeSkillCard,cleanCardRun,settleCardReward,getCardStarterOffers,drawSkillCard,drawSkillCardDraft,describeSkillCard,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,getCardModifiers,getCardPackingBonus,getCardGrowthUses,getCardGrowthBonus,cleanCardFutureCapacity,createCardExecution,resolveCardRow,CARD_ROW_EVENTS,commitCardCharges,recordCardEvent,drawForgeCard,CARD_FORGE_RARITIES} from './skill-cards.mjs?v=guide-clarity-1';
+import {START_BONUS_VERSION,drawStartBonusIds,applyWispBonus,getWispStat} from './start-bonus.mjs?v=guide-clarity-1';
+import {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,isInventoryOnlyCard,getInventoryCampCards,makeSkillCard,cleanCardRun,settleCardReward,getCardStarterOffers,drawSkillCard,drawSkillCardDraft,describeSkillCard,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,getCardModifiers,getCardPackingBonus,getCardGrowthUses,getCardGrowthBonus,cleanCardFutureCapacity,createCardExecution,resolveCardRow,CARD_ROW_EVENTS,commitCardCharges,recordCardEvent,drawForgeCard,CARD_FORGE_RARITIES,rerollDraftOffer,canRerollDraft} from './skill-cards.mjs?v=guide-clarity-1';
 export {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,commitCardCharges} from './skill-cards.mjs?v=guide-clarity-1';
 import {pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=guide-clarity-1';
 import {chestRewardPair} from './chest-rewards.mjs?v=guide-clarity-1';
@@ -433,7 +434,7 @@ export function makeMap(seed,mapIndex,difficulty,cards=false){
 export function createRun(profile=newState().profile,seed=freshSeed(),difficulty,options={}){
   const p=cleanProfile(profile),selected=Number(difficulty),tier=clamp(Number.isFinite(selected)?Math.floor(selected):p.difficulty,1,p.difficulty),campaignSeed=String(seed),mapSeed=`${campaignSeed}|tier:${tier}|map:0`;
   const run={scoreLedger:{v:1,earned:0,complete:true},id:`${campaignSeed}-${freshSeed()}`,campaignSeed,seed:mapSeed,atlasEligible:p.stats.wins>0,mapIndex:0,mapName:CAMPAIGN_MAP_NAMES[0],difficulty:tier,unlockedCompanionDifficulty:p.difficulty,map:makeMap(mapSeed,0,tier,options.cards===true),step:0,path:[],current:null,phase:'map',companions:['collector'],companionRole:'collector',artifactSystem:2,seenArtifacts:[],artifacts:[],artifactCharges:{},skills:{},skillPaid:{},startingSkill:null,lives:LIFE_TUNING.lives,maxLives:LIFE_TUNING.lives,flame:FLAME_TUNING.starting,restGlowCapacity:0,condensedGlow:STARTING_CONDENSED_GLOW,pendingCondensedGlow:0,securedCondensedGlow:0,pendingRewards:[],condensedRemainder:0,condensedEarned:0,condensationJustUnlocked:false,restReady:false,restVisits:[],lastRest:null,attemptActive:false,attemptEntry:null,success:false,banked:false,bossDefeated:false,bossProgressSecured:false,mapHistory:[],mapFlights:0,...(options.cards===true?{skillSystem:CARD_SYSTEM,cardStarterVersion:2,cardFutureCapacity:p.cardFutureCapacity,cardCruisingSpeed:Math.min(p.cardCruisingSpeed,options.cruisingSpeed==null?p.cardCruisingSpeed:cleanCardCruisingSpeed(options.cruisingSpeed)),cardCruisingSpeedUnlocked:p.cardCruisingSpeed,cardClearReceipts:[],cardGrowUses:0,cardGrowCapacity:0,cardSlots:3,mountedCards:[null,null,null],slotInscriptions:[null,null,null],reserveCards:[],cardHistory:[],cardRewardedNodes:[],cardSlotMaps:[]}:{}),stats:{flights:0,attempts:0,deaths:0,collected:0,elites:0,events:0,challenges:0}};
-  if(options.cards===true){run.cardStarterVersion=3;run.cardStarterOfferIds=getCardStarterOffers(run).map(gift=>gift.cardId);}
+  if(options.cards===true){run.cardStarterVersion=START_BONUS_VERSION;run.startBonusOfferIds=drawStartBonusIds(run.campaignSeed||run.seed);}
   run.flame=getGlowCapacity(run);
   return run;
 }
@@ -490,7 +491,21 @@ export function chooseStartingGift(state,id,expectedPreviewToken){
  if(!preview||(expectedPreviewToken!==undefined&&expectedPreviewToken!==preview.token))return false;
  const gift=preview.gift;
  if(isCardRun(run)){
-  const secondId=gift.cardId==='lift-guide'?(getCardStarterOffers(run).find(o=>o.cardId!=='lift-guide')?.cardId||'finish-flag'):'lift-guide';
+  if(gift.kind==='inscription'||gift.kind==='wisp'){
+   // Start bonus: Lift Guide is always mounted. An Inscription is written on Chain slot 1 (Hollow needs an empty slot 1, so Lift Guide moves to slot 2); a Wisp stat lasts the whole run (run.wispBonus).
+   const guide=makeSkillCard('lift-guide',`${run.campaignSeed}:starter:lift-guide`),hollow=gift.inscriptionId==='hollow';
+   run.mountedCards[hollow?1:0]=guide;
+   if(gift.kind==='inscription')writeInscription(run,0,gift.inscriptionId);
+   else{
+    run.wispBonus=gift.wispId;const stat=getWispStat(run);
+    if(stat.hearts)run.lives=Math.min(getLifeCapacity(run),(run.lives||0)+stat.hearts);
+    if(stat.capacity)run.flame=getGlowCapacity(run);
+    if(stat.stored){run.condensedGlow=(run.condensedGlow||0)+stat.stored;run.securedCondensedGlow=(run.securedCondensedGlow||0)+stat.stored;run.condensedEarned=(run.condensedEarned||0)+stat.stored;}
+   }
+   run.cardStarterVersion=Math.max(2,run.cardStarterVersion||0);run.startingGiftId=id;
+   recordCardEvent(run,'starter',{startBonus:id,includedCardId:'lift-guide'});return true;
+  }
+  const secondId=gift.cardId==='lift-guide'?(getCardStarterOffers(run).find(o=>o.kind==='card'&&o.cardId&&o.cardId!=='lift-guide')?.cardId||'finish-flag'):'lift-guide';
   const firstCard=makeSkillCard(gift.cardId,`${run.campaignSeed}:starter:${gift.cardId}`);
   if(isInventoryOnlyCard(firstCard))run.reserveCards.push(firstCard);
   else run.mountedCards[0]=firstCard;
@@ -615,6 +630,13 @@ export function markCardsSeen(run, ids = null) {
   run.unseenCardIds = left;
   return true;
 }
+/** Second Look: re-roll one offered card of the pending draft (once per draft). Returns the new card or false. */
+export function rerollCardDraft(state, draftId, instanceId) {
+  const run = state?.run, draft = run?.cardDraft;
+  if (!draft || draft.id !== draftId || draft.runId !== run.id || !rerollDraftOffer(run, draft, instanceId)) return false;
+  return describeSkillCard(draft.offers.find(card => card.instanceId === instanceId));
+}
+export const canRerollCardDraft = run => canRerollDraft(run);
 export function chooseCardDraft(state, draftId, instanceId) {
   const run = state?.run, draft = run?.cardDraft;
   if (!isCardRun(run) || !draft || draft.version !== 1 || draft.claimed || draft.id !== draftId ||
@@ -2053,7 +2075,7 @@ export function getRunModifiers(run={}){const rank=skillProgress,companion=norma
   else if(pact?.sight)m.lightRadius*=pact.sight;
   if(pact?.reach)m.attract*=pact.reach;
   if(isCardRun(run))m.speed+=cleanCardCruisingSpeed(run.attemptActive?run.cardCruisingSpeed:run.cardCruisingSpeedNext??run.cardCruisingSpeed)/100+getCardWindSpeed(run)/100;
-  Object.assign(m,getCardModifiers(run),practiceModifiers(run));
+  Object.assign(m,getCardModifiers(run),practiceModifiers(run));applyWispBonus(m,run);
   if(m.cardProximityUnlocked||m.cardProximitySources>0)m.proximityUnlocked=true;
   if(m.closedEye){
     m.lightRadius=LIGHT_PACKET_TUNING.baseRadius*pact.sight;

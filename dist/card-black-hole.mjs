@@ -35,7 +35,8 @@ export function previewBlackHoleMeals(cards) {
     const hole = row[slot];
     if (!isBlackHole(hole) || gone.has(slot) || isLoanedPracticeCard(hole)) continue;
     const victim = row[slot + 1], def = SKILL_CARDS[victim?.cardId];
-    if (!victim || !def || gone.has(slot + 1) || isLoanedPracticeCard(victim)) continue;
+    // Permanent cards (Growth Ring, Wind Feather, Deep Vessel: their growth is kept on the card) are never eaten (owner 2026-11-18).
+    if (!victim || !def || def.permanent || gone.has(slot + 1) || isLoanedPracticeCard(victim)) continue;
     const rule = devourRule(hole), stored = Number(hole.eatenGrowth) || 0;
     if (stored >= rule.cap) continue; // a full Dream eats nothing
     const growth = Math.min(rule.growth[def.rarity] || 0, rule.cap - stored);

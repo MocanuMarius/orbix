@@ -25,8 +25,8 @@ test('opening offers are 3 distinct cards from the six starter cards, all Common
 
 test('fresh offers retain their order through save, inspection and rejected confirmation; only one choice commits',()=>{
   const state=fresh('fixed-three-starter'),offers=M.getStartingGiftOffers(state.run),before=JSON.stringify(state.run);
-  assert.equal(state.run.cardStarterVersion,3);
-  assert.deepEqual(state.run.cardStarterOfferIds,offers.map(gift=>gift.cardId));
+  assert.equal(state.run.cardStarterVersion,4);
+  assert.deepEqual(state.run.startBonusOfferIds,offers.map(gift=>gift.id));
   assert.equal((starterCardsMarkup(state.run,offers,false).match(/class="card-pick"/g)||[]).length,3);
   for(const offer of offers){
     const preview=M.getStartingGiftPreview(state.run,offer.id);assert.ok(preview);
@@ -35,14 +35,15 @@ test('fresh offers retain their order through save, inspection and rejected conf
   }
   const loaded=reload(state);
   assert.deepEqual(M.getStartingGiftOffers(loaded.run),offers);
-  const chosen=offers.find(o=>o.cardId!=='lift-guide'),preview=M.getStartingGiftPreview(loaded.run,chosen.id);
+  const chosen=offers.find(o=>o.kind==='card'&&o.cardId!=='lift-guide')||offers[0],preview=M.getStartingGiftPreview(loaded.run,chosen.id);
   assert.ok(M.chooseStartingGift(loaded,chosen.id,preview.token));
-  assert.deepEqual(M.getOwnedCards(loaded.run).map(card=>card.cardId).sort(),[chosen.cardId,'lift-guide'].sort());
-  assert.equal(loaded.run.mountedCards.filter(Boolean).length,2);
+  const expectedCards=chosen.kind==='card'?[chosen.cardId,'lift-guide']:['lift-guide'];
+  assert.deepEqual(M.getOwnedCards(loaded.run).map(card=>card.cardId).sort(),expectedCards.sort());
+  assert.equal(loaded.run.mountedCards.filter(Boolean).length,expectedCards.length);
   for(const offer of offers)assert.equal(M.chooseStartingGift(loaded,offer.id),false);
   const resumed=reload(loaded);
   assert.equal(M.chooseStartingGift(resumed,chosen.id),false);
-  assert.deepEqual(M.getOwnedCards(resumed.run).map(card=>card.cardId).sort(),[chosen.cardId,'lift-guide'].sort());
+  assert.deepEqual(M.getOwnedCards(resumed.run).map(card=>card.cardId).sort(),expectedCards.sort());
 });
 
 test('every starter card really equips from a production New Game offer and turns its effect on',()=>{

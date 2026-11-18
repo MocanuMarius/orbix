@@ -89,13 +89,17 @@ export const PIECES=[
    B2:{notes:'r:1 5:0.5 6:0.5 7:2 | 6:2 5:1 3:1 | 3:3 r:1 | r:4'},
    H: {notes:'r:2 5:2 | 3:4 | r:2 2:2 | 3:4'},
    E: {notes:'1:4 | r:4 | r:4 | r:4'},
+   // The singing lead: an 8-bar phrase over Cmaj7 Bm7 Am7 Gmaj7 (S1), and its answer over Cmaj7 Bm7 Am9 D9 (S2: same first half, new second half).
+   S1:{notes:'5:1 6:1 5:2 | 3:1 5:1 3:2 | 3:2 2:1 3:1 | 5:3 r:1 | 6:1 5:1 6:1 1\':1 | 5:2 3:1 2:1 | 3:1 5:1 7:2 | 1\':3 r:1'},
+   S2:{notes:'5:1 6:1 5:2 | 3:1 5:1 3:2 | 3:2 2:1 3:1 | 5:3 r:1 | 6:1 1\':1 6:1 5:1 | 3:2 2:2 | 5:1 4:1 3:1 2:1 | 3:3 r:1'},
   },
+  singLead:'vibes',
   sections:[
    {name:'Needle floor',feel:'intro',chords:['Cmaj7','Bm7'],melody:[]},
-   {name:'The path',feel:'walk',chords:['Cmaj7','Bm7','Am7','Gmaj7','Cmaj7','Bm7','Am9','D9'],melody:['A1','A2','A1','A2']},
+   {name:'The path',feel:'walk',chords:['Cmaj7','Bm7','Am7','Gmaj7','Cmaj7','Bm7','Am9','D9'],melody:['A1','A2','A1','A2'],sing:['S1','S2']},
    {name:'Clearing',feel:'double',chords:['Em9','A9','Dmaj7','Gmaj7','Em9','A9','Am7','D7sus'],melody:['B1','B2','B1','B2']},
    {name:'Resin and shade',feel:'half',chords:['Cmaj7','Bm7','Am9','D9'],melody:['H',null]},
-   {name:'Ridge walk',feel:'walk',chords:['Cmaj7','Bm7','Am7','Gmaj7','Em9','A9','Am9','D9'],melody:['A1','A2','B1','A2']},
+   {name:'Ridge walk',feel:'walk',chords:['Cmaj7','Bm7','Am7','Gmaj7','Em9','A9','Am9','D9'],melody:['A1','A2','B1','A2'],sing:['S1','S2']},
    {name:'Homeward',feel:'outro',chords:['Gmaj7','Gmaj7'],melody:['E']},
   ],
  },
@@ -210,6 +214,7 @@ export function voicing(name,previous){
 export const fxChord=(name,voiced)=>[placeIn(parseChord(name).pc,33),...voiced];
 
 // ----------------------------------------------------------------- compile
+export const SING_VELOCITY=.5;
 const cache=new Map();
 export function compilePiece(piece){
  if(cache.has(piece.id))return cache.get(piece.id);
@@ -231,6 +236,11 @@ export function compilePiece(piece){
    if(!key)return;const parsed=parsePhrase(piece,piece.phrases[key].notes);
    for(const n of parsed.notes)if(n.midi!==null)push((startBar+k*4)*B+swung(n.beat)+late(.018)+jitter(.007),n.dur,'lead',piece.lead,n.midi,.8*(.9+random()*.2)*(feel==='half'?.85:1),feel==='outro'?0:1);
   });
+  // Singing lead (Old Pines, owner request 2026-11-18 "more melody"): a second, softer voice with phrases of any whole number of bars, one after
+  // the other from the section start. Half the level of the plucked lead (velocity .5 on a gain-matched voice, about -6 dB), flat velocity, and no
+  // random draws, so every other event of the piece keeps its exact humanising.
+  {let at=startBar;for(const key of section.sing||[]){const parsed=parsePhrase(piece,piece.phrases[key].notes);
+   for(const n of parsed.notes)if(n.midi!==null)push(at*B+swung(n.beat)+late(.018),n.dur,'sing',piece.singLead||'vibes',n.midi,SING_VELOCITY,1);at+=parsed.bars;}}
   section.chords.forEach((name,c)=>{
    const voiced=voicing(name,prev);prev=voiced;const {pc,intervals}=parseChord(name);
    const nextName=section.chords[c+1]||piece.sections[si+1]?.chords[0]||name;

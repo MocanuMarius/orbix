@@ -1,4 +1,5 @@
 import {capacityBonusSparks} from './inscriptions.mjs?v=guide-clarity-1';
+import {wispHearts,wispMeterSparks} from './start-bonus.mjs?v=guide-clarity-1';
 import {CONDENSED_TUNING} from './condensed-glow.mjs?v=guide-clarity-1';
 import {getCardCapacityBonus,getCardGrowthBonus,getCardFutureCapacityBonus,getCardBlackHoleBonus,getCardTallyCapacity} from './skill-cards.mjs?v=guide-clarity-1';
 // Shared flight Sparks and expedition rules. Overflow is Stored Sparks.
@@ -10,7 +11,7 @@ export const LIFE_TUNING = Object.freeze({ lives: 3, maximum: 5 });
 export function getLifeCapacity(run) {
   return Math.min(LIFE_TUNING.maximum, LIFE_TUNING.lives
     + (run?.skills?.['main-spare-spark'] > 0 ? 1 : 0)
-    + (run?.skills?.['main-deep-reserve'] > 0 ? 1 : 0));
+    + (run?.skills?.['main-deep-reserve'] > 0 ? 1 : 0) + wispHearts(run));
 }
 
 // Dark packets affect only the current attempt's light, never lives or fuel.
@@ -32,7 +33,7 @@ export const GLOW_CAPACITY_LIMIT=100;
 export const GLOW_CAPACITY_LIMIT_UNITS=1000/3;
 /** Every capacity source added together, before the 100-Spark ceiling. */
 export function getRawGlowCapacity(run={}) {
- return 100+10*['main-light-step','main-thrifty-rise','main-low-lift'].filter(id=>run.skills?.[id]>0).length+getRestGlowBonus(run)+(run.skills?.['main-reservoir']>0?20:0)+(run.skills?.['main-vast-vessel']>0?20:0)+(run.treasureCapacity||0)+getCardCapacityBonus(run)+getCardGrowthBonus(run)+getCardFutureCapacityBonus(run)+getCardBlackHoleBonus(run)+getCardTallyCapacity(run)+capacityBonusSparks(run)/GLOW_DISPLAY_SCALE;
+ return 100+10*['main-light-step','main-thrifty-rise','main-low-lift'].filter(id=>run.skills?.[id]>0).length+getRestGlowBonus(run)+(run.skills?.['main-reservoir']>0?20:0)+(run.skills?.['main-vast-vessel']>0?20:0)+(run.treasureCapacity||0)+getCardCapacityBonus(run)+getCardGrowthBonus(run)+getCardFutureCapacityBonus(run)+getCardBlackHoleBonus(run)+getCardTallyCapacity(run)+capacityBonusSparks(run)/GLOW_DISPLAY_SCALE+wispMeterSparks(run)/GLOW_DISPLAY_SCALE;
 }
 /** Total capacity never exceeds 100 printed Sparks, whatever the source. */
 export function getGlowCapacity(run={}) {

@@ -91,10 +91,10 @@ import {createTutorialCoach} from './tutorial-coach.mjs?v=guide-clarity-1';
 import {getTutorialWorldFocus,demonstratedTutorialTopics,tutorialEntryLesson,notePracticeHint,hasPracticeHint,takePracticeHint,carryPracticeHints,takeCarriedPracticeHint,deferPracticeLesson,FIRST_FLIGHT_STOPS} from './tutorial.mjs?v=guide-clarity-1';
 import {isInventoryOnlyCard} from './skill-cards.mjs?v=guide-clarity-1';
 import {markCardsSeen} from './model.mjs?v=guide-clarity-1';
-import {isCardRun,getCardCampPreview,getMountedCards,getOwnedCards,getCardReward,getCardDraft,claimDraftedCard,equipOwnedCard,unequipMountedCard,getCardMeltPreview,meltOwnedCards,getCardImprovePreview,improveOwnedCard,getCardForgePreview,forgeOwnedCard,canManageCards,syncCardFlightForEdit,applyCardFlightEdits,closeCardFlightEdit,commitCardCharges} from './model.mjs?v=guide-clarity-1';
+import {isCardRun,getCardCampPreview,getMountedCards,getOwnedCards,getCardReward,getCardDraft,claimDraftedCard,rerollCardDraft,equipOwnedCard,unequipMountedCard,getCardMeltPreview,meltOwnedCards,getCardImprovePreview,improveOwnedCard,getCardForgePreview,forgeOwnedCard,canManageCards,syncCardFlightForEdit,applyCardFlightEdits,closeCardFlightEdit,commitCardCharges} from './model.mjs?v=guide-clarity-1';
 import {CARD_GUIDE_TOPICS} from './card-guide.mjs?v=guide-clarity-1';
 import {installComboLessons} from './combo-lesson.mjs?v=guide-clarity-1';
-import {starterCardsMarkup,starterGiftConfirmationMarkup,cardDraftMarkup,cardRewardMarkup,cardSwapMarkup,cardsBenchMarkup,cardMeltSelectionMarkup,cardExchangeMarkup,cardRestMarkup,cardGrowConfirmationMarkup,cardForgeMarkup,cardVictoryRecap,cardArt,cardName} from './card-ui.mjs?v=guide-clarity-1';
+import {starterCardsMarkup,starterGiftConfirmationMarkup,cardDraftMarkup,cardRewardMarkup,cardSwapMarkup,cardsBenchMarkup,cardMeltSelectionMarkup,cardExchangeMarkup,cardRestMarkup,cardGrowConfirmationMarkup,cardForgeMarkup,cardVictoryRecap,cardArt,cardName,syncDraftReroll} from './card-ui.mjs?v=guide-clarity-1';
 import {getCardRefillPreview,refillOwnedCard,canUseCardCampServices} from './model.mjs?v=guide-clarity-1';
 import {cardWorkshopMarkup,cardRefillMarkup} from './card-workshop.mjs?v=guide-clarity-1';
 import {createCardInspectorState,prepareCardInspectorReward} from './card-inspector.mjs?v=guide-clarity-1';
@@ -1511,6 +1511,7 @@ function drawMap(){
 
 document.addEventListener('keydown',e=>{const tile=e.target.closest('[role="button"][data-action]');if(tile&&e.target===tile&&['Enter',' '].includes(e.key)){e.preventDefault();tile.click();}});
 
+window.addEventListener('click',e=>{if(e.target.closest('.card-draft-option'))setTimeout(()=>syncDraftReroll(app),0);},true);
 installTapPick();
 document.addEventListener('click',e=>{
  if(e.target.closest('[data-tap-pick] :is([data-card-term],[data-card-term-trigger],[data-card-status-help])'))return;
@@ -1557,6 +1558,7 @@ document.addEventListener('click',e=>{
   case 'card-swap-confirm':commitCardTransfer();break;
   case 'flight-reward-continue':finishCardDraftIncome();break;
   case 'flight-reward-open-pack':openCardDraftPack(button);break;
+  case 'card-draft-reroll':{if(screen!=='card-draft'||button.getAttribute('aria-disabled')==='true')break;const sel=app.querySelector('.card-draft-option.tp-selected');if(!sel){break;}const rid=sel.dataset.id;if(rerollCardDraft(state,button.dataset.draftId,rid)){persist();goToRun();const reduced=state.settings.reducedMotion||globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;const fresh=app.querySelector('.card-draft-option[data-id="'+CSS.escape(rid)+'"]');if(fresh&&!reduced){fresh.classList.add('is-rerolled');setTimeout(()=>fresh.classList.remove('is-rerolled'),400);}}break;}
   case 'card-draft-pick':if(screen==='card-draft'&&(!hasFlightRewardCeremony(state.run)||flightRewardCeremonyStage(state.run)==='cards'&&performance.now()>=ceremonyPickReadyAt)&&claimDraftedCard(state,button.dataset.draftId,button.dataset.id)){cardRewardEquipping=false;cardRewardNotice='';persist();goToRun();}break;
   case 'card-reward-continue':acknowledgeCardReceipt();break;
   case 'card-preview-reward-melt':beginRewardMelt();break;

@@ -98,7 +98,10 @@ for (const cards of [true, false]) {
     if (cards) {
       // The pick plus Lift Guide; when Lift Guide itself is the pick the second card is another offered starter.
       const mounted = g.state.run.mountedCards.filter(Boolean).map(c => c.cardId);
-      assert.equal(mounted.length, 2); assert.ok(mounted.includes(id.slice(5))); assert.ok(mounted.includes('lift-guide'));
+      // Start bonus (2026-11-18): the first tile may also be an Inscription (written on slot 1) or a Wisp stat; Lift Guide is always mounted.
+      assert.ok(mounted.includes('lift-guide'));
+      if (id.startsWith('card:')) { assert.equal(mounted.length, 2); assert.ok(mounted.includes(id.slice(5))); }
+      else { assert.equal(mounted.length, 1); if (id.startsWith('inscription:')) assert.equal(g.state.run.slotInscriptions.filter(Boolean).length, 1); else assert.equal(g.state.run.wispBonus, id.slice(5)); }
     }
     assert.equal(g.state.run.practiceCards, undefined, 'loans never reach the real run');
     assert.equal(saved(storage, cards).run.startingGiftId, id);

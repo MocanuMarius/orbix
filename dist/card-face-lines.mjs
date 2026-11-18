@@ -43,6 +43,7 @@ const LINES = Object.freeze({
   downbeat: '{fx} while falling', 'downbeat-iii': '{fx} while falling',
   'ring-spring': 'Next ready 1 s sooner', 'ring-spring-ii': 'Next ready 2 s sooner',
   watchlight: 'Collector blocks a crash',
+  'second-look': 'Re-roll 1 reward card',
   'echo-ii': 'Repeats next twice', 'echo-iii': 'Repeats next 3 times',
   'dusk-wick': '{fx} from Dusk', 'dusk-wick-ii': '{fx} from Dusk', 'dusk-wick-iii': '{fx} from Dusk',
   'cluster-heart': '{fx} from a Cluster', 'low-wick': '{fx} when low',

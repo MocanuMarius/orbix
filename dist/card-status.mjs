@@ -171,7 +171,7 @@ export function getEquippedCardStatuses(run = {}, native = null) {
       return shared('Reach already covered','Copying the same reach card adds no reach or catches. The real card keeps its uses.','reach-covered');
     if (kind === 'camp-grow' && run.cardGrowUses >= 3)
       return shared('Grow limit reached', 'All 3 Grows for this journey are used. Every Growth Seed shares that limit.', 'grow-limit');
-    if (['guide', 'rhythm', 'dream', 'cache-handling', 'wave-loom', 'watchlight', 'springboard', 'proximity'].includes(kind) && sources.some(entry => entry.index < slot && entry.def.kind === kind))
+    if (['guide', 'rhythm', 'dream', 'cache-handling', 'wave-loom', 'watchlight', 'springboard', 'proximity', 'second-look'].includes(kind) && sources.some(entry => entry.index < slot && entry.def.kind === kind))
       return shared('Already covered', 'A card to its left already gives this ability, and extra copies do not add a second one.', 'covered');
     if (kind === 'spillway' && sources.some(entry => entry.def.kind === kind && (entry.def.pulseCadence < def.pulseCadence || entry.def.pulseCadence === def.pulseCadence && entry.index < slot)))
       return shared('Already covered', 'Another Spillway already sends Pulses as often or more often. Only the fastest counts.', 'covered');

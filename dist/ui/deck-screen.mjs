@@ -10,6 +10,7 @@
 import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=guide-clarity-1';
 import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=guide-clarity-1';
 import {uiIcon} from '../ui-icons.mjs?v=guide-clarity-1';
+import {wispChipText} from '../start-bonus.mjs?v=guide-clarity-1';
 import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=guide-clarity-1';
 import {getEquippedCardStatuses} from '../card-status.mjs?v=guide-clarity-1';
 import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=guide-clarity-1';
@@ -332,6 +333,7 @@ function headHTML(d, view, opts) {
     <button type="button" class="dk2-btn dk2-tab" role="tab" id="dk2-tab-deck" aria-controls="dk2-deckpanel" data-tab="deck" aria-selected="${view.tab === 'deck'}" tabindex="${view.tab === 'deck' ? 0 : -1}"${d.unseen.size ? ' aria-label="Deck, new cards"' : ''}><span>Deck</span>${d.unseen.size ? '<i class="dk2-dot dk2-tabdot" aria-hidden="true"></i>' : ''}</button>
     <button type="button" class="dk2-btn dk2-tab dk-tab-book" role="tab" id="dk2-tab-triggers" aria-controls="dk2-bookpanel" data-tab="triggers" aria-selected="${view.tab === 'triggers'}" tabindex="${view.tab === 'triggers' ? 0 : -1}"><span>Triggers</span></button>
    </div>
+   ${wispChipText(d.run) ? `<span class="dk2-wisp-chip" role="note" aria-label="${esc(wispChipText(d.run))}">${esc(wispChipText(d.run))}</span>` : ''}
    <div class="dk2-context" id="dk2-context"><p class="dk2-note ${placing ? 'dk2-note-mode' : esc(view.noteTone)}" id="dk2-note">${esc(note || (view.tab === 'triggers' ? (rows => `What fires your cards. You have cards for ${rows.filter(r => r.owned).length} of ${rows.length}.`)(triggerBook(d.run)) : opts.loaned ? 'Loaned cards for practice' : opts.paused ? 'Flight paused' : ''))}</p>
     ${filterHTML(d, view)}
     <button type="button" class="wb-sign wb-sign-quiet dk2-cancel" id="dk2-placecancel" ${placing ? `aria-label="Cancel: keep ${esc(nameOf(placing))} where it is"` : 'hidden'}><span class="wb-sign-text"><b>Cancel</b></span></button></div>`;

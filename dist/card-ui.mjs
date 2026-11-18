@@ -1,3 +1,4 @@
+import { wispChipText } from "./start-bonus.mjs?v=guide-clarity-1";
 import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=guide-clarity-1";
 import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=guide-clarity-1";
 import { uiIcon } from "./ui-icons.mjs?v=guide-clarity-1";
@@ -26,6 +27,7 @@ import {
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
+  canRerollCardDraft,
 } from "./model.mjs?v=guide-clarity-1";
 import { resourceSymbol } from "./game-symbols.mjs?v=guide-clarity-1";
 import { choiceScene } from "./choice-art.mjs?v=guide-clarity-1";
@@ -213,10 +215,27 @@ export function cardFace(card, { compact = false, fitted = false, slot = null, s
   const badge = growth ? `<span class="card-use-counter card-growth-badge" role="img" aria-label="${esc(growth.label)}">${esc(growth.text)}</span>` : finite ? compact ? `<span class="card-use-counter" role="img" aria-label="${usesLabel}">${uses}</span>` : `<button type="button" class="card-use-counter" data-card-term="uses" aria-haspopup="dialog" aria-label="${usesLabel}: help">${uses}</button>` : '';
   return `<article class="skill-card card-${rarity(card)} card-effect-${effectState} ${compact ? 'compact-card card-thumbnail' : 'card-readable'} ${fitted ? 'card-fitted' : ''} ${finite || growth ? 'card-has-uses' : ''} ${status ? 'card-has-status' : ''} ${dense || fitted && status ? 'card-status-dense' : ''} ${verbose ? 'card-rules-dense' : ''} ${bands.length >= 4 ? 'card-rules-long' : ''} ${selected ? 'card-selected' : ''}" data-card-effect-state="${effectState}" data-card-instance="${esc(card.instanceId || '')}" data-card-help="${esc(card.cardId || card.id)}" data-card-rank="${card.rank || 1}"${Number.isFinite(card.charges) ? ` data-card-charges="${card.charges}"` : ''} data-card-name="${esc(cardName(card))}" data-card-description="${esc(cardHelpDescription(card))}" aria-label="${esc(cardName(card))}, ${esc(rarity(card))}${status ? `, ${esc(cardStatusText(status))}` : ''}${effectReason && effectReason !== status?.reason ? `, ${esc(effectReason)}` : ''}"><header class="card-face-heading"><h3>${esc(cardName(card))}</h3>${compact ? '' : `<button type="button" class="card-help" data-card-term-trigger="${esc(card.cardId || card.id)}" data-card-terms="${cardTerms(card).join(' ')}" aria-haspopup="dialog" aria-label="Help with ${esc(cardName(card))}">?</button>`}</header><div class="card-illustration">${cardArt(card, { compact })}${rarityInlay(card)}${faceBadges(card, compact)}${compact ? '' : badge}${sightWarning ? `<span class="card-sight-warning" role="img" title="${esc(sightWarning)}" aria-label="${esc(sightWarning)}">${effectState === 'partial' ? '≈' : '×'} <small>${effectState === 'partial' ? 'Light blocked' : 'Sight blocked'}</small></span>` : ''}</div>${compact ? '' : `<div class="card-rule-band" role="group" aria-label="Rules for ${esc(cardName(card))}">${cardMechanicMarkup(card,{fitted})}</div>`}${cardStatusMarkup(status, {compact, slot})}${compact ? badge : ''}</article>`;
 }
+/** Wisp stat picture: the wisp orb with one stat mark (whole pixels, 24x24). */
+const WISP_MARKS = {
+  radius: '<path fill="#6fb0d8" d="M8 1h8v1H8zM5 2h3v1H5zM16 2h3v1h-3zM3 4h2v2H3zM19 4h2v2h-2zM1 8h1v8H1zM22 8h1v8h-1zM3 18h2v2H3zM19 18h2v2h-2zM5 21h3v1H5zM16 21h3v1h-3zM8 22h8v1H8z"/>',
+  meter: '<path fill="#5a4632" d="M18 3h4v18h-4z"/><path fill="#f0c86a" d="M19 9h2v11h-2z"/>',
+  heart: '<path fill="#c8443c" d="M15 2h2v1h-2zM19 2h2v1h-2zM14 3h4v1h-4zM18 3h4v1h-4zM14 4h8v2h-8zM15 6h6v1h-6zM16 7h4v1h-4zM17 8h2v1h-2z"/>',
+  light: '<path fill="#fffdf1" d="M11 1h2v3h-2zM11 20h2v3h-2zM1 11h3v2H1zM20 11h3v2h-3zM4 4h2v2H4zM18 4h2v2h-2zM4 18h2v2H4zM18 18h2v2h-2z"/>',
+  stored: '<path fill="#5a4632" d="M15 13h7v8h-7z"/><path fill="#dcc693" d="M16 14h5v6h-5z"/><path fill="#f0c86a" d="M17 15h3v2h-3z"/>',
+  recovery: '<path fill="#6fb0d8" d="M15 3h2v1h-2zM17 4h2v1h-2zM19 5h1v2h-1zM19 7h-2v1h2zM17 8h-1v-1h1zM4 18h2v1H4zM6 19h2v1H6zM4 17h-1v-2h1z"/>'
+};
+const wispArt = id => `<svg class="start-wisp-art" viewBox="0 0 24 24" shape-rendering="crispEdges" role="img" aria-label="Wisp"><path fill="#14241e" d="M0 0h24v24H0z"/><path fill="#d39a3a" d="M8 8h8v8H8z"/><path fill="#f0c86a" d="M9 7h6v10H9zM7 9h10v6H7z"/><path fill="#fffdf1" d="M10 10h3v3h-3z"/>${WISP_MARKS[id] || ''}</svg>`;
+/** One start-bonus tile that is not a card: an Inscription on Chain slot 1, or a Wisp stat. Same frame size as a card face; the header colour names the kind. */
+export function startBonusTileMarkup(gift, { fitted = false } = {}) {
+  const ins = gift.kind === 'inscription';
+  const art = ins ? `<span class="start-slot-plate" aria-hidden="true">${inscriptionGlyph(gift.glyph, { size: 48, role: 'presentation' })}<small>Slot 1</small></span>` : wispArt(gift.wispId);
+  const word = ins ? 'Inscription' : 'Wisp stat', text = ins ? `Slot 1: ${gift.description}` : gift.description;
+  return `<article class="skill-card card-readable card-common start-tile start-tile-${gift.kind} ${fitted ? 'card-fitted' : ''}" data-start-kind="${gift.kind}" data-card-name="${esc(gift.name)}"><header class="card-face-heading"><h3>${esc(gift.name)}</h3></header><div class="card-illustration">${art}</div><div class="card-rule-band" role="group" aria-label="${esc(gift.name)}"><span class="card-mechanics"><span class="card-mechanic-main"><span class="card-rule-stripe card-rule-condition"><span class="card-rule-text"><strong>${word}</strong></span></span><span class="card-rule-stripe card-rule-effect"><span class="card-rule-text">${esc(text)}</span></span></span></span></div></article>`;
+}
 export function starterCardsMarkup(run, gifts, existing) {
   const guide=describeSkillCard(makeSkillCard('lift-guide','included-starter-guide'));
   const capacity=run.cardFutureCapacity>0?`<small>+${run.cardFutureCapacity} permanent maximum Sparks · starting full at ${formatGlow(run.flame)}/${formatGlow(getGlowCapacity(run))}.</small>`:'';
-  return `<section class="card-starter"><header class="card-heading"><div><h2>Choose one starting card</h2><small>Pick 1 of ${gifts.length}. ${DRAFT_HINT}</small>${capacity}</div><div class="card-starter-included">${cardArt(guide,{compact:true})}<span><strong>Lift Guide included</strong><small>You can keep it or Melt it</small></span></div><button class="secondary" data-action="close-sheet">Back</button></header><div class="card-starter-pair${gifts.length===3?' card-starter-trio':''}" data-tap-pick-group>${gifts.map(gift => { const card = gift.card || { ...gift, effect: gift.description, rarity: 'common' }; return `<div role="button" tabindex="0" class="card-pick" data-tap-pick aria-pressed="false" data-action="${existing ? 'existing-gift' : 'new-gift'}" data-id="${esc(gift.id)}" aria-label="${esc(cardName(card))}. Tap to select, tap again to start with it.">${cardFace(card,{fitted:gifts.length===3})}</div>`; }).join('')}</div></section>`;
+  return `<section class="card-starter"><header class="card-heading"><div><h2>${run.cardStarterVersion === 4 ? 'Choose your start' : 'Choose one starting card'}</h2><small>Pick 1 of ${gifts.length}. ${DRAFT_HINT}</small>${capacity}</div><div class="card-starter-included">${cardArt(guide,{compact:true})}<span><strong>Lift Guide included</strong><small>You can keep it or Melt it</small></span></div><button class="secondary" data-action="close-sheet">Back</button></header><div class="card-starter-pair${gifts.length===3?' card-starter-trio':''}" data-tap-pick-group>${gifts.map(gift => { const card = gift.card || { ...gift, effect: gift.description, rarity: 'common' }, face = gift.kind === 'inscription' || gift.kind === 'wisp' ? startBonusTileMarkup(gift, {fitted:gifts.length===3}) : cardFace(card,{fitted:gifts.length===3}); return `<div role="button" tabindex="0" class="card-pick" data-tap-pick aria-pressed="false" data-action="${existing ? 'existing-gift' : 'new-gift'}" data-id="${esc(gift.id)}" aria-label="${esc(cardName(card))}. Tap to select, tap again to start with it.">${face}</div>`; }).join('')}</div></section>`;
 }
 export function starterGiftConfirmationMarkup(run, preview, existing) {
   const gift=preview.gift, card=gift.card || {...gift,effect:gift.description,rarity:'common'};
@@ -229,7 +248,22 @@ const dragGrip = card => isInventoryOnlyCard(card) ? '' : `<span class="card-dra
 export function cardDraftMarkup(run) {
   const draft = getCardDraft(run);
   if (!draft) return '';
-  return `<section class="card-reward-screen card-draft-screen"><header class="card-heading"><div><small>${draft.boss ? 'GUARDIAN' : draft.elite ? 'ELITE ROUND' : 'ROUND CLEARED'}</small><h1>Choose 1 card</h1></div><p>${DRAFT_HINT}</p><button class="secondary" data-action="menu">Menu</button></header>${cardDraftOffersMarkup(draft)}</section>`;
+  return `<section class="card-reward-screen card-draft-screen"><header class="card-heading"><div><small>${draft.boss ? 'GUARDIAN' : draft.elite ? 'ELITE ROUND' : 'ROUND CLEARED'}</small><h1>Choose 1 card</h1></div><p>${DRAFT_HINT}</p><div class="card-heading-actions">${cardDraftRerollMarkup(run, draft)}<button class="secondary" data-action="menu">Menu</button></div></header>${cardDraftOffersMarkup(draft)}</section>`;
+}
+/** Second Look: the Re-roll button for a pack screen (top bar, never over the cards). Empty unless a Second Look is mounted; shows "used" once spent. */
+export function cardDraftRerollMarkup(run, draft = run?.cardDraft) {
+  if (!draft || draft.claimed || draft.trophyOnly) return '';
+  if (draft.reroll?.used) return `<button type="button" class="secondary card-reroll is-used" disabled aria-disabled="true"><span>Re-rolled</span></button>`;
+  if (!canRerollCardDraft(run)) return '';
+  return `<button type="button" class="secondary card-reroll is-dim" data-action="card-draft-reroll" data-draft-id="${esc(draft.id)}" aria-disabled="true" aria-label="Re-roll the selected card. Select a card first."><span>Re-roll</span><small>Select a card first</small></button>`;
+}
+/** Dim or light the Re-roll button from the current tap-pick selection (DOM only). */
+export function syncDraftReroll(root = document) {
+  const button = root.querySelector('.card-reroll[data-action]');
+  if (!button) return;
+  const selected = !!root.querySelector('.card-draft-option.tp-selected');
+  button.classList.toggle('is-dim', !selected);
+  button.setAttribute('aria-disabled', String(!selected));
 }
 export const DRAFT_HINT = 'Tap a card, tap again to take it.';
 /** Three offers. Each is one tap-to-pick item (tap-pick.mjs): the first tap raises it, the second takes it. */
@@ -470,5 +504,5 @@ export function cardVictoryRecap(run) {
   const permanent=gain>0||explanation?`<div class="card-future-capacity-receipt" role="status">${gain>0?`<strong>+${gain} maximum ${gain===1?'Spark':'Sparks'} permanently this expedition</strong><p>Your next expedition starts full at ${30+(run.cardFutureCapacity||0)+legacy} maximum Sparks, before its starting card.</p>`:''}${explanation}</div>`:'';
   const maps=[...new Set([...(run.mapHistory||[]).map(entry=>entry.mapName),run.mapName].filter(Boolean))];
   const chain=run.mountedCards?.some(Boolean)?getMountedCards(run):(run.winningHand||[]);
-  return `<section class="card-victory-recap"><header class="card-heading"><div><small>THREE GUARDIANS · RUN COMPLETE${flightPackingReceipt(run, reward)}</small><h1>The light returns</h1>${maps.length?`<p class="card-recap-maps">${maps.map(esc).join(' · ')}</p>`:''}</div></header>${permanent}<div class="card-winning-hand"><div><h2>Your Chain</h2><ol class="card-recap-row">${chain.map((card, slot) => card ? recapTile(run, card, slot) : '').join('')}</ol></div>${trophy ? `<aside><h2>Trophy: ${esc(cardName(trophy))}</h2><ol class="card-recap-row">${recapTile(run, trophy, null)}</ol></aside>` : ''}</div><p class="card-footnote">Ascension ${run.difficulty} conquered. Cards and Stored Sparks belong to this completed run.</p><footer class="card-dialog-actions"><button class="secondary" data-action="artifacts">Relic almanac</button><button class="primary" data-action="exit-menu">Main menu</button></footer></section>`;
+  return `<section class="card-victory-recap"><header class="card-heading"><div><small>THREE GUARDIANS · RUN COMPLETE${flightPackingReceipt(run, reward)}</small><h1>The light returns</h1>${wispChipText(run)?`<p class="card-wisp-chip">${esc(wispChipText(run))}</p>`:''}${maps.length?`<p class="card-recap-maps">${maps.map(esc).join(' · ')}</p>`:''}</div></header>${permanent}<div class="card-winning-hand"><div><h2>Your Chain</h2><ol class="card-recap-row">${chain.map((card, slot) => card ? recapTile(run, card, slot) : '').join('')}</ol></div>${trophy ? `<aside><h2>Trophy: ${esc(cardName(trophy))}</h2><ol class="card-recap-row">${recapTile(run, trophy, null)}</ol></aside>` : ''}</div><p class="card-footnote">Ascension ${run.difficulty} conquered. Cards and Stored Sparks belong to this completed run.</p><footer class="card-dialog-actions"><button class="secondary" data-action="artifacts">Relic almanac</button><button class="primary" data-action="exit-menu">Main menu</button></footer></section>`;
 }

@@ -1036,5 +1036,14 @@
     "line": [
       "finish-flag"
     ]
+  },
+  "second-look": {
+    "file": "second-look.svg",
+    "rarity": "rare",
+    "family": "Second Look",
+    "idea": "An eye over two overlapping cards",
+    "line": [
+      "second-look"
+    ]
   }
 }
