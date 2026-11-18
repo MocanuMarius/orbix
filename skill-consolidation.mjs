@@ -1,4 +1,4 @@
-import {normalizeChapterPrerequisites} from './skill-chapters.mjs?v=detail-1';
+import {normalizeChapterPrerequisites} from './skill-chapters.mjs?v=lift-1';
 const groups=[
  ['main','Lift',['main-efficiency','main-lift']],
  ['main','Double Lift',['main-fourth-beat','main-fourth-beat-2']],

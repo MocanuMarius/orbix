@@ -72,7 +72,7 @@ export const CHEVRON = pad16([BLANK, BLANK, BLANK, BLANK, BLANK, '..OO........OO
 const GEM_ROWS = ['...OO...', '..OHAO..', '.OHAAAO.', 'OHAAAAZO', 'OAAAAZZO', '.OAAZZO.', '..OAZO..', '...OO...'];
 const GEM_PAL = {common: {A: '#d8dacd', Z: '#8d9187', H: '#ffffff'}, rare: {A: '#6fa3bd', Z: '#31546f', H: '#f0d68a'}, legendary: {A: '#b9a6d6', Z: '#5b4f73', H: '#f3d6f7'}};
 export const gem = r => pixelArt(GEM_ROWS, {size: 8, pal: {O: '#2a1d12', ...GEM_PAL[r]}, cls: 'dk21-gem'});
-import {triggerArtKey} from '../card-rule-bands.mjs?v=detail-1';
+import {triggerArtKey} from '../card-rule-bands.mjs?v=lift-1';
 // 9-slice frames: 12×12, stepped 2-pixel corners, outline · rim · one-pixel bevel (light top/left, dark bottom/right) · fill.
 export function frameUrl({outline = '#2a1d12', rim, light, dark, fill}) {
   const paths = {};
@@ -105,7 +105,7 @@ export function medalUrl(D) {
   return (medalCache[D] = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
 }
 TRIGGER_ART.rest = CAMPFIRE;
-export const triggerIcon = (kind, size = 16) => TRIGGER_ART[kind] ? pixelArt(TRIGGER_ART[kind], {size, cls: 'dk21-ticon'}) : '';
+export const triggerIcon = (kind, size = 16) => (kind = kind === 'lift-sim' ? 'downbeat-lift' : kind, TRIGGER_ART[kind]) ? pixelArt(TRIGGER_ART[kind], {size, cls: 'dk21-ticon'}) : '';
 /** A Trigger chip's icon (chip ids from card-rule-bands.mjs › CARD_TRIGGERS), 16 or 32 px. */
 export const chipIcon = (id, size = 16) => triggerIcon(triggerArtKey(id), size);
 const escB = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));

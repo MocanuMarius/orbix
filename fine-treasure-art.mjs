@@ -1,5 +1,5 @@
-import {pixelContour} from './pixel-contour.mjs?v=detail-1';
-import {sparkSymbolArt} from './spark-symbol.mjs?v=detail-1';
+import {pixelContour} from './pixel-contour.mjs?v=lift-1';
+import {sparkSymbolArt} from './spark-symbol.mjs?v=lift-1';
 const rect=(x,y,w,h,ink,opacity=1)=>`<path fill="${ink}" opacity="${opacity}" d="M${x} ${y}h${w}v${h}h-${w}z"/>`;
 export const fineShape=(points,ink,step=1,opacity=1)=>`<path fill="${ink}" opacity="${opacity}" d="M${pixelContour(points,step).map(p=>p.join(' ')).join('L')}Z"/>`;
 const oval=(x,y,rx,ry,ink)=>fineShape(Array.from({length:40},(_,i)=>{const a=i*Math.PI/20;return[x+Math.cos(a)*rx,y+Math.sin(a)*ry];}),ink);

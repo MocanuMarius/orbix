@@ -7,14 +7,14 @@
 // LEFT did to it (an Echo repeating it). Later Boosts and the Encore keep their own plates. Honesty rule: the
 // plates read left to right (+ adds, × multiplies the running figure, Encore repeats the line, each firing
 // rounded up to whole Sparks) must give the resolver's total; when they do not, plates show plain figures.
-import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=detail-1';
-import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=detail-1';
-import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=detail-1';
+import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, getEffectiveCardSources, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=lift-1';
+import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=lift-1';
+import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=lift-1';
 import {DISPLAY_GROUPS, GROUP_TERM} from '../card-trigger-labels.mjs';
-import {faceTrigger, faceEffect} from '../card-face-lines.mjs?v=detail-1';
-import {getCardRuleBands} from '../card-rule-bands.mjs?v=detail-1';
-import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=detail-1';
-import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=detail-1';
+import {faceTrigger, faceEffect} from '../card-face-lines.mjs?v=lift-1';
+import {getCardRuleBands} from '../card-rule-bands.mjs?v=lift-1';
+import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=lift-1';
+import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=lift-1';
 
 /** The Triggers in the designer's order, with the game's names and glossary keys (card-terms.mjs). */
 export const TRIGGERS = Object.freeze([
@@ -24,7 +24,10 @@ export const TRIGGERS = Object.freeze([
   // Victory is the engine's thirteenth Trigger; no card listens to it by name and it has no glossary entry.
   Object.freeze({kind: 'expedition-victory', name: 'Victory', term: null, meaning: 'You win an expedition.'}),
 ]);
-export const TRIGGER_BY = Object.freeze(Object.fromEntries(TRIGGERS.map(t => [t.kind, t])));
+// Lift: one simulated Lift of the flight (flight.mjs resolves it as a falling Lift or a plain one, then the Lift Guide cue).
+export const LIFT_KIND = 'lift-sim', LIFT_COST = 3;
+export const LIFT_TRIGGER = Object.freeze({kind: LIFT_KIND, name: 'Lift', term: 'falling-lift', meaning: 'You Lift once. A Lift costs 3 Sparks.'});
+export const TRIGGER_BY = Object.freeze({...Object.fromEntries(TRIGGERS.map(t => [t.kind, t])), [LIFT_KIND]: LIFT_TRIGGER});
 // Events a card can wait for that have no tab of their own on the Chain screen (a Flare ending, a Latch, a Swipe).
 const EVENT_LABEL = Object.freeze({...Object.fromEntries(Object.values(CARD_TRIGGERS).filter(t => t.event).map(t => [t.event, t.label])), 'guide-lift': 'Lift'});
 export const triggerName = kind => TRIGGER_BY[kind]?.name || EVENT_LABEL[kind] || 'this Trigger';
@@ -74,7 +77,7 @@ const COND_KEYS = ['pickupKind', 'meterAtMost', 'firstCrossing', 'guardRecoverin
 const COLLECTOR_OPS = {'shorten-recovery': 'the Collector is recovering', 'shorten-reel': 'the Collector is reeling a Spark in', 'bank-reel': 'the Collector has a reel to shorten'};
 const PICKUP_WORD = {dusk: ['a Dusk Spark', 'Dusk Spark'], cluster: ['a Cluster', 'Cluster'], cache: ['a Cache', 'Cache'], light: ['a plain Spark', 'Plain Spark']};
 const BASE_WORD = {'body-spark': 'when you Collect', 'collector-delivery': 'when Collector delivers', 'guard-rescue': 'when you are saved', 'flash-pickup': 'when you Collect a Flare', 'wave-crossing': 'when a Pulse crosses a Spark'};
-const WAIT_NAME = {'flash-pickup': 'a Flare', 'flash-expiry': 'a Flare ending'};
+const WAIT_NAME = {'flash-pickup': 'a Flare', 'flash-expiry': 'a Flare ending', 'guide-lift': 'the Lift Guide cue', 'plain-lift': 'a plain Lift'};
 /** What a conditional card waits for on its own Trigger: {event: preview fields that meet it, label: plate words, line: "you Collect a Dusk Spark"}. Null for a card without one. */
 export function conditionOf(c, trigger) {
   const def = SKILL_CARDS[c?.cardId], rule = def ? getCardRowRule(def, c) : null, w = rule?.when;
@@ -99,7 +102,25 @@ export function conditionOf(c, trigger) {
   return {event, label: label.join(', '), line: `${lead}${tail.length ? `, but only while ${tail.join(' and ')}` : ''}`};
 }
 
+const LIFT_EVENTS = ['downbeat-lift', 'plain-lift', 'guide-lift'];
+/** Which choices a Lift offers for this row: only the ones a mounted card needs. */
+export function liftOptions(row) {
+  const rules = getEffectiveCardSources((row || []).map(c => c || null)).map(e => getCardRowRule(e.def, e.source)?.event);
+  return {falling: rules.includes('downbeat-lift'), cue: rules.includes('guide-lift')};
+}
+/** One Lift as the flight resolves it: a falling Lift (or a plain one), then the Lift Guide cue when it was on the cue. */
+function solveLift(row, inscriptions, {falling = true, cue = true} = {}) {
+  const snap = inscriptions?.some(Boolean) ? {cards: row, inscriptions} : row, run = inscriptions?.some(Boolean) ? snap : {cards: row};
+  const kinds = [falling ? 'downbeat-lift' : 'plain-lift', ...(cue ? ['guide-lift'] : [])];
+  const receipts = kinds.map(k => previewCardRow(run, hasCardRowEvent(snap, k) ? eventFor(k) : {...eventFor(k), eligible: false}));
+  const steps = receipts.flatMap(r => r.steps), sparks = receipts.reduce((n, r) => n + r.sparks, 0);
+  const receipt = {...receipts[0], steps, sparks, ...('sparksExact' in receipts[0] ? {sparksExact: receipts.reduce((n, r) => n + (r.sparksExact || 0), 0)} : {})};
+  const gainFlame = Math.min(sparks * CARD_UNIT, Math.max(0, METER_MAX - START_FLAME));
+  return {kind: LIFT_KIND, listens: LIFT_EVENTS.some(k => hasCardRowEvent(snap, k)), receipt, steps, sparks, gainFlame, gain: glowPoints(gainFlame),
+    lift: {falling, cue, cost: LIFT_COST, net: Math.round((sparks - LIFT_COST) * 100) / 100}};
+}
 export function solveTrigger(row, kind, inscriptions = null, extra = null) {
+  if (kind === LIFT_KIND) return solveLift(row, inscriptions, extra || {});
   const snap = inscriptions?.some(Boolean) ? {cards: row, inscriptions} : row;
   const listens = hasCardRowEvent(snap, kind);
   const ev = extra ? Object.freeze({...eventFor(kind), ...extra}) : eventFor(kind);
@@ -120,7 +141,8 @@ export function conditionalSolves(row, kind, inscriptions, sol) {
   return out;
 }
 /** A Trigger fires this chain when a card listens to it AND the resolver, run with it, has a card that acts (on the plain Spark, or on the Spark a conditional card waits for). */
-export const triggersFor = (row, inscriptions = null) => TRIGGERS.filter(t => {
+export const triggersFor = (row, inscriptions = null) => TRIGGERS.map(t => t.kind === 'downbeat-lift' ? LIFT_TRIGGER : t).filter(t => {
+  if (t.kind === LIFT_KIND) {const sol = solveLift(row, inscriptions);return sol.listens && sol.steps.some(st => st.success);}
   if (!hasCardRowEvent(inscriptions?.some(Boolean) ? {cards: row, inscriptions} : row, t.kind)) return false;
   const sol = solveTrigger(row, t.kind, inscriptions);
   return sol.steps.some(st => st.success) || conditionalSolves(row, t.kind, inscriptions, sol).some(x => x.sol.steps.some(st => st.success));
@@ -223,12 +245,12 @@ export function plateSum(ctx, useEff) {
 
 /** Everything the Chain tab needs for one row and one wanted Trigger. */
 /** inscriptions: the run's slot Inscriptions aligned to the row ([{id}|null]); the numbers then match a real flight. */
-export function resolveChain(row, wanted = null, inscriptions = null) {
+export function resolveChain(row, wanted = null, inscriptions = null, opts = {}) {
   const cards = (row || []).map(c => c || null);
   const trigs = triggersFor(cards, inscriptions);
   const trigger = trigs.some(t => t.kind === wanted) ? wanted : trigs[0]?.kind || 'body-spark';
-  const sol = solveTrigger(cards, trigger, inscriptions);
-  const ctx = {row: cards, sol, attr: null, plain: false, trigger, trigs};
+  const sol = solveTrigger(cards, trigger, inscriptions, trigger === LIFT_KIND ? {falling: opts.liftFalling !== false, cue: opts.liftCue !== false} : null);
+  const ctx = {row: cards, sol, attr: null, plain: false, trigger, trigs, lift: sol.lift || null, liftOptions: trigs.some(t => t.kind === LIFT_KIND) ? liftOptions(cards) : null};
   ctx.conds = conditionalSolves(cards, trigger, inscriptions, sol);
   ctx.attr = leftAttribute(cards, sol);
   if (!ctx.attr || Math.abs(plateSum(ctx, true) - Math.round(sol.sparks * 100) / 100) > .011) ctx.plain = true;
@@ -302,7 +324,7 @@ export function enginePlate(row, slot) {
   if (d.includes('flash')) return {long: 'Starts a Flare (Pulse every 2 s, very high Luminance)', short: 'A Flare'};
   if (d.includes('gain') && d.includes('pulse')) return {long: `Sends a Pulse, +${num(amount)}`, short: `Pulse, +${num(amount)}`};
   if (d.includes('gain')) return {long: `${sparks} each Turn`, short: `+${num(amount)} a Turn`};
-  if (d.includes('pulse')) return {long: spec.keep ? `Sends a Pulse, keeps ${num(spec.keep)}` : 'Sends a Pulse', short: 'Sends a Pulse'};
+  if (d.includes('pulse')) return {long: spec.keep ? `Sends a Pulse, keeps ${num(spec.keep)} Stored` : 'Sends a Pulse', short: 'Sends a Pulse'};
   return null;
 }
 /** Black Hole's take-off plate and its running total (card-black-hole.mjs). */

@@ -1,6 +1,6 @@
-import {lightVisibility} from './light-field.mjs?v=detail-1';
-import {drawPickup} from './pickup-art.mjs?v=detail-1';
-import {sparkArtScale} from './spark-size.mjs?v=detail-1';
+import {lightVisibility} from './light-field.mjs?v=lift-1';
+import {drawPickup} from './pickup-art.mjs?v=lift-1';
+import {sparkArtScale} from './spark-size.mjs?v=lift-1';
 
 const unit = value => Math.max(0, Math.min(1, value));
 

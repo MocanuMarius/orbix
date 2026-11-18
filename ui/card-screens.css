@@ -696,3 +696,30 @@ button[data-tap-pick].tp-selected,.event-pick-card.tp-selected,.treasure-offer.t
 #dk-root .dk2-rule{margin:0;font:400 14px/18px var(--pixel,monospace);color:var(--ink)}
 html body #dk-root.dk.dk2 .dk2-info .dk2-rule{font-size:14px;line-height:17px}
 @media(max-height:340px){html body #dk-root.dk.dk2 .dk2-info .dk2-rule{font-size:12px;line-height:14px}}
+/* Lift as a simulated Trigger: its choices (only those a mounted card needs) and the honest net (2026-11-18). */
+#dk-root .dk24-lopts{display:flex;flex-wrap:wrap;gap:4px;margin:0}
+#dk-root .dk24-lopt{display:inline-flex;align-items:center;gap:5px;min-height:36px;padding:0 8px;font:400 12px/14px var(--pixel,monospace);color:var(--ink);border:2px solid #8a7550;background:#d9c690}
+#dk-root .dk24-lopt i{width:10px;height:10px;border:2px solid #5b4630;background:transparent;flex:none}
+#dk-root .dk24-lopt.dk24-on i{background:#5b4630}
+#dk-root .dk24-net{display:block;margin-top:2px;font:400 12px/14px var(--pixel,monospace);color:var(--ink-soft);white-space:nowrap}
+#dk-root .dk24-long{display:inline}#dk-root .dk24-short{display:none}
+#dk-root .dk24-lopt{min-height:34px}
+@media(max-height:380px){
+ #dk-root .dk24-lopts{flex-wrap:nowrap;gap:4px}
+ #dk-root .dk24-lopts~.dk23-help{display:none!important}
+ #dk-root .dk24-lopt{flex-direction:column;justify-content:center;gap:2px;min-width:52px;min-height:44px;padding:0 4px;font-size:11px;line-height:12px}
+ #dk-root .dk24-long{display:none}#dk-root .dk24-short{display:inline}
+ #dk-root .dk24-net{font-size:11px}
+}
+#dk-root.dk.dk2 .dk24-lopt{border:2px solid #8a7550;background:#dcc995;border-radius:0}
+#dk-root.dk.dk2 .dk24-lopt.dk24-on{background:#c9ad6a;border-color:#5b4630}
+#dk-root.dk.dk2 .dk24-lopt i{display:block;width:10px;height:10px;border:2px solid #5b4630;background:transparent}
+#dk-root.dk.dk2 .dk24-lopt.dk24-on i{background:#5b4630}
+#dk-root .dk22-sum:has(.dk24-net){position:relative}
+#dk-root .dk22-sum .dk24-net{position:absolute;left:50%;bottom:calc(100% + 2px);transform:translateX(-50%);margin:0;padding:1px 6px;background:#efe0b4;border:2px solid #8a7550;color:var(--ink);z-index:3}
+#dk-root.dk.dk2 .dk24-lopt{padding:0 8px;gap:6px;min-width:0}
+#dk-root .dk22-sum .dk24-net{bottom:calc(var(--medal,72px) / 2 + 6px)}
+@media(max-height:380px){#dk-root.dk.dk2 .dk24-lopt{padding:0 4px;gap:2px;min-width:52px}}
+#dk-root.dk.dk2 .dk24-lopt{white-space:nowrap;min-height:30px}
+#dk-root.dk.dk2 .dk24-lopt span{white-space:nowrap}
+@media(max-height:380px){#dk-root.dk.dk2 .dk24-lopt{min-height:44px}}
