@@ -1,14 +1,14 @@
-import {ARTIFACTS,SKILL_CARDS,getCardDraft,lastCourseName} from './model.mjs?v=timers-1';
-import {chipIcon} from './ui/trigger-icons.mjs?v=timers-1';
-import {cardDraftMarkup,cardDraftOffersMarkup} from './card-ui.mjs?v=timers-1';
-import {rewardEarnings} from './reward-screen.mjs?v=timers-1';
-import {resourceSymbol} from './game-symbols.mjs?v=timers-1';
-import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=timers-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=timers-1';
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=timers-1';
-import {sealedPackMarkup} from './flight-reward-pack-art.mjs?v=timers-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=timers-1';
-import {flightRewardReceiptDetail,FLIGHT_REWARD_SOURCE_DETAILS} from './flight-reward-details.mjs?v=timers-1';
+import {ARTIFACTS,SKILL_CARDS,getCardDraft,lastCourseName} from './model.mjs?v=calm-2';
+import {chipIcon} from './ui/trigger-icons.mjs?v=calm-2';
+import {cardDraftMarkup,cardDraftOffersMarkup} from './card-ui.mjs?v=calm-2';
+import {rewardEarnings} from './reward-screen.mjs?v=calm-2';
+import {resourceSymbol} from './game-symbols.mjs?v=calm-2';
+import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=calm-2';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=calm-2';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=calm-2';
+import {sealedPackMarkup} from './flight-reward-pack-art.mjs?v=calm-2';
+import {artifactIcon} from './upgrade-icons.mjs?v=calm-2';
+import {flightRewardReceiptDetail,FLIGHT_REWARD_SOURCE_DETAILS} from './flight-reward-details.mjs?v=calm-2';
 export {flightRewardReceiptDetail};
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -41,7 +41,7 @@ export function flightRewardCeremonyReceipt(run){
  const sourceNames=effect=>[...new Set(steps.filter(step=>step.success&&count(step[effect])>0).map(cardName).filter(Boolean))];
  const sourceLabel=(fallback,names)=>names.length?names.join(' + '):fallback;
  const challengeName=ROUTE_BONUSES[flight.routeBonus?.id]?.name;
- const labels={Pact:FLIGHT_PACTS[flight.flightPact]?.name||'Pact','Route bonus':challengeName?`Challenge · ${challengeName}`:'Route bonus',
+ const labels={Pact:FLIGHT_PACTS[flight.flightPact]?.name||'Pact','Route bonus':challengeName?`Objective met · ${challengeName}`:'Route bonus',
   'Chest gifts':sourceLabel('Chest gifts',flight.chestIncome?.sources||[]),'Cards on clear':sourceLabel('Cards on clear',sourceNames('stored')),
   // Engine cards (v1.0-engine): the Trigger icon leads, the words say where the Stored Sparks came from.
   'Pack cards':'Pack cards','Engine cards':'Kept by your engine'};
@@ -52,7 +52,7 @@ export function flightRewardCeremonyReceipt(run){
  for(const row of earnings.rows){const amount=Math.min(row.amount,remaining);if(amount)rows.push({...row,amount,detailKey:FLIGHT_REWARD_SOURCE_DETAILS[row.label],optional:optionalLabels.has(row.label),label:labels[row.label]||row.label,chip:chips[row.label]||null});remaining-=amount;}
  const bonusRows=rows.filter(row=>row.optional),baseRows=rows.filter(row=>!row.optional);
  const routeNote=routeBonusReceiptText(flight.routeBonus);
- const challengePayoutOnly = flight.routeBonus?.amount > 0 && routeNote === `+${count(flight.routeBonus.amount)} Stored Sparks`;
+ const challengePayoutOnly = flight.routeBonus?.amount > 0 && [`+${count(flight.routeBonus.amount)} Stored Sparks`, `Objective met: +${count(flight.routeBonus.amount)} Stored Sparks`].includes(routeNote);
  const chestNote=flight.chestIncome?.message,chestPayout=`+${count(flight.chestIncome?.amount)} Stored Sparks`;
  const chestPayoutOnly=rows.some(row=>row.optional&&row.label===labels['Chest gifts'])&&
   [chestPayout,`${labels['Chest gifts']} · ${chestPayout}`,`${(flight.chestIncome?.sources||[]).join(' + ')} · ${chestPayout}`].includes(chestNote?.trim());

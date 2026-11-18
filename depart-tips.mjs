@@ -21,13 +21,14 @@
 //   devour                      a Devour card is in the Chain (card-black-hole.mjs isDevourCard)
 //   rest-ahead / scribe-ahead   a stop right after this flight is a Rest / a Scribe stop
 //   can-add-slot                the Chain has fewer than five slots
-import {CARD_CATALOG} from './card-catalog.mjs?v=timers-1';
-import {getBiome} from './biomes.mjs?v=timers-1';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=timers-1';
-import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=timers-1';
-import {onboardingFlightPlan} from './onboarding.mjs?v=timers-1';
-import {isDevourCard} from './card-black-hole.mjs?v=timers-1';
-import {getInscription} from './inscriptions.mjs?v=timers-1';
+import {pendingOathId, getOath, oathShort} from './oaths.mjs?v=calm-2';
+import {CARD_CATALOG} from './card-catalog.mjs?v=calm-2';
+import {getBiome} from './biomes.mjs?v=calm-2';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=calm-2';
+import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=calm-2';
+import {onboardingFlightPlan} from './onboarding.mjs?v=calm-2';
+import {isDevourCard} from './card-black-hole.mjs?v=calm-2';
+import {getInscription} from './inscriptions.mjs?v=calm-2';
 
 export const TIPS = Object.freeze([
  // ── General: fine in any run ──────────────────────────────────────────────────────────────
@@ -259,7 +260,7 @@ export function departureRunState(run, node, {profile = null} = {}) {
   const entries = cardsRun ? (run.slotInscriptions || []).slice(0, slots).filter(entry => entry && getInscription(entry.id)) : [];
   const next = (node?.nextIds || []).map(id => (run?.map || []).flat().find(n => n?.id === id)).filter(Boolean);
   return {
-    inscribed: entries.some(entry => !entry.temporary),
+    inscribed: entries.length > 0,
     devour: cardsRun && mounted.some(card => card && isDevourCard(card)),
     restAhead: !practice && next.some(n => n.kind === 'camp'), scribeAhead: !practice && next.some(n => n.kind === 'scribe'),
     cards: [...chain, ...held], chain, slots, filled: mounted.filter(Boolean).length,
@@ -293,6 +294,9 @@ export function writeTipHistory(history, storage = defaultStorage()) {
 
 /** One selection per departure: the tip, its context line and its place among the tips that fit this run. */
 export function selectDepartureTip({run, node, profile = null, showTips = true, storage = defaultStorage(), rand = Math.random} = {}) {
+  // A wager for this flight (dist/oaths.mjs) always shows, whatever the tips setting: it changes the rules of the flight about to start.
+  const wager = pendingOathId(run);
+  if (wager) return {tip: {id: 'wager', context: 'always', icon: 'note', headline: 'Wager: ' + getOath(wager).name, text: oathShort(run, wager)}, why: 'Your wager', note: 1, total: 1, liftHint: false, practice: false};
   if (showTips === false) return null;
   const state = departureRunState(run, node, {profile}), history = readTipHistory(storage);
   const tip = pickTip(state, history, rand);

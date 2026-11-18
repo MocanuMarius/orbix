@@ -1,15 +1,15 @@
-import { cardTermTextMarkup } from "./card-terms.mjs?v=timers-1";
-import { uiIcon } from "./ui-icons.mjs?v=timers-1";
-import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=timers-1";
-import { chipBadge, rarityPips } from "./ui/trigger-icons.mjs?v=timers-1";
-import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=timers-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=timers-1";
-import { activeFlightPact } from './flight-pacts.mjs?v=timers-1';
-import { cardArt } from "./card-art.mjs?v=timers-1";
-import { cardTileLine } from "./card-tile-lines.mjs?v=timers-1";
-import { slotInscriptionId } from "./inscriptions.mjs?v=timers-1";
-import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=timers-1";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=timers-1';
+import { cardTermTextMarkup } from "./card-terms.mjs?v=calm-2";
+import { uiIcon } from "./ui-icons.mjs?v=calm-2";
+import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=calm-2";
+import { chipBadge, rarityPips } from "./ui/trigger-icons.mjs?v=calm-2";
+import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=calm-2";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=calm-2";
+import { activeFlightPact } from './flight-pacts.mjs?v=calm-2';
+import { cardArt } from "./card-art.mjs?v=calm-2";
+import { cardTileLine } from "./card-tile-lines.mjs?v=calm-2";
+import { slotInscriptionId } from "./inscriptions.mjs?v=calm-2";
+import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=calm-2";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=calm-2';
 import {
   getMountedCards,
   getOwnedCards,
@@ -18,19 +18,20 @@ import {
   getCardDraft,
   getCardImprovePreview,
   getCardForgePreview,
+  getCardRefillPreview,
   getCardForgePrice,
   getCardCampPreview,
   getChoices,
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
-} from "./model.mjs?v=timers-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=timers-1";
-import { choiceScene } from "./choice-art.mjs?v=timers-1";
-import { livesMarkup } from "./lives.mjs?v=timers-1";
-import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=timers-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=timers-1";
-import {canDreamAt, dreamConfig} from './dream.mjs?v=timers-1';
+} from "./model.mjs?v=calm-2";
+import { resourceSymbol } from "./game-symbols.mjs?v=calm-2";
+import { choiceScene } from "./choice-art.mjs?v=calm-2";
+import { livesMarkup } from "./lives.mjs?v=calm-2";
+import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=calm-2";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=calm-2";
+import {canDreamAt, dreamConfig} from './dream.mjs?v=calm-2';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -43,7 +44,7 @@ import {
   isInventoryOnlyCard,
   SKILL_CARDS,
   cardTallyLine,
-} from "./skill-cards.mjs?v=timers-1";
+} from "./skill-cards.mjs?v=calm-2";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -92,7 +93,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=timers-1";
+export { cardArt } from "./card-art.mjs?v=calm-2";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
@@ -337,18 +338,13 @@ export function cardExchangeMarkup(card, { kind = 'melt', preview = null, index 
   const improve = kind === 'improve';
   if(improve) {
     const before = preview.before || card, after = preview.after;
-    return `<section class="card-exchange card-improve-confirm"><header class="card-heading"><div><small>${preview.kind === 'evolution' ? 'EVOLVE' : 'IMPROVE'} · USES PRESERVED</small><h2>${esc(cardName(before))} → ${esc(cardName(after))}</h2></div>${walletMarkup(wallet)}</header><div class="card-improve-pair"><div class="card-improve-version"><small>Before · ${esc(rarity(before))} · rank ${before.rank || 1}</small><div class="card-improve-face">${cardFace(before)}</div></div><div class="card-improve-version"><small>After · ${esc(rarity(after))} · rank ${after.rank || 1}</small><div class="card-improve-face">${cardFace(after)}</div></div></div><footer class="card-dialog-actions"><button class="secondary" data-action="card-back-improve">${esc(backLabel)}</button><p class="card-improve-wallet" role="status">${preview.eligible ? `Stored Sparks ${amount(wallet)} → ${amount(wallet)-amount(preview.price)}` : esc(preview.reason || `Need ${Math.max(0,amount(preview.price)-amount(wallet))} more Stored Sparks`)}</p><button class="primary" data-action="card-confirm-improve" data-id="${esc(card.instanceId)}" data-rank="${card.rank || 1}" data-token="${esc(preview.token || '')}" ${!preview.eligible ? 'disabled' : ''}>${preview.kind === 'evolution' ? 'Evolve' : 'Improve'} · ${amount(preview.price)}</button></footer></section>`;
+    return `<section class="card-exchange card-improve-confirm"><header class="card-heading"><div><small>${preview.kind === 'evolution' ? 'EVOLVE' : 'IMPROVE'} · USES PRESERVED</small><h2>${esc(cardName(before))} → ${esc(cardName(after))}</h2></div>${walletMarkup(wallet)}</header><div class="card-improve-pair"><div class="card-improve-version"><small>Before · ${esc(rarity(before))} · rank ${before.rank || 1}</small><div class="card-improve-face">${cardFace(before)}</div></div><div class="card-improve-version"><small>After · ${esc(rarity(after))} · rank ${after.rank || 1}</small><div class="card-improve-face">${cardFace(after)}</div></div></div><footer class="card-dialog-actions"><button class="secondary" data-action="card-back-improve">${esc(backLabel)}</button><p class="card-improve-wallet" role="status">${preview.eligible ? `Costs ${amount(preview.price)} Stored Sparks` : esc(preview.reason || `Needs ${Math.max(0,amount(preview.price)-amount(wallet))} more Stored Sparks`)}</p><button class="primary" data-action="card-confirm-improve" data-id="${esc(card.instanceId)}" data-rank="${card.rank || 1}" data-token="${esc(preview.token || '')}" ${!preview.eligible ? 'disabled' : ''}>${preview.kind === 'evolution' ? 'Evolve' : 'Improve'} · ${amount(preview.price)}</button></footer></section>`;
   }
-  return `<section class="card-exchange ${improve ? 'card-improve-confirm' : 'card-melt-confirm'}"><header class="card-heading"><div><small>${improve ? 'IMPROVE A DECK CARD' : 'PERMANENTLY DESTROY THIS CARD'}</small><h2>${improve ? 'Improve' : 'Melt'} ${esc(cardName(card))}?</h2></div>${walletMarkup(wallet)}</header><div class="card-exchange-body">${cardFace(card)}<div class="card-exchange-result">${improve ? `<h3>${esc(cardName(preview.before || card))} → ${esc(cardName(preview.after))}</h3><small class="card-improve-tier">${esc(rarity(preview.before || card))} · rank ${card.rank || 1} → ${esc(rarity(preview.after))} · rank ${preview.after?.rank || Number(card.rank || 1) + 1}</small>${Number.isFinite(card.amount) && preview.after?.amount !== card.amount ? `<p class="card-improve-amount">Bonus +${card.amount} → +${preview.after.amount}</p>` : ''}${cardMechanicMarkup(preview.after)}<p class="card-kept-uses">Uses unchanged</p><strong>−${amount(preview.price)} Stored Sparks</strong><small>${preview.eligible ? `Wallet ${amount(wallet)} → ${amount(wallet) - amount(preview.price)}` : esc(preview.reason || `Need ${Math.max(0, amount(preview.price) - amount(wallet))} more Stored Sparks`)}</small>` : `<div class="card-melt-art">${choiceScene('forge')}</div><h3>Destroy this card</h3><p>${card.charges == null ? 'Its ability ends.' : `${amount(card.charges)} remaining uses will be lost.`}</p><strong>+${amount(card.meltValue)} Stored Sparks</strong><small>Wallet ${amount(wallet)} → ${amount(wallet) + amount(card.meltValue)}</small>`}</div></div><footer class="card-dialog-actions"><button class="secondary" data-action="${improve ? 'card-back-improve' : source === 'reward' ? 'card-back-reward' : 'cards'}">${improve ? esc(backLabel) : 'Keep card'}</button><button class="primary ${improve ? '' : 'card-danger'}" data-action="${improve ? 'card-confirm-improve' : source === 'reward' ? 'card-confirm-reward-melt' : 'card-confirm-melt'}" data-id="${esc(card.instanceId)}" data-index="${index ?? ''}" data-rank="${card.rank || 1}" data-token="${esc(preview?.token || '')}" ${improve && !preview.eligible ? 'disabled' : ''}>${improve ? `${preview.kind === 'evolution' ? 'Evolve' : 'Improve'} for ${amount(preview.price)}` : `Melt card for +${amount(card.meltValue)}`}</button></footer></section>`;
+  return `<section class="card-exchange ${improve ? 'card-improve-confirm' : 'card-melt-confirm'}"><header class="card-heading"><div><small>${improve ? 'IMPROVE A DECK CARD' : 'PERMANENTLY DESTROY THIS CARD'}</small><h2>${improve ? 'Improve' : 'Melt'} ${esc(cardName(card))}?</h2></div>${walletMarkup(wallet)}</header><div class="card-exchange-body">${cardFace(card)}<div class="card-exchange-result">${improve ? `<h3>${esc(cardName(preview.before || card))} → ${esc(cardName(preview.after))}</h3><small class="card-improve-tier">${esc(rarity(preview.before || card))} · rank ${card.rank || 1} → ${esc(rarity(preview.after))} · rank ${preview.after?.rank || Number(card.rank || 1) + 1}</small>${Number.isFinite(card.amount) && preview.after?.amount !== card.amount ? `<p class="card-improve-amount">Bonus +${card.amount} → +${preview.after.amount}</p>` : ''}${cardMechanicMarkup(preview.after)}<p class="card-kept-uses">Uses unchanged</p><strong>Costs ${amount(preview.price)} Stored Sparks</strong>${preview.eligible ? '' : `<small>${esc(preview.reason || `Needs ${Math.max(0, amount(preview.price) - amount(wallet))} more Stored Sparks`)}</small>`}` : `<div class="card-melt-art">${choiceScene('forge')}</div><h3>Destroy this card</h3><p>${card.charges == null ? 'Its ability ends.' : `${amount(card.charges)} remaining uses will be lost.`}</p><strong>+${amount(card.meltValue)} Stored Sparks</strong><small>Wallet ${amount(wallet)} → ${amount(wallet) + amount(card.meltValue)}</small>`}</div></div><footer class="card-dialog-actions"><button class="secondary" data-action="${improve ? 'card-back-improve' : source === 'reward' ? 'card-back-reward' : 'cards'}">${improve ? esc(backLabel) : 'Keep card'}</button><button class="primary ${improve ? '' : 'card-danger'}" data-action="${improve ? 'card-confirm-improve' : source === 'reward' ? 'card-confirm-reward-melt' : 'card-confirm-melt'}" data-id="${esc(card.instanceId)}" data-index="${index ?? ''}" data-rank="${card.rank || 1}" data-token="${esc(preview?.token || '')}" ${improve && !preview.eligible ? 'disabled' : ''}>${improve ? `${preview.kind === 'evolution' ? 'Evolve' : 'Improve'} for ${amount(preview.price)}` : `Melt card for +${amount(card.meltValue)}`}</button></footer></section>`;
 }
 export function cardGrowConfirmationMarkup(run, camp, grow) {
   return `<section class="card-exchange card-grow-confirm"><header class="card-heading"><h2>Grow at this Rest?</h2></header><div class="card-exchange-body">${choiceScene('refillGlow')}<div class="card-exchange-result"><h3>Max Sparks ${formatGlow(grow.before.maxMeter)} → ${formatGlow(grow.after.maxMeter)}</h3><p>Refill Sparks to ${formatGlow(grow.after.maxMeter)}. Hearts stay ${grow.before.hearts}/${grow.before.maxHearts}.</p><p>Uses 1 Rest action and 1 shared Grow action.</p><strong>${3 - getCardGrowthUses(run)} → ${2 - getCardGrowthUses(run)} of 3 Grow actions left</strong>${camp.used.length === 1 && camp.extraAvailable ? '<p>Spends 1 Second Ember use after Grow succeeds.</p>' : ''}</div></div><footer class="card-dialog-actions"><button class="secondary" data-action="card-cancel-grow">Cancel</button><button class="primary" data-action="card-confirm-grow" data-index="${grow.index}" data-token="${esc(grow.token)}">Confirm Grow</button></footer></section>`;
 }
-const REST_COPY = {
-  recover: { title: 'Recover', done: 'Recovered', icon: 'rest-recover', scene: 'hearts' },
-  slot: { title: 'Add slot', done: 'Slot added', icon: 'rest-add-slot', scene: 'skills' },
-  grow: { title: 'Grow', done: 'Grown', icon: 'rest-grow', scene: 'refillGlow' },
-};
 const change = (pair, fmt = amount) => pair && pair[0] !== pair[1] ? `${fmt(pair[0])} → ${fmt(pair[1])}` : null;
 /** What a taken Rest action did, in numbers. Falls back to the cumulative totals of older saves. */
 export function restResultLine(key, result, last = {}) {
@@ -368,65 +364,112 @@ export function forgeOption(run) {
     cheapest = pool.reduce((a, b) => (b.price < a.price ? b : a)), wallet = amount(run.condensedGlow);
   return { ready: possible.length > 0, possible: possible.length, rarity: cheapest.rarity, price: amount(cheapest.price), wallet, need: Math.max(0, amount(cheapest.price) - wallet) };
 }
-/** All Rest option cards share one structure: icon + one-line title, two result lines, one status line, button at the bottom. */
-function restOptionMarkup({ cls = '', icon, title, lines = [], status = '', button }) {
-  return `<article class="card-camp-choice rest-opt ${cls}"><h3 class="rest-action-icon">${uiIcon(icon, {size: 32})}<span>${esc(title)}</span></h3><div class="card-camp-consequence">${lines.map(l => `<p>${l}</p>`).join('')}</div><p class="card-camp-note">${status}</p>${button}</article>`;
+const REST_KEYS = {
+  recover: { title: 'Recover', icon: 'rest-recover' },
+  grow: { title: 'Grow', icon: 'rest-grow' },
+  slot: { title: 'Add slot', icon: 'rest-add-slot' },
+};
+const REST_REASONS = {
+  'Hearts and Sparks are already full.': 'Hearts and Sparks full',
+  'Maximum five slots': 'All 5 slots unlocked',
+  'One slot already added on this map': 'Already added this map',
+  'Find a Growth Seed to Grow': 'Needs a Growth Seed',
+  'Maximum growth reached (3/3)': 'All 3 Grow uses spent',
+  'No Rest action remaining': 'No action left',
+};
+const plain = html => String(html).replace(/<[^>]+>/g, '');
+/** The numbers a Rest card shows: `main` is the result line, `more` an optional second line, `now` the current value when it is unavailable. */
+function restCardFacts(run, c) {
+  const b = c.before, a = c.after;
+  if (c.key === 'slot') return { main: `Slots <b>${b.slots} → ${a.slots}</b>`, more: 'Once per map', now: `Slots <b>${b.slots}/5</b>`, aria: `Slots ${b.slots} to ${a.slots}` };
+  if (c.key === 'grow') return { main: `Max Sparks <b>${formatGlow(b.maxMeter)} → ${formatGlow(a.maxMeter)}</b>`, more: `Grow uses <b>${getCardGrowthUses(run)}/3</b>`, now: `Max Sparks <b>${formatGlow(b.maxMeter)}</b>`, aria: `Max Sparks ${formatGlow(b.maxMeter)} to ${formatGlow(a.maxMeter)}` };
+  const hearts = b.hearts !== a.hearts, meter = b.meter !== a.meter;
+  const hText = `Hearts <b>${b.hearts} → ${a.hearts}</b>`, sText = `Sparks <b>${formatGlow(b.meter)} → ${formatGlow(a.meter)}</b>`;
+  return { main: hearts ? hText : sText, more: hearts && meter ? sText : '', now: `Hearts <b>${b.hearts}/${b.maxHearts}</b>`,
+    aria: [hearts ? `Hearts ${b.hearts} to ${a.hearts}` : '', meter ? `Sparks ${formatGlow(b.meter)} to ${formatGlow(a.meter)}` : ''].filter(Boolean).join(', ') || 'already full' };
 }
-function forgeOptionMarkup(run) {
-  if (!canUseCardCampServices(run)) return '';
-  const f = forgeOption(run), name = f.rarity[0].toUpperCase() + f.rarity.slice(1);
-  const status = f.ready ? `<span class="card-forge-hint ready">Ready · ${f.possible} possible</span>` : `<span class="card-forge-hint">Needs ${f.price} Stored Sparks</span>`;
-  return restOptionMarkup({ cls: `card-camp-forge ${f.ready ? 'forge-ready' : 'forge-needs'}`, icon: 'rest-forge', title: 'Forge',
-    lines: [`Surprise card`, `From <b>${f.price}</b> · you have <b>${f.wallet}</b>`], status,
-    button: `<button class="${f.ready ? 'primary' : 'secondary'}" data-action="card-workshop-forge" data-rarity="${f.rarity}" aria-label="Forge a surprise ${name} card from ${f.price} Stored Sparks${f.ready ? '' : '; not enough yet, open to see prices or Melt a card for more'}">${f.ready ? 'Forge' : 'See Forge'}</button>` });
+function restDoneFacts(run, key) {
+  const result = run.lastRest?.results?.[key], last = run.lastRest || {};
+  if (key === 'recover' && result) {
+    const h = change(result.hearts), m = change(result.meter, formatGlow);
+    return h ? `Hearts <b>${h}</b>` : m ? `Sparks <b>${m}</b>` : 'Hearts and Sparks <b>full</b>';
+  }
+  if (key === 'slot' && result) return `Slots <b>${change(result.slots) || result.slots?.[1]}</b>`;
+  if (key === 'grow' && result) return `Max Sparks <b>${change(result.maxMeter, formatGlow) || formatGlow(result.maxMeter?.[1])}</b>`;
+  return restResultLine(key, result, last).split(' · ')[0];
 }
-export function cardRestMarkup(run, node, choices) {
+/** Spend-Stored-Sparks tiles: price, one short line, and the reason when unavailable. They never use up the Rest choice. */
+export function restServiceTiles(run) {
+  const wallet = amount(run.condensedGlow), services = canUseCardCampServices(run);
+  const f = forgeOption(run), owned = services ? getOwnedCards(run) : [];
+  const improve = owned.map(card => getCardImprovePreview(run, card.instanceId)).filter(p => p.kind && !/remaining uses/i.test(p.reason || '')),
+    refill = owned.map(card => getCardRefillPreview(run, card.instanceId)).filter(p => p.supported && p.missing > 0 && p.before?.charges > 0);
+  const cheapest = list => list.reduce((a, b) => (b.price < a.price ? b : a), list[0]);
+  const tile = (id, icon, title, line, list, none) => {
+    const best = list.length ? cheapest(list) : null, ok = !!(services && best && wallet >= best.price);
+    return { id, icon, title, line, price: best ? best.price : null, ok, reason: !services ? 'Not available now' : !best ? none : ok ? '' : `Needs ${best.price - wallet} more` };
+  };
+  return [
+    { id: 'forge', icon: 'rest-forge', title: 'Forge', line: 'Surprise card', price: f.price, ok: services && f.ready, reason: !services ? 'Not available now' : f.ready ? '' : `Needs ${f.need} more`, rarity: f.rarity },
+    tile('improve', 'rest-improve', 'Improve', 'Rank up a card', improve, 'All cards at top rank'),
+    tile('refill', 'rest-refill', 'Refill', 'Restore missing uses', refill, 'No card needs refilling'),
+  ];
+}
+function restTileMarkup(t) {
+  const label = `${t.title}${t.price != null ? `, from ${t.price} Stored Sparks` : ''}: ${t.ok ? t.line : t.reason}`;
+  const data = t.id === 'forge' ? `data-action="card-workshop-forge" data-rarity="${esc(t.rarity)}"` : `data-action="card-workshop" data-service="${t.id}"`;
+  return `<button type="button" class="rest2-tile${t.ok ? '' : ' is-off'}" ${data} data-rest-service="${t.id}" aria-disabled="${t.ok ? 'false' : 'true'}" aria-label="${esc(label)}"><span class="rest2-ico">${uiIcon(t.icon, {size: 32})}</span><span class="rest2-tname">${esc(t.title)}</span><span class="rest2-price">${t.price != null ? `${resourceSymbol('packed')}<b>${t.price}</b>` : ''}</span><span class="rest2-tline">${esc(t.ok ? t.line : t.reason)}</span><span class="rest2-tstate">${t.ok ? 'Ready' : ''}</span></button>`;
+}
+export function cardRestMarkup(run, node, choices, { selected = null } = {}) {
   const camp = getCardCampPreview(run);
   if (!camp) return '';
   node = camp.node;
-  const rail = `<aside class="card-rest-rail">${mapStopIconMarkup(node)}<small>REST · MAP ${run.mapIndex + 1}/3</small><h1>${esc(node.name)}</h1><div class="card-rest-vitals">${livesMarkup(run)}<span>${resourceSymbol("glow")}${formatGlow(run.flame)}/${formatGlow(getGlowCapacity(run))}</span></div><div class="card-rest-deck-links"><button class="secondary" data-action="cards">Deck</button><button class="secondary" data-action="card-workshop">Workshop</button></div><small>Workshop: Improve · Refill<br>${resourceSymbol('packed')} ${Math.floor(run.condensedGlow||0)} Stored Sparks</small></aside>`;
-  if (camp.completed) {
-    const last = run.lastRest || {}, next = getChoices(run)[0], dream = canDreamAt(run, next);
-    const chosen = camp.used.map(key => ({ key, ...REST_COPY[key] })).filter(item => item.title);
-    const heading = chosen.length ? chosen.map(item => item.done).join(' + ') : 'Left without resting';
-    const receipt = chosen.length ? chosen.map(item => `<article class="card-camp-choice card-camp-taken card-camp-result-card">${choiceScene(item.scene)}<h3 class="rest-action-icon">${uiIcon(item.icon, {size: 32})}<span>${item.title}</span></h3><p class="card-camp-result" role="status">${restResultLine(item.key, last.results?.[item.key], last)}</p></article>`).join('') : '<p class="card-camp-result">You left without taking a Rest action.</p>';
-    return `<section class="card-rest-screen card-rest-done">${rail}<div class="card-camp-main"><header class="card-heading"><div><small>Rest complete</small><h2>${esc(heading)}</h2></div></header><div class="card-camp-choices card-camp-results">${receipt}</div><footer class="card-camp-footer"><p>${dream ? `Next · ${esc(next.name)} · ${dreamConfig(run, next).duration}s full-light Dream` : 'Saved. This choice cannot be undone.'}</p><button class="primary" data-action="${dream ? 'node' : 'view-route'}"${dream ? ` data-id="${esc(next.id)}"` : ''}>${dream ? `Enter Dream · ${dreamConfig(run, next).duration}s` : 'Choose next route'}</button></footer></div></section>`;
-  }
-  const actions = camp.actions.filter(c => c.key), leave = camp.actions.find(c => c.effect?.restContinue);
-  const available = actions.filter(c => !c.disabled), exclusive = camp.remaining === 1 && available.length > 1;
-  const title = !available.length ? camp.used.length ? "Rest actions complete" : "No actions available"
-    : camp.used.length ? "Choose one more" : camp.remaining > 1 && available.length > 1 ? "Choose up to two different actions" : "Choose one Rest action";
-  const shortReason = c => c.taken ? "✓ Taken" : ({
-    "Hearts and Sparks are already full.": "Hearts and meter full",
-    "Maximum five slots": "All 5 slots unlocked",
-    "One slot already added on this map": "Already added this map",
-    "Find a Growth Seed to Grow": "Find a Growth Seed to Grow",
-    "Maximum growth reached (3/3)": "All 3 Grow actions used",
-    "No Rest action remaining": "No actions remaining",
-  }[c.disabledReason] || c.disabledReason || "");
-  return `<section class="card-rest-screen">${rail}<div class="card-camp-main"><header class="card-heading"><div><h2>${esc(title)}</h2>${exclusive ? `<p class="card-camp-alternatives">${available.map(c => esc(c.title)).join('<span>OR</span>')}</p>` : ''}</div><button class="secondary card-camp-help" data-card-term="rest" aria-label="Help with Rest actions">?</button></header><div class="card-camp-choices">${actions.map(c => {
-    const grow = c.key === "grow", slot = c.key === "slot", before = c.before, after = c.after;
-    const taken = c.taken, lastResult = run.lastRest?.results?.[c.key];
-    const numbers = taken ? restResultLine(c.key, lastResult, run.lastRest || {}) : slot ? `Slots <b>${before.slots} → ${after.slots}</b>` : grow ? `Max Sparks <b>${formatGlow(before.maxMeter)} → ${formatGlow(after.maxMeter)}</b>` : `Hearts <b>${before.hearts} → ${after.hearts}</b>`;
-    const detail = taken ? 'Done at this Rest' : slot ? 'Once per map · no refill' : `Meter <b>${formatGlow(before.meter)} → ${formatGlow(after.meter)}</b>`;
-    const note = c.taken ? '' : c.disabled ? shortReason(c) : grow ? `No healing · Grow used ${getCardGrowthUses(run)}/3` : '';
-    return restOptionMarkup({ cls: `${c.disabled ? 'unavailable' : ''} ${c.taken ? 'card-camp-taken' : ''}`, icon: grow ? 'rest-grow' : slot ? 'rest-add-slot' : 'rest-recover', title: c.title, lines: [numbers, detail], status: esc(note),
-      button: `<button class="${c.disabled || camp.used.length ? 'secondary' : 'primary'}" data-action="support" data-index="${c.index}" ${c.disabled ? 'disabled' : ''}>${c.taken ? '✓ Taken' : esc(c.title)}</button>` });
-  }).join("")}${forgeOptionMarkup(run)}</div><footer class="card-camp-footer"><p>${camp.extraAvailable && camp.remaining ? "Second Ember is spent only after your second action. " : ""}Forge uses no Rest action.</p>${leave && !leave.disabled ? `<button class="primary" data-action="support" data-index="${leave.index}">Leave Rest${camp.used.length ? ' · keep this choice' : ''}</button>` : '<button class="primary" data-action="view-route">Choose next route</button>'}</footer></div></section>`;
+  const all = camp.actions.filter(c => c.key), order = ['recover', 'grow', 'slot'];
+  const actions = order.map(key => all.find(c => c.key === key)).filter(Boolean);
+  const leave = camp.actions.find(c => c.effect?.restContinue);
+  const usedCount = camp.used.length, total = camp.extraAvailable ? 2 : 1;
+  const finished = camp.completed || camp.closed || (usedCount > 0 && camp.remaining === 0);
+  const next = camp.completed ? getChoices(run)[0] : null, dream = next ? canDreamAt(run, next) : false;
+  const pick = selected && !finished && actions.some(c => c.key === selected && !c.disabled && !c.taken) ? selected : null;
+  const title = finished ? (usedCount ? 'Rest: done' : 'Rest: skipped') : `Rest: choose ${total === 2 ? 'two' : 'one'}`;
+  const count = total === 2 && (usedCount || !finished) ? `<span class="rest2-count" role="status">${usedCount} of 2 chosen</span>` : '';
+  const capacity = getGlowCapacity(run), maxHearts = getLifeCapacity(run);
+  const chips = `<ul class="rest2-chips" aria-label="Status"><li class="rest2-chip" aria-label="Hearts ${run.lives} of ${maxHearts}">${livesMarkup(run)}</li><li class="rest2-chip" aria-label="Spark Meter ${formatGlow(run.flame)} of ${formatGlow(capacity)}">${resourceSymbol('glow')}<b>${formatGlow(run.flame)}/${formatGlow(capacity)}</b></li><li class="rest2-chip" aria-label="${amount(run.condensedGlow)} Stored Sparks">${resourceSymbol('packed')}<b>${amount(run.condensedGlow)}</b><small>Stored</small></li></ul>`;
+  const cards = actions.map(c => {
+    const copy = REST_KEYS[c.key], taken = camp.used.includes(c.key), isPick = pick === c.key, facts = restCardFacts(run, c);
+    let state, main, more = '', foot, aria;
+    if (taken) { state = 'done'; main = restDoneFacts(run, c.key); foot = `<span class="rest2-tag">${uiIcon('check', {size: 16})}Done</span>`; aria = `${copy.title}: done, ${plain(main)}`; }
+    else if (finished) { state = 'passed'; main = facts.now; foot = '<span class="rest2-tag">Not chosen</span>'; aria = `${copy.title}: not chosen`; }
+    else if (c.disabled) { const why = c.disabledReason === 'Choose a distinct Rest action' ? 'Already chosen' : REST_REASONS[c.disabledReason] || c.disabledReason || 'Unavailable'; state = 'off'; main = facts.now; foot = `<span class="rest2-why">${esc(why)}</span>`; aria = `${copy.title}: unavailable, ${why}`; }
+    else if (isPick) { state = 'selected'; main = facts.main; more = facts.more; foot = `<button type="button" class="rest2-confirm" data-action="card-rest-confirm" data-key="${c.key}" data-index="${c.index}"${c.token ? ` data-token="${esc(c.token)}"` : ''} aria-label="Confirm ${copy.title}: ${esc(facts.aria)}. This cannot be undone.">Confirm</button>`; aria = `${copy.title}: ${facts.aria}, selected. Press Confirm to choose it.`; }
+    else { state = 'ready'; main = facts.main; more = facts.more; foot = '<span class="rest2-hint">Tap to choose</span>'; aria = `${copy.title}: ${facts.aria}`; }
+    const mark = state === 'selected' || state === 'done' ? `<span class="rest2-mark" aria-hidden="true">${uiIcon('check', {size: 16})}</span>` : '';
+    const live = state === 'ready' || state === 'selected';
+    return `<div class="rest2-card is-${state}" data-rest-card="${c.key}"><button type="button" class="rest2-pick" data-action="card-rest-select" data-key="${c.key}" data-index="${c.index}" aria-pressed="${state === 'selected' || state === 'done'}" aria-disabled="${live ? 'false' : 'true'}" aria-label="${esc(aria)}">${mark}<span class="rest2-ico">${uiIcon(copy.icon, {size: 48, className: 'ico-l'})}${uiIcon(copy.icon, {size: 32, className: 'ico-s'})}</span><span class="rest2-name">${copy.title}</span><span class="rest2-num">${main}</span>${more ? `<span class="rest2-more">${more}</span>` : ''}</button><div class="rest2-act">${foot}</div></div>`;
+  }).join('');
+  const tiles = restServiceTiles(run).map(restTileMarkup).join('');
+  const note = camp.completed && dream ? `Next · ${esc(next.name)} · ${dreamConfig(run, next).duration}s full-light Dream`
+    : finished ? (usedCount ? 'Saved.' : 'You left without resting.')
+      : usedCount && camp.extraAvailable ? 'Second Ember is spent only on your second action.' : 'Your Rest choice is final once confirmed.';
+  const go = camp.completed
+    ? `<button type="button" class="rest2-go" data-action="${dream ? 'node' : 'view-route'}"${dream ? ` data-id="${esc(next.id)}"` : ''}>${dream ? `Enter Dream · ${dreamConfig(run, next).duration}s` : 'Continue'}</button>`
+    : `<button type="button" class="rest2-go" data-action="card-rest-continue" data-index="${leave ? leave.index : ''}" data-used="${usedCount}">Continue</button>`;
+  return `<section class="rest2 wb-ground${finished ? ' is-finished' : ''}" data-rest-state="${finished ? 'done' : pick ? 'selected' : 'open'}" aria-label="Rest"><header class="rest2-head"><h1 class="rest2-place">${esc(node.name)}<small>Map ${run.mapIndex + 1}/3</small></h1>${chips}<div class="rest2-head-end"><button type="button" class="rest2-btn" data-action="cards">${uiIcon('deck', {size: 16})}Deck</button><button type="button" class="rest2-btn rest2-help" data-card-term="rest" aria-label="Help with Rest actions">?</button></div></header><section class="rest2-sec rest2-free" aria-labelledby="rest2-free-t"><h2 id="rest2-free-t">${title}${count}</h2><p class="rest2-note">${note}</p><div class="rest2-cards">${cards}</div></section><footer class="rest2-bottom"><section class="rest2-sec rest2-spend" aria-labelledby="rest2-spend-t"><h2 id="rest2-spend-t">Spend Stored Sparks <small>optional · keeps your Rest choice</small></h2><div class="rest2-tiles">${tiles}</div></section><div class="rest2-gowrap">${go}</div></footer></section>`;
 }
 export function cardForgeMarkup(run, preview, { notice = '', paused = false, backLabel = 'Deck', lastForged = null } = {}) {
   // Forge v3: the price is shown, the card is a surprise until it is paid for.
   const tier = rarity => rarity[0].toUpperCase() + rarity.slice(1), label = tier(preview.rarity || 'rare'), wallet = amount(getSkillWallet({run}).condensedGlow);
   if (lastForged?.card) {
-    const wallet = amount(getSkillWallet({run}).condensedGlow), price = amount(lastForged.price);
-    return `<section class="card-forge-preview card-forge-result"><header class="card-heading"><div><small>NEW CARD</small><h2>Forged</h2></div>${walletMarkup(wallet)}</header><div class="card-exchange-body"><div class="card-forge-card">${cardFace(lastForged.card)}</div><div class="card-exchange-result"><span class="card-forge-destination">Added to your reserve</span><strong>−${price} Stored Sparks</strong><small>Banked wallet ${wallet + price} → ${wallet}</small><span class="card-forge-status" role="status">Equip it from Deck.</span><small>Next ${esc(label)} forge: ${amount(preview.nextPrice)}</small></div></div><footer class="card-dialog-actions"><button class="secondary" data-action="card-forge-view" data-id="${esc(lastForged.instanceId)}">View card</button><button class="secondary" data-action="card-forge-again" data-rarity="${esc(lastForged.rarity || preview.rarity)}">Forge another</button><button class="primary" data-action="card-forge-back">Back to ${esc(backLabel)}</button></footer></section>`;
+    // The result: the new card whole, one line about it, one way back, one way to forge again. `preview` is the quote after this forge, so its price is the next one.
+    const next = amount(preview.price), short = Math.max(0, next - wallet), canAgain = !!preview.eligible && short === 0, again = esc(lastForged.rarity || preview.rarity);
+    return `<section class="card-forge-preview card-forge-result forge2"><header class="forge2-head"><h2>New card</h2>${walletMarkup(wallet)}</header><div class="forge2-body"><div class="forge2-card"><span class="forge2-new" aria-label="New card">NEW</span>${cardFace(lastForged.card)}</div><div class="forge2-side"><p class="forge2-line" role="status">Added to your deck.</p><div class="forge2-actions"><button type="button" class="primary" data-action="card-forge-back">Back to ${esc(backLabel)}</button><button type="button" class="secondary forge2-again" data-action="card-forge-again" data-rarity="${again}" aria-disabled="${canAgain ? 'false' : 'true'}" aria-label="Forge another ${label} card for ${next} Stored Sparks${canAgain ? '' : `; needs ${short} more`}">Forge another · ${next}</button>${canAgain ? '' : `<small class="forge2-need">Needs ${short} more</small>`}</div></div></div></section>`;
   }
   const hidden = !!preview.card?.hidden;
   const short = preview.reason === 'Not enough Stored Sparks';
   const reason = short ? `Need ${Math.max(0, amount(preview.price) - wallet)} more Stored Sparks.` : preview.reason;
-  const receipt = lastForged ? `<div class="card-forge-receipt" role="status"><strong>Revealed: ${esc(lastForged.name)} → reserve</strong><button class="secondary" data-action="card-forge-view" data-id="${esc(lastForged.instanceId)}">View card</button></div>` : '';
+  const receipt = lastForged ? `<div class="card-forge-receipt" role="status"><strong>${esc(lastForged.name)} added to your deck</strong><button class="secondary" data-action="card-forge-view" data-id="${esc(lastForged.instanceId)}">View card</button></div>` : '';
   const face = hidden ? `<div class="card-forge-mystery" role="img" aria-label="Surprise ${esc(label)} card, revealed after you pay"><strong aria-hidden="true">?</strong><span>Surprise ${esc(label)} card</span><small>Revealed after you pay</small></div>` : cardFace(preview.card);
-  return `<section class="card-forge-preview"><header class="card-heading"><button class="secondary card-back" data-action="card-forge-back">Back to ${esc(backLabel)}</button><div><small>${paused ? 'FLIGHT PAUSED · ' : ''}CREATE A CARD</small><h2>Forge</h2></div>${walletMarkup(wallet)}</header><div class="card-exchange-body"><div class="card-forge-card">${face}</div><div class="card-exchange-result"><nav class="card-forge-tiers" aria-label="Forge rarity and next price in Stored Sparks">${['common', 'rare', 'legendary'].map(rarity => `<button class="secondary ${preview.rarity === rarity ? "selected" : ""}" data-action="card-preview-forge" data-rarity="${rarity}" aria-pressed="${preview.rarity === rarity}">${tier(rarity)} · ${amount(getCardForgePrice(run, rarity))}</button>`).join('')}</nav>${receipt}<span class="card-forge-destination">${hidden ? 'Surprise card' : 'Shown card'} → reserve</span><strong>−${amount(preview.price)} Stored Sparks</strong><small>${wallet >= amount(preview.price) ? `Banked wallet ${wallet} → ${wallet - amount(preview.price)}` : `Banked wallet ${wallet} · cost ${amount(preview.price)}`}</small>${notice ? `<span class="card-forge-status" role="status">${esc(notice)}</span>` : ''}${reason ? `<span class="card-forge-status" role="status">${esc(reason)}</span>` : !notice ? `<span class="card-forge-status">${hidden ? 'One random card you do not own yet. Equip it from Deck.' : isInventoryOnlyCard(preview.card) ? 'Available at Rest directly from your Deck.' : 'Equip the new card from Deck.'}</span>` : ''}<small>Next ${label} forge: ${amount(preview.nextPrice)} · each forge raises that price by half at this Rest; the next Rest starts over.</small><small>Rest service · uses no Rest action.</small></div></div><footer class="card-dialog-actions">${short ? '<button class="secondary" data-action="card-melt-mode">Melt for Sparks…</button>' : ''}<button class="primary" data-action="card-confirm-forge" data-rarity="${preview.rarity}" data-token="${esc(preview.token)}" ${!preview.eligible ? "disabled" : ""}>Forge ${label} · ${amount(preview.price)}</button></footer></section>`;
+  return `<section class="card-forge-preview"><header class="card-heading"><button class="secondary card-back" data-action="card-forge-back">Back to ${esc(backLabel)}</button><div><small>${paused ? 'FLIGHT PAUSED · ' : ''}CREATE A CARD</small><h2>Forge</h2></div>${walletMarkup(wallet)}</header><div class="card-exchange-body"><div class="card-forge-card">${face}</div><div class="card-exchange-result"><nav class="card-forge-tiers" aria-label="Forge rarity and next price in Stored Sparks">${['common', 'rare', 'legendary'].map(rarity => `<button class="secondary ${preview.rarity === rarity ? "selected" : ""}" data-action="card-preview-forge" data-rarity="${rarity}" aria-pressed="${preview.rarity === rarity}">${tier(rarity)} · ${amount(getCardForgePrice(run, rarity))}</button>`).join('')}</nav>${receipt}<span class="card-forge-destination">${hidden ? 'Surprise card' : 'Shown card'} · goes to your deck</span><strong>Costs ${amount(preview.price)} Stored Sparks</strong>${notice ? `<span class="card-forge-status" role="status">${esc(notice)}</span>` : ''}${reason ? `<span class="card-forge-status" role="status">${esc(reason)}</span>` : !notice ? `<span class="card-forge-status">${hidden ? 'One random card you do not own yet. Equip it from Deck.' : isInventoryOnlyCard(preview.card) ? 'Available at Rest directly from your Deck.' : 'Equip the new card from Deck.'}</span>` : ''}<small>Next ${label} forge: ${amount(preview.nextPrice)} · each forge raises that price by half at this Rest; the next Rest starts over.</small><small>Rest service · uses no Rest action.</small></div></div><footer class="card-dialog-actions">${short ? '<button class="secondary" data-action="card-melt-mode">Melt for Sparks…</button>' : ''}<button class="primary" data-action="card-confirm-forge" data-rarity="${preview.rarity}" data-token="${esc(preview.token)}" ${!preview.eligible ? "disabled" : ""}>Forge ${label} · ${amount(preview.price)}</button></footer></section>`;
 }
 /** One small tile for the victory recap: the Deck's tile content (Trigger chip, picture, name, effect line) plus the slot's Inscription brand. */
 function recapTile(run, card, slot) {

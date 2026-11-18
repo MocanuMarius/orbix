@@ -1,12 +1,12 @@
-import {ARTIFACTS,SKILLS,SKILL_CARDS} from './model.mjs?v=timers-1';
-import {cardFace} from './card-ui.mjs?v=timers-1';
-import {cardTermMarkup,cardTermTextMarkup} from './card-terms.mjs?v=timers-1';
-import {artifactDescriptionMarkup} from './artifact-copy.mjs?v=timers-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=timers-1';
-import {EVENT_SCENARIOS,mapStopIconMarkup} from './map-guide.mjs?v=timers-1';
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=timers-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=timers-1';
-import {describeTreasure} from './treasure.mjs?v=timers-1';
+import {ARTIFACTS,SKILLS,SKILL_CARDS} from './model.mjs?v=calm-2';
+import {cardFace} from './card-ui.mjs?v=calm-2';
+import {cardTermMarkup,cardTermTextMarkup} from './card-terms.mjs?v=calm-2';
+import {artifactDescriptionMarkup} from './artifact-copy.mjs?v=calm-2';
+import {artifactIcon} from './upgrade-icons.mjs?v=calm-2';
+import {EVENT_SCENARIOS,mapStopIconMarkup} from './map-guide.mjs?v=calm-2';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=calm-2';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=calm-2';
+import {describeTreasure} from './treasure.mjs?v=calm-2';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const paragraph=text=>text?`<p>${cardTermTextMarkup(text)}</p>`:'';
@@ -95,7 +95,7 @@ export function flightRewardReceiptDetail(run,key){
   }
   case 'challenge':{
    const challenge=ROUTE_BONUSES[flight.routeBonus?.id];title=challenge?.name||'Optional challenge';kind='challenge';terms=['clear','stored'];
-   markup=challenge?`<article class="flight-reward-challenge-detail"><h3>Challenge</h3>${paragraph(challenge.condition)}<h3>Reward</h3>${paragraph(challenge.reward)}${paragraph(challenge.hint)}${paragraph(flight.routeBonus?.message)}</article>`:paragraph(flight.routeBonus?.message||'You completed this flight’s optional challenge.');break;
+   markup=challenge?`<article class="flight-reward-challenge-detail"><h3>Challenge</h3>${paragraph(challenge.condition)}<h3>Reward</h3>${paragraph(flight.routeBonus?.message||challenge.reward)}${paragraph(challenge.hint)}</article>`:paragraph(flight.routeBonus?.message||'You completed this flight’s optional challenge.');break;
   }
   default:return null;
  }

@@ -2,11 +2,11 @@
 // Colour, shape and motion only: no picture, no text, no number. Nothing here is read during play.
 //   active card   10x14 hollow frame in a muted rarity colour; turns solid white for 0.7 s when it fires, with an echo frame
 //   passive card  steady teal frame, never flashes;  spent card  dim frame;  empty slot  not drawn at all
-//   Inscription   2 px bar under the frame (dashed = temporary); blinks white when it acts on a card that cannot flash
+//   Inscription   2 px bar under the frame; blinks white when it acts on a card that cannot flash
 // Flashes are SEQUENTIAL (one at a time, always 0.7 s) with at most ONE pending flash per card (debounce); see createChainStrip.
 // This file is the pure part (no DOM): colours, the firing marks the flight raises, and the state machine the view reads.
-import {SKILL_CARDS} from './skill-cards.mjs?v=timers-1';
-import {getInscription} from './inscriptions.mjs?v=timers-1';
+import {SKILL_CARDS} from './skill-cards.mjs?v=calm-2';
+import {getInscription} from './inscriptions.mjs?v=calm-2';
 
 export const STRIP = Object.freeze({flashMs: 700, idleMs: 3000, fadeMs: 600, idleOpacity: 0.12, maxMarks: 32, frameW: 10, frameH: 14, gap: 2, padX: 12, minTouchH: 40, doubleEcho: false});
 export const STRIP_COLORS = Object.freeze({
@@ -31,7 +31,7 @@ export function chainView(runtime) {
     slots.push(Object.freeze({
       instanceId: card?.instanceId ?? null, filled: !!def, rarity: def?.rarity || 'common',
       passive: !!def && (def.passive === true || def.kind === 'capacity'),
-      bar: !entry ? 'none' : entry.temporary ? 'temp' : 'perm'}));
+      bar: entry ? 'perm' : 'none'}));
   }
   return Object.freeze({slots: Object.freeze(slots)});
 }

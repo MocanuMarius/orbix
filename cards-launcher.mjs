@@ -1,4 +1,4 @@
-const release = 'timers-1';
+const release = 'calm-2';
 const button = document.querySelector('#launch'), status = document.querySelector('#status');
 const root = new URL('./', location.href), target = new URL('index.html', root);
 const query = new URLSearchParams(location.search);

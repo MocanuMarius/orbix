@@ -1,4 +1,4 @@
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=timers-1';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=calm-2';
 
 const TAU=Math.PI*2;
 const unit=value=>Math.max(0,Math.min(1,value));

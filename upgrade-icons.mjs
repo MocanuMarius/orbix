@@ -1,5 +1,5 @@
-import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=timers-1';
-import {skillPortrait} from './skill-art.mjs?v=timers-1';
+import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=calm-2';
+import {skillPortrait} from './skill-art.mjs?v=calm-2';
 
 export const skillIcon=skillPortrait;
 export const artifactIcon=artifactPixelPortrait;

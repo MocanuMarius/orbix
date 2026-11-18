@@ -1,39 +1,38 @@
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=timers-1';
-import {temporaryLine,durationWords} from './temporary-inscriptions.mjs?v=timers-1';
-import {getTemporary} from './inscriptions.mjs?v=timers-1';
-import {getBiome} from './biomes.mjs?v=timers-1';
-import {sparkHabitat} from './spark-fields.mjs?v=timers-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=timers-1';
-import {landmarkCategory,guardianNames} from './map-landmarks.mjs?v=timers-1';
-import {uiIcon} from './ui-icons.mjs?v=timers-1';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=timers-1';
-import {glowText} from './vitality.mjs?v=timers-1';
+import {OATHS} from './oaths.mjs?v=calm-2';
+import {OBJECTIVE_SPARKS} from './route-bonuses.mjs?v=calm-2';
+import {getBiome} from './biomes.mjs?v=calm-2';
+import {sparkHabitat} from './spark-fields.mjs?v=calm-2';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=calm-2';
+import {landmarkCategory,guardianNames} from './map-landmarks.mjs?v=calm-2';
+import {uiIcon} from './ui-icons.mjs?v=calm-2';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=calm-2';
+import {glowText} from './vitality.mjs?v=calm-2';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Flight length sets its Stored Sparks reward; overflow adds a bonus. Ordinary flights do not offer an Inscription.'),
 treasure:stop('treasure','TREASURE','Treasure','Inspect a chest to see its two offers. Taking one leaves the other behind.'),
 scribe:stop('scribe','SCRIBE','The Scribe','Scribe — choose an Inscription for a slot of your Chain.'),
 rest:stop('rest','REST','Rest','Recover missing hearts or Grow Spark capacity. Both refill Sparks.'),
-encounter:stop('encounter','ENCOUNTER','Encounter','A promise, route preparation or bargain. Preview the stakes before choosing.'),
+encounter:stop('encounter','ENCOUNTER','Encounter','Choose one of two outcomes, all paid at once. Some offer a one-flight wager or a route mark. Preview the stakes before choosing.'),
 boss:stop('boss','ELITE / GUARDIAN','Creature','Small creature: elite. Large head: guardian. Both offer two Inscriptions; choose one to write on your Chain.'),
 });
-// The temporary Inscriptions each event can give (docs/inscriptions.md, "Events and objectives"). The stop page names them; the offers draw from them.
-const EVENT_GIVES={0:['hollow-feather','reserve-wick'],1:['night-ledger','star-chart','reserve-wick'],2:['pilgrim-vow','hollow-feather','reserve-wick'],3:['chime','hollow-feather'],4:['reserve-wick'],5:['star-chart','reserve-wick'],6:['reserve-wick','hollow-feather','star-chart'],7:['closed-eye','reserve-wick','star-chart'],8:['silent-orbit','chime','lead-seal','hollow-feather'],9:['hollow-feather','chime'],10:['star-chart','hollow-feather'],11:['chime','star-chart']};
-function eventRewardLine(index){const ids=EVENT_GIVES[index]||[];const words=ids.map(id=>`${getTemporary(id).until?'Oath':'Temporary'} Inscription: ${getTemporary(id).name} (${durationWords(id).toLowerCase()})`);return 'Sparks or Stored Sparks, or '+words.join(' · ');}
+// Every event offers two outcomes that are paid at once (dist/event-choices.mjs). The wager events (dist/oaths.mjs) offer a bet on the NEXT flight only.
+const wagerPay = id => OBJECTIVE_SPARKS.map(n => n * OATHS[id].multiple).join(' / ');
+const wagerLine = id => OATHS[id].rule + ' Won: +' + wagerPay(id) + ' Stored Sparks by map. Not met: nothing. One flight only.';
 export const EVENT_SCENARIOS=Object.freeze([
-{id:'ash-spring',index:0,name:'Ash Spring',summary:'Bottle a reserve or take immediate flight support.',detail:'An empty meter makes a refill attractive. With a full Spark Meter the spring offers the Hollow Feather instead. Either lasting gift is a temporary Inscription you write on a slot of your Chain; the Reserve Wick waits for Sparks to fall below 6.'},
-{id:'cinder-bargain',index:1,name:'Night’s Ledger',summary:'Reduced Luminance for double packing, or leave freely.',detail:FLIGHT_PACTS['night-ledger'].description+' A fall does not break it.'},
-{id:'pilgrim-vow',index:2,name:'Pilgrim’s Vow',summary:'Promise four body Spark pickups, or take light.',detail:temporaryLine('pilgrim-vow')+' Collector deliveries and Dreams do not count. Falling short costs nothing; the oath stays. Beyond the last Rest, take a flight preparation instead.'},
-{id:'weathered-shrine',index:3,name:'Weathered Shrine',summary:'Write faster companion recovery or two free Lifts on your Chain.',detail:'Both are temporary Inscriptions: you choose the slot, they last 3 cleared flights, and failures do not spend them. A permanent Inscription they cover returns afterwards.'},
-{id:'surveyors-cairn',index:4,name:'Surveyor’s Cairn',summary:'Prepare one reachable passage, or take light and keep your fork open.',detail:'Mark a linked exit for gentler drafts or more Luminance on its first attempt. Where the path forks, marking one exit commits the route. With a full Spark Meter, you can take a Reserve Wick instead. Falling spends the preparation and reopens a fork.'},
-{id:'ember-archive',index:5,name:'The Sparks Archive',summary:'Copy the ledger or spend its light to protect the run.',detail:'A missing heart can be restored. With full hearts, carry a Reserve Wick instead. Near the last guardian, a Star Chart can reveal the route ahead.'},
-{id:'ember-dice',index:6,name:'Prism Dice',summary:'Choose a guaranteed reward or cast the prism once.',detail:'Each pair of faces has an equal chance. Check the three outcomes before rolling.'},
-{id:'lost-lanterns',index:7,name:'The Closed Eye',summary:'Brave deep darkness for triple packing, or leave freely.',detail:FLIGHT_PACTS['blind-pilgrim'].description},
-{id:'wisp-bargain',index:8,name:'The Silent Orbit',summary:'Shorten Collector reach for double packing, or leave freely.',detail:FLIGHT_PACTS['silent-orbit'].description+' Body pickups keep full value.'},
-{id:'sanctuary',index:9,name:'Quiet Sanctuary',summary:'Restore a missing heart or prepare the companion.',detail:'At full hearts, the sanctuary offers fuel or free Lifts instead.'},
-{id:'workshop',index:10,name:'Lantern Workshop',summary:'Unweave a paid branch or glide with free Lifts.',detail:'If there is no useful refund, the workshop offers a Star Chart instead.'},
-{id:'companion-shrine',index:11,name:'Companion Shrine',summary:'Tune your companion or salvage its tuning fork.',detail:'Choose faster companion recovery or Stored Sparks for skills.'},
-].map(entry=>Object.freeze({...entry,gives:Object.freeze([...(EVENT_GIVES[entry.index]||[])]),reward:eventRewardLine(entry.index)})));
+{id:'ash-spring',index:0,name:'Ash Spring',summary:'Drink the spring, or bottle the ash for Stored Sparks.',detail:'Drinking refills your Spark Meter. With a full meter the spring relights a missing heart, or refills one card’s uses instead. The other choice is 20 / 30 / 40 Stored Sparks by map.',reward:'Refill Sparks, a heart or one card’s uses, or Stored Sparks'},
+{id:'cinder-bargain',index:1,name:'Night’s Ledger',summary:'Wager the next flight at 55% Luminance, or leave freely.',detail:wagerLine('night-ledger'),reward:'Wager: +'+wagerPay('night-ledger')+' Stored Sparks if you clear the next flight'},
+{id:'pilgrim-vow',index:2,name:'Pilgrim’s Vow',summary:'Wager four body Spark pickups on the next flight, or drink the offering.',detail:wagerLine('pilgrim-vow')+' Collector deliveries and Dreams do not count. The other choice restores 6 Sparks.',reward:'Wager: +'+wagerPay('pilgrim-vow')+' Stored Sparks, or restore 6 Sparks'},
+{id:'weathered-shrine',index:3,name:'Weathered Shrine',summary:'Refill one card’s uses, or leave an offering for Stored Sparks.',detail:'The shrine chooses the first card of your Chain that has used some of its uses and refills it, free. The other choice is 20 / 30 / 40 Stored Sparks by map.',reward:'Refill one card’s uses, or Stored Sparks'},
+{id:'surveyors-cairn',index:4,name:'Surveyor’s Cairn',summary:'Prepare one reachable passage, or take light and keep your fork open.',detail:'Mark a linked exit for gentler drafts or more Luminance on its first attempt. Where the path forks, marking one exit commits the route. Falling spends the preparation and reopens a fork. The other choice restores Sparks, or gives Stored Sparks with a full meter.',reward:'A route mark for your next flight, or Sparks'},
+{id:'ember-archive',index:5,name:'The Sparks Archive',summary:'Copy the ledger for Stored Sparks, or take a heart or an upgrade.',detail:'Copying pays 16 Stored Sparks. The other choice relights a missing heart, or with full hearts improves one card (free).',reward:'+16 Stored Sparks, or a heart or one card improved'},
+{id:'ember-dice',index:6,name:'Prism Dice',summary:'Take a small sure sum or cast the prism once.',detail:'The sure sum is 10 Stored Sparks. The prism rolls once: faces 1–2 improve one card, 3–4 give a free card, 5–6 give 22 Stored Sparks. With no card to improve, faces 1–2 pay 22 Stored Sparks.',reward:'10 Stored Sparks, or one roll: card improved, free card or 22 Stored Sparks'},
+{id:'lost-lanterns',index:7,name:'The Closed Eye',summary:'Wager the next flight in deep darkness for a large prize, or leave freely.',detail:wagerLine('closed-eye'),reward:'Wager: +'+wagerPay('closed-eye')+' Stored Sparks if you clear the next flight'},
+{id:'wisp-bargain',index:8,name:'The Silent Orbit',summary:'Wager the next flight with shorter Collector reach, or leave freely.',detail:wagerLine('silent-orbit')+' Body pickups keep full value.',reward:'Wager: +'+wagerPay('silent-orbit')+' Stored Sparks if you clear the next flight'},
+{id:'sanctuary',index:9,name:'Quiet Sanctuary',summary:'Restore a missing heart, or refill one card’s uses.',detail:'The first choice relights a missing heart; at full hearts it refills your Spark Meter, or pays Stored Sparks if that is full too. The other choice refills one card’s uses, free.',reward:'A heart or Sparks, or one card’s uses refilled'},
+{id:'workshop',index:10,name:'Lantern Workshop',summary:'Unweave a paid branch for a refund, or improve one card.',detail:'Unweaving removes a skill branch’s paid ranks and refunds their Stored Sparks. Without a useful refund the workshop buys your scrap for Stored Sparks. The other choice improves one card, free.',reward:'A skill refund or Stored Sparks, or one card improved'},
+{id:'companion-shrine',index:11,name:'Companion Shrine',summary:'Improve one card, or salvage the tuning fork for Stored Sparks.',detail:'The first choice improves one card of your Chain, free. The other pays 12 Stored Sparks.',reward:'One card improved, or +12 Stored Sparks'},
+].map(entry=>Object.freeze(entry)));
 export function getEventScenarios(){return EVENT_SCENARIOS.map(entry=>({...entry}));}
 function kindOf(value){
  if(typeof value==='string'){
@@ -60,7 +59,7 @@ export function getMapStopInfo(node={},maxGlow=100){
  const exit=kind==='flight'&&(node.type==='finale'||node.kind==='finale'),guardian=guardianNames[node.bossId]||node.name||'Guardian';
  if(kind==='treasure')return {...base,name:node.name||base.name,summary:node.rewardPreview||base.summary,detail:node.description||base.summary,eventIndex:null,scenarioId:null};
  if(kind==='scribe')return {...base,detail:base.summary,eventIndex:null,scenarioId:null};
- const summary=kind==='boss'?(node.mapIndex>=2?`Pass ${guardian} and complete the Ascension.`:`Pass ${guardian} and choose one of two Inscriptions.`):elite?`Face an elite creature for ${getFlightClearReward(node)} Stored Sparks and a choice of two Inscriptions.`:event?.summary||(node.kind==='shrine'?'Choose faster companion recovery or two free Lifts, for 3 cleared flights.':exit?`Clear this passage for ${getFlightClearReward(node)} Stored Sparks and continue to the next map.`:base.summary);
+ const summary=kind==='boss'?(node.mapIndex>=2?`Pass ${guardian} and complete the Ascension.`:`Pass ${guardian} and choose one of two Inscriptions.`):elite?`Face an elite creature for ${getFlightClearReward(node)} Stored Sparks and a choice of two Inscriptions.`:event?.summary||(node.kind==='shrine'?'Refill one card’s uses, or leave an offering for Stored Sparks.':exit?`Clear this passage for ${getFlightClearReward(node)} Stored Sparks and continue to the next map.`:base.summary);
  const detail=kind==='boss'?(node.mapIndex>=2?'Reach the waylight to complete the Ascension.':`A guardian ends this map: ${getFlightClearReward(node)} Stored Sparks and one of two Inscriptions to write on your Chain.`):elite?'Choose one of two Inscriptions and write it on a slot of your Chain.':event?.detail||summary;
  return{...base,label:kind==='boss'?'GUARDIAN':elite?'ELITE':exit?'EXIT':base.label,name:kind==='boss'?guardian:event?.name||(node.type==='support'?node.name:node.locationName||node.name)||base.name,summary:event?summary:glowText(summary,maxGlow),detail:event?detail:glowText(detail,maxGlow),eventIndex:event?.index??null,scenarioId:event?.id||null};
 }

@@ -1,5 +1,4 @@
 .passage-bonus-icon{width:33px;height:33px;flex:none;vertical-align:middle}
-.passage-boon{display:flex;align-items:center;gap:6px;color:#a8cee0;margin-top:7px}.passage-boon .passage-bonus-icon{width:22px;height:22px}
 .flight-bonus-counter{display:inline-flex;align-items:center;gap:4px;pointer-events:none;text-shadow:1px 2px #07100d;color:#ffe3a2;font:15px/1 var(--pixel);white-space:nowrap}
 .flight-bonus-counter[hidden]{display:none}.flight-bonus-counter>svg{width:23px;height:23px}
 /* One deliberate pick, with the offered relic visible before the expedition starts. */
