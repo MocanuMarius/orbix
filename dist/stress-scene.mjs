@@ -111,6 +111,7 @@ export async function runStressScene({document=globalThis.document,host=null,sce
   const hadPlaying=document.body.classList.contains('playing');document.body.classList.add('playing','stress-running');
   win.__stressResult=null;
   const engine=createStressEngine(canvas,{scene});
+  win.__stressEngine=engine; // perf scripts (scripts/perf/calls.mjs) count and compare frames of the live scene
   const fps=createFpsCounter(host,{enabled:true});
   const strip=createCardRowFeedback(host,{onInspect:()=>{}});strip.attach(engine);
   engine.onUpdate=s=>strip.update(s);

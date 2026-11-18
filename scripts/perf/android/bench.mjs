@@ -23,8 +23,13 @@ export const CONDS = {
   base: {query: ''}, gl0: {query: 'gl=0'}, sky0: {query: 'sky=0'}, edges1: {query: 'edges=1'}, scenery1: {query: 'scenery=1'}, lowres1: {query: 'lowres=1'},
   dpr2: {dpr: 2}, 'dpr1.5': {dpr: 1.5}, dpr1: {dpr: 1},
   boost: {boost: true}, // base + a background desktop WebGL loop that lifts the host GPU out of its idle clock state (boost.mjs); not in the default list
+  // Render-cost switches (each turns ONE optimisation off; base has them all on): Black Hole batching, ecology site sprites, ...
+  bh0: {query: 'bh=0'}, tufts0: {query: 'tufts=0'}, batch0: {query: 'batch=0'}, layers0: {query: 'layers=0'}, opt0: {query: 'bh=0&tufts=0&batch=0&layers=0'},
 };
-const DEFAULT_CONDS = Object.keys(CONDS).filter(c => c !== 'boost');
+const OPT_CONDS = ['bh0', 'tufts0', 'batch0', 'layers0', 'opt0'];
+// Ad-hoc conditions: 'q:<query>' (e.g. q:skip=foreground) runs base plus that query string; ':' separates nothing else.
+const condOf = c => CONDS[c] || (c.startsWith('q:') ? {query: c.slice(2).replace(/\+/g, '&')} : (() => { throw new Error('unknown condition ' + c); })());
+const DEFAULT_CONDS = Object.keys(CONDS).filter(c => c !== 'boost' && !OPT_CONDS.includes(c));
 
 /** One batch: preflight, Chrome restart, warm-up, N flights. */
 export async function batch(name, {n = 5, seconds = 30, query = '', dpr = null, tag = ''} = {}, ses = new Session(), shared = false) {
@@ -49,7 +54,7 @@ export async function batch(name, {n = 5, seconds = 30, query = '', dpr = null, 
 
 async function suite(A) {
   const n = Number(A.n || 5), seconds = Number(A.seconds || 30), names = A.only ? String(A.only).split(',') : Object.keys(SCEN).filter(k => A.boss || k !== 'basalt-guardian'), label = A.label || 'suite'; // the Guardian flight hangs the emulator's GPU process (see report), --boss includes it anyway
-  const srv = await startServer('dist', PORT), res = {day: DAY, n, seconds, startedAt: new Date().toISOString(), device: null, scenarios: {}, priming: {}};
+  const srv = await startServer(A.root || process.env.BENCH_ROOT || 'dist', PORT), res = {day: DAY, n, seconds, startedAt: new Date().toISOString(), device: null, scenarios: {}, priming: {}};
   if (A.resume) { try { Object.assign(res, JSON.parse(await (await import('node:fs/promises')).readFile(path.join(OUT, label + '.json'), 'utf8'))); } catch {} }
   const ses = new Session(); // one Chrome for the whole suite, soft-reset between scenarios (see Session in benchlib.mjs)
   try {
@@ -69,7 +74,7 @@ async function suite(A) {
 /** A/B with every condition once per round, order rotated and reversed between rounds so drift cancels; Chrome restarts every round. */
 async function ab(A) {
   const name = A.scenario || 'marsh-late-mid', rounds = Number(A.rounds || 5), seconds = Number(A.seconds || 30), conds = String(A.conds || DEFAULT_CONDS.join(',')).split(',');
-  const label = A.label || 'ab', srv = await startServer('dist', PORT), res = {day: DAY, scenario: name, rounds, seconds, conds, runs: {}, order: []};
+  const label = A.label || 'ab', srv = await startServer(A.root || process.env.BENCH_ROOT || 'dist', PORT), res = {day: DAY, scenario: name, rounds, seconds, conds, runs: {}, order: []};
   for (const c of conds) res.runs[c] = [];
   const ses0 = new Session();
   try {
@@ -79,8 +84,8 @@ async function ab(A) {
       try {
         await ses.prepare(name, {}); // warm-up until clean, discarded
         for (const c of order) {
-          const booster = CONDS[c].boost ? await startBooster() : null; const mon = monitor(); let run;
-          try { run = await ses.fly({seconds, query: CONDS[c].query || '', dpr: CONDS[c].dpr || null}); } finally { var host = mon.stop(); if (booster) { host.boosterGpu = booster.gpuAfterStart; await booster.stop(); } }
+          const booster = condOf(c).boost ? await startBooster() : null; const mon = monitor(); let run;
+          try { run = await ses.fly({seconds, query: condOf(c).query || '', dpr: condOf(c).dpr || null}); } finally { var host = mon.stop(); if (booster) { host.boosterGpu = booster.gpuAfterStart; await booster.stop(); } }
           run.host = host; run.round = r; run.cond = c; res.runs[c].push(run); console.log(`   ${c.padEnd(9)} ${fmtRun(run)}  dpr=${run.dpr} canvases=${(run.canvases || []).join(',')} host cpu ${host.cpuAvg}%`);
           await save(`${label}.json`, res);
         }
@@ -116,7 +121,7 @@ export function printAb(a) {
 
 /** Windowed emulator vs -no-window: same scenario, N flights each, then keeps the steadier mode. */
 async function windowTest(A) {
-  const name = A.scenario || 'marsh-late-mid', n = Number(A.n || 4), seconds = Number(A.seconds || 30), srv = await startServer('dist', PORT), res = {day: DAY, scenario: name, n, seconds, modes: {}};
+  const name = A.scenario || 'marsh-late-mid', n = Number(A.n || 4), seconds = Number(A.seconds || 30), srv = await startServer(A.root || process.env.BENCH_ROOT || 'dist', PORT), res = {day: DAY, scenario: name, n, seconds, modes: {}};
   try {
     for (const noWindow of [false, true]) {
       const mode = noWindow ? 'no-window' : 'windowed';

@@ -1,4 +1,6 @@
 import {terrainBoundary} from './terrain-boundary.mjs?v=guide-clarity-1';
+import {PolygonPath} from './rect-raster.mjs?v=guide-clarity-1';
+const poly=new PolygonPath();
 
 // The closest plane is cut paper: opaque black land and foliage, without any
 // material, rim light or texture. Three small plates are baked per biome.
@@ -23,11 +25,30 @@ function hardContactClearance(c,ax,ay,bx,by,size,width,height){
  let x=Math.round(ax+dx*start),y=Math.round(ay+dy*start);
  const xx=Math.round(ax+dx*end),yy=Math.round(ay+dy*end),sx=x<xx?1:-1,sy=y<yy?1:-1,
   wx=Math.abs(xx-x),hy=-Math.abs(yy-y),half=Math.floor(size/2);let error=wx+hy;
+ if(!MERGE_RUNS()){
+  while(true){
+   c.rect(x-half,y-half,size,size);if(x===xx&&y===yy)break;
+   const twice=error*2;if(twice>=hy){error+=hy;x+=sx;}if(twice<=wx){error+=wx;y+=sy;}
+  }
+  return;
+ }
+ // Same union of squares, one rectangle per run along the major axis (a mostly level seam
+ // needs a few rects instead of one per pixel step).
+ const steep=-hy>wx;let rx=x,ry=y;
  while(true){
-  c.rect(x-half,y-half,size,size);if(x===xx&&y===yy)break;
-  const twice=error*2;if(twice>=hy){error+=hy;x+=sx;}if(twice<=wx){error+=wx;y+=sy;}
+  const done=x===xx&&y===yy;let nx=x,ny=y;
+  if(!done){const twice=error*2;if(twice>=hy){error+=hy;nx+=sx;}if(twice<=wx){error+=wx;ny+=sy;}}
+  if(done||(steep?nx!==rx:ny!==ry)){
+   if(steep)c.rect(rx-half,Math.min(ry,y)-half,size,Math.abs(y-ry)+size);
+   else c.rect(Math.min(rx,x)-half,ry-half,Math.abs(x-rx)+size,size);
+   rx=nx;ry=ny;
+  }
+  if(done)break;x=nx;y=ny;
  }
 }
+// Run merging (on by default; ?batch=0 or globalThis.__perfFlags.batch=false issues one square per step).
+const MERGE_URL=(()=>{try{return new URLSearchParams(globalThis.location?.search||'').get('batch')!=='0';}catch{return true;}})();
+const MERGE_RUNS=()=>{const f=globalThis.__perfFlags;return f&&'batch' in f?f.batch!==false:MERGE_URL;};
 export const FOREGROUND_BIOMES=Object.freeze(['moonruins','frost','pinewood','marsh','fungal','basalt','desert','coral','crystal','cloud','thorn','cemetery']);
 export function createForegroundSilhouettes(document,biome,variant=0){
  const plates=[];
@@ -110,11 +131,11 @@ export function drawTerrainForeground(c,e,{scale=1,distance=e.renderDistance??e.
   if(profile.points.at(-1)[0]<distance||profile.points[0][0]>distance+W)continue;
   const owner=profile.owner,shape=profile.top?owner.topShape:owner.bottomShape;
   const anchor=owner.center+Math.sin(time*.9+(owner.phase||0))*(owner.motion||0)+(profile.top?-1:1)*owner.gap/2;
+  poly.begin();
   for(let i=0;i<shape.length;i++){
-   const [x,y]=shape[profile.top?shape.length-1-i:i],px=Math.round((owner.x+x)*scale)-camera,py=Math.round((anchor+y)*scale);
-   if(i)p.lineTo(px,py);else p.moveTo(px,py);
+   const [x,y]=shape[profile.top?shape.length-1-i:i];poly.add(Math.round((owner.x+x)*scale)-camera,Math.round((anchor+y)*scale));
   }
-  p.closePath();
+  poly.emit(p,-8,rw+8);
  }
  p.clip();
  const speed=1.22,scroll=distance*speed,span=512,first=Math.floor(scroll/span)-1,last=Math.ceil((scroll+W)/span);

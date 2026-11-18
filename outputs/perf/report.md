@@ -204,3 +204,25 @@ Optimise **the number of Canvas 2D operations per frame** next, in this order, m
 
 ## 7. Limits of this work
 Absolute FPS belong to this headless emulator and this PC, not to a Pixel 10. The slow-session state was seen three times but its cause is not proven (suspects: emulator uptime, accumulated GPU-process crashes); the protocol stores the host GPU clock with every run and says to start from a fresh emulator. The Guardian flight could not be benchmarked. The A/B used 4 rounds, so differences under about 3% cannot be separated from noise. The `marsh-early-starter` row in the suite table comes from the second fresh session (the first session ran with a different viewport). The stress scene was measured once per session (5 runs). `play.mjs` and `serve.mjs` were edited (edge=spectral default, guardian query support); no game file was touched.
+
+---
+
+# Canvas 2D operation cuts, 18 November (late)
+
+Tools: `scripts/perf/calls.mjs` (desktop Chrome sized like the emulator: Canvas 2D calls per frame by caller, split into draw / state / path / setters, and a same-moment pixel compare of render switches, with 4x crops). Additions: `bench.mjs ab --root <frozen dist copy>` and ad-hoc conditions `q:<query>` (for example `q:skip=light`); `where.mjs --root`; `?skip=<group>` in the renderer and the ecology code (diagnostics only). Raw data: `outputs/perf/calls/`, `outputs/perf/android/2026-11-18-bench/{ab-s1-*,skip-*,eco-*,guard*,shade-*,final-*,final2-*}.json`, `work/perf-snap/log-*.txt`.
+
+Switches (each one alone turns its change off): `bh` (halo and core disc sprites), `tufts` (plant tufts, roof roots and stones in one atlas, sway quantised to 16 phases), `batch` (merged clearance runs, polygons with fewer vertices, shade bands drawn as polylines, sprite bakes written with one putImageData), `layers` (solid shade baked per 256 px course chunk). These are OFF by default and turned on with `=1`, because each writes an extra canvas every frame and the A/B measured no gain or a loss: `bhraster` (JS-composited disk and motes), `rects` (wake batch), `stars` (star layer canvas).
+
+Calls per frame, all switches off → on (desktop, same moment): marsh late mid with the Black Hole on screen, draw 784 → 515 with the defaults (145 with `bhraster=1`), setters 971 → 780 (167), path 1598 → 979. Pinewood late mid: draw 497 → 247, setters 630 → 373, path 2993 → 1387. Guardian (basalt): path 5321, mostly solid shade bands, now baked per course chunk.
+
+Emulator, fresh headless session, same-session A/B over 4 rounds, all on vs all off (`opt0`), median FPS:
+- Pinewood: 30.3 vs 25.0 (paired +5.5, 4/4 rounds). An earlier session gave +3.6 (3/4). Noise band 9-14, so it is called "noise" by the protocol.
+- Marsh: 38.4 vs 38.9 (noise band 6). An earlier session gave -1.6.
+- Stress: 23.3 vs 23.3 (noise band 2.3).
+- Extra canvases on (`bhraster+rects+stars`): marsh -6.2, pinewood -2.0 (4/4 rounds).
+
+Pixels: shade chunks and the disc sprites are identical (0 differing pixels on seeded frames). With the defaults the marsh Black Hole frames are identical. Tufts differ by up to 32/255 on faint sub-pixel strokes, from the half-pixel snap and the quantised sway. Sprite bakes differ by at most 5/255 (`gl=0`, pinewood).
+
+Where the frame goes now (bisect with `?skip=`, emulator): lighting is the biggest group in every scenario (marsh +11 FPS when skipped, pinewood +9, Guardian +14). In pinewood about half of that was building the solid shade, which is now chunked. Then ecology (pinewood +9: stones, authored plants), edges (+6), foreground (+4.6). GPU main thread: `DoEndRasterCHROMIUM::Flush` 475 ms/s, `DoRaster` 315 ms/s (down from 512). The cost is now per canvas raster flush and cross-context work, not draw count: more fillRects batch well in Ganesh, while every extra canvas written per frame costs a flush.
+
+Guardian: basalt-guardian runs at 27-36 FPS on the emulator in hardware mode, with the switches on and with them off. The hang is the shader-compile stall on the first heavy flights after a Chrome start: 3 GPU-process crashes during warm-up, after which the GPU stays in use.

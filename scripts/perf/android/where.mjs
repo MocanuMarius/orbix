@@ -84,12 +84,12 @@ async function trace(s, seconds, heavy) {
     if (/CrGpuMain/.test(String(th))) gpuByName.set(e.name, (gpuByName.get(e.name) || 0) + e.dur);
   }
   const ms = (v) => +(v / 1000 / seconds).toFixed(0), top = (m, n) => [...m].sort((a, b) => b[1] - a[1]).slice(0, n).map(([k, v]) => [k, ms(v)]);
-  return {heavy, seconds, fps: +fps.toFixed(1), busyPctByThread: top(busy, 14).map(([k, v]) => [k, +(v / 10).toFixed(0)]), gpuMainTopEventsMsPerS: top(gpuByName, 28), topEventsMsPerS: heavy ? top(byName, 30) : undefined};
+  return {heavy, seconds, fps: +fps.toFixed(1), busyPctByThread: top(busy, 14).map(([k, v]) => [k, +(v / 10).toFixed(0)]), gpuMainTopEventsMsPerS: top(gpuByName, Number(process.env.WHERE_TOP || 28)), topEventsMsPerS: heavy ? top(byName, 30) : undefined};
 }
 
 if (true) {
   const A = parseArgs(process.argv.slice(2)), names = String(A.scenarios || 'marsh-late-mid,pinewood-late-mid').split(','), frames = Number(A.frames || 150);
-  const srv = await startServer('dist', PORT);
+  const srv = await startServer(A.root || 'dist', PORT);
   try {
     const ses = new Session();
     for (const name of names) {
