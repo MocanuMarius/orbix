@@ -78,7 +78,7 @@ test('the Trigger collection lists every Trigger with what you do, how often, an
   const html = deckScreenMarkup(run(['body-spark'], ['deep-vessel']), Object.assign(createDeckView(), {tab: 'triggers'}));
   assert.match(html, /id="dk2-tab-triggers"[^>]*aria-selected="true"/);
   assert.match(html, /No card yet/); assert.match(html, /class="dk2-btn tb-card dc-r-common tb-inchain" data-uid="u0"/);
-  assert.match(html, /id="tb-back"/);
+  assert.doesNotMatch(html, /id="tb-back"/); assert.match(html, /What fires your cards/);
 });
 
 test('engine Chains: engine wording on plates, the two-number medallion, the dial, and no "runs once" text', () => {
