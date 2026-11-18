@@ -8,44 +8,61 @@
 <style>
  :root{color-scheme:dark}
  body{margin:0;background:#0f1713;color:#e7e0c8;font:15px/1.5 system-ui,Segoe UI,sans-serif}
- main{max-width:1100px;margin:0 auto;padding:16px}
+ main{max-width:1500px;margin:0 auto;padding:16px}
  h1{font-size:22px;margin:4px 0}
  .code{font:700 13px ui-monospace,Consolas,monospace;color:#f0c86a}
- .lead{margin:6px 0 14px;max-width:70ch}
- .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
- @media (max-width:900px){.grid{grid-template-columns:1fr}}
- figure{margin:0;padding:10px;background:#16211b;border:2px solid #34483b}
- video{display:block;width:100%;height:auto;aspect-ratio:924/412;background:#000;image-rendering:pixelated}
- figcaption{margin-top:8px}
- figcaption b{display:block;font:700 15px ui-monospace,Consolas,monospace;color:#f0c86a}
- .note{margin-top:14px;padding:10px 12px;border-left:3px solid #d8c98a;background:#15221b;font-size:14px}
- a{color:#9fd6c9}
+ .lead{margin:6px 0 12px;max-width:80ch}
+ .bar{position:sticky;top:0;z-index:5;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 0;background:#0f1713}
  button{font:inherit;color:inherit;background:#26382d;border:2px solid #4b6654;padding:8px 14px;min-height:44px;cursor:pointer}
+ button[aria-pressed=true]{background:#536430;border-color:#d8c98a}
+ a{color:#9fd6c9}
+ section{margin:18px 0 26px;padding:10px;background:#16211b;border:2px solid #34483b}
+ section h2{margin:0 0 4px;font:700 17px ui-monospace,Consolas,monospace;color:#f0c86a}
+ section p{margin:0 0 10px;max-width:90ch}
+ .pair{display:grid;grid-template-columns:minmax(0,2.3fr) minmax(0,1fr);gap:12px;align-items:start}
+ @media (max-width:900px){.pair{grid-template-columns:1fr}}
+ video{display:block;width:100%;height:auto;background:#000;image-rendering:pixelated}
+ .cap{font-size:12px;color:#a9b8a3;margin-top:3px}
+ .note{margin-top:14px;padding:10px 12px;border-left:3px solid #d8c98a;background:#15221b;font-size:14px}
 </style>
 </head>
 <body>
 <main>
- <h1>In-flight Chain strip <span class="code">v1.0-strip</span></h1>
- <p class="lead">The same real autopilot flight (seed 7, Body Spark, Echo, Lift Guide, Resonant Harvest), recorded three times with a different strip look. Top-centre of each clip. Pick by code.</p>
- <p><button type="button" id="restart">Restart all three together</button> <a href="index.html">Back to the lab</a></p>
- <div class="grid">
-  <figure>
-   <video id="va" src="assets/strip/strip-a.webm" poster="assets/strip/strip-a.png" muted loop autoplay playsinline preload="auto" aria-label="Variant A, hollow frames"></video>
-   <figcaption><b>v1.0-strip-A · Hollow frames</b>Today's look: a small outlined frame per card that flashes white when the card fires, with an echo frame.</figcaption>
-  </figure>
-  <figure>
-   <video id="vb" src="assets/strip/strip-b.webm" poster="assets/strip/strip-b.png" muted loop autoplay playsinline preload="auto" aria-label="Variant B, thumbnails"></video>
-   <figcaption><b>v1.0-strip-B · Thumbnails</b>Each card as its tiny picture in a rarity-coloured frame; on firing it pops, brightens and a "+N" Spark number floats up.</figcaption>
-  </figure>
-  <figure>
-   <video id="vc" src="assets/strip/strip-c.webm" poster="assets/strip/strip-c.png" muted loop autoplay playsinline preload="auto" aria-label="Variant C, thread"></video>
-   <figcaption><b>v1.0-strip-C · Thread</b>A line with one pip per slot; a spark runs along it from the left and lights each pip that fires, and loops back under the line for a Timer.</figcaption>
-  </figure>
+ <h1>In-flight Chain strip <span class="code">v1.1-strip</span></h1>
+ <p class="lead">One real autopilot flight (seed 7; Body Spark, Echo, Lift Guide, Resonant Harvest) recorded four times. Left: the whole screen. Right: the same moments magnified (nearest-neighbour) on the part that changes. Pick by code.</p>
+ <div class="bar">
+  <button type="button" id="restart">Restart all</button>
+  <button type="button" id="slow" aria-pressed="false">Slow 0.5×</button>
+  <a href="index.html">Back to the lab</a>
  </div>
- <p class="note">Same rules in all three: one flash at a time (0.7 s), one pending flash per card, the strip fades after 3 s idle, no text to read in flight. A card's diamond or pip marks an Inscription-only slot. Try a variant in the game with <code>?strip=a|b|c</code> on game.html. Made by <code>scripts/variant-clips.mjs</code>.</p>
+
+ <section id="A"><h2>v1.1-strip-A · Hollow frames (top centre, as shipped)</h2>
+  <p>A small outlined frame per card at the top; it flashes white when the card fires, with an echo frame.</p>
+  <div class="pair"><div><video src="assets/strip/strip-a.webm" poster="assets/strip/strip-a.png" muted loop autoplay playsinline preload="auto" aria-label="Variant A, full screen"></video><div class="cap">Full screen</div></div>
+  <div><video src="assets/strip/strip-a-zoom.webm" poster="assets/strip/strip-a-zoom.png" muted loop autoplay playsinline preload="auto" aria-label="Variant A, strip magnified 4 times"></video><div class="cap">Strip, 4×</div></div></div></section>
+
+ <section id="B"><h2>v1.1-strip-B · Cards at the bottom</h2>
+  <p>Real mini cards bottom centre, clear of the thumb zones. A firing card jumps up, glows and a big +N rises; the card waiting to fire next has a lit top edge.</p>
+  <div class="pair"><div><video src="assets/strip/strip-b.webm" poster="assets/strip/strip-b.png" muted loop autoplay playsinline preload="auto" aria-label="Variant B, full screen"></video><div class="cap">Full screen</div></div>
+  <div><video src="assets/strip/strip-b-zoom.webm" poster="assets/strip/strip-b-zoom.png" muted loop autoplay playsinline preload="auto" aria-label="Variant B, cards magnified 4 times"></video><div class="cap">Cards, 4×</div></div></div></section>
+
+ <section id="C"><h2>v1.1-strip-C · Side rail</h2>
+  <p>A vertical rail on the left edge, one pip per slot. A bright bead runs down it to each firing pip, which bursts a ring; the Sparks gained by the whole resolution pop at the end of the rail.</p>
+  <div class="pair"><div><video src="assets/strip/strip-c.webm" poster="assets/strip/strip-c.png" muted loop autoplay playsinline preload="auto" aria-label="Variant C, full screen"></video><div class="cap">Full screen</div></div>
+  <div><video src="assets/strip/strip-c-zoom.webm" poster="assets/strip/strip-c-zoom.png" muted loop autoplay playsinline preload="auto" aria-label="Variant C, rail magnified 3 times"></video><div class="cap">Rail, 3×</div></div></div></section>
+
+ <section id="D"><h2>v1.1-strip-D · Burst at the Wisp</h2>
+  <p>No strip while idle. When a card fires, its picture pops out beside the Wisp for 0.6 s (with +N when it paid Sparks), so the eye never leaves the Wisp.</p>
+  <div class="pair"><div><video src="assets/strip/strip-d.webm" poster="assets/strip/strip-d.png" muted loop autoplay playsinline preload="auto" aria-label="Variant D, full screen"></video><div class="cap">Full screen</div></div>
+  <div><video src="assets/strip/strip-d-zoom.webm" poster="assets/strip/strip-d-zoom.png" muted loop autoplay playsinline preload="auto" aria-label="Variant D, Wisp area magnified 3 times"></video><div class="cap">Around the Wisp, 3×</div></div></div></section>
+
+ <p class="note">Same rules in all four: one flash at a time (0.7 s), one pending flash per card, no text to read in flight. Try one in the game with <code>?strip=a|b|c|d</code> on game.html. Made by <code>scripts/variant-clips.mjs</code> with <code>--zoom</code>.</p>
 </main>
 <script>
- document.getElementById('restart').addEventListener('click', () => { for (const v of document.querySelectorAll('video')) { v.currentTime = 0; v.play().catch(() => {}); } });
+ const vids = () => [...document.querySelectorAll('video')];
+ document.getElementById('restart').addEventListener('click', () => { for (const v of vids()) { v.currentTime = 0; v.play().catch(() => {}); } });
+ const slow = document.getElementById('slow');
+ slow.addEventListener('click', () => { const on = slow.getAttribute('aria-pressed') !== 'true'; slow.setAttribute('aria-pressed', String(on)); for (const v of vids()) v.playbackRate = on ? 0.5 : 1; });
 </script>
 </body>
 </html>

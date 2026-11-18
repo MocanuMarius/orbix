@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SKILL_CARDS} from '../dist/skill-cards.mjs';
 import {STRIP, STRIP_KEY, STRIP_VARIANTS, chainView, collectReceiptFires, engineFire, createChainStrip, resolveStripVariant} from '../dist/chain-strip.mjs';
-import {VARIANT_GEOMETRY, variantEntries, variantWidth, sparkNumber, threadTravel} from '../dist/chain-strip-variants.mjs';
+import {VARIANT_GEOMETRY, variantEntries, variantExtent, sparkNumber, railTravel, createResolutionTotal, wispPopPoint} from '../dist/chain-strip-variants.mjs';
 
 const common = Object.values(SKILL_CARDS).find(d => d.rarity === 'common' && !d.passive && d.kind !== 'capacity');
 const mk = (def, i) => def ? {cardId: def.id, instanceId: `c${i}`} : null;
@@ -13,7 +13,7 @@ const mark = (slot, kind = 'fire', amount) => ({seq: ++seq, slot, kind, ...(amou
 const ready = r => { const s = createChainStrip(); s.sync(snap(r), 0); return s; };
 
 test('?strip= picks the variant; the hidden setting is the fallback; anything else is A', () => {
-  assert.deepEqual([...STRIP_VARIANTS], ['a', 'b', 'c']);
+  assert.deepEqual([...STRIP_VARIANTS], ['a', 'b', 'c', 'd']); assert.equal(resolveStripVariant('?strip=d', {getItem: () => null}), 'd');
   const store = v => ({getItem: k => k === STRIP_KEY ? v : null});
   assert.equal(resolveStripVariant('', store(null)), 'a');
   assert.equal(resolveStripVariant('?strip=b', store(null)), 'b');
@@ -32,15 +32,17 @@ test('B draws mounted cards and Inscription-only diamonds in slot order and skip
   assert.equal(s.cells.length, 2, 'A still draws only the two mounted cards (same cells as before)');
 });
 
-test('widths for 1 to 5 slots stay narrow enough for the top row', () => {
+test('extents for 1 to 5 slots: B a bottom row clear of the corners, C a left rail, D draws nothing while idle', () => {
   const g = VARIANT_GEOMETRY;
   for (let n = 1; n <= 5; n++) {
     const s = ready(rt(Array(n).fill(common)));
-    const wb = variantWidth('b', variantEntries('b', s)), wc = variantWidth('c', variantEntries('c', s), s.slotCount);
-    assert.equal(wb, n * g.b.cellW + (n - 1) * g.b.gap); assert.equal(wc, n * g.c.pitch - (g.c.pitch - g.c.pip));
-    assert.ok(wb + 2 * STRIP.padX <= 160 && wc + 2 * STRIP.padX <= 100);
+    const eb = variantExtent('b', variantEntries('b', s)), ec = variantExtent('c', variantEntries('c', s), s.slotCount);
+    assert.deepEqual(eb, {w: n * g.b.w + (n - 1) * g.b.gap, h: g.b.h});
+    assert.deepEqual(ec, {w: g.c.pip, h: n * g.c.pitch - (g.c.pitch - g.c.pip)});
+    assert.ok(eb.w <= 5 * 28 + 4 * 4 && ec.h <= 100, 'five slots stay compact');
+    assert.deepEqual(variantEntries('d', s), []); assert.deepEqual(variantExtent('d', []), {w: 0, h: 0});
   }
-  assert.equal(variantWidth('b', []), 0); assert.equal(variantWidth('c', []), 0);
+  assert.equal(g.b.w, 28); assert.equal(g.b.h, 40); assert.equal(g.c.pip, 14); assert.equal(g.d.max, 3);
 });
 
 test('an Inscription-only slot reacts to its bar mark (and only to a bar mark), for B and C alike', () => {
@@ -64,22 +66,37 @@ test('the queue rule is shared: sequential 0.7 s flashes, one pending per card, 
   s.advance(3100); assert.equal(s.playing, null);
 });
 
-test('C: the spark runs forward from the left, and back along the return line when the Chain loops to an earlier or the same slot', () => {
+test('C: the bead runs down the rail, and back up when the Chain loops to an earlier or the same slot; the resolution total pops once the queue drains', () => {
   const s = ready(rt([common, common, common, common]));
-  s.fire([mark(0), mark(2), mark(1)], 0);
-  s.advance(0); const first = {...s.cells[0]}; assert.equal(threadTravel(first).back, false); assert.equal(threadTravel(first).fromX, 0);
-  s.advance(700); const second = s.cells[2], t2 = threadTravel(second); assert.equal(second.from, 0); assert.equal(t2.back, false);
-  assert.equal(t2.toX, 2 * VARIANT_GEOMETRY.c.pitch + VARIANT_GEOMETRY.c.pip / 2);
-  s.advance(1400); const third = s.cells[1], t3 = threadTravel(third); assert.equal(third.from, 2); assert.equal(t3.back, true, 'slot 1 after slot 2 loops back');
-  assert.equal(t3.fromX, 2 * VARIANT_GEOMETRY.c.pitch + VARIANT_GEOMETRY.c.pip / 2);
-  assert.ok(t3.ms <= VARIANT_GEOMETRY.c.maxTravelMs && t3.ms < STRIP.flashMs, 'the travel always fits inside the 0.7 s flash window');
-  s.advance(2100); s.fire([mark(1)], 2100); assert.equal(s.cells[1].from, 1); assert.equal(threadTravel(s.cells[1]).back, true, 'a Timer repeating its own slot also returns');
+  s.fire([mark(0, 'fire', 3), mark(2, 'fire', 4), mark(1, 'fire', 5)], 0);
+  const first = s.cells[0]; assert.equal(railTravel(first).back, false); assert.equal(railTravel(first).fromY, -6);
+  s.advance(700); const second = s.cells[2], t2 = railTravel(second); assert.equal(second.from, 0); assert.equal(t2.back, false);
+  assert.equal(t2.toY, 2 * VARIANT_GEOMETRY.c.pitch + VARIANT_GEOMETRY.c.pip / 2);
+  s.advance(1400); const third = s.cells[1], t3 = railTravel(third); assert.equal(third.from, 2); assert.equal(t3.back, true);
+  assert.ok(t3.ms <= VARIANT_GEOMETRY.c.maxTravelMs && t3.ms < STRIP.flashMs, 'travel fits inside the 0.7 s flash window');
+  s.advance(2100); s.fire([mark(1)], 2100); assert.equal(railTravel(s.cells[1]).back, true, 'a Timer repeating its own slot also returns');
+  const total = createResolutionTotal(), q = ready(rt([common, common]));
+  q.fire([mark(0, 'fire', 3), mark(1, 'fire', 4)], 0); total.add(3); total.add(4);
+  assert.equal(total.take(q), 0, 'still playing: no total yet');
+  q.advance(1400); assert.equal(total.take(q), 7); assert.equal(total.take(q), 0, 'the sum restarts');
+});
+
+test('D: the burst point sits beside the Wisp and stays inside the view; at most three pops share the rule of one flash at a time', () => {
+  const p = wispPopPoint({x: 180, y: 200}, {left: 0, top: 0, width: 924}, {left: 0, top: 0, width: 924, height: 412}, {width: 924});
+  assert.equal(p.x, 206); assert.equal(p.y, 170);
+  const edge = wispPopPoint({x: 900, y: 5}, {left: 0, top: 0, width: 924}, {left: 0, top: 0, width: 924, height: 412}, {width: 924});
+  assert.ok(edge.x <= 924 - 60 && edge.y >= 8);
+  assert.equal(VARIANT_GEOMETRY.d.max, 3);
+  const s = ready(rt([common, common, common, common]));
+  s.fire([mark(0), mark(1), mark(2), mark(3), mark(0)], 0);
+  assert.equal(s.pendingCount, 3, 'one playing, the rest wait once each; the repeat is dropped, so never more than the mounted cards');
+  assert.ok(VARIANT_GEOMETRY.d.ms <= STRIP.flashMs, 'a burst ends before the next flash begins, so no more than one is ever on screen from the queue');
 });
 
 test('B: the floating number is a whole "+N", brief, and absent when the firing had no amount', () => {
   assert.equal(sparkNumber(3), '+3'); assert.equal(sparkNumber(2.6), '+3'); assert.equal(sparkNumber(0.2), ''); assert.equal(sparkNumber(undefined), '');
   assert.equal(sparkNumber(12345), '+999', 'at most three digits');
-  assert.ok(VARIANT_GEOMETRY.b.numMs <= 600 && VARIANT_GEOMETRY.b.popMs <= 500);
+  assert.ok(VARIANT_GEOMETRY.b.numMs <= 700 && VARIANT_GEOMETRY.b.popMs <= 500);
 });
 
 test('marks carry an amount only when the receipt or engine entry has one (so older marks are unchanged)', () => {

@@ -16,6 +16,8 @@
 //   --width W --height H  CSS size of the view (default 924x412), device scale 2 (--scale)
 //   --max-mb M          size limit per clip (default 1.9): the encoder raises the CRF until it fits
 //   --poster 0..1       where in the clip the poster PNG is taken (default .5)
+//   --zoom SPEC         also write <prefix>-<value>-zoom.webm/.png: the same frames cropped to a CSS-px region and magnified with nearest-neighbour scaling
+//                       (so a small strip is readable). SPEC = x,y,w,h,scale  (all values), or per value  a=x,y,w,h,s;b=x,y,w,h,s  (a bare entry is the default)
 //   --keep-frames       keep the PNG frames (folder printed)
 //
 // How it works (same approach as scripts/term-clips.mjs, docs/term-clips.md): a static server for dist/, headless Chrome with a throwaway
@@ -71,6 +73,8 @@ if (!scenario) { console.error('Unknown scenario; use --list or --scenario-file.
 const chain = opt('chain', 'body-spark,echo,lift-guide,harvest-common'), slots = opt('slots', ''), seed = Number(opt('seed', 7));
 const seconds = Number(opt('seconds', 10)), warmup = Number(opt('warmup', scenario.warmup ?? 1)), W = Number(opt('width', 924)), H = Number(opt('height', 412)), scale = Number(opt('scale', 2));
 const maxBytes = Number(opt('max-mb', 1.9)) * 1024 * 1024, posterAt = Number(opt('poster', .5));
+const zoomSpec = opt('zoom', '');
+const zoomFor = value => { let def = null; for (const part of zoomSpec.split(';').filter(Boolean)) { const m = /^(?:([A-Za-z0-9_-]+)=)?(.+)$/.exec(part.trim()), n = m[2].split(',').map(Number); if (n.length < 5 || n.some(x => !Number.isFinite(x))) continue; if (m[1] === value) return n; if (!m[1]) def = n; } return def; };
 const outDir = path.resolve(root, opt('out', 'dist/design-lab/assets/variants')), prefix = opt('prefix', param);
 
 function findFfmpeg() {
@@ -160,6 +164,19 @@ function encode(value, rec) {
     if (r.status !== 0) throw new Error('ffmpeg failed: ' + r.stderr);
     size = statSync(webm).size;
     if (size <= maxBytes) break;
+  }
+  const z = zoomFor(value);
+  if (z) {
+    const [zx, zy, zw, zh, zs] = z, sc = scale, zoomWebm = path.join(outDir, `${prefix}-${value}-zoom.webm`);
+    let zc = 30, zsz = 0;
+    for (; zc <= 52; zc += 3) {
+      const r = spawnSync(ff, ['-hide_banner', '-loglevel', 'error', '-y', '-framerate', '30', '-i', path.join(rec.frames, '%04d.png'), '-vf', `crop=${zw * sc}:${zh * sc}:${zx * sc}:${zy * sc},scale=iw*${zs / sc}:ih*${zs / sc}:flags=neighbor`, '-an', '-c:v', 'libvpx-vp9', '-b:v', '0', '-crf', String(zc), '-row-mt', '1', '-cpu-used', '2', '-pix_fmt', 'yuv420p', zoomWebm], {encoding: 'utf8'});
+      if (r.status !== 0) throw new Error('ffmpeg zoom failed: ' + r.stderr);
+      zsz = statSync(zoomWebm).size; if (zsz <= maxBytes) break;
+    }
+    const zf = String(Math.min(rec.n - 1, Math.round(rec.n * posterAt))).padStart(4, '0');
+    spawnSync(ff, ['-hide_banner', '-loglevel', 'error', '-y', '-i', path.join(rec.frames, zf + '.png'), '-vf', `crop=${zw * sc}:${zh * sc}:${zx * sc}:${zy * sc},scale=iw*${zs / sc}:ih*${zs / sc}:flags=neighbor`, '-frames:v', '1', path.join(outDir, `${prefix}-${value}-zoom.png`)]);
+    console.log(`  zoom ${value}: ${(zsz / 1024).toFixed(0)} kB -> ${path.relative(root, zoomWebm)}`);
   }
   const frame = String(Math.min(rec.n - 1, Math.round(rec.n * posterAt))).padStart(4, '0');
   fs.copyFile(path.join(rec.frames, frame + '.png'), poster);
