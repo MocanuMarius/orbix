@@ -12,6 +12,7 @@ function patchInspector(src){
  s=s.replace("createRun(state.profile,storm?query.get('seed')||'shepherd-study':'in-game-boundary-study',1)","createRun(state.profile,query.get('seed')||'perf-fixed-seed',1,{cards:true})");
  s=s.replace(/return state;\s*\}/,`{const q=query,sets=${JSON.stringify(CARD_SETS)};run.cardSlots=5;run.mountedCards=(sets[q.get('cardset')||'plain']||[]).map((id,i)=>__mk(id,'perf:'+i));while(run.mountedCards.length<run.cardSlots)run.mountedCards.push(null);
  const n=run.map[0][0];
+ if(q.get('guardian')){Object.assign(n,{name:'Guardian',boss:true,bossId:q.get('guardian'),row:6,type:'finale'});}
  if(q.get('late')==='1'){n.difficulty=3;n.row=4;}}
  return state;}`);
  return s;

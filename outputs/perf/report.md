@@ -113,3 +113,94 @@ Biggest item: about 2000 one-pixel `fillRect` calls per frame from the terrain b
 
 ### Not measured / caveats
 Software GPU modes beyond one flight (qemu crashes). The `chrome://gpu` page itself (SystemInfo used instead). Desktop GPU-process busy %. `gl=0` in normal play on host. Rotation sometimes flips back to portrait on the emulator; `cdp.mjs ensureLandscape` fixes it before each flight. `heavy.mjs --label x` needs `--label=x`: my first desktop run saved to `outputs/perf/heavy/2026-11-18-true.json` (moved to `outputs/perf/android/2026-11-18-desktop-compare/`; it may have replaced an earlier file of that name).
+
+---
+
+# Trusted benchmark, 18 November
+
+Protocol and commands: `docs/android-emulator.md` ("Trusted benchmark protocol"). Scripts: `scripts/perf/android/{bench,benchlib,where,desktop,boost,analyze,restart-emu}.mjs`. Raw data: `outputs/perf/android/2026-11-18-bench/*.json` (suite, suite-rep, ab, window-test, where-*, desktop) and the `log-*.txt` next to them. Build `5a5c027a`, real edge style (`edge=spectral`), N=5 flights of 30 s per scenario (first 4 s skipped), fixed seed, autopilot, Pixel 10 AVD in host-GPU mode.
+
+## 1. Why the old numbers swung (53, 35, 32.6, 23 FPS)
+Measured, in order of size:
+1. **Emulator sessions are bimodal.** A fresh headless emulator gave marsh, late row, mid Chain 46.2 FPS (5 flights, spread 10%); a later session gave 34.4 (A/B base, 4 flights, range 2.2 FPS); and a marsh early flight fell from 32.7 to 20.1 FPS in the middle of one session (host GPU clock 255 to 215 MHz, emulator host CPU use 64% instead of 27%). Within a session the spread is small (1.3% to 12%); between sessions it is up to 2x. Cause not proven; the slow state appeared 30 to 80 minutes after an emulator restart. Frame rate and host GPU clock move together (r = 0.99 over 9 marsh runs), but forcing the clock to 1.7 GHz with a background load did not raise FPS (see `boost` below), so the clock is a symptom.
+2. **Windowed emulator.** Windowed: marsh late mid 16.6 FPS (4 flights, spread 15.8%) with all 24 host threads at 100%. Headless (`-no-window`): 41.0 FPS (spread 13.4%) with host CPU at 27%. The spread is a tie; headless was chosen because it leaves 70% of the CPU free (other host work can no longer steal emulator time) and is 2.5x faster. The windowed emulator itself was fine (not minimised, in front). Absolute FPS here are therefore not comparable with the earlier reports.
+3. **Cold-start GPU hangs.** The first heavy flight after `am force-stop` of Chrome stalls 18-40 s (renderer log: "GPU state invalid after WaitForGetOffsetInRange"; the GPU process is killed by the watchdog and restarted; Chrome counts "crashed N times"; three crashes switch it to software). `marsh-late-mid` needed up to 5 stalled warm-ups after one restart. A restart repeats it, so the protocol restarts Chrome once and soft-resets between scenarios, and discards stalled warm-ups and measured flights (none had to be discarded in the final data).
+4. **Page height changes the scene.** The viewport was 870x308 in some sessions and 870x280 in others (toolbar state). The 308 run of `marsh-early-starter` (39.9 FPS) was not comparable and was replaced by a rerun at 870x280 (50.1 FPS). Every run now stores its viewport.
+5. The first flight of a round runs 2-4% slow (A/B round 1, first condition); handled by rotating the condition order every round.
+
+**Noise band to use:** within one fresh session, treat differences under about 7% (2-3 FPS) as noise (A/B base range 2.2 FPS = 6.4%; suite spreads 1.3-12%). Two fresh sessions on the same scenarios differed by -6, -7, -8 and -9% (the second session was slower every time). Never compare runs from different sessions without a same-session reference condition.
+
+## 2. Scenario table (one fresh session, 5 flights each, median)
+| Scenario | median FPS | min-max | spread | 1% low | p95 ms | frames >33 ms | second fresh session |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| marsh early, starter | 50.1 | 45.8-52.0 | 12.4% | 20.0 | 33.4 | 75 | (this row is from the second session) |
+| marsh late, mid Chain | 46.2 | 42.2-46.8 | 10% | 22.1 | 33.4 | 113 | 43.5 |
+| pinewood late, mid | 39.8 | 37.9-39.9 | 5% | 17.6 | 33.4 | 178 | 37.0 |
+| coral late, mid | 53.7 | 52.6-54.1 | 2.8% | 22.7 | 33.3 | 40 | 49.2 |
+| frost late, mid | 51.8 | 51.2-52.3 | 2.3% | 19.6 | 33.4 | 57 | 47.1 |
+| stress scene | 30.1 | 29.8-30.2 | 1.3% | 18.2 | 50.0 | 475 | not repeated |
+| Guardian flight | not measurable | | | | | | GPU process hangs every time |
+
+No scenario exceeded the 15% spread limit in the final data. The ranking is stable across the two sessions: coral > frost > marsh late > pinewood. Frame times sit on the 33.4 ms step (30 Hz present) for most scenarios, so p95 does not separate them; average FPS, 1% low and frames over 33 ms do.
+
+Guardian flights (`basalt` Hollow Sun and `frost` Frost Matron, ordinary start): every flight stalls 20-40 s, the GPU process is killed ("GPU state invalid") up to 3 times, Chrome falls to software and runs at 0.3-0.6 FPS, also with `?gl=0`. Desktop Chrome flies them normally, so this is either an emulator GLES-translator limit or a command the game sends that the translator cannot finish; not investigated further.
+
+## 3. A/B on marsh late mid (every condition once per round, 4 rounds, order rotated and reversed, one session)
+| condition | median FPS | min-max | vs base (paired difference per round) | verdict |
+| --- | --- | --- | --- | --- |
+| default (base) | 34.4 | 33.2-35.4 | reference, noise range 2.2 FPS | |
+| `gl=0` (Canvas 2D lighting) | 30.9 | 29.5-33.0 | -3.5 FPS, -10% (-0.2, -3.5, -5.0, -4.4) | REAL: WebGL lighting is worth +10% |
+| `sky=0` (moon and mist rect by rect) | 35.4 | 34.9-38.0 | +1.0 (4.8, 0, 0.5, 1.0) | noise: baked sky gains nothing measurable |
+| `edges=1` (terrain-edge chunk bake) | 34.3 | 32.8-36.3 | -0.1 (3.0, -1.1, -0.6, -1.2) | noise: no gain, keep off |
+| `scenery=1` (old ground, new landform scenery off) | 32.0 | 31.0-33.4 | -2.5, -7% (0.1, -3.5, -2.9, -3.0) | REAL but the wrong way: the old ground is slower; the new scenery is not the problem |
+| `lowres=1` (output canvas 720x232) | 35.4 | 34.8-37.0 | +1.0, +3% (3.8, 0.2, 0.4, 0.9) | noise (at the floor) |
+| DPR 2 (output canvas 1740x560, same as 2.625) | 34.8 | 33.7-35.7 | +0.4 | noise |
+| DPR 1.5 (output canvas 1305x420) | 35.5 | 34.1-36.3 | +1.1, +3% | noise (at the floor) |
+| DPR 1 (output canvas 870x280) | 35.0 | 34.0-36.4 | +0.6 | noise |
+| `boost` (background WebGL load, host GPU at 1.7 GHz instead of 0.35) | 33.0 | 30.5-33.7 | -1.5, -4% | contention costs a little; a 5x GPU clock does NOT help |
+
+A condition counts as real only if its paired difference has the same sign in all but at most one round and is at least 1 FPS and at least half the larger noise range. **Fill cost:** shrinking the output canvas by 2.2x (DPR 1.5), 2.6x (DPR 1) or 5.8x (`lowres`) in pixel count changed the frame rate by +0.4 to +1.1 FPS, within noise. Pixel fill and the final upscale are not the limit. Raising the host GPU clock 5x did not help either, so this is not plain GPU throughput (section 4).
+
+## 4. Where the frame goes (real play; 150 frames counted; traces 6 s light and 5 s heavy)
+| | marsh late mid | pinewood late mid |
+| --- | --- | --- |
+| frame rate during the light trace | 28.9 | 20.1 |
+| GPU process main thread busy | **98%** | **98%** |
+| renderer main thread | 45% | 40% |
+| renderer compositor / GPU compositor / Viz | 33 / 17 / 14% | 23 / 12 / 10% |
+| Canvas 2D draw calls per frame | 343 (fillRect 235, drawImage 80, stroke 12, fill 11) | 467 (fillRect 139, fill 110, stroke 116, drawImage 98) |
+| Canvas 2D state calls per frame (save, restore, transforms, path building) | 4824 | 3102 |
+| drawImage source / destination area per frame | 5.6 / 9.1 Mpx | 5.5 / 10.0 Mpx |
+| canvases drawn into per frame (of all that exist) | 7 of 14, 2.0 Mpx summed | 6.2 of 16, 1.8 Mpx summed |
+| `getImageData` | 0 | 0 |
+| `putImageData` per frame | 1 call, 585 KB | 1 call, 183 KB |
+| WebGL texImage/texSubImage uploads per frame | 2.3 calls, 656 KB | 1 call, 68 KB |
+| total bytes uploaded to the GPU per frame | 1241 KB (about 36 MB/s at 29 FPS) | 251 KB |
+| canvas re-allocations (width/height set) per frame | 0.1 | 0.1 |
+| GPU main thread, heavy trace (shape only, the trace slows the game to 6-7 FPS) | DoRasterCHROMIUM 61% of the thread, of which Skia `drawRect` 47%; DoEndRaster/flush 25% | DoRasterCHROMIUM 52%, `drawPath` 33%; DoEndRaster/flush 38% |
+
+Callers over 8 frames (call stacks, draw calls only; the marsh sample included the black hole of that course, so it overstates it). Marsh: `accretionDisk` black-hole-art.mjs:82/84/86, 94 fillRect each (42% of draw calls), black-hole `disc` 115, `drawSky` wisp-renderer.mjs:404 58, authored backdrop drawImage 24, habitat animals 12, wake 11. Pinewood: terrain-ecology `tuft` strokes and fills 245 (96+96+32+21, 52% of draw calls), `drawSky` 58, `groundMaterial` flush (level-scenery-two.mjs:481) 70 fillRects, authored plants 24 drawImage. Largest drawImage sources: the cached 512x320 background (11 per frame, 1.8 Mpx), 208x256 (10), 272x160 (8, pinewood), 720x232 layer copies (7), and the final 720x232 to 1740x560 blit once per frame (974 kpx).
+
+**Single biggest cost: Canvas 2D rasterisation in the GPU process, driven by the number of vector operations per frame, not by pixels or uploads.** The GPU-process main thread is at 98% while the renderer main thread is at 40-45%, so the page is raster-bound. The heavy trace puts 52-61% of that thread in Skia raster of tiny rect and path ops (`drawRect`, `drawPath`) and another 25-38% in flush and op execution. The A/B shows pixel count is irrelevant, and uploads (0.25-1.2 MB per frame, no readbacks) are small. About 3000-4800 state calls and 350-470 draw calls per frame are replayed through the emulator's GLES translator. Both biomes have one decorative caller group that is about half of all draw calls (black-hole accretion disk and discs in marsh; terrain-ecology tufts in pinewood).
+
+## 5. Desktop calibration (headless Chrome, 924x412, DPR 2.625, touch emulation, same URLs, N=2 per cell)
+| scenario | emulator (median) | desktop 1x | 4x | 6x |
+| --- | --- | --- | --- | --- |
+| marsh early starter | 50.1 | 239 | 55.0 | 30.1 |
+| marsh late mid | 46.2 | 232 | 48.4 | 25.9 |
+| pinewood late mid | 39.8 | 217 | 49.0 | 26.2 |
+| coral late mid | 53.7 | 234 | 54.2 | 27.9 |
+| frost late mid | 51.8 | 236 | 53.5 | 28.8 |
+| stress | 30.1 | 93.5 | 28.4 | 13.3 |
+| Spearman rank correlation with the emulator | | 0.77 | 0.77 | 0.71 |
+| emulator FPS / desktop FPS (median, range) | | 0.21 (0.18-0.32) | **0.96 (0.81-1.06)** | 1.79 (1.52-2.26) |
+
+Desktop 1x is uncapped (about 235 FPS; only the stress scene separates). **4x is the level that matches the emulator's absolute frame rate** (ratio 0.96) and ties 1x for rank agreement (0.77); 6x is too pessimistic. No throttle level reproduces the ranking exactly: desktop makes pinewood as cheap as marsh late and marsh early as cheap as coral, while the emulator penalises pinewood and marsh late more. Use desktop 4x for regression checks of the stress scene and for ordering big wins; use the emulator for scenario-level decisions. The viewports differ (924x412 desktop, 870x280 emulator). N=2 per cell, so treat the correlations as indicative.
+
+## 6. Recommendation
+Optimise **the number of Canvas 2D operations per frame** next, in this order, measuring each with `bench.mjs ab` (same-session interleaving, 4 rounds, noise floor about 2.5 FPS): (1) bake the black-hole accretion disk and discs (about 400 fillRects) and the terrain-ecology tufts (about 245 stroke/fill ops) into cached sprites or layers that are drawn with one `drawImage`; (2) the 58 `drawSky` fillRects and the `groundMaterial` flush; (3) cut state churn (about 3000-4800 save/restore/transform/path calls per frame), for example by grouping fills per colour into one path. `sky=0`, `edges=1`, `lowres`, a smaller DPR and turning scenery off showed no gain, so skip them (keep `gl` on: it is worth +10%).
+
+**A WebGL rewrite is not yet justified by this evidence.** What is shown: the frame is raster-bound on operation count, and pixels, uploads and the GPU clock are not the limit. That points at fewer, larger operations, which baking achieves at a fraction of the cost of a renderer rewrite. A WebGL renderer becomes the right answer only if, after the three steps above, the GPU-process main thread is still near 100% busy and the stress scene is still under 40 FPS. Caveat that cuts both ways: the emulator pushes every GL command through a serialising GLES translator, which probably overstates the cost of many small ops compared with a real Pixel 10 GPU, so confirm the first bake on a real phone before committing days of work.
+
+## 7. Limits of this work
+Absolute FPS belong to this headless emulator and this PC, not to a Pixel 10. The slow-session state was seen three times but its cause is not proven (suspects: emulator uptime, accumulated GPU-process crashes); the protocol stores the host GPU clock with every run and says to start from a fresh emulator. The Guardian flight could not be benchmarked. The A/B used 4 rounds, so differences under about 3% cannot be separated from noise. The `marsh-early-starter` row in the suite table comes from the second fresh session (the first session ran with a different viewport). The stress scene was measured once per session (5 runs). `play.mjs` and `serve.mjs` were edited (edge=spectral default, guardian query support); no game file was touched.

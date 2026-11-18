@@ -18,7 +18,7 @@ export const SAMPLER=s=>`new Promise(res=>{const d=[];let l=0,t0=0;(function f(t
  const n=d.length,sorted=[...d].sort((a,b)=>a-b),sum=d.reduce((a,b)=>a+b,0),worst=sorted.slice(Math.max(0,n-Math.ceil(n/100))),w=worst.reduce((a,b)=>a+b,0);
  res({frames:n,avgFps:+(1000*n/sum).toFixed(1),low1Fps:+(1000*worst.length/w).toFixed(1),p50Ms:+sorted[Math.floor(n*.5)].toFixed(1),p95Ms:+sorted[Math.floor(n*.95)].toFixed(1),over33:d.filter(x=>x>33.4).length,over50:d.filter(x=>x>50).length,longestMs:Math.round(sorted[n-1])});}})(performance.now())})`;
 export async function flight(s,{biome,course,row,chain},{query='',seconds=40,sampler=SAMPLER,after}={}){
-  const q=new URLSearchParams({mock:'boundary',cards:'1',autopilot:'1',seed:'perf-play',biome,course:String(course),cardset:chain,r:String(Date.now())});
+  const q=new URLSearchParams({mock:'boundary',cards:'1',autopilot:'1',seed:'perf-play',biome,course:String(course),cardset:chain,edge:'spectral',r:String(Date.now())});
   if(row==='late')q.set('late','1');if(chain==='mid')q.set('collector','twin');
   for(const [k,v] of new URLSearchParams(query))q.set(k,v);
   await s.goto(`http://10.0.2.2:${port}/game.html?${q}`);await ensureLandscape(s);
