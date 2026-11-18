@@ -1,12 +1,12 @@
-import {OATHS} from './oaths.mjs?v=prune-2';
-import {OBJECTIVE_SPARKS} from './route-bonuses.mjs?v=prune-2';
-import {getBiome} from './biomes.mjs?v=prune-2';
-import {sparkHabitat} from './spark-fields.mjs?v=prune-2';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=prune-2';
-import {landmarkCategory,guardianNames} from './map-landmarks.mjs?v=prune-2';
-import {uiIcon} from './ui-icons.mjs?v=prune-2';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=prune-2';
-import {glowText} from './vitality.mjs?v=prune-2';
+import {OATHS} from './oaths.mjs?v=cord-2';
+import {OBJECTIVE_SPARKS} from './route-bonuses.mjs?v=cord-2';
+import {getBiome} from './biomes.mjs?v=cord-2';
+import {sparkHabitat} from './spark-fields.mjs?v=cord-2';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=cord-2';
+import {landmarkCategory,guardianNames} from './map-landmarks.mjs?v=cord-2';
+import {uiIcon} from './ui-icons.mjs?v=cord-2';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=cord-2';
+import {glowText} from './vitality.mjs?v=cord-2';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Flight length sets its Stored Sparks reward; overflow adds a bonus. Ordinary flights do not offer an Inscription.'),

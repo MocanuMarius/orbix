@@ -1,4 +1,4 @@
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=prune-2';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=cord-2';
 
 const TAU=Math.PI*2;
 const unit=value=>Math.max(0,Math.min(1,value));
@@ -13,8 +13,8 @@ export function collectorTowPose(packet,cargoX,cargoY,homeX,homeY,scale,age,quie
   const hook=pickupHookAnchor(packet,cargoX,cargoY,scale,hookAngle);
   const length=Math.hypot(hook.x-homeX,hook.y-homeY);
   return {x:homeX,y:homeY,hookX:hook.x,hookY:hook.y,hookAngle,
-    // The cord is a straight elastic band (collector-cord.mjs): no bow, wind or sag, so the Collector rides on the drawn line.
-    wind:0,phase:age*2.15+index*1.73,sag:0};
+    wind:quiet?0:Math.min(16,length*.27)*smooth(age/.38),
+    phase:age*2.15+index*1.73,sag:Math.min(3,length*.035)};
 }
 
 export function collectorTowPoint(tether,f,out={}){
