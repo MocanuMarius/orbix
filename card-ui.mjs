@@ -1,16 +1,16 @@
-import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=update-2";
-import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=update-2";
-import { uiIcon } from "./ui-icons.mjs?v=update-2";
-import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=update-2";
-import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=update-2";
-import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=update-2";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=update-2";
-import { activeFlightPact } from './flight-pacts.mjs?v=update-2';
-import { cardArt } from "./card-art.mjs?v=update-2";
-import { cardTileLine } from "./card-tile-lines.mjs?v=update-2";
-import { slotInscriptionId } from "./inscriptions.mjs?v=update-2";
-import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=update-2";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=update-2';
+import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=workshop-1";
+import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=workshop-1";
+import { uiIcon } from "./ui-icons.mjs?v=workshop-1";
+import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=workshop-1";
+import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=workshop-1";
+import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=workshop-1";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=workshop-1";
+import { activeFlightPact } from './flight-pacts.mjs?v=workshop-1';
+import { cardArt } from "./card-art.mjs?v=workshop-1";
+import { cardTileLine } from "./card-tile-lines.mjs?v=workshop-1";
+import { slotInscriptionId } from "./inscriptions.mjs?v=workshop-1";
+import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=workshop-1";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=workshop-1';
 import {
   getMountedCards,
   getOwnedCards,
@@ -26,13 +26,13 @@ import {
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
-} from "./model.mjs?v=update-2";
-import { resourceSymbol } from "./game-symbols.mjs?v=update-2";
-import { choiceScene } from "./choice-art.mjs?v=update-2";
-import { livesMarkup } from "./lives.mjs?v=update-2";
-import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=update-2";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=update-2";
-import {canDreamAt, dreamConfig} from './dream.mjs?v=update-2';
+} from "./model.mjs?v=workshop-1";
+import { resourceSymbol } from "./game-symbols.mjs?v=workshop-1";
+import { choiceScene } from "./choice-art.mjs?v=workshop-1";
+import { livesMarkup } from "./lives.mjs?v=workshop-1";
+import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=workshop-1";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=workshop-1";
+import {canDreamAt, dreamConfig} from './dream.mjs?v=workshop-1';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -45,7 +45,7 @@ import {
   isInventoryOnlyCard,
   SKILL_CARDS,
   cardTallyLine,
-} from "./skill-cards.mjs?v=update-2";
+} from "./skill-cards.mjs?v=workshop-1";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -94,7 +94,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=update-2";
+export { cardArt } from "./card-art.mjs?v=workshop-1";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
@@ -383,7 +383,7 @@ export function restServiceTiles(run) {
 }
 function restTileMarkup(t) {
   const label = `${t.title}${t.price != null ? `, from ${t.price} Stored Sparks` : ''}: ${t.ok ? t.line : t.reason}`;
-  const data = t.id === 'forge' ? `data-action="card-workshop-forge" data-rarity="${esc(t.rarity)}"` : `data-action="card-workshop" data-service="${t.id}"`;
+  const data = t.id === 'forge' && t.ok ? `data-action="card-workshop-forge" data-rarity="${esc(t.rarity)}"` : t.reason === 'Not available now' ? 'data-action="card-rest-unavailable"' : `data-action="card-workshop" data-service="${t.id}"`;
   return `<button type="button" class="rest2-tile${t.ok ? '' : ' is-off'}" ${data} data-rest-service="${t.id}" aria-disabled="${t.ok ? 'false' : 'true'}" aria-label="${esc(label)}"><span class="rest2-ico">${uiIcon(t.icon, {size: 32})}</span><span class="rest2-tname">${esc(t.title)}</span><span class="rest2-price">${t.price != null ? `${resourceSymbol('packed')}<b>${t.price}</b>` : ''}</span><span class="rest2-tline">${esc(t.ok ? t.line : t.reason)}</span><span class="rest2-tstate">${t.ok ? 'Ready' : ''}</span></button>`;
 }
 export function cardRestMarkup(run, node, choices, { selected = null } = {}) {

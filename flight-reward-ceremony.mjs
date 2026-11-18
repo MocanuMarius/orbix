@@ -1,14 +1,14 @@
-import {ARTIFACTS,SKILL_CARDS,getCardDraft,lastCourseName} from './model.mjs?v=update-2';
-import {chipIcon} from './ui/trigger-icons.mjs?v=update-2';
-import {cardDraftMarkup,cardDraftOffersMarkup} from './card-ui.mjs?v=update-2';
-import {rewardEarnings} from './reward-screen.mjs?v=update-2';
-import {resourceSymbol} from './game-symbols.mjs?v=update-2';
-import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=update-2';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=update-2';
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=update-2';
-import {sealedPackMarkup} from './flight-reward-pack-art.mjs?v=update-2';
-import {artifactIcon} from './upgrade-icons.mjs?v=update-2';
-import {flightRewardReceiptDetail,FLIGHT_REWARD_SOURCE_DETAILS} from './flight-reward-details.mjs?v=update-2';
+import {ARTIFACTS,SKILL_CARDS,getCardDraft,lastCourseName} from './model.mjs?v=workshop-1';
+import {chipIcon} from './ui/trigger-icons.mjs?v=workshop-1';
+import {cardDraftMarkup,cardDraftOffersMarkup} from './card-ui.mjs?v=workshop-1';
+import {rewardEarnings} from './reward-screen.mjs?v=workshop-1';
+import {resourceSymbol} from './game-symbols.mjs?v=workshop-1';
+import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=workshop-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=workshop-1';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=workshop-1';
+import {sealedPackMarkup} from './flight-reward-pack-art.mjs?v=workshop-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=workshop-1';
+import {flightRewardReceiptDetail,FLIGHT_REWARD_SOURCE_DETAILS} from './flight-reward-details.mjs?v=workshop-1';
 export {flightRewardReceiptDetail};
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
