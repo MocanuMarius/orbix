@@ -1,4 +1,4 @@
-import {drawHabitatAnimal,habitatFooting} from './habitat-wildlife.mjs?v=rates-1';
+import {drawHabitatAnimal,habitatFooting} from './habitat-wildlife.mjs?v=seven-1';
 // Whole, authored vignettes replace interchangeable mounds and evenly spaced
 // plants. Coordinates describe geology, exposed rock and sheltered soil pockets.
 const noise=n=>{let h=Math.imul(n|0,1597334677);h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296;};

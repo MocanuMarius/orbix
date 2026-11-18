@@ -1,10 +1,10 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=rates-1";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=seven-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=rates-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=rates-1';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=rates-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=seven-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=seven-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=seven-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -1026,6 +1026,7 @@ function baseRewards(def, card, rule, event) {
   if (rule.operation === "add-sparks") base.sparks = amount;
   if (rule.storedFirstCrossing) base.stored = Math.max(0, Number(rule.storedFirstCrossing) || 0);
   if (rule.operation === "add-stored") base.stored = amount;
+  if (rule.operation === "add-stored-per-heart") base.stored = amount * integer(event.heartsLeft);
   if (rule.operation === "carried-interest") base.stored = Math.min(10, Math.floor(integer(event.carriedStored) / 10)) * amount;
   if (rule.operation === "add-cruising-speed") base.cruisingSpeed = amount;
   if (rule.operation === "add-future-capacity") base.futureCapacity = cleanCardFutureCapacity(amount);
@@ -1086,6 +1087,7 @@ export function resolveCardRow(runtime, event = {}) {
     firstCrossing: !!event.firstCrossing, pickupKind: event.pickupKind ?? null,
     ...(kind===CARD_ROW_EVENTS.wave?{waveId:event.waveId??null,
       pulseSource:event.pulseSource??null,pulseSourceKind:event.pulseSourceKind??null}:{}),
+    heartsLeft: integer(event.heartsLeft), lastHeart: event.lastHeart === true,
     meterFraction: event.meterFraction ?? null, direction: event.direction ?? null,
     guardRecovering: !!event.guardRecovering, collectorReeling: !!event.collectorReeling,
     availableReel: Math.max(0,Number(event.availableReel)||0),
@@ -1248,13 +1250,14 @@ export function resolveCardRow(runtime, event = {}) {
         const gain = Math.min(amount, Math.max(0, WIND_FEATHER_MAX - integer(source.tally)));
         if (gain > 0) { succeed();pay("cruisingSpeed", gain);source.tally = integer(source.tally) + gain; }
         else step.skipReason = "cruising-speed-cap";
-      } else if (operation === "add-stored" || operation === "carried-interest") {
+      } else if (operation === "add-stored" || operation === "carried-interest" || operation === "add-stored-per-heart") {
         step.operation = operation;
-        const gain = operation === "carried-interest" ? Math.min(10, Math.floor(integer(event.carriedStored) / 10)) * amount : amount;
+        const gain = operation === "carried-interest" ? Math.min(10, Math.floor(integer(event.carriedStored) / 10)) * amount
+          : operation === "add-stored-per-heart" ? integer(event.heartsLeft) * amount : amount;
         if (gain > 0) {
           succeed();
           pay("stored", gain, operation === "carried-interest" ? 10 * amount : undefined);
-        } else step.skipReason = "no-carried-interest";
+        } else step.skipReason = operation === "add-stored-per-heart" ? "no-hearts" : "no-carried-interest";
       } else if (operation === "shorten-reel") {
         step.operation = operation;
         const seconds = Math.min(amount, budget("reelSeconds"));
@@ -1310,6 +1313,14 @@ export function resolveCardRow(runtime, event = {}) {
         step.success = false;step.skipReason = "no-productive-action";
       }
     }
+  }
+  // Last Light (Passive): on the last heart every Spark reward from the Chain doubles (whole already, so it stays rounded up).
+  // Never Stored Sparks or permanent gains; Boost accounting (sparksUnboosted) keeps the printed amounts.
+  if (event.lastHeart === true && cards.some(card => SKILL_CARDS[card?.cardId]?.kind === 'last-light')) {
+    for (const entry of entries) if (entry.kind === "sparks") entry.value *= 2;
+    for (const firing of receipt.firings) { firing.sparksExact *= 2; firing.sparks *= 2; }
+    receipt.sparksExact *= 2;
+    for (const card of ledgerCards) if (card) card.sparksExact *= 2;
   }
   for (const entry of entries) if (ledgerCards[entry.slot]) ledgerCards[entry.slot].effective[entry.kind] += entry.value;
   // Totals are the sum of the per-card effective amounts, so the two always agree exactly.

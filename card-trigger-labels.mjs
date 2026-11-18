@@ -1,5 +1,5 @@
 /** Display layer for Trigger chips (wording only). The engine keeps its 25 internal `trigger` keys
- * (card-catalog.mjs, card-rule-bands.mjs › CARD_TRIGGERS); players see 8 Triggers and 3 roles.
+ * (card-catalog.mjs, card-rule-bands.mjs › CARD_TRIGGERS); players see 7 Triggers and 3 roles.
  * Every chip, tile, glossary link and the Triggers tab reads its words from here.
  * An empty label means "no chip": the card's own text says its timing ("At Rest", "At take-off", "Every 3 s"). */
 export const DISPLAY_GROUPS = Object.freeze([
@@ -9,7 +9,6 @@ export const DISPLAY_GROUPS = Object.freeze([
   ['pulse', 'Pulse', 'trigger', 'wave', 'A Pulse crosses a Spark you have not taken, or a card to its left sends a Pulse.', 'often'],
   ['delivery', 'Delivery', 'trigger', 'delivery', 'Collector brings you a pickup, or grabs a Spark.', 'a few times'],
   ['overfill', 'Overfill', 'trigger', 'overfill', 'A Spark brings more than your meter holds.', 'a few times'],
-  ['save', 'Save', 'trigger', 'save', 'Collector stops a crash that would end the flight.', 'once'],
   ['finish', 'Finish', 'trigger', 'clear', 'You clear a flight, or your spare Sparks are packed.', 'once'],
   ['skim', 'Skim', 'trigger', 'engine-skim', 'You fly close to terrain until Proximity fills.', 'a few times'],
   ['passive', 'Passive', 'role', 'always-on', 'It works the whole time it is in your chain.', 'always'],
@@ -17,13 +16,13 @@ export const DISPLAY_GROUPS = Object.freeze([
   ['repeat', 'Repeat', 'role', 'next', 'It fires when the card to its right fires.', 'with that card'],
 ].map(([group, label, kind, id, does, often]) => Object.freeze({group, label, kind, id, does, often})));
 const ALIAS = {collect: 'collect', 'falling-lift': 'lift', 'engine-lift': 'lift', rhythm: 'lift', wave: 'pulse', 'engine-pulse': 'pulse',
-  flash: 'collect', delivery: 'delivery', overfill: 'overfill', save: 'save', 'engine-skim': 'skim',
+  flash: 'collect', delivery: 'delivery', overfill: 'overfill', 'engine-skim': 'skim',
   clear: 'finish', pack: 'finish', 'always-on': 'passive', any: 'boost', next: 'repeat'};
 /** Internal ids that show no chip. `flash-ends` reads "When a Flare ends:" in the card's own text. */
 export const NO_CHIP_IDS = Object.freeze(['rest', 'flash-ends', 'take-off', 'engine-any', 'timers', 'engine-turn']);
 /** Glossary entry (card-terms.mjs) each display group links to. */
 export const GROUP_TERM = Object.freeze({collect: 'collect', lift: 'falling-lift', pulse: 'wave', delivery: 'delivery',
-  overfill: 'overfill', save: 'save', finish: 'clear', skim: 'engine-skim', passive: 'always-on', boost: 'boost', repeat: 'next'});
+  overfill: 'overfill', finish: 'clear', skim: 'engine-skim', passive: 'always-on', boost: 'boost', repeat: 'next'});
 const byGroup = Object.fromEntries(DISPLAY_GROUPS.map(g => [g.group, g]));
 /** {group, label, kind} for an internal Trigger id; null when the id is not shown by this layer (caller keeps its own label). */
 export function triggerDisplay(id) {

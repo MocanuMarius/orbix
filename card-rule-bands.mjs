@@ -20,7 +20,6 @@ export const CARD_TRIGGERS = Object.freeze({
   overfill: Object.freeze({id: 'overfill', label: 'Overfill', event: 'natural-overfill', meaning: 'A Spark brings more than your meter can hold.'}),
   rhythm: Object.freeze({id: 'rhythm', label: 'Rhythm', event: 'rhythm-phrase', meaning: 'Rhythm’s 3 even Lifts complete.'}),
   swipe: Object.freeze({id: 'swipe', label: 'Swipe', event: 'field-swipe', meaning: 'A Field Impulse swipe succeeds.'}),
-  save: Object.freeze({id: 'save', label: 'Save', event: 'guard-rescue', meaning: 'Watchlight or Last Orbit stops a fatal crash.'}),
   clear: Object.freeze({id: 'clear', label: 'Finish', event: 'flight-clear', meaning: 'You clear a flight.'}),
   any: Object.freeze({id: 'any', label: 'Boost', event: null, meaning: 'The card works with whatever Trigger fires the chain.'}),
   next: Object.freeze({id: 'next', label: 'Repeat', event: null, meaning: 'The card fires when the card to its right fires.'}),

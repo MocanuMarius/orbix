@@ -1,11 +1,11 @@
 /** Small, read-only explanations for the actual chain. */
-import {SKILL_CARDS, getMountedCards, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, CARD_ROW_EVENTS, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts} from './skill-cards.mjs?v=rates-1';
-import {rowSnapshot} from './inscriptions.mjs?v=rates-1';
-import {getCardRuleBands} from './card-rule-bands.mjs?v=rates-1';
-import {getEquippedCardStatuses} from './card-status.mjs?v=rates-1';
-import {ARTIFACTS} from './model.mjs?v=rates-1';
-import {artifactDescription} from './artifact-copy.mjs?v=rates-1';
-import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=rates-1';
+import {SKILL_CARDS, getMountedCards, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, CARD_ROW_EVENTS, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts} from './skill-cards.mjs?v=seven-1';
+import {rowSnapshot} from './inscriptions.mjs?v=seven-1';
+import {getCardRuleBands} from './card-rule-bands.mjs?v=seven-1';
+import {getEquippedCardStatuses} from './card-status.mjs?v=seven-1';
+import {ARTIFACTS} from './model.mjs?v=seven-1';
+import {artifactDescription} from './artifact-copy.mjs?v=seven-1';
+import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=seven-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number=value=>Number(Number(value||0).toFixed(3));
@@ -22,7 +22,7 @@ const eventNames={
   [CARD_ROW_EVENTS.delivery]:'Delivery · Collector brings you a pickup',
   [CARD_ROW_EVENTS.rhythm]:'Lift · 3 even Lifts on the beat complete',
   [CARD_ROW_EVENTS.guideLift]:'Lift · tapped while the Lift Guide arrow is open',
-  [CARD_ROW_EVENTS.guard]:'Save · Collector stops a fatal crash',
+  [CARD_ROW_EVENTS.guard]:'Collector stops a fatal crash',
   [CARD_ROW_EVENTS.clear]:'Finish · you clear a flight',
   [CARD_ROW_EVENTS.victory]:'You defeat the third guardian',
   [CARD_ROW_EVENTS.attach]:'Delivery · Collector grabs a Spark',

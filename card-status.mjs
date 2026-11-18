@@ -1,9 +1,9 @@
 /** Configuration hints only. Every numeric verdict comes from a read-only row quote. */
-import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=rates-1';
-import { rowSnapshot, slotInscriptionList } from './inscriptions.mjs?v=rates-1';
-import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=rates-1';
-import { normalizeCompanionFleet } from './companion-abilities.mjs?v=rates-1';
-import { skillProgress } from './skill-increments.mjs?v=rates-1';
+import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=seven-1';
+import { rowSnapshot, slotInscriptionList } from './inscriptions.mjs?v=seven-1';
+import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=seven-1';
+import { normalizeCompanionFleet } from './companion-abilities.mjs?v=seven-1';
+import { skillProgress } from './skill-increments.mjs?v=seven-1';
 
 /** Labels are plain instructions (docs/card-teaching-plan.md §3); `code` is stable for code. */
 const ready = reason => ({ state: 'ready', symbol: '✓', label: 'Ready', code: 'ready', reason, fix: 'Keep this order to use it when its Trigger happens.' });
@@ -44,7 +44,7 @@ function fixtures(context) {
     add(CARD_ROW_EVENTS.attach, { pickupKind, availableRecovery: 4, availableReel: 4, collectorReeling: true }, { guard: false, recovery: false });
   }
   add(CARD_ROW_EVENTS.victory, {}, { guard: false, recovery: false });
-  add(CARD_ROW_EVENTS.clear, {carriedStored:100}, { guard: false, recovery: false });
+  add(CARD_ROW_EVENTS.clear, {carriedStored:100,heartsLeft:1}, { guard: false, recovery: false });
   if (context.rhythm) add(CARD_ROW_EVENTS.rhythm);
   if (context.guide) add(CARD_ROW_EVENTS.guideLift);
   if (context.field) for (const direction of ['up', 'down', 'right'])
