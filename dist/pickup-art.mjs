@@ -527,6 +527,9 @@ export function prepareFuelSprites(doc,reducedMotion=false) {
       }
       if(frame%3===2&&frame<frames-1)await new Promise(resolve=>setTimeout(resolve,0));
     }
+    // Flare prisms, dark and Dusk Sparks too: otherwise each of their frames is baked (hundreds of
+    // fillRect calls) the first time it shows during a flight.
+    for(const kind of ['sight','dark','dusk']){const n=reducedMotion?1:cycles[kind][1];for(let frame=0;frame<n;frame++){cachedSprite(doc,kind,frame,false,reducedMotion,false);if(frame%4===3)await new Promise(resolve=>setTimeout(resolve,0));}}
   })();
   return pending[key];
 }

@@ -60,6 +60,8 @@ try{
   for(let run=1;run<=runs;run++){
     const target=await openInChrome(url+`&run=${run}-${Date.now()}`);
     await until(()=>evaluate('!!document.querySelector(".stress-confirm button")',target),'stress confirm',120000,1000);
+    // The emulator sometimes turns back to portrait: insist on landscape before starting.
+    for(let i=0;i<6&&await evaluate('innerHeight>innerWidth',target);i++){landscape();try{adb('shell','settings','put','system','user_rotation','1');}catch{}await delay(3000);}
     const device=await evaluate('({ua:navigator.userAgent,dpr:devicePixelRatio,viewport:innerWidth+"x"+innerHeight,screen:screen.width+"x"+screen.height})',target);
     await evaluate('(document.querySelector(".stress-confirm button").click(),1)',target);
     log(`run ${run}: started on`,device.viewport,'dpr',device.dpr,'gpu',gpu);
