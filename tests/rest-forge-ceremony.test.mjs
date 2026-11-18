@@ -107,7 +107,7 @@ test('the Forge result shows the new card whole, one line, no accounting, one wa
   assert.match(html, /Added to your deck\./);
   assert.match(html, /forge2-new/);
   assert.match(html, /Back to Rest/);
-  assert.match(html, /Forge another · \d+/);
+  assert.match(html, /Forge another · next \d+/);
   assert.doesNotMatch(html, /−|Banked wallet|\breserve\b|View card/);
   assert.equal(primaries(html), 1);
   // Not affordable: the secondary button is disabled and says what is missing.

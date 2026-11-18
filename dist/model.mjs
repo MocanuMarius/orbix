@@ -962,14 +962,15 @@ function ensureCardRest(run) {
   return run.cardRest;
 }
 /** Forge (approved 2026-11-17). Common, Rare and Legendary start at CARD_ECONOMY.forge; each
- * successful forge of a rarity at the same Rest multiplies its next price by 1.5 (rounded up
- * at checkout), and the next Rest starts again at the first price, as Forge v2 did. The
+ * successful forge of a rarity doubles that rarity's next price for the rest of the run (2026-11-18;
+ * run.cardForgeTally holds the count, rarities are independent, no reset at a Rest). The
  * surprise card is seeded by the run-wide count of that rarity (cardForgeTally), so a new
  * Rest never repeats an earlier result and reload or Back never rerolls one. */
 function cardForgePricing(run, rarity) {
   const context = getCardCampContext(run),
     key = context ? `${run.mapIndex}:${context.node.id}` : null,
-    craftCount = key && run.cardForgePricing?.key === key ? count(run.cardForgePricing.counts?.[rarity]) : 0;
+    // Doubling rule (2026-11-18): the price follows the run-wide count of forges of this rarity, so it never resets at a Rest.
+    craftCount = cardForgeCount(run, rarity);
   return { key, craftCount };
 }
 const cardForgeCount = (run, rarity) => count(run?.cardForgeTally?.[rarity]);

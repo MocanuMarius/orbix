@@ -1,6 +1,6 @@
-// Forge (approved 2026-11-17): first prices 15 / 40 / 150; each forge of a rarity at the same
-// Rest raises that price by half (base × 1.5 per prior craft there, rounded up), and the next
-// Rest starts over, as Forge v2 did. The surprise card is hidden until paid and seeded per run.
+// Forge (approved 2026-11-17, doubling rule 2026-11-18): first prices 15 / 40 / 150; each forge of a rarity
+// doubles that rarity's price for the REST OF THE RUN (it does not reset at the next Rest); rarities are
+// independent. The surprise card is hidden until paid and seeded per run.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as M from '../dist/model.mjs';
@@ -43,36 +43,39 @@ function forge(state, rarity, expectedPrice) {
   return card;
 }
 
-test('first prices are 15, 40 and 150, and each forge of a rarity at this Rest raises its price by half', () => {
+test('first prices are 15, 40 and 150, and each forge of a rarity doubles that rarity only', () => {
   assert.deepEqual(CARD_ECONOMY.forge, {common: 15, rare: 40, legendary: 150});
-  assert.equal(CARD_ECONOMY.forgeGrowth, 1.5);
+  assert.equal(CARD_ECONOMY.forgeGrowth, 2);
   const state = fresh(), run = state.run;
-  forge(state, 'common', 15); forge(state, 'common', 23); forge(state, 'common', 34);
+  forge(state, 'common', 15); forge(state, 'common', 30); forge(state, 'common', 60);
   assert.equal(M.getCardForgePreview(run, 'rare').price, 40, 'rarities escalate independently');
-  forge(state, 'rare', 40); forge(state, 'rare', 60); forge(state, 'rare', 90);
-  forge(state, 'legendary', 150); forge(state, 'legendary', 225); forge(state, 'legendary', 338);
-  assert.equal(M.getCardForgePreview(run, 'common').price, 51);
-  assert.equal(M.getCardForgePreview(run, 'common').nextPrice, 76);
-  assert.deepEqual(run.cardForgeTally, {common: 3, rare: 3, legendary: 3});
-  assert.equal(run.condensedGlow, 5000 - (15 + 23 + 34) - (40 + 60 + 90) - (150 + 225 + 338));
+  assert.equal(M.getCardForgePreview(run, 'legendary').price, 150);
+  forge(state, 'rare', 40); forge(state, 'rare', 80); forge(state, 'rare', 160);
+  forge(state, 'legendary', 150); forge(state, 'legendary', 300);
+  assert.equal(M.getCardForgePreview(run, 'common').price, 120);
+  assert.equal(M.getCardForgePreview(run, 'common').nextPrice, 240, 'the offer shows the next price after this one');
+  assert.equal(M.getCardForgePreview(run, 'legendary').price, 600);
+  assert.deepEqual(run.cardForgeTally, {common: 3, rare: 3, legendary: 2});
+  assert.equal(run.condensedGlow, 5000 - (15 + 30 + 60) - (40 + 80 + 160) - (150 + 300));
 });
 
-test('the raised price survives reopening and reload at the same Rest; the next Rest and a new run start over', () => {
+test('the doubled price lasts the whole run: reload, the next Rest and later Rests keep it; only a new run starts over', () => {
   let state = fresh('forge-rest-lifetime'), run = state.run;
   forge(state, 'rare', 40); forge(state, 'legendary', 150);
   const nextRare = M.getCardForgePreview(run, 'rare');
+  assert.equal(nextRare.price, 80);
   state = reload(state); run = state.run;
   assert.deepEqual(M.getCardForgePreview(run, 'rare'), nextRare, 'reload neither resets the price nor rerolls the card');
-  assert.equal(M.getCardForgePreview(run, 'legendary').price, 225);
+  assert.equal(M.getCardForgePreview(run, 'legendary').price, 300);
   assert.ok(M.resolveSupport(run, M.getSupportChoices(run).findIndex(choice => choice.effect?.restContinue)));
-  assert.equal(M.getCardForgePreview(run, 'rare').price, 60, 'finishing the Rest keeps its price');
+  assert.equal(M.getCardForgePreview(run, 'rare').price, 80, 'finishing the Rest keeps its price');
   enterRest(run, run.map.flat().find(node => node.kind === 'camp' && node.row > 4));
   const atNextRest = M.getCardForgePreview(run, 'rare');
-  assert.equal(atNextRest.price, 40, 'the next Rest starts at the first price');
+  assert.equal(atNextRest.price, 80, 'the next Rest does NOT start over');
   assert.equal(atNextRest.card.instanceId, nextRare.card.instanceId, 'moving to another Rest does not reroll the unpaid surprise');
   assert.notEqual(atNextRest.token, nextRare.token, 'a quote from another Rest is stale');
   assert.equal(M.forgeOwnedCard(state, 'rare', nextRare.token), false);
-  forge(state, 'rare', 40); forge(state, 'rare', 60);
+  forge(state, 'rare', 80); forge(state, 'rare', 160);
   state.run = M.createRun(state.profile, 'forge-next-expedition', 1, {cards: true});
   enterRest(state.run);
   assert.equal(M.getCardForgePreview(state.run, 'rare').price, 40);
@@ -110,7 +113,7 @@ test('preview, failed and stale confirmations never spend, reveal or raise the p
   run.phase = 'support';
   forge(state, 'rare', 40);
   assert.equal(M.forgeOwnedCard(state, 'rare', quote.token), false, 'the paid quote cannot be paid twice');
-  assert.equal(M.getCardForgePreview(run, 'rare').price, 60);
+  assert.equal(M.getCardForgePreview(run, 'rare').price, 80);
 });
 
 test('the forged card is hidden until paid, seeded so reload or Back cannot reroll it, and revealed after paying', () => {
@@ -142,8 +145,9 @@ test('Forge never gives a card already owned until every card of that rarity is 
     run.condensedGlow = 1e6;
     const pool = Object.values(SKILL_CARDS).filter(def => def.rarity === rarity && !def.starterOnly && !def.retired && !def.unreleased);
     const got = [];
-    // A fresh Rest for each forge keeps the price at its first value.
-    for (let i = 0; i < pool.length; i++) { delete run.cardForgePricing; got.push(M.forgeOwnedCard(state, rarity, M.getCardForgePreview(run, rarity).token).cardId); }
+    // Prices double per forge, so the wallet is unbounded here to forge the whole pool.
+    run.condensedGlow = Infinity;
+    for (let i = 0; i < pool.length; i++) { got.push(M.forgeOwnedCard(state, rarity, M.getCardForgePreview(run, rarity).token).cardId); }
     assert.equal(new Set(got).size, pool.length, `${rarity}: every forge was new until the pool ran out`);
     assert.deepEqual(new Set(got), new Set(pool.map(def => def.id)));
     const extra = M.forgeOwnedCard(state, rarity, M.getCardForgePreview(run, rarity).token);
@@ -152,12 +156,12 @@ test('Forge never gives a card already owned until every card of that rarity is 
   }
 });
 
-test('forging then melting always loses Stored Sparks, for every rarity and the first five crafts at one Rest', () => {
+test('forging then melting always loses Stored Sparks, for every rarity and the first five crafts of a run', () => {
   for (const rarity of ['common', 'rare', 'legendary']) {
     const state = fresh(`forge-melt-${rarity}`), run = state.run;
     for (let step = 0; step < 5; step++) {
       const price = M.getCardForgePreview(run, rarity).price;
-      assert.equal(price, Math.ceil(CARD_ECONOMY.forge[rarity] * 1.5 ** step));
+      assert.equal(price, CARD_ECONOMY.forge[rarity] * 2 ** step);
       const card = forge(state, rarity, price), melt = getCardMeltValue(card);
       assert.equal(melt, CARD_ECONOMY.melt[rarity]);
       assert.ok(price > melt, `${rarity} forge ${step + 1}: ${price} > ${melt}`);
@@ -177,6 +181,6 @@ test('Forge uses no Rest action and the Workshop shows the next price of each ra
   forge(state, 'common', 15);
   assert.deepEqual(run.cardRest?.actions || [], actions);
   const html = cardWorkshopMarkup(run, {view: 'forge'});
-  for (const text of ['Surprise Common card', 'Forge','23', 'Surprise Rare card', '40', 'Surprise Legendary card', '150', 'Revealed after you pay'])
+  for (const text of ['Surprise Common card', 'Forge','next 30', 'Surprise Rare card', '40', 'Surprise Legendary card', '150', 'Revealed after you pay'])
     assert.ok(html.includes(text), text);
 });

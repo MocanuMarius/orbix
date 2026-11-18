@@ -9,11 +9,11 @@ const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
   melt: { common: 10, rare: 20, legendary: 40 },
-  // Forge (approved 2026-11-17): first price per rarity; each forge of that rarity at the
-  // same Rest multiplies the next price by forgeGrowth (rounded up); a new Rest starts over.
+  // Forge (approved 2026-11-17, doubling rule 2026-11-18): first price per rarity; every forge of that rarity
+  // multiplies the next price by forgeGrowth for the rest of the run (run.cardForgeTally); rarities are independent.
   // The forged card stays hidden until paid.
   forge: { common: 15, rare: 40, legendary: 150 },
-  forgeGrowth: 1.5,
+  forgeGrowth: 2,
   improve: { common: 15, rare: 25, legendary: 40 },
   // Evolving into a Legendary costs the first Legendary forge (2026-11-17), so a Common
   // Prism Lens is no cheap road to Prism Lens II.
