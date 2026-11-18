@@ -19,14 +19,14 @@ const log=(...x)=>console.log('[play]',...x);
 const DRIVER=`(()=>{if(window.__driver)return 'running';window.__driver={steps:0,log:[]};
 const vis=e=>{const r=e.getBoundingClientRect();return r.width>0&&r.height>0&&!e.disabled};
 const all=s=>[...document.querySelectorAll(s)].filter(vis);
-const click=e=>{e.click();window.__driver.log.push((e.dataset.action||e.textContent.trim()).slice(0,30));window.__driver.log=window.__driver.log.slice(-30)};
+const click=e=>{if(typeof e.click==='function')e.click();else e.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));window.__driver.log.push((e.dataset.action||e.textContent.trim()).slice(0,30));window.__driver.log=window.__driver.log.slice(-30)};
 const order=['new-game','skip-practice','skip-practice-once','practice-skip-to-start','confirm-new-game','keep-flight-reward','confirm-starting-gift','new-gift','confirm-gift','start-run','death-continue','retry','flight-reward-open-pack','flight-reward-continue','pick-reward','card-reward-continue','victory-next','reward-earnings','continue','dream-accept','dream-wake','next-map','launch','node','continue-run','close-power','close-sheet'];
 setInterval(()=>{window.__driver.steps++;
  if(document.querySelector('.stress-host'))return;
- const wake=all('.entry-depart:not([disabled]),[data-action=wake-flight]')[0];if(wake){click(wake);return}
+ const wake=all('.entry-depart:not([disabled]),[data-action=wake-flight]')[0];if(wake){try{wake.dispatchEvent(new PointerEvent('pointerdown',{pointerId:1,isPrimary:true,button:0,bubbles:true}))}catch{}click(wake);return}
  if(document.body.classList.contains('playing')&&!document.querySelector('dialog[open]'))return;
  const dlg=document.querySelector('dialog[open]');
- if(dlg){const inside=s=>[...dlg.querySelectorAll(s)].filter(vis);for(const x of ['skip-practice-once','practice-skip-to-start','remember-skip-practice','confirm-new-game','confirm-starting-gift','death-continue','close-sheet','resume']){const e=inside('[data-action="'+x+'"]')[0];if(e){click(e);return}}
+ if(dlg){const inside=s=>[...dlg.querySelectorAll(s)].filter(vis);for(const x of ['skip-practice-once','practice-skip-to-start','remember-skip-practice','confirm-new-game','confirm-starting-gift','new-gift','confirm-gift','start-run','death-continue','keep-flight-reward','pick-reward','node','launch','flight-reward-continue','card-reward-continue','victory-next','continue','resume','close-sheet']){const e=inside('[data-action="'+x+'"]')[0];if(e){click(e);return}}
   const w=inside('button').find(e=>/got it|ok|continue|start|begin|next|done|take|claim|keep|collect|close/i.test(e.textContent));if(w){click(w);return}}
  const word=all('button,[role=button]').find(e=>/^(got it|ok|okay|continue|start|begin|understood|next|done|take|claim|keep|collect|onward|depart|tap to depart|open)$/i.test(e.textContent.trim())&&!['menu','settings','new-game'].includes(e.dataset.action));
  for(const a of order){const e=all('[data-action="'+a+'"]')[0];if(e){click(e);return}}

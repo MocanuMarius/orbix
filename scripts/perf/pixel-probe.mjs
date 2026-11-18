@@ -163,7 +163,7 @@ async function serve(overrideDir){
 async function openPage(overrideDir){
  const srv=await serve(overrideDir),b=await launch();
  await b.send('Emulation.setDeviceMetricsOverride',{width:1300,height:700,deviceScaleFactor:1,mobile:false});
- await b.send('Page.navigate',{url:srv.base+'/__probe.html'});
+ await b.send('Page.navigate',{url:srv.base+'/__probe.html'+(A.query?'?'+A.query:'')});
  await until(()=>b.ev('!!window.__probeReady'),'probe page',60000);if(A.ballast)console.log('ballast',await b.ev('__ballast('+Number(A.ballast)+')'));
  return {b,srv,close:async()=>{await b.close();srv.close();}};
 }
