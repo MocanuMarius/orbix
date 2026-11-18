@@ -1,9 +1,9 @@
-import {getCardImprovePreview,getCardRefillPreview,getCardForgePreview,canUseCardCampServices,eventCardOptions} from './model.mjs?v=seven-1';
-import {cardArt} from './card-art.mjs?v=seven-1';
-import {cardFace,cardName} from './card-ui.mjs?v=seven-1';
-import {resourceSymbol} from './game-symbols.mjs?v=seven-1';
-import {uiIcon} from './ui-icons.mjs?v=seven-1';
-import {CARD_FORGE_RARITIES} from './skill-cards.mjs?v=seven-1';
+import {getCardImprovePreview,getCardRefillPreview,getCardForgePreview,canUseCardCampServices,eventCardOptions} from './model.mjs?v=forge-1';
+import {cardArt} from './card-art.mjs?v=forge-1';
+import {cardFace,cardName} from './card-ui.mjs?v=forge-1';
+import {resourceSymbol} from './game-symbols.mjs?v=forge-1';
+import {uiIcon} from './ui-icons.mjs?v=forge-1';
+import {CARD_FORGE_RARITIES} from './skill-cards.mjs?v=forge-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const wallet=run=>`<span class="card-bench-wallet">${resourceSymbol('packed')} ${Math.floor(run.condensedGlow||0)}<small>Stored Sparks</small></span>`;
@@ -54,7 +54,7 @@ export function cardWorkshopMarkup(run,{notice='',only=null,view=null}={}) {
     return pickTile({...o,art:cardArt({...o.card,cardId:o.cardId},{compact:true})},'card-workshop-improve',p.kind==='evolution'?'Evolve':'Improve',price,!!p.eligible,why(p),`data-id="${esc(o.instanceId)}"`);});
   else if(mode==='refill')tiles=data.refill.map(o=>{const p=o.preview,price=Math.floor(p.price||0);
     return pickTile({...o,art:cardArt({...o.card,cardId:o.cardId},{compact:true})},'card-workshop-refill','Refill',price,!!p.eligible,why(p),`data-id="${esc(o.instanceId)}"`);});
-  else tiles=data.forge.map(p=>pickTile({name:`Surprise ${tier(p.rarity)} card`,change:'Revealed after you pay',art:uiIcon('rest-forge',{size:34})},'card-workshop-forge','Forge',Math.floor(p.price||0),!!p.eligible,why(p),`data-rarity="${p.rarity}"`));
+  else tiles=data.forge.map(p=>pickTile({name:`Surprise ${tier(p.rarity)} card`,change:`Revealed after you pay · next ${Math.floor(p.nextPrice||0)}`,art:uiIcon('rest-forge',{size:34})},'card-workshop-forge','Forge',Math.floor(p.price||0),!!p.eligible,why(p),`data-rarity="${p.rarity}"`));
   const empty=!tiles.length?`<p class="card-workshop-empty">${esc(data.list.find(t=>t.id===mode).reason)}</p>`:'';
   return `<section class="card-workshop wk" data-wk="${mode}"><header class="card-heading"><button class="secondary card-back" data-action="card-workshop-hub">Back</button><div><small>TAP A CARD, TAP AGAIN TO TAKE IT</small><h2>${title}</h2></div>${wallet}</header>
   ${noticeLine}<div class="wk-picks" data-tap-pick-group data-count="${tiles.length}">${tiles.join('')}${empty}</div></section>`;

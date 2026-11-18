@@ -1,16 +1,16 @@
-import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=seven-1";
-import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=seven-1";
-import { uiIcon } from "./ui-icons.mjs?v=seven-1";
-import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=seven-1";
-import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=seven-1";
-import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=seven-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=seven-1";
-import { activeFlightPact } from './flight-pacts.mjs?v=seven-1';
-import { cardArt } from "./card-art.mjs?v=seven-1";
-import { cardTileLine } from "./card-tile-lines.mjs?v=seven-1";
-import { slotInscriptionId } from "./inscriptions.mjs?v=seven-1";
-import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=seven-1";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=seven-1';
+import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=forge-1";
+import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=forge-1";
+import { uiIcon } from "./ui-icons.mjs?v=forge-1";
+import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=forge-1";
+import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=forge-1";
+import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=forge-1";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=forge-1";
+import { activeFlightPact } from './flight-pacts.mjs?v=forge-1';
+import { cardArt } from "./card-art.mjs?v=forge-1";
+import { cardTileLine } from "./card-tile-lines.mjs?v=forge-1";
+import { slotInscriptionId } from "./inscriptions.mjs?v=forge-1";
+import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=forge-1";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=forge-1';
 import {
   getMountedCards,
   getOwnedCards,
@@ -26,13 +26,13 @@ import {
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
-} from "./model.mjs?v=seven-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=seven-1";
-import { choiceScene } from "./choice-art.mjs?v=seven-1";
-import { livesMarkup } from "./lives.mjs?v=seven-1";
-import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=seven-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=seven-1";
-import {canDreamAt, dreamConfig} from './dream.mjs?v=seven-1';
+} from "./model.mjs?v=forge-1";
+import { resourceSymbol } from "./game-symbols.mjs?v=forge-1";
+import { choiceScene } from "./choice-art.mjs?v=forge-1";
+import { livesMarkup } from "./lives.mjs?v=forge-1";
+import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=forge-1";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=forge-1";
+import {canDreamAt, dreamConfig} from './dream.mjs?v=forge-1';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -45,7 +45,7 @@ import {
   isInventoryOnlyCard,
   SKILL_CARDS,
   cardTallyLine,
-} from "./skill-cards.mjs?v=seven-1";
+} from "./skill-cards.mjs?v=forge-1";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -94,7 +94,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=seven-1";
+export { cardArt } from "./card-art.mjs?v=forge-1";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
@@ -428,14 +428,14 @@ export function cardForgeMarkup(run, preview, { notice = '', paused = false, bac
   if (lastForged?.card) {
     // The result: the new card whole, one line about it, one way back, one way to forge again. `preview` is the quote after this forge, so its price is the next one.
     const next = amount(preview.price), short = Math.max(0, next - wallet), canAgain = !!preview.eligible && short === 0, again = esc(lastForged.rarity || preview.rarity);
-    return `<section class="card-forge-preview card-forge-result forge2"><header class="forge2-head"><h2>New card</h2>${walletMarkup(wallet)}</header><div class="forge2-body"><div class="forge2-card"><span class="forge2-new" aria-label="New card">NEW</span>${cardFace(lastForged.card)}</div><div class="forge2-side"><p class="forge2-line" role="status">Added to your deck.</p><div class="forge2-actions"><button type="button" class="primary" data-action="card-forge-back">Back to ${esc(backLabel)}</button><button type="button" class="secondary forge2-again" data-action="card-forge-again" data-rarity="${again}" aria-disabled="${canAgain ? 'false' : 'true'}" aria-label="Forge another ${label} card for ${next} Stored Sparks${canAgain ? '' : `; needs ${short} more`}">Forge another · ${next}</button>${canAgain ? '' : `<small class="forge2-need">Needs ${short} more</small>`}</div></div></div></section>`;
+    return `<section class="card-forge-preview card-forge-result forge2"><header class="forge2-head"><h2>New card</h2>${walletMarkup(wallet)}</header><div class="forge2-body"><div class="forge2-card"><span class="forge2-new" aria-label="New card">NEW</span>${cardFace(lastForged.card)}</div><div class="forge2-side"><p class="forge2-line" role="status">Added to your deck.</p><div class="forge2-actions"><button type="button" class="primary" data-action="card-forge-back">Back to ${esc(backLabel)}</button><button type="button" class="secondary forge2-again" data-action="card-forge-again" data-rarity="${again}" aria-disabled="${canAgain ? 'false' : 'true'}" aria-label="Forge another ${label} card for ${next} Stored Sparks${canAgain ? '' : `; needs ${short} more`}">Forge another · next ${next}</button>${canAgain ? '' : `<small class="forge2-need">Needs ${short} more</small>`}</div></div></div></section>`;
   }
   const hidden = !!preview.card?.hidden;
   const short = preview.reason === 'Not enough Stored Sparks';
   const reason = short ? `Need ${Math.max(0, amount(preview.price) - wallet)} more Stored Sparks.` : preview.reason;
   const receipt = lastForged ? `<div class="card-forge-receipt" role="status"><strong>${esc(lastForged.name)} added to your deck</strong><button class="secondary" data-action="card-forge-view" data-id="${esc(lastForged.instanceId)}">View card</button></div>` : '';
   const face = hidden ? `<div class="card-forge-mystery" role="img" aria-label="Surprise ${esc(label)} card, revealed after you pay"><strong aria-hidden="true">?</strong><span>Surprise ${esc(label)} card</span><small>Revealed after you pay</small></div>` : cardFace(preview.card);
-  return `<section class="card-forge-preview"><header class="card-heading"><button class="secondary card-back" data-action="card-forge-back">Back to ${esc(backLabel)}</button><div><small>${paused ? 'FLIGHT PAUSED · ' : ''}CREATE A CARD</small><h2>Forge</h2></div>${walletMarkup(wallet)}</header><div class="card-exchange-body"><div class="card-forge-card">${face}</div><div class="card-exchange-result"><nav class="card-forge-tiers" aria-label="Forge rarity and next price in Stored Sparks">${['common', 'rare', 'legendary'].map(rarity => `<button class="secondary ${preview.rarity === rarity ? "selected" : ""}" data-action="card-preview-forge" data-rarity="${rarity}" aria-pressed="${preview.rarity === rarity}">${tier(rarity)} · ${amount(getCardForgePrice(run, rarity))}</button>`).join('')}</nav>${receipt}<span class="card-forge-destination">${hidden ? 'Surprise card' : 'Shown card'} · goes to your deck</span><strong>Costs ${amount(preview.price)} Stored Sparks</strong>${notice ? `<span class="card-forge-status" role="status">${esc(notice)}</span>` : ''}${reason ? `<span class="card-forge-status" role="status">${esc(reason)}</span>` : !notice ? `<span class="card-forge-status">${hidden ? 'One random card you do not own yet. Equip it from Deck.' : isInventoryOnlyCard(preview.card) ? 'Available at Rest directly from your Deck.' : 'Equip the new card from Deck.'}</span>` : ''}<small>Next ${label} forge: ${amount(preview.nextPrice)} · each forge raises that price by half at this Rest; the next Rest starts over.</small><small>Rest service · uses no Rest action.</small></div></div><footer class="card-dialog-actions">${short ? '<button class="secondary" data-action="card-melt-mode">Melt for Sparks…</button>' : ''}<button class="primary" data-action="card-confirm-forge" data-rarity="${preview.rarity}" data-token="${esc(preview.token)}" ${!preview.eligible ? "disabled" : ""}>Forge ${label} · ${amount(preview.price)}</button></footer></section>`;
+  return `<section class="card-forge-preview"><header class="card-heading"><button class="secondary card-back" data-action="card-forge-back">Back to ${esc(backLabel)}</button><div><small>${paused ? 'FLIGHT PAUSED · ' : ''}CREATE A CARD</small><h2>Forge</h2></div>${walletMarkup(wallet)}</header><div class="card-exchange-body"><div class="card-forge-card">${face}</div><div class="card-exchange-result"><nav class="card-forge-tiers" aria-label="Forge rarity and next price in Stored Sparks">${['common', 'rare', 'legendary'].map(rarity => `<button class="secondary ${preview.rarity === rarity ? "selected" : ""}" data-action="card-preview-forge" data-rarity="${rarity}" aria-pressed="${preview.rarity === rarity}">${tier(rarity)} · ${amount(getCardForgePrice(run, rarity))}</button>`).join('')}</nav>${receipt}<span class="card-forge-destination">${hidden ? 'Surprise card' : 'Shown card'} · goes to your deck</span><strong>Costs ${amount(preview.price)} Stored Sparks</strong>${notice ? `<span class="card-forge-status" role="status">${esc(notice)}</span>` : ''}${reason ? `<span class="card-forge-status" role="status">${esc(reason)}</span>` : !notice ? `<span class="card-forge-status">${hidden ? 'One random card you do not own yet. Equip it from Deck.' : isInventoryOnlyCard(preview.card) ? 'Available at Rest directly from your Deck.' : 'Equip the new card from Deck.'}</span>` : ''}<small>Next ${label} forge: ${amount(preview.nextPrice)} · each forge doubles that price for the rest of the run.</small><small>Rest service · uses no Rest action.</small></div></div><footer class="card-dialog-actions">${short ? '<button class="secondary" data-action="card-melt-mode">Melt for Sparks…</button>' : ''}<button class="primary" data-action="card-confirm-forge" data-rarity="${preview.rarity}" data-token="${esc(preview.token)}" ${!preview.eligible ? "disabled" : ""}>Forge ${label} · ${amount(preview.price)}</button></footer></section>`;
 }
 /** One small tile for the victory recap: the Deck's tile content (Trigger chip, picture, name, effect line) plus the slot's Inscription brand. */
 function recapTile(run, card, slot) {

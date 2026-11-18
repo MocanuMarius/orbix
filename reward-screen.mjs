@@ -1,17 +1,17 @@
-import {ARTIFACTS,lastCourseName} from './model.mjs?v=seven-1';
-import {artifactDescription} from './artifact-copy.mjs?v=seven-1';
-import {resourceSymbol} from './game-symbols.mjs?v=seven-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=seven-1';
-import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=seven-1';
-import {actionButton} from './ui/primitives.mjs?v=seven-1';
-import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=seven-1';
-import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=seven-1';
-import {getInscription,slotInscriptionId,slotEntry,permanentOnSlot} from './inscriptions.mjs?v=seven-1';
-import {inscriptionGlyph,inscriptionTag} from './inscription-ui.mjs?v=seven-1';
-import {cardArt} from './card-art.mjs?v=seven-1';
-import {inscriptionWriteMarkup} from './inscription-write.mjs?v=seven-1';
-import {cardTermTextMarkup} from './card-terms.mjs?v=seven-1';
-import {SKILL_CARDS} from './skill-cards.mjs?v=seven-1';
+import {ARTIFACTS,lastCourseName} from './model.mjs?v=forge-1';
+import {artifactDescription} from './artifact-copy.mjs?v=forge-1';
+import {resourceSymbol} from './game-symbols.mjs?v=forge-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=forge-1';
+import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=forge-1';
+import {actionButton} from './ui/primitives.mjs?v=forge-1';
+import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=forge-1';
+import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=forge-1';
+import {getInscription,slotInscriptionId,slotEntry,permanentOnSlot} from './inscriptions.mjs?v=forge-1';
+import {inscriptionGlyph,inscriptionTag} from './inscription-ui.mjs?v=forge-1';
+import {cardArt} from './card-art.mjs?v=forge-1';
+import {inscriptionWriteMarkup} from './inscription-write.mjs?v=forge-1';
+import {cardTermTextMarkup} from './card-terms.mjs?v=forge-1';
+import {SKILL_CARDS} from './skill-cards.mjs?v=forge-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const rewardDescription=(a,run)=>{const c=artifactDescription(a,run,{fresh:true});return [c.effect,[c.trigger,c.limit].filter(Boolean).join(' ')];};
 export function rewardEarnings(run){
@@ -29,7 +29,7 @@ export function rewardEarnings(run){
 export function rewardEarningsDetailMarkup(run){
  const {rows,total}=rewardEarnings(run),f=run?.lastFlight||{};
  const notes=[routeBonusReceiptText(f.routeBonus),f.treasureWager?.message,f.vow?.message,f.chestIncome?.message||(f.chestIncome?.sources?.length?`${f.chestIncome.sources.join(' + ')} · +${f.chestIncome.amount} Stored Sparks`:null),
-  f.cardClearReceipt?.futureCapacity?`Growth Ring · +${f.cardClearReceipt.futureCapacity} maximum Sparks permanently`:null,
+  f.cardClearReceipt?.tallyCapacity?`Growth Ring · +${f.cardClearReceipt.tallyCapacity} max Spark, kept on the card while it is in your Chain`:null,
   f.cardClearReceipt?.cruisingSpeed?`Wind Feather · +${f.cardClearReceipt.cruisingSpeed}% speed, kept on the card (max +10%)`:null].filter(Boolean);
  return `<div class="re-root wb-reskin wb-ground wb-inline"><button type="button" class="wb-sign wb-sign-quiet reward-earnings-back" data-action="close-sheet">Back to rewards</button><section class="reward-earnings-detail"><header><h2 class="wb-title">Stored Sparks earned</h2><strong>${resourceSymbol('packed')} +${total}</strong></header><dl>${rows.map(row=>`<div><dt>${esc(row.label)}</dt><dd>+${row.amount}</dd></div>`).join('')}</dl>${notes.length?`<div class="reward-earnings-context">${notes.map(note=>`<p>${esc(note)}</p>`).join('')}</div>`:''}</section></div>`;
 }
@@ -67,7 +67,7 @@ export function scribeMarkup(state,{scribe={},upgradeCount=0,skillsAvailable=fal
 export function flightRewardMarkup(state,{artifactArt=artifactIcon,upgradeCount=0,skillsAvailable=true,deckAvailable=false,acquiredPresentation='horizontal',scribe=null}={}){
  if(state.run?.flightReward?.kind==='inscription'){
   const r=state.run,f=r.lastFlight||{},earned=rewardEarnings(r).total;
-  const receiptAvailable=earned>0||!!routeBonusReceiptText(f.routeBonus)||['treasureWager','vow','chestIncome'].some(key=>f[key]?.message?.trim())||f.cardClearReceipt?.futureCapacity>0||f.cardClearReceipt?.cruisingSpeed>0;
+  const receiptAvailable=earned>0||!!routeBonusReceiptText(f.routeBonus)||['treasureWager','vow','chestIncome'].some(key=>f[key]?.message?.trim())||f.cardClearReceipt?.futureCapacity>0||f.cardClearReceipt?.tallyCapacity>0||f.cardClearReceipt?.cruisingSpeed>0;
   return scribeMarkup(state,{scribe:scribe||{},upgradeCount,skillsAvailable,deckAvailable,receiptAvailable,earned,title:f.boss?'Guardian defeated':'Elite cleared'});
  }
  const r=state.run,reward=r.flightReward,offers=(reward?.offers||[]).filter(id=>ARTIFACTS[id]),open=!!reward&&!reward.claimed&&offers.length>0;

@@ -1,14 +1,14 @@
-import {SKILLS,getRunModifiers} from './model.mjs?v=seven-1';
-import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=seven-1';
-import {formatLuminance} from './luminance-units.mjs?v=seven-1';
-import {WISP_ART} from './companion-art.mjs?v=seven-1';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=seven-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=seven-1';
-import {skillIcon} from './upgrade-icons.mjs?v=seven-1';
-import {resourceSymbol} from './game-symbols.mjs?v=seven-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=seven-1';
-import {skillBookChapter} from './skill-chapters.mjs?v=seven-1';
-export {skillBookChapter} from './skill-chapters.mjs?v=seven-1';
+import {SKILLS,getRunModifiers} from './model.mjs?v=forge-1';
+import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=forge-1';
+import {formatLuminance} from './luminance-units.mjs?v=forge-1';
+import {WISP_ART} from './companion-art.mjs?v=forge-1';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=forge-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=forge-1';
+import {skillIcon} from './upgrade-icons.mjs?v=forge-1';
+import {resourceSymbol} from './game-symbols.mjs?v=forge-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=forge-1';
+import {skillBookChapter} from './skill-chapters.mjs?v=forge-1';
+export {skillBookChapter} from './skill-chapters.mjs?v=forge-1';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],

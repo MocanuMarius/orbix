@@ -1,8 +1,8 @@
 /** Try row is a quote of the equipped row, never a flight or a reward settlement. */
-import {CARD_ROW_EVENTS, SKILL_CARDS, describeSkillCard, previewCardRowEvent, hasCardRowEvent, cleanCardCruisingSpeed} from './skill-cards.mjs?v=seven-1';
-import {rowSnapshot} from './inscriptions.mjs?v=seven-1';
-import {getCardRowCards, getCardRowSource, describeCardRowScenario} from './card-row-help.mjs?v=seven-1';
-import {getCardRowTriggerContext, getCardRowTriggerIssue} from './card-status.mjs?v=seven-1';
+import {CARD_ROW_EVENTS, SKILL_CARDS, describeSkillCard, previewCardRowEvent, hasCardRowEvent, cleanCardCruisingSpeed} from './skill-cards.mjs?v=forge-1';
+import {rowSnapshot} from './inscriptions.mjs?v=forge-1';
+import {getCardRowCards, getCardRowSource, describeCardRowScenario} from './card-row-help.mjs?v=forge-1';
+import {getCardRowTriggerContext, getCardRowTriggerIssue} from './card-status.mjs?v=forge-1';
 
 const n = value => Number((Number(value) || 0).toFixed(3));
 const count = value => Math.max(0, Math.floor(Number(value) || 0));
@@ -14,10 +14,10 @@ const labels = {
   [CARD_ROW_EVENTS.field]:'Swipe', [CARD_ROW_EVENTS.guard]:'Crash stopped', [CARD_ROW_EVENTS.clear]:'Finish',
   [CARD_ROW_EVENTS.victory]:'Third Guardian defeated',
 };
-const zeroTotals = () => ({sparks:0, stored:0, futureCapacity:0, cruisingSpeed:0, recoverySeconds:0, reelSeconds:0});
+const zeroTotals = () => ({sparks:0, stored:0, futureCapacity:0, tallyCapacity:0, cruisingSpeed:0, recoverySeconds:0, reelSeconds:0});
 export const cardRowPreviewTotalsLabel = totals => [
   `+${n(totals.sparks)} Sparks`, totals.stored ? `+${n(totals.stored)} Stored Sparks` : '',
-  totals.futureCapacity ? `+${n(totals.futureCapacity)} maximum Sparks` : '', totals.cruisingSpeed ? `+${n(totals.cruisingSpeed)}% speed on the card` : '',
+  totals.futureCapacity ? `+${n(totals.futureCapacity)} maximum Sparks` : '', totals.tallyCapacity ? `+${n(totals.tallyCapacity)} max Spark on the card` : '', totals.cruisingSpeed ? `+${n(totals.cruisingSpeed)}% speed on the card` : '',
   totals.recoverySeconds ? `−${n(totals.recoverySeconds)}s recovery` : '', totals.reelSeconds ? `−${n(totals.reelSeconds)}s reel` : '',
 ].filter(Boolean).join(' · ');
 
@@ -116,13 +116,14 @@ function stepReason(step, cards, event) {
   let effect = step.amount > 0 ? `Adds ${n(step.amount)} Sparks.` : '';
   if (step.operation === 'multiply') {
     const parts = [step.after !== step.before ? `Sparks ${n(step.before)} → ${n(step.after)}` : '', step.stored ? `+${n(step.stored)} Stored Sparks` : '',
-      step.futureCapacity ? `+${n(step.futureCapacity)} max Sparks forever` : '', step.cruisingSpeed ? `+${n(step.cruisingSpeed)}% speed` : '',
+      step.futureCapacity ? `+${n(step.futureCapacity)} max Sparks` : '', step.cruisingSpeed ? `+${n(step.cruisingSpeed)}% speed` : '',
       step.recoverySeconds ? `${n(step.recoverySeconds)}s more recovery saved` : '', step.reelSeconds ? `${n(step.reelSeconds)}s more reel saved` : ''].filter(Boolean);
     return `Multiplies every card to its left by ${n(step.multiplier)}: ${parts.join(', ')}.`;
   }
   if (step.operation === 'add-last-payout') effect = `Adds the last + card’s Sparks again: +${n(step.amount)} Sparks.`;
   if (step.stored) effect += ` Adds ${n(step.stored)} Stored Sparks.`;
-  if (step.futureCapacity) effect = `Adds ${n(step.futureCapacity)} maximum Sparks permanently on a real flight clear. This preview grants nothing.`;
+  if (step.futureCapacity) effect = `Adds ${n(step.futureCapacity)} maximum Sparks on a real flight clear. This preview grants nothing.`;
+  if (step.tallyCapacity) effect = `Adds ${n(step.tallyCapacity)} max Spark, kept on the card while it is in your Chain. This preview grants nothing.`;
   if (step.cruisingSpeed) effect = `Adds ${n(step.cruisingSpeed)}% speed to the card on a real flight clear, up to +10%.`;
   if (step.recoverySeconds) effect = `Shortens Collector’s remaining recovery from ${n(step.recoveryBefore)}s to ${n(step.recoveryAfter)}s.`;
   if (step.reelSeconds) effect = `Shortens the current reel from ${n(step.reelBefore)}s to ${n(step.reelAfter)}s.`;
@@ -157,7 +158,7 @@ export function previewEquippedCardRow(run = {}, eventIdOrOption = null) {
     const before = {...charges};
     if (Number.isFinite(step.chargesAfter)) charges[step.sourceInstanceId] = step.chargesAfter;
     totals.sparks += step.after-step.before;
-    for (const key of ['stored','futureCapacity','cruisingSpeed','recoverySeconds','reelSeconds']) totals[key] += step[key] || 0;
+    for (const key of ['stored','futureCapacity','tallyCapacity','cruisingSpeed','recoverySeconds','reelSeconds']) totals[key] += step[key] || 0;
     const frame = {...step,type:'step',step,label:`Slot ${step.slot+1} · ${describeSkillCard(cards[step.slot])?.name || 'Empty slot'}${step.copiedBy === 'echo' ? ` · repeat ${step.repeatIndex+1}` : ''}`,
       reason:stepReason(step,cards,event),passSparks:step.after,totals:{...totals},totalsLabel:cardRowPreviewTotalsLabel(totals),chargesBefore:before,chargesAfter:{...charges}};
     steps.push(frame);frames.push(frame);

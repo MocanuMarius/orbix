@@ -1,6 +1,6 @@
-import {WISP_ART} from './companion-art.mjs?v=seven-1';
-import {FLAME_TUNING,LIGHT_PACKET_TUNING,glowPoints} from './vitality.mjs?v=seven-1';
-import {SPARK_TIERS,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=seven-1';
+import {WISP_ART} from './companion-art.mjs?v=forge-1';
+import {FLAME_TUNING,LIGHT_PACKET_TUNING,glowPoints} from './vitality.mjs?v=forge-1';
+import {SPARK_TIERS,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=forge-1';
 
 // A Flare is two things for one shared duration: a Pulse every 2 s (FLASH_PULSE_INTERVAL) and a temporary,
 // very high Luminance. The bonus is real Luminance percent (adds to card and Momentum Luminance in
