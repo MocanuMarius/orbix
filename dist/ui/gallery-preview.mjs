@@ -1,14 +1,18 @@
 import {relics,cards,route,menus,hud,art,dialogs,actionButton,escapeHtml as esc} from './index.mjs?v=guide-clarity-1';
 import {resolveSample} from './gallery-catalog.mjs?v=guide-clarity-1';
 import {createComponentFixture} from './gallery-fixtures.mjs?v=guide-clarity-1';
+import {makeSkillCard} from '../skill-cards.mjs?v=guide-clarity-1';
+import {getStartingGiftOffers} from '../model.mjs?v=guide-clarity-1';
 import {ARTIFACTS,getChoices,getOwnedCards,getMountedCards,getCardReward,getCardDraft,chooseCardDraft,getCardMeltPreview,meltOwnedCards,getArtifactSalvageValue,sellArtifact,chooseFlightReward,equipOwnedCard,unequipMountedCard,moveMountedCard} from '../model.mjs?v=guide-clarity-1';
 import {bindDeckDragging} from '../deck-drag.mjs?v=guide-clarity-1';
 import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=guide-clarity-1';
 import {prepareRouteOffer} from '../route-offers.mjs?v=guide-clarity-1';
 import {installComboLessons} from '../combo-lesson.mjs?v=guide-clarity-1';
+import {installTapPick} from '../tap-pick.mjs?v=guide-clarity-1';
+import {flightRewardCeremonyMarkup} from '../flight-reward-ceremony.mjs?v=guide-clarity-1';
 import {cardWorkshopMarkup,cardRefillMarkup} from '../card-workshop.mjs?v=guide-clarity-1';
 import {getCardImprovePreview,improveOwnedCard,getCardRefillPreview,refillOwnedCard,getCardForgePreview,forgeOwnedCard,getSupportChoices,resolveSupport} from '../model.mjs?v=guide-clarity-1';
-installComboLessons();
+installComboLessons();installTapPick();
 
 const query=new URLSearchParams(location.search),sample=resolveSample(query.get('family'),query.get('state'));
 const state=createComponentFixture(sample.family,sample.state),run=state.run,app=document.querySelector('#app');
@@ -64,10 +68,22 @@ function renderCollection(){
 }
 function renderRewards(){document.body.dataset.screen='victory';app.innerHTML=relics.flightRewardMarkup(state,{upgradeCount:0,skillsAvailable:false,deckAvailable:true,acquiredPresentation:sample.state});}
 function renderCards(){
+  if(sample.state==='starter'){
+    document.body.dataset.screen='home';
+    sheet(cards.starterCardsMarkup(run,getStartingGiftOffers(run),false),'card-sheet card-starter-sheet');
+    return;
+  }
   if(['workshop','rest'].includes(sample.state)&&!local.restDeck){
     document.body.dataset.screen='support';
     if(local.workshop??sample.state==='workshop')sheet(cardWorkshopMarkup(run,{notice:local.workshopNotice||''}),'card-sheet card-bench-sheet card-workshop-sheet');
     else sheet(cards.cardRestMarkup(run,run.current,getSupportChoices(run)),'card-sheet card-bench-sheet');
+    return;
+  }
+  if(sample.state==='draftCeremony'&&getCardDraft(run)){
+    document.body.dataset.screen='card-draft';document.body.classList.add('card-pilot');
+    run.cardDraft.ceremony={version:1,stage:'cards'};
+    run.cardDraft.offers=['twin-wick','growth-seed','harvest-rare'].map((id,i)=>makeSkillCard(id,`sample-draft-${i}`));
+    app.innerHTML=flightRewardCeremonyMarkup(run);
     return;
   }
   if(sample.state==='draft'&&getCardDraft(run)){
@@ -75,7 +91,7 @@ function renderCards(){
     app.innerHTML=cards.cardDraftMarkup(run);
     return;
   }
-  if((sample.state.startsWith('reward')||sample.state==='draft')&&!run.cardReward?.uiAcknowledged){
+  if((sample.state.startsWith('reward')||sample.state==='draft'||sample.state==='draftCeremony')&&!run.cardReward?.uiAcknowledged){
     document.body.dataset.screen='card-reward';
     app.innerHTML=cards.cardRewardMarkup(run,{equipping:local.equip,notice:local.rewardNotice||''});
     return;
@@ -142,13 +158,14 @@ function transferReward(slot,expectedId){
   renderCards();status(local.rewardNotice+' Sample only.');
 }
 bindDeckDragging({
-  canEdit:()=>sample.family==='cards'&&(sample.state.startsWith('reward')||sample.state==='draft')&&!!run.cardReward&&!run.cardReward.uiAcknowledged&&!detailSheet,
+  canEdit:()=>sample.family==='cards'&&(sample.state.startsWith('reward')||sample.state==='draft'||sample.state==='draftCeremony')&&!!run.cardReward&&!run.cardReward.uiAcknowledged&&!detailSheet,
   getCard:id=>getOwnedCards(run).find(card=>card.instanceId===id),
   onDrop:({kind,slot,expectedId})=>{if(kind==='slot')transferReward(slot,expectedId);},
 });
 background();render();
 
 document.addEventListener('click',event=>{
+  if(event.target.closest?.('[data-tap-pick] :is([data-card-term],[data-card-term-trigger],[data-card-status-help])'))return;
   const button=event.target.closest?.('[data-action]');
   if(!button||button.disabled)return;
   const {action,id}=button.dataset;

@@ -42,7 +42,7 @@ export function createComponentFixture(family,variant){
     run.reserveCards=[makeSkillCard('deep-vessel','sample-workshop-reserve'),{...makeSkillCard('cluster-heart','sample-workshop-cluster'),charges:1},makeSkillCard('growth-seed-common','sample-workshop-seed')];
     run.condensedGlow=100;run.lives=2;run.flame=30;
   }
-  if(family==='cards'&&variant==='draft'){
+  if(family==='cards'&&(variant==='draft'||variant==='draftCeremony')){
     run.startingGiftId='card:body-spark';
     const node=getChoices(run).find(node=>node.type!=='support');
     if(!selectNode(run,node.id)||!beginFlightAttempt(run)||!markFlightAttemptStarted(run)||!finishFlight(run,{success:true,flame:50}))throw Error('Draft fixture clear failed.');

@@ -224,3 +224,6 @@ html body .ins-write .scribe-rule .card-term{display:inline;margin:0}
  .ins-write .iw-slot.iw-on .iw-plate{display:none}
  .ins-write .iw-result{-webkit-line-clamp:1}
 }
+/* Tap-to-pick look (dist/tap-pick.mjs): the chosen offer or slot rises a little; a second tap on the chosen slot writes it. */
+.ins-write .iw-offer.iw-on,.ins-write .iw-slot.iw-on{transform:translateY(-4px);z-index:2}
+.ins-write .iw-offers:has(.iw-on)>.iw-offer:not(.iw-on),.ins-write .iw-chain:has(.iw-on)>.iw-slot:not(.iw-on){opacity:.82}

@@ -339,3 +339,7 @@ html body .forge2 .forge2-need{font:400 13px/15px var(--pixel,monospace);color:#
 /* Improve a card / Refill uses open the Workshop list for that one service, full width. */
 html body .card-workshop-single .card-workshop-services{display:grid;grid-template-columns:minmax(0,1fr)}
 html body .card-workshop-single .card-workshop-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:6px}
+/* Tap-to-pick look (dist/tap-pick.mjs), kept on the Rest screen's own select -> confirm flow. */
+.rest2-card.is-selected{transform:translateY(-6px);box-shadow:inset 0 0 0 2px #536430,0 0 0 3px #f0c86a,0 0 0 5px #2a2118;position:relative;z-index:2}
+.rest2[data-rest-state=selected] .rest2-card:not(.is-selected):not(.is-done){opacity:.72;filter:saturate(.75) brightness(.92)}
+@media(prefers-reduced-motion:no-preference){.rest2-card{transition:transform .12s steps(3,end)}}

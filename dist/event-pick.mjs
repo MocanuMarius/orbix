@@ -12,11 +12,11 @@ export const eventPickKind = offer => offer?.effect?.improveCard ? 'improve' : o
 /** The right-hand panel of the event screen while the player chooses a card. */
 export function eventPickMarkup(run, kind) {
   const cards = eventCardOptions(run, kind).slice(0, EVENT_PICK_LIMIT), improve = kind === 'improve';
-  const tiles = cards.map(c => `<button class="event-pick-card boon-choice" data-action="event-card" data-id="${esc(c.instanceId)}" aria-label="${esc(c.name)}: ${esc(c.change)}">
+  const tiles = cards.map(c => `<button class="event-pick-card boon-choice" data-tap-pick data-action="event-card" data-id="${esc(c.instanceId)}" aria-label="${esc(c.name)}: ${esc(c.change)}">
  <span class="event-pick-art" aria-hidden="true">${cardArt({...c.card, cardId: c.cardId}, {compact: true})}</span>
  <b>${esc(c.name)}</b><small class="event-pick-change">${esc(c.change)}</small><i>${c.slot === null ? 'Deck' : 'Slot ' + (c.slot + 1)}</i></button>`).join('');
   return `<div class="support-offers event-pick" data-event-pick="${kind}">
  <div class="event-pick-head"><button class="secondary event-pick-back" data-action="event-pick-back">Back</button><div><h2>${improve ? 'Which card rises?' : 'Which card refills?'}</h2>
- <p class="event-pick-hint">${cardTermTextMarkup(improve ? 'Tap one card. It gains a rank or evolves. Free.' : 'Tap one card. Its uses return. Free.')}</p></div></div>
+ <p class="event-pick-hint">${cardTermTextMarkup(improve ? 'Tap a card, tap again to take it. It gains a rank or evolves. Free.' : 'Tap a card, tap again to take it. Its uses return. Free.')}</p></div></div>
  <div class="event-pick-cards">${tiles}</div></div>`;
 }

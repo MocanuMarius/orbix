@@ -146,7 +146,9 @@ test('a failed attempt has no draft and draft markup uses the shared full portra
   const markup = cardDraftMarkup(success.run);
   assert.equal((markup.match(/class="skill-card /g) || []).length, 3);
   assert.equal((markup.match(/data-action="card-draft-pick"/g) || []).length, 3);
-  assert.match(markup, /Keep one\. The other two are left behind/);
+  assert.match(markup, /Tap a card, tap again to take it\./);
+  assert.doesNotMatch(markup, /<button[^>]*>Choose /, 'no per-card Choose buttons');
+  assert.equal((markup.match(/data-tap-pick(?=[ >])/g) || []).length, 3, 'each offer is a tap-to-pick item');
 });
 
 test('a Dream starter gift goes last in the starter Chain, so take-off devours nothing', () => {

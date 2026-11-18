@@ -181,7 +181,7 @@ function faceBadges(card, compact) {
   const def = SKILL_CARDS[card.cardId || card.id] || {};
   const chip = getCardTrigger(card, def);
   const tally = isDevourCard(card) ? devourTally(card) : null, dreamTally = def.kind === 'dream';
-  return `${compact ? `<span class="card-tbadge-row">${chipBadge(chip, { cls: 'card-tbadge' })}</span>` : ''}${rarityPips(rarity(card))}${cardTallyLine(card) ? `<span class="card-bh-tally"><b>${cardTallyLine(card)}</b></span>` : ''}${tally && (!compact || tally.eaten) ? `<span class="card-bh-tally"><b>Devoured ${tally.eaten}</b> · ${dreamTally ? `Dream ${8 + tally.growth} s` : `+${tally.growth}${compact ? '' : ' max Sparks'}`}</span>` : ''}`;
+  return `${compact ? `<span class="card-tbadge-row">${chipBadge(chip, { cls: 'card-tbadge' })}</span>` : ''}${rarityPips(rarity(card))}${cardTallyLine(card) ? `<span class="card-bh-tally"><b>${cardTallyLine(card)}</b></span>` : ''}${tally && tally.eaten ? `<span class="card-bh-tally"><b>Devoured ${tally.eaten}</b> · ${dreamTally ? `Dream ${8 + tally.growth} s` : `+${tally.growth}${compact ? '' : ' max Sparks'}`}</span>` : ''}`;
 }
 export function cardFace(card, { compact = false, fitted = false, slot = null, selected = false, status = null, sightWarning = '', availability = null } = {}) {
   if (!card) return `<article class="skill-card empty-card"><div class="card-empty-art">+</div><h3>Empty slot${slot === null ? '' : ` ${slot + 1}`}</h3></article>`;
@@ -201,7 +201,7 @@ export function cardFace(card, { compact = false, fitted = false, slot = null, s
 export function starterCardsMarkup(run, gifts, existing) {
   const guide=describeSkillCard(makeSkillCard('lift-guide','included-starter-guide'));
   const capacity=run.cardFutureCapacity>0?`<small>+${run.cardFutureCapacity} permanent maximum Sparks · starting full at ${formatGlow(run.flame)}/${formatGlow(getGlowCapacity(run))}.</small>`:'';
-  return `<section class="card-starter"><header class="card-heading"><div><h2>Choose one starting card</h2><small>Pick 1 of ${gifts.length}. Tap a card to review before starting.</small>${capacity}</div><div class="card-starter-included">${cardArt(guide,{compact:true})}<span><strong>Lift Guide included</strong><small>You can keep it or Melt it</small></span></div><button class="secondary" data-action="close-sheet">Back</button></header><div class="card-starter-pair${gifts.length===3?' card-starter-trio':''}">${gifts.map(gift => { const card = gift.card || { ...gift, effect: gift.description, rarity: 'common' }; return `<div role="button" tabindex="0" class="card-pick" data-action="${existing ? 'existing-gift' : 'new-gift'}" data-id="${esc(gift.id)}" aria-label="Choose ${esc(cardName(card))}. Review before starting.">${cardFace(card,{fitted:gifts.length===3})}<span class="card-pick-label" aria-hidden="true">Choose ${esc(cardName(card))}</span></div>`; }).join('')}</div></section>`;
+  return `<section class="card-starter"><header class="card-heading"><div><h2>Choose one starting card</h2><small>Pick 1 of ${gifts.length}. ${DRAFT_HINT}</small>${capacity}</div><div class="card-starter-included">${cardArt(guide,{compact:true})}<span><strong>Lift Guide included</strong><small>You can keep it or Melt it</small></span></div><button class="secondary" data-action="close-sheet">Back</button></header><div class="card-starter-pair${gifts.length===3?' card-starter-trio':''}" data-tap-pick-group>${gifts.map(gift => { const card = gift.card || { ...gift, effect: gift.description, rarity: 'common' }; return `<div role="button" tabindex="0" class="card-pick" data-tap-pick aria-pressed="false" data-action="${existing ? 'existing-gift' : 'new-gift'}" data-id="${esc(gift.id)}" aria-label="${esc(cardName(card))}. Tap to select, tap again to start with it.">${cardFace(card,{fitted:gifts.length===3})}</div>`; }).join('')}</div></section>`;
 }
 export function starterGiftConfirmationMarkup(run, preview, existing) {
   const gift=preview.gift, card=gift.card || {...gift,effect:gift.description,rarity:'common'};
@@ -214,11 +214,13 @@ const dragGrip = card => isInventoryOnlyCard(card) ? '' : `<span class="card-dra
 export function cardDraftMarkup(run) {
   const draft = getCardDraft(run);
   if (!draft) return '';
-  return `<section class="card-reward-screen card-draft-screen"><header class="card-heading"><div><small>${draft.boss ? 'GUARDIAN' : draft.elite ? 'ELITE ROUND' : 'ROUND CLEARED'}</small><h1>Choose 1 card</h1></div><p>Keep one. The other two are left behind.</p><button class="secondary" data-action="menu">Menu</button></header>${cardDraftOffersMarkup(draft)}</section>`;
+  return `<section class="card-reward-screen card-draft-screen"><header class="card-heading"><div><small>${draft.boss ? 'GUARDIAN' : draft.elite ? 'ELITE ROUND' : 'ROUND CLEARED'}</small><h1>Choose 1 card</h1></div><p>${DRAFT_HINT}</p><button class="secondary" data-action="menu">Menu</button></header>${cardDraftOffersMarkup(draft)}</section>`;
 }
+export const DRAFT_HINT = 'Tap a card, tap again to take it.';
+/** Three offers. Each is one tap-to-pick item (tap-pick.mjs): the first tap raises it, the second takes it. */
 export function cardDraftOffersMarkup(draft,{className=''}={}) {
   if (!draft?.offers?.length) return '';
-  return `<div class="card-draft-offers${className?` ${esc(className)}`:''}" role="group" aria-label="Choose one of three cards">${draft.offers.map(card => `<div class="card-draft-option"><div class="card-draft-face">${cardFace(card)}</div><button class="primary" data-action="card-draft-pick" data-draft-id="${esc(draft.id)}" data-id="${esc(card.instanceId)}" aria-label="Choose ${esc(cardName(card))}, ${esc(rarity(card))}">Choose ${esc(cardName(card))}</button></div>`).join('')}</div>`;
+  return `<div class="card-draft-offers${className?` ${esc(className)}`:''}" data-tap-pick-group role="group" aria-label="Choose one of three cards. ${DRAFT_HINT}">${draft.offers.map(card => `<div class="card-draft-option" data-tap-pick role="button" tabindex="0" aria-pressed="false" data-action="card-draft-pick" data-draft-id="${esc(draft.id)}" data-id="${esc(card.instanceId)}" aria-label="${esc(cardName(card))}, ${esc(rarity(card))}. Tap to select, tap again to take."><div class="card-draft-face">${cardFace(card)}</div></div>`).join('')}</div>`;
 }
 export function cardRewardMarkup(run, { equipping = false, notice = '', forceReceipt = false } = {}) {
   const reward = getCardReward(run), card = reward?.card;
