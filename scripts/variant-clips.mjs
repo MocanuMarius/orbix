@@ -65,6 +65,7 @@ export const SCENARIOS = {
     setup(e, tc) { e.flame = e.maxFlame; Object.defineProperty(e.flightBoon, "recoveryRate", {value: 2, configurable: true}); tc.n = 0; tc.nextAt = .3; tc.lifts = [3.2, 3.45, 6.4, 6.65, 9.3, 9.55]; },
     director(e, tc) {
       e.flame = Math.max(e.flame, e.maxFlame * .7);
+      for (const c of e.__cords || []) if (c.ready && Math.abs(tc.t * 0 + e.time - c.t) < .1) { const k = 'w' + (c.tension < .3 ? 3 : c.tension < .65 ? 2 : 1); tc.notes[k] = (tc.notes[k] || 0) + 1; }
       const fr = [1, .35, .7, .2, 1, .5], dy = [0, 14, -22, 10, 0, 18];
       const idle = (e.collectors || [e.wisp]).find(w => w.enabled(e) && !w.cargo && !w.target && w.phase === 'ready');
       if (idle && tc.t >= tc.nextAt && tc.n < 6 && !e.layout.embers.some(p => !p.collected && !p.carried)) {
@@ -82,6 +83,12 @@ export const SCENARIOS = {
     setup(e, tc) { e.flame = e.maxFlame * .5; tc.pilotTarget = e.height * .5; tc.nextSpark = .4; },
     director(e, tc) { if (tc.t >= tc.nextSpark) { tc.nextSpark = tc.t + 2.5; tc.drop('light', 190, e.player.y + 6); } },
   },
+};
+// The same cord flight at the game's real timing (no doubled recovery), for the final cord clip.
+SCENARIOS.cordreal = {
+  title: 'Collector cord at real game timing: fetches at several distances, quick Lifts', warmup: 1,
+  setup(e, tc) { e.flame = e.maxFlame; tc.n = 0; tc.nextAt = .3; tc.lifts = [3.2, 3.45, 6.4, 6.65, 9.3, 9.55, 12.2, 12.45]; },
+  director: SCENARIOS.cord.director,
 };
 if (flag('list')) { for (const [k, v] of Object.entries(SCENARIOS)) console.log(k.padEnd(8), v.title); process.exit(0); }
 
@@ -170,7 +177,7 @@ async function record(value) {
       const shot = await b.send('Page.captureScreenshot', {format: 'png', clip: {x: 0, y: 0, width: W, height: H, scale: 1}});
       await fs.writeFile(path.join(frames, String(i).padStart(4, '0') + '.png'), Buffer.from(shot.data, 'base64'));
     }
-    const fingerprint = await b.ev(`(()=>{const e=__tc.e;return JSON.stringify({d:Math.round(e.distance),y:Math.round(e.player.y),alive:e.alive,collected:e.layout.embers.filter(p=>p.collected).length})})()`);
+    const fingerprint = await b.ev(`(()=>{const e=__tc.e;return JSON.stringify({d:Math.round(e.distance),y:Math.round(e.player.y),alive:e.alive,collected:e.layout.embers.filter(p=>p.collected).length,notes:__tc.notes})})()`);
     if (b.errors.length) console.warn(`  ${value}: page errors:`, [...new Set(b.errors)].slice(0, 3));
     return {frames, n, fingerprint};
   } finally { b.close(); }
