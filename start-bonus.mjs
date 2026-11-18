@@ -2,7 +2,7 @@
 // independently from one combined pool: a starter card, an ordinary Scribe Inscription (written on Chain slot 1), or a Wisp stat that
 // lasts the whole run. The three kinds are weighted equally per tile (1/3 each), whatever the pool sizes; no duplicates in one offer.
 // Pure data and helpers, no DOM. Lift Guide is always mounted as well (model.mjs › chooseStartingGift).
-import {INSCRIPTION_IDS} from './inscriptions.mjs?v=start-1';
+import {INSCRIPTION_IDS} from './inscriptions.mjs?v=lesson-1';
 
 export const START_BONUS_VERSION = 4;
 export const START_CARD_IDS = Object.freeze(['lift-guide', 'skim-line', 'pulse-reader', 'courier-cord', 'meter-mark', 'finish-flag']);

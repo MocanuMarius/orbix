@@ -1,10 +1,10 @@
-import {getPickupSpec} from './pickups.mjs?v=start-1';
-import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=start-1';
-import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=start-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=start-1';
-import {resourceSymbol} from './game-symbols.mjs?v=start-1';
-import {skillIcon} from './upgrade-icons.mjs?v=start-1';
-import {SPARK_TIERS} from './spark-size.mjs?v=start-1';
+import {getPickupSpec} from './pickups.mjs?v=lesson-1';
+import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=lesson-1';
+import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=lesson-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=lesson-1';
+import {resourceSymbol} from './game-symbols.mjs?v=lesson-1';
+import {skillIcon} from './upgrade-icons.mjs?v=lesson-1';
+import {SPARK_TIERS} from './spark-size.mjs?v=lesson-1';
 
 const fuelSizes=SPARK_TIERS.map(({mass,name})=>{
  const kind=mass===1?'light':mass===2?'cluster':'cache';
@@ -22,7 +22,7 @@ export function resourceCycleSteps(run={},mod={}){
   ['Touch a Spark',`Larger Sparks hold more fuel. The smallest gives 6; a rare giant gives 60. This Cluster adds ${fuel} to your Spark Meter before bonuses.`],
   ['Fill your Spark Meter',`At ${before}/${max}, only ${refill} fit. Tap anywhere to Lift. Each Lift uses ${lift} Spark${lift===1?'':'s'} from the meter.`],
   ['Store the surplus',`The upper-left box converts the spare ${extra} into ${packed} Stored Spark${packed===1?'':'s'}. Open Skills to spend banked Stored Sparks.`]
- ].map(([title,text],i)=>({title,text,visual:'resource-cycle',cycle:{...data,stage:i},allowTarget:false,actionLabel:i===2?'Got it':'Next',skipLabel:'Remember & skip'}));
+ ].map(([title,text],i)=>({title,text,visual:'resource-cycle',cycle:{...data,stage:i},allowTarget:false,actionLabel:i===2?'Got it':'Next',skipLabel:'Skip the rest'}));
 }
 const art=(x,y,size,svg)=>svg.replace(/<svg\b([^>]*)>/,(_,attrs)=>`<svg x="${x}" y="${y}" width="${size}" height="${size}"${attrs.replace(/\s(?:width|height)="[^"]*"/g,'')}>`);
 // Use the same pickup and HUD glyphs as the playable flight; position them at their HUD locations.

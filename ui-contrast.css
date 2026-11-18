@@ -90,7 +90,6 @@ html body #header .condensed-wallet b{color:var(--ui-gold)}
    into the card behind it. The words and example remain one composition. */
 .tutorial-coach-copy p{color:var(--ui-copy);text-shadow:1px 1px #050b0d}
 .tutorial-coach-copy h2{color:var(--ui-text)}
-.tutorial-coach-visual{background:radial-gradient(ellipse,#071113 12%,#071113a0 65%,transparent 72%)}
 .tutorial-coach-visual .coach-term b,.coach-example figcaption{color:var(--ui-text);text-shadow:1px 1px #050b0d}
 .tutorial-coach-visual .coach-term>svg{filter:drop-shadow(1px 2px 0 #000)}
 .tutorial-coach-progress{color:var(--ui-muted)}
@@ -227,3 +226,43 @@ html body #dk-root.dk.dk2 .dk2-tabdot{top:50%;right:8px;transform:translateY(-50
 html body #dk-root.dk.dk2 .dk2-read{grid-template-rows:minmax(0,1fr);grid-template-columns:minmax(0,1fr)}
 /* Card info dialog at phone-tab height (924x308): tighter rows so the text fits without its own scrollbar. */
 @media(max-height:340px){html body #dk-root.dk.dk2 .dk2-info-body{gap:3px;overflow-y:auto}html body #dk-root.dk.dk2 .dk2-info-body p{margin-block:0;line-height:1.15}}
+
+/* Lesson sheet, v1.0-lesson (owner 2026-11-18: "bad layout, text hard to read, that black spot"). House style: a parchment panel, dark-brown ink,
+   pixel frames. The picture sits directly on the parchment (no vignette), a fixed square at the left, text at the right, buttons in one row at the
+   bottom right: ONE primary and a quiet secondary. Pictures are real card tiles and in-game icons (tutorial-visuals.mjs: cardTile, pic). */
+html body .tutorial-coach .tutorial-coach-card{--pic:112px;--ink:#2a2118;--ink-soft:#5a4632;--paper:#e8d6a4;display:grid!important;grid-template-columns:var(--pic) minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr) auto!important;column-gap:16px;row-gap:8px;padding:14px 18px 12px!important;color:var(--ink);overflow:hidden}   /* paper, plaque border and shadow come from the Book skin in tutorial-coach.css */
+html body .tutorial-coach[data-has-visual=false] .tutorial-coach-card{grid-template-columns:minmax(0,1fr)!important}
+html body .tutorial-coach .tutorial-coach-card:has(.tutorial-coach-visual :is(.cycle-scene,.coach-example,.collector-teaching-capture,.guide-hole-scene,.lantern-guide-example)){--pic:200px}
+html body .tutorial-coach .tutorial-coach-visual{grid-column:1!important;grid-row:1!important;align-self:center!important;display:flex;align-items:center;justify-content:center;width:var(--pic);min-height:0!important;margin:0!important;padding:0!important;background:none!important;box-shadow:none!important;border:0!important}
+html body .tutorial-coach .tutorial-coach-visual[hidden]{display:none!important}
+html body .tutorial-coach .tutorial-coach-copy{text-align:left!important;grid-column:2!important;grid-row:1!important;align-self:center!important;min-width:0;max-height:none;overflow:visible!important}
+html body .tutorial-coach[data-has-visual=false] .tutorial-coach-copy{grid-column:1!important}
+html body .tutorial-coach .tutorial-coach-copy h2{margin:0 0 6px!important;font:20px/1.2 var(--pixel,monospace)!important;color:var(--ink)!important;text-shadow:none!important}
+html body .tutorial-coach .tutorial-coach-copy p{margin:0!important;font:16px/1.4 var(--pixel,monospace)!important;color:var(--ink)!important;text-shadow:none!important}
+html body .tutorial-coach .tutorial-coach-progress{color:var(--ink-soft)!important;margin:0 0 4px}
+html body .tutorial-coach[data-single=true] .tutorial-coach-progress{display:none}
+html body .tutorial-coach .tutorial-coach-terms{margin:6px 0 0!important;font:13px/1.3 var(--pixel,monospace)!important;color:var(--ink-soft)!important}
+html body .tutorial-coach .tutorial-coach-terms-label{margin-right:8px;color:var(--ink-soft)}
+html body .tutorial-coach .tutorial-coach-term{min-height:28px;padding:0 2px!important;margin-right:8px;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;color:var(--ink)!important;font:inherit;text-decoration:underline dotted;text-underline-offset:3px}
+html body .tutorial-coach .tutorial-coach-actions{grid-column:1 / -1!important;grid-row:2!important;display:flex;justify-content:flex-end;align-items:center;gap:12px;margin:0!important}
+html body .tutorial-coach .tutorial-coach-actions>button{flex:none!important;min-height:44px;min-width:96px;font:14px/1.2 var(--pixel,monospace)}
+html body .tutorial-coach .tutorial-coach-actions>.tutorial-coach-next{order:3}
+html body .tutorial-coach .tutorial-coach-actions>[data-coach=skip]{order:2}
+html body .tutorial-coach .tutorial-coach-actions>[data-coach=back]{order:1}
+html body .tutorial-coach .tutorial-coach-visual .coach-term b,html body .tutorial-coach .coach-example figcaption{color:var(--ink)!important;text-shadow:none!important;font:11px/1.3 var(--pixel,monospace)}
+html body .tutorial-coach .tutorial-coach-visual .coach-term>svg,html body .tutorial-coach .tutorial-coach-visual .coach-term>.ui-icon{filter:none!important}
+html body .tutorial-coach .coach-term-arrow{color:var(--ink)}
+.lesson-pic{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;height:var(--pic,112px)}
+.lesson-pic>svg,.lesson-pic>.ui-icon{flex:none;image-rendering:pixelated}
+.lesson-card{--rf:#6d746c;position:relative;flex:none;display:block;width:52px;height:66px;box-sizing:border-box;border:2px solid var(--rf);background:#14241e;box-shadow:0 0 0 2px #2a2118}
+.lesson-card[data-rarity=rare]{--rf:#42768f}.lesson-card[data-rarity=legendary]{--rf:#b8923a}
+.lesson-card-art{position:absolute;left:0;top:0;width:48px;height:48px;background-size:48px 48px;background-repeat:no-repeat;image-rendering:pixelated}
+.lesson-card::after{content:"";position:absolute;left:0;right:0;bottom:0;height:14px;background:var(--rf)}
+.lesson-card-empty{background:none;border-style:dashed;box-shadow:none}.lesson-card-empty::after{display:none}
+.lesson-new{position:absolute;right:-9px;top:-9px;z-index:1;padding:3px 4px;border:2px solid #2a2118;background:#b0412f;color:#fff6d8;font:700 11px/1 var(--pixel,monospace);letter-spacing:.5px}
+.lesson-arrow{flex:none;width:12px;height:3px;background:repeating-linear-gradient(90deg,#2a2118 0 3px,transparent 3px 6px)}
+html body .tutorial-coach .tutorial-coach-copy :is(h2,p,.tutorial-coach-terms){text-align:left!important}
+html body .tutorial-coach .tutorial-coach-copy .tutorial-coach-term{border:0!important;border-image:none!important;background:none!important;box-shadow:none!important;color:var(--ink)!important;padding:0 2px!important;min-height:28px}
+html body .tutorial-coach .lesson-pic{color:var(--ink)}
+.lesson-pic .ins-glyph{flex:none;color:#2a2118}
+html body :is(#app,#header,dialog,.tutorial-coach) .tutorial-coach-copy button.tutorial-coach-term:not(#k):not(#j){border:0!important;border-image:none!important;background:none!important;box-shadow:none!important;color:var(--ink)!important;text-shadow:none!important;min-height:28px;padding:0 2px!important;clip-path:none!important}
