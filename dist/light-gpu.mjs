@@ -16,13 +16,19 @@ import {LIGHT_EXTENT} from './light-attenuation.mjs?v=guide-clarity-1';
 import {luminanceWaveFade,REVEAL_BANDS} from './luminance-waves.mjs?v=guide-clarity-1';
 
 export const LIGHT_GPU_DEFAULT=true;
-export const LIGHT_GPU_LIMITS=Object.freeze({lights:8,cells:8,rays:96,spans:16,slotCols:16,slotRows:8,mask:128,waves:48,flashes:8});
+export const LIGHT_GPU_LIMITS=Object.freeze({lights:8,cells:8,rays:96,spans:16,slotCols:16,slotRows:8,mask:128,waves:48,flashes:8,chunks:6,chunkLayers:8});
 const L=LIGHT_GPU_LIMITS,SPAN_TEXELS=L.spans/2,EMPTY=1e9;
 
 /** On by default (verified on the Pixel 10 emulator, 18 Nov 2026); ?gl=0 forces the Canvas 2D path. */
 export function lightGpuWanted(location=globalThis.location){
   if(typeof globalThis.__orbixLightGpu==='boolean')return globalThis.__orbixLightGpu; // test hook (scripts/perf/gl-diff.mjs)
   try{const v=new URLSearchParams(location?.search||'').get('gl');return v==='1'||v==='on'||(LIGHT_GPU_DEFAULT&&!(v==='0'||v==='off'));}catch{return false;}
+}
+
+/** OffscreenCanvas hand-over for the fog frame; off by default, ?glbitmap=1 turns it on. */
+export function glBitmapWanted(location=globalThis.location){
+  if(typeof globalThis.__orbixLightBitmap==='boolean')return globalThis.__orbixLightBitmap;
+  try{return new URLSearchParams(location?.search||'').get('glbitmap')==='1';}catch{return false;}
 }
 
 const VERT=`#version 300 es
@@ -65,7 +71,7 @@ uniform vec2 u_size;
 uniform highp sampler2DArray u_masks;uniform int u_lights;uniform vec4 u_light[${L.lights}];uniform float u_lightAlpha[${L.lights}];
 uniform int u_flashes;uniform vec4 u_flash[${L.flashes}];
 uniform int u_waves;uniform vec4 u_wave[${L.waves}];uniform vec3 u_bandWidth;uniform vec3 u_bandAlpha;
-uniform int u_shade;uniform sampler2D u_shadeTex;uniform float u_shadeAlpha;uniform int u_wake;uniform sampler2D u_wakeTex;
+uniform int u_shade;uniform sampler2D u_shadeTex;uniform float u_shadeAlpha;uniform highp sampler2DArray u_shadeChunks;uniform int u_camera,u_chunkW,u_chunkFirst,u_chunkCount;uniform int u_chunkLayer[${L.chunks}];uniform int u_wake;uniform sampler2D u_wakeTex;
 out vec4 o;
 const float CUT=1./(1.+2.2*${LIGHT_EXTENT}.*${LIGHT_EXTENT}.);
 float att2(float d2){return d2>=${LIGHT_EXTENT*LIGHT_EXTENT}.?0.:(1./(1.+2.2*d2)-CUT)/(1.-CUT);}
@@ -85,6 +91,8 @@ void main(){
   }
   if(u_wake==1)f*=texelFetch(u_wakeTex,ivec2(p),0).a;
   if(u_shade==1){float s=texelFetch(u_shadeTex,ivec2(p),0).a*u_shadeAlpha;f=s+f*(1.-s);}
+  else if(u_shade==2){int gx=int(p.x)+u_camera,ci=int(floor(float(gx)/float(u_chunkW)))-u_chunkFirst;
+    if(ci>=0&&ci<u_chunkCount){float s=texelFetch(u_shadeChunks,ivec3(gx-(ci+u_chunkFirst)*u_chunkW,int(p.y),u_chunkLayer[ci]),0).a*u_shadeAlpha;f=s+f*(1.-s);}}
   for(int i=0;i<${L.lights};i++){
     if(i>=u_lights)break;
     vec4 q=u_light[i];vec2 uv=(p-q.xy)/q.z;
@@ -101,7 +109,11 @@ export class LightFogGPU {
   }
   constructor(document){
     this.document=document;this.kind='webgl2';this.ready=false;this.lost=false;this.stats={frames:0,uploads:0,truncatedRays:0,fallbacks:0};
-    const canvas=this.canvas=document.createElement('canvas');canvas.width=canvas.height=1;
+    // OffscreenCanvas + transferToImageBitmap hands the finished frame over instead of copying the drawing buffer
+    // for the 2D composite. OFF by default (?glbitmap=1): the emulator A/B (18 Nov) showed no gain (-2.9..+4.0 FPS per round).
+    const view=document.defaultView||globalThis;
+    this.bitmap=typeof view.OffscreenCanvas==='function'&&typeof view.OffscreenCanvas.prototype.transferToImageBitmap==='function'&&glBitmapWanted(view.location);
+    const canvas=this.canvas=this.bitmap?new view.OffscreenCanvas(1,1):document.createElement('canvas');canvas.width=canvas.height=1;
     this.onLost=event=>{event.preventDefault();this.lost=true;this.ready=false;};
     this.onRestored=()=>{this.lost=false;try{this.init();}catch{this.ready=false;}};
     canvas.addEventListener('webglcontextlost',this.onLost);canvas.addEventListener('webglcontextrestored',this.onRestored);
@@ -136,11 +148,16 @@ export class LightFogGPU {
     gl.disable(gl.BLEND);gl.disable(gl.DEPTH_TEST);gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);
     this.slots=new Map();this.slotUse=new Uint32Array(L.slotCols*L.slotRows);this.free=Array.from({length:L.slotCols*L.slotRows},(_,i)=>L.slotCols*L.slotRows-1-i);
     this.spanData=new Float32Array(SPAN_TEXELS*4*L.rays);this.frame=0;
+    this.chunkTex=null;this.chunkKey='';this.chunkLayers=new Map();this.chunkStamp=new Uint32Array(L.chunkLayers);this.chunkLayerOf=new Int32Array(L.chunks);this.chunkList=null;
+    // Warm-up: one tiny draw per program, so the driver finishes compiling now (flight setup) and not on the first lit frame.
+    gl.bindVertexArray(this.vao);gl.viewport(0,0,1,1);
+    gl.useProgram(this.maskProgram.p);gl.uniform1i(this.maskProgram.u.u_count,0);gl.bindFramebuffer(gl.FRAMEBUFFER,this.fb);gl.drawArrays(gl.TRIANGLES,0,3);gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+    gl.useProgram(this.fogProgram.p);gl.uniform1i(this.fogProgram.u.u_shade,0);{const u=this.fogProgram.u;gl.uniform1i(u.u_masks,1);gl.uniform1i(u.u_shadeTex,2);gl.uniform1i(u.u_wakeTex,3);gl.uniform1i(u.u_shadeChunks,4);}gl.drawArrays(gl.TRIANGLES,0,3);
     this.ready=!gl.isContextLost();
   }
   begin(width,height){
     if(this.canvas.width!==width||this.canvas.height!==height){this.canvas.width=width;this.canvas.height=height;}
-    this.frame++;this.lights.length=0;this.flashes.length=0;this.waveCount=0;this.shadeCanvas=null;this.wakeCanvas=null;this.recorder.globalAlpha=1;
+    this.frame++;this.lights.length=0;this.flashes.length=0;this.waveCount=0;this.shadeCanvas=null;this.chunkList=null;this.wakeCanvas=null;this.recorder.globalAlpha=1;
   }
   flash(x,y,size,alpha){if(this.flashes.length<L.flashes&&alpha>0)this.flashes.push(x,y,size,alpha);}
   waves(manager,distance,scale){
@@ -152,7 +169,32 @@ export class LightFogGPU {
       const o=this.waveCount++*4;this.waveData[o]=(wave.x-distance)*scale;this.waveData[o+1]=wave.y*scale;this.waveData[o+2]=wave.radius*scale;this.waveData[o+3]=fade;
     }
   }
-  shade(canvas,alpha){this.shadeCanvas=canvas||null;this.shadeAlpha=alpha;}
+  shade(canvas,alpha){this.shadeCanvas=canvas||null;this.chunkList=null;this.shadeAlpha=alpha;}
+  /** Solid shade as baked course chunks ({index, canvas}), placed at chunk.index*chunkW-camera; each chunk is uploaded once. */
+  shadeChunks(list,camera,chunkW,alpha){
+    if(!list?.length||list.length>L.chunks)return false;
+    this.shadeCanvas=null;this.chunkList=list;this.chunkCamera=camera;this.chunkW=chunkW;this.shadeAlpha=alpha;return true;
+  }
+  placeChunks(){
+    const gl=this.gl,list=this.chunkList,w=this.chunkW,h=list[0].canvas.height,key=w+'x'+h;
+    if(this.chunkKey!==key){
+      if(this.chunkTex)gl.deleteTexture(this.chunkTex);
+      const t=this.chunkTex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D_ARRAY,t);
+      for(const [k,v] of [[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE],[gl.TEXTURE_MIN_FILTER,gl.NEAREST],[gl.TEXTURE_MAG_FILTER,gl.NEAREST]])gl.texParameteri(gl.TEXTURE_2D_ARRAY,k,v);
+      gl.texStorage3D(gl.TEXTURE_2D_ARRAY,1,gl.RGBA8,w,h,L.chunkLayers);this.chunkKey=key;this.chunkLayers.clear();this.chunkStamp.fill(0);
+    }else gl.bindTexture(gl.TEXTURE_2D_ARRAY,this.chunkTex);
+    const stamp=this.frame;
+    for(let i=0;i<list.length;i++){
+      const chunk=list[i];let layer=this.chunkLayers.get(chunk);
+      if(layer===undefined){
+        // Least recently used layer not placed this frame; the chunk it held is forgotten.
+        let age=Infinity;for(let l=0;l<L.chunkLayers;l++)if(this.chunkStamp[l]!==stamp&&this.chunkStamp[l]<age){age=this.chunkStamp[l];layer=l;}
+        for(const [c,l] of this.chunkLayers)if(l===layer){this.chunkLayers.delete(c);break;}
+        gl.texSubImage3D(gl.TEXTURE_2D_ARRAY,0,0,0,layer,w,h,1,gl.RGBA,gl.UNSIGNED_BYTE,chunk.canvas);this.chunkLayers.set(chunk,layer);this.stats.uploads++;
+      }
+      this.chunkStamp[layer]=stamp;this.chunkLayerOf[i]=layer;
+    }
+  }
   /** Lantern-shutter wake: a canvas whose alpha is the fraction of darkness kept (opaque = untouched). */
   wake(canvas){this.wakeCanvas=canvas||null;}
   slotFor(cell){
@@ -217,16 +259,23 @@ export class LightFogGPU {
     gl.uniform1i(u.u_waves,this.waveCount);gl.uniform4fv(u.u_wave,this.waveData);
     const s=this.bandScale||1;gl.uniform3f(u.u_bandWidth,REVEAL_BANDS[0][0]*s,REVEAL_BANDS[1][0]*s,REVEAL_BANDS[2][0]*s);gl.uniform3f(u.u_bandAlpha,REVEAL_BANDS[0][1],REVEAL_BANDS[1][1],REVEAL_BANDS[2][1]);
     gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,this.shadeTex);gl.uniform1i(u.u_shadeTex,2);
+    gl.uniform1i(u.u_shadeChunks,4);
     if(this.shadeCanvas){gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,this.shadeCanvas);gl.uniform1i(u.u_shade,1);gl.uniform1f(u.u_shadeAlpha,this.shadeAlpha);}
+    else if(this.chunkList){
+      gl.activeTexture(gl.TEXTURE4);this.placeChunks();gl.uniform1i(u.u_shadeChunks,4);gl.uniform1i(u.u_shade,2);gl.uniform1f(u.u_shadeAlpha,this.shadeAlpha);
+      gl.uniform1i(u.u_camera,this.chunkCamera);gl.uniform1i(u.u_chunkW,this.chunkW);gl.uniform1i(u.u_chunkFirst,this.chunkList[0].index);gl.uniform1i(u.u_chunkCount,this.chunkList.length);gl.uniform1iv(u.u_chunkLayer,this.chunkLayerOf);
+    }
     else gl.uniform1i(u.u_shade,0);
     gl.activeTexture(gl.TEXTURE3);gl.bindTexture(gl.TEXTURE_2D,this.wakeTex);gl.uniform1i(u.u_wakeTex,3);
     if(this.wakeCanvas){gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,this.wakeCanvas);gl.uniform1i(u.u_wake,1);}else gl.uniform1i(u.u_wake,0);
     gl.drawArrays(gl.TRIANGLES,0,3);
     this.stats.frames++;
-    return gl.isContextLost()?null:this.canvas;
+    if(gl.isContextLost())return null;
+    if(!this.bitmap)return this.canvas;
+    this.frameBitmap?.close();return this.frameBitmap=this.canvas.transferToImageBitmap();
   }
   destroy(){
-    this.ready=false;
+    this.ready=false;this.frameBitmap?.close();this.frameBitmap=null;
     this.canvas?.removeEventListener('webglcontextlost',this.onLost);this.canvas?.removeEventListener('webglcontextrestored',this.onRestored);
     try{this.gl?.getExtension('WEBGL_lose_context')?.loseContext();}catch{}
     if(this.canvas)this.canvas.width=this.canvas.height=1;this.gl=null;

@@ -135,6 +135,8 @@ const SOLID_FACE_BANDS = Object.freeze([[30, .35], [20, .4], [12, .5], [5, .6]])
 // Deep rock keeps a trace of its texture instead of turning into a cut-out.
 const SOLID_SHADE_MAX = .86;
 const SHADE_CHUNK = 256;
+const GL_SHADE_URL = (() => { try { return new URLSearchParams(globalThis.location?.search || '').get('glshade') !== '0'; } catch { return true; } })();
+const GL_SHADE = () => { const f = globalThis.__perfFlags; return f && 'glshade' in f ? f.glshade !== false : GL_SHADE_URL; };
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 const hash = (x, y = 0, seed = 0) => {
   let n = Math.imul(x | 0, 374761393) ^ Math.imul(y | 0, 668265263) ^ Math.imul(seed | 0, 1274126177);
@@ -1005,15 +1007,22 @@ export class WispFlightView {
     // would light terrain interiors as if nothing blocked them. Where any of
     // them is active, solid rock is re-darkened behind its exposed face.
     const unblocked = !legacy && (e.luminanceWaves?.revealCount > 0 || lanternField(e.layout)?.shutters?.length > 0 || this.flashPropsInView(e));
-    const shade = !legacy && !SKIP.has('shade') && (unblocked || fogAlpha < 1) ? this.solidShade(e) : null;
+    const wantShade = !legacy && !SKIP.has('shade') && (unblocked || fogAlpha < 1);
     // WebGL2 compositor (light-gpu.mjs): same lights, rock law and order, drawn on the GPU.
     // The design lab's legacy look stays on the Canvas 2D path below.
     const gpu = !legacy && this.lightGpu ? this.lightGpu : null;
+    // GPU shade from the baked course chunks (?glshade=0 turns it off): each chunk is uploaded once into a
+    // texture array and placed by the fog shader, so the per-frame shade canvas and its upload disappear.
+    // Only while nothing in 2D needs the composed shade (fogAlpha 1) and every visible chunk is baked.
+    const chunks = wantShade && gpu && fogAlpha >= 1 && GL_SHADE() && LAYERS_ON() ? this.shadeChunkList(e, W, H, s, timeOf(e), Math.round(distanceOf(e) * s)) : null;
+    let shade = wantShade && !chunks ? this.solidShade(e) : null;
     if (gpu) {
       gpu.begin(W, H);
       castFlightFlashLights(gpu.recorder, this.lightMask(), e, light, s, distanceOf(e), yOf(e));
       gpu.waves(e.luminanceWaves, distanceOf(e), s);
-      gpu.shade(shade, SOLID_SHADE_MAX);
+      if (SKIP.has('shadeup')) gpu.shade(null, 0); // diagnostics: leaves out the shade upload
+      else if (chunks) gpu.shadeChunks(chunks, Math.round(distanceOf(e) * s), SHADE_CHUNK, SOLID_SHADE_MAX);
+      else gpu.shade(shade, SOLID_SHADE_MAX);
       // Lantern wake: the 2D routine removes darkness from an opaque layer; its alpha is what stays dark.
       if (lanternField(e.layout)?.shutters?.length) {
         const w = this.wakeLayer ??= this.document.createElement('canvas');
@@ -1032,14 +1041,17 @@ export class WispFlightView {
         const orb = fleet[i], glow = companionTerrainLight(orb, this.lightDimScale, this.lightIntensity);
         ok = castTerrainLightGPU(gpu, e, { x: orb.x, y: orb.y, ...glow, scale: s, channel: `fleet${i}` }) && ok;
       }
+      // Diagnostics: skip=glfog leaves out the GL draw and its composite, skip=fogdraw only the composite.
+      if (SKIP.has('glfog')) return;
       const fog = ok ? gpu.render() : null;
       if (fog) {
-        c.globalAlpha = fogAlpha; c.drawImage(fog, 0, 0);
+        c.globalAlpha = fogAlpha; if (!SKIP.has('fogdraw')) c.drawImage(fog, 0, 0);
         if (shade && fogAlpha < 1) { c.globalAlpha = (1 - fogAlpha) * SOLID_SHADE_MAX; c.drawImage(shade, 0, 0); }
         c.globalAlpha = 1;
         return;
       }
       gpu.stats.fallbacks++;
+      if (wantShade && !shade) shade = this.solidShade(e);
     }
     f.setTransform(1, 0, 0, 1, 0, 0); f.globalCompositeOperation = 'source-over'; f.globalAlpha = 1;
     f.clearRect(0, 0, W, H); f.fillStyle = '#000000'; f.fillRect(0, 0, W, H);
@@ -1131,20 +1143,25 @@ export class WispFlightView {
   // or a chunk touching one, uses the per-frame path. Bands of segments up to 30 world units beyond the view
   // edge are included (the per-frame path drops segments beyond 24), so the outer 3-4 pixels can differ.
   shadeFromChunks(e, g, W, H, s, t, camera) {
+    const list = this.shadeChunkList(e, W, H, s, t, camera); if (!list) return false;
+    for (const chunk of list) g.drawImage(chunk.canvas, chunk.index * SHADE_CHUNK - camera, 0);
+    return true;
+  }
+  /** The baked shade chunks covering the view, or null when any of them must be drawn per frame. */
+  shadeChunkList(e, W, H, s, t, camera) {
     const cache = this.shadeChunks ??= { map: new Map(), key: '' }, key = W + ':' + H + ':' + s;
     if (cache.key !== key) { this.releaseShadeChunks(); cache.key = key; }
     const first = Math.floor(camera / SHADE_CHUNK), last = Math.floor((camera + W - 1) / SHADE_CHUNK), list = [];
     for (let i = first; i <= last; i++) {
       let chunk = cache.map.get(i);
       if (chunk && !this.shadeChunkValid(chunk)) { cache.invalid = (cache.invalid || 0) + 1; chunk.canvas.width = chunk.canvas.height = 1; cache.map.delete(i); chunk = null; }
-      if (!chunk) { chunk = this.bakeShadeChunk(e, i, H, s, t); if (!chunk) { cache.live = (cache.live || 0) + 1; return false; } cache.bakes = (cache.bakes || 0) + 1; cache.map.set(i, chunk); }
+      if (!chunk) { chunk = this.bakeShadeChunk(e, i, H, s, t); if (!chunk) { cache.live = (cache.live || 0) + 1; return null; } cache.bakes = (cache.bakes || 0) + 1; cache.map.set(i, chunk); }
       else { cache.map.delete(i); cache.map.set(i, chunk); }
       list.push(chunk);
     }
     while (cache.map.size > 8) { const [k, old] = cache.map.entries().next().value; old.canvas.width = old.canvas.height = 1; cache.map.delete(k); }
-    for (const chunk of list) g.drawImage(chunk.canvas, chunk.index * SHADE_CHUNK - camera, 0);
     cache.used = (cache.used || 0) + 1;
-    return true;
+    return list;
   }
   shadeChunkValid(chunk) { for (const [o, destroyed, top, bottom] of chunk.owners) if (!!o.destroyed !== destroyed || o.topShape !== top || o.bottomShape !== bottom) return false; return true; }
   bakeShadeChunk(e, index, H, s, t) {
