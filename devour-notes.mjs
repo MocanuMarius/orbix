@@ -1,8 +1,8 @@
 // Devour cards (Black Hole, Dream, Devourer, Ember Feeder) eat cards for good. The player is told before (departure screen) and after (flight rewards notes).
 // Pure helpers, no DOM.
-import {previewBlackHoleMeals} from './card-black-hole.mjs?v=eaten-1';
-import {SKILL_CARDS, getEmberFeederTargets, isCardRun} from './skill-cards.mjs?v=eaten-1';
-import {getLifeCapacity} from './vitality.mjs?v=eaten-1';
+import {previewBlackHoleMeals} from './card-black-hole.mjs?v=stops-2';
+import {SKILL_CARDS, getEmberFeederTargets, isCardRun} from './skill-cards.mjs?v=stops-2';
+import {getLifeCapacity} from './vitality.mjs?v=stops-2';
 
 const nameOf = id => SKILL_CARDS[id]?.name || id;
 const join = names => names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0] || '';

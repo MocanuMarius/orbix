@@ -69,6 +69,6 @@ html body .skill-book :is(button.book-buy,button.book-buy-inline){
 .skills-playtest .playtest-tools button{border-image:var(--art-frame) 8 / 4px / 0 stretch;clip-path:var(--art-cut);border-radius:0;font-family:var(--pixel)}
 body.skills-playtest{font-family:var(--pixel)}
 /* Decorative rims must not create a one-pixel document scroll at phone size. */
-html body:is([data-screen=support],[data-screen=rest-prep]) #app{overflow:clip!important}
+html body:is([data-screen=support],[data-screen=chest],[data-screen=rest-prep]) #app{overflow:clip!important}
 @media(max-width:720px){.skill-book .book-perk .skill-portrait,.skill-book .book-chapters .skill-portrait{width:22px;height:22px}}
 @media(prefers-reduced-motion:reduce){html body :is(button,summary){transition:none!important}}

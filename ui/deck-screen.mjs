@@ -7,27 +7,27 @@
 // This module draws and handles everything that does not change the save. Every real change (equip, swap,
 // take out, Melt, Workshop) goes through the `actions` the app passes in, which call the model's own
 // transactions and then reopen the sheet; the view state object survives that reopen.
-import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=eaten-1';
-import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=eaten-1';
-import {uiIcon} from '../ui-icons.mjs?v=eaten-1';
-import {wispChipText} from '../start-bonus.mjs?v=eaten-1';
-import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=eaten-1';
-import {getEquippedCardStatuses} from '../card-status.mjs?v=eaten-1';
-import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=eaten-1';
-import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=eaten-1';
+import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=stops-2';
+import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=stops-2';
+import {uiIcon} from '../ui-icons.mjs?v=stops-2';
+import {wispChipText} from '../start-bonus.mjs?v=stops-2';
+import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=stops-2';
+import {getEquippedCardStatuses} from '../card-status.mjs?v=stops-2';
+import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=stops-2';
+import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=stops-2';
 import {LIFT_KIND, resolveChain, slotInfo, hereLine, fullRuleText, plateWords, whenOf, markOf, TRIGGER_BY, triggerName, RARITY_WORD, rarityOf, nameOf, shortName, isRest, num, METER_MAX, START_FLAME,
-  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=eaten-1';
-import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips, TIMER_MARK} from './trigger-icons.mjs?v=eaten-1';
-import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=eaten-1';
+  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=stops-2';
+import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips, TIMER_MARK} from './trigger-icons.mjs?v=stops-2';
+import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=stops-2';
 import {triggerLabel, triggerTermKey} from '../card-trigger-labels.mjs';
-import {CARD_TERMS} from '../card-terms.mjs?v=eaten-1';
-import {SKILL_CARDS} from '../skill-cards.mjs?v=eaten-1';
-import {isDevourCard} from '../card-black-hole.mjs?v=eaten-1';
-import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=eaten-1';
-import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=eaten-1';
-import {slotInscriptionId, slotInscriptionList, slotEntry} from '../inscriptions.mjs?v=eaten-1';
-import {inscriptionEffect} from '../inscription-on-card.mjs?v=eaten-1';
-import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=eaten-1';
+import {CARD_TERMS} from '../card-terms.mjs?v=stops-2';
+import {SKILL_CARDS} from '../skill-cards.mjs?v=stops-2';
+import {isDevourCard} from '../card-black-hole.mjs?v=stops-2';
+import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=stops-2';
+import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=stops-2';
+import {slotInscriptionId, slotInscriptionList, slotEntry} from '../inscriptions.mjs?v=stops-2';
+import {inscriptionEffect} from '../inscription-on-card.mjs?v=stops-2';
+import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=stops-2';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const SPARK_SRC = SPARK_ICON_SRC;

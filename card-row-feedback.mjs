@@ -1,6 +1,6 @@
-import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=eaten-1';
-import {createChainStrip, baseColor, stripLayout, STRIP, STRIP_COLORS, resolveStripVariant} from './chain-strip.mjs?v=eaten-1';
-import {createVariantView} from './chain-strip-variants.mjs?v=eaten-1';
+import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=stops-2';
+import {createChainStrip, baseColor, stripLayout, STRIP, STRIP_COLORS, resolveStripVariant} from './chain-strip.mjs?v=stops-2';
+import {createVariantView} from './chain-strip-variants.mjs?v=stops-2';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number = value => Number((Number(value) || 0).toFixed(3));
 const capped = trace => Number.isFinite(trace?.restoredSparks) && Math.abs(trace.restoredSparks - trace.sparks) > 1e-7;
@@ -61,8 +61,9 @@ export function createCardRowFeedback(root, {onInspect = () => {}, reducedMotion
   button.type = 'button'; button.className = 'flight-card-row chain-strip'; button.hidden = true;
   button.setAttribute('aria-haspopup', 'dialog'); button.setAttribute('aria-label', 'Card chain. Pause to inspect your chain.');
   root.append(button);
-  const view = variant === 'b' || variant === 'c' ? createVariantView(variant, {doc, button}) : null; // variant A (below) is the shipped look and is untouched
-  if (view) button.dataset.strip = variant;
+  const view = variant === 'b' || variant === 'c' || variant === 'd' ? createVariantView(variant, {doc, root}) : null; // variant A (below) is the shipped look and is untouched
+  if (view) { button.dataset.strip = variant; button.hidden = true; } // B, C and D draw their own layer (top button stays hidden)
+  let engineRef = null;
   const nodes = []; // {cell, frame, fill, echo, echo2, bar, ref, fireSerial, barSerial, lit}
   let trace = null, sequence = -1, dialog = null, shownVersion = -1, shownFaded = null, timer = null, timerDue = null, shownWidth = -1;
   const close = () => { dialog?.close(); dialog?.remove(); dialog = null; if (button.isConnected) button.focus({preventScroll: true}); };
@@ -82,9 +83,7 @@ export function createCardRowFeedback(root, {onInspect = () => {}, reducedMotion
     // Structure and base colours: only when the Chain, a card's state or its Inscription changed. Empty slots have no node.
     const cells = strip.cells;
     if (view) {
-      const w = view.paint(strip);
-      if (w !== shownWidth) { shownWidth = w; root.style?.setProperty('--strip-w', `${w + 2 * STRIP.padX}px`); }
-      button.hidden = !strip.visible; return;
+      view.paint(strip); button.hidden = true; return;
     }
     while (nodes.length < cells.length) {
       const cell = doc.createElement('span'), frame = doc.createElement('i'), fill = doc.createElement('i'), echo = doc.createElement('i'), echo2 = doc.createElement('i'), bar = doc.createElement('b');
@@ -104,7 +103,7 @@ export function createCardRowFeedback(root, {onInspect = () => {}, reducedMotion
     button.hidden = !strip.visible;
   }
   function flashes() {
-    if (view) { view.flashes(strip, reduced()); return; }
+    if (view) { view.flashes(strip, reduced(), {engine: engineRef, canvas: root.querySelector?.('#flight-canvas') || doc.querySelector?.('#flight-canvas')}); return; }
     const cells = strip.cells, soft = reduced();
     for (let i = 0; i < cells.length; i++) {
       const slot = cells[i], node = nodes[i];
@@ -130,6 +129,7 @@ export function createCardRowFeedback(root, {onInspect = () => {}, reducedMotion
   function fade() {
     if (strip.faded === shownFaded) return;
     shownFaded = strip.faded;
+    if (view) { if (variant !== 'd') { view.layer.style.transitionDuration = !shownFaded || reduced() ? '0ms' : `${STRIP.fadeMs}ms`; view.layer.style.opacity = shownFaded ? String(STRIP.idleOpacity) : '1'; } return; }
     button.style.transitionDuration = !shownFaded || reduced() ? '0ms' : `${STRIP.fadeMs}ms`;
     button.style.opacity = shownFaded ? String(STRIP.idleOpacity) : '1';
   }
@@ -143,7 +143,7 @@ export function createCardRowFeedback(root, {onInspect = () => {}, reducedMotion
   }
   function tick() { timer = null; timerDue = null; strip.advance(now()); flashes(); fade(); schedule(); }
   const listener = marks => { if (strip.fire(marks, now())) { flashes(); fade(); schedule(); } };
-  return {strip, destroy() { if (timer !== null) clearTimer(timer); timer = null; dialog?.remove(); button.remove(); root.style?.removeProperty('--strip-w'); }, attach(engine) { if (engine) engine.cardFireListener = listener; },
+  return {strip, destroy() { if (timer !== null) clearTimer(timer); timer = null; dialog?.remove(); button.remove(); view?.destroy(); root.style?.removeProperty('--strip-w'); }, attach(engine) { engineRef = engine || null; if (engine) engine.cardFireListener = listener; },
     update(snapshot) {
       if (strip.sync(snapshot, now()) || strip.version !== shownVersion) { shownVersion = strip.version; paint(); }
       flashes(); fade(); schedule();

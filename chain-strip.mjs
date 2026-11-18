@@ -5,12 +5,12 @@
 //   Inscription   2 px bar under the frame; blinks white when it acts on a card that cannot flash
 // Flashes are SEQUENTIAL (one at a time, always 0.7 s) with at most ONE pending flash per card (debounce); see createChainStrip.
 // This file is the pure part (no DOM): colours, the firing marks the flight raises, and the state machine the view reads.
-import {SKILL_CARDS} from './skill-cards.mjs?v=eaten-1';
-import {getInscription} from './inscriptions.mjs?v=eaten-1';
+import {SKILL_CARDS} from './skill-cards.mjs?v=stops-2';
+import {getInscription} from './inscriptions.mjs?v=stops-2';
 
 export const STRIP = Object.freeze({flashMs: 700, idleMs: 3000, fadeMs: 600, idleOpacity: 0.12, maxMarks: 32, frameW: 10, frameH: 14, gap: 2, padX: 12, minTouchH: 40, doubleEcho: false});
 /** Look variants for the owner's review (docs/design-versions.md v1.0-strip-A/B/C): a = hollow frames (today), b = thumbnails, c = thread. All three share the queue below. */
-export const STRIP_VARIANTS = Object.freeze(['a', 'b', 'c']);
+export const STRIP_VARIANTS = Object.freeze(['a', 'b', 'c', 'd']);
 export const STRIP_KEY = 'orbix-chain-strip';   // hidden setting: the owner's pick can become the default by writing it here
 /** ?strip=a|b|c wins, then the hidden setting, then 'a'. Never throws (private mode, no window). */
 export function resolveStripVariant(search = globalThis.location?.search || '', storage = globalThis.localStorage) {

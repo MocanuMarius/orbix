@@ -1,7 +1,7 @@
 const host = document.querySelector('#gallery');
 
 async function openChamber() {
-  const { createLanternPreview } = await import('./lantern-preview.mjs?v=eaten-1');
+  const { createLanternPreview } = await import('./lantern-preview.mjs?v=stops-2');
   createLanternPreview({
     host, isPaused: () => document.hidden, play: () => {},
     reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches

@@ -1,16 +1,16 @@
-import {OATHS} from './oaths.mjs?v=eaten-1';
-import {OBJECTIVE_SPARKS} from './route-bonuses.mjs?v=eaten-1';
-import {getBiome} from './biomes.mjs?v=eaten-1';
-import {sparkHabitat} from './spark-fields.mjs?v=eaten-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=eaten-1';
-import {landmarkCategory,guardianNames} from './map-landmarks.mjs?v=eaten-1';
-import {uiIcon} from './ui-icons.mjs?v=eaten-1';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=eaten-1';
-import {glowText} from './vitality.mjs?v=eaten-1';
+import {OATHS} from './oaths.mjs?v=stops-2';
+import {OBJECTIVE_SPARKS} from './route-bonuses.mjs?v=stops-2';
+import {getBiome} from './biomes.mjs?v=stops-2';
+import {sparkHabitat} from './spark-fields.mjs?v=stops-2';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=stops-2';
+import {landmarkCategory,guardianNames} from './map-landmarks.mjs?v=stops-2';
+import {uiIcon} from './ui-icons.mjs?v=stops-2';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=stops-2';
+import {glowText} from './vitality.mjs?v=stops-2';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Flight length sets its Stored Sparks reward; overflow adds a bonus. Ordinary flights do not offer an Inscription.'),
-treasure:stop('treasure','TREASURE','Treasure','Inspect a chest to see its two offers. Taking one leaves the other behind.'),
+treasure:stop('treasure','TREASURE','Treasure','A chest holds two gifts: Stored Sparks or a surprise card. Taking one leaves the other behind.'),
 scribe:stop('scribe','SCRIBE','The Scribe','Scribe — choose an Inscription for a slot of your Chain.'),
 rest:stop('rest','REST','Rest','Recover missing hearts or Grow Spark capacity. Both refill Sparks.'),
 encounter:stop('encounter','ENCOUNTER','Encounter','Choose one of two rewards: you get only the one you tap. Card rewards ask which card. Some offer a one-flight wager or a route mark.'),
