@@ -567,12 +567,14 @@ test("all three guardians and elites drop cards, final guardian records trophy w
   mount(run, ["body-spark", "rhythm"]);
   let guardians = 0,
     elites = 0;
+  let merged = 0; // Growth Seeds merge into one card (mergeGrowthSeeds), so a Seed reward adds no card to the count
   while (run.phase !== "ended") {
     if (run.phase === "map-clear") {
       resolveRewards(state);
       assert.ok(M.advanceMap(run));
       continue;
     }
+    if (run.pendingChest) assert.ok(M.chooseChestReward(state, "sparks")); // a chest left open by the previous stop: take the Stored Sparks (no card, so the card count below holds)
     const choices = M.getChoices(run),
       node =
         choices.find((n) => n.elite) ||
@@ -589,11 +591,13 @@ test("all three guardians and elites drop cards, final guardian records trophy w
       assert.ok(M.resolveSupport(run, index));
       continue;
     }
+    const before = M.getOwnedCards(run).length;
     flight(state, node);
     if (node.elite) elites++;
     if (node.boss) guardians++;
     assert.ok(M.getCardReward(run));
-    assert.equal(M.getOwnedCards(run).length, 2 + run.stats.flights);
+    if (M.getOwnedCards(run).length === before && SKILL_CARDS[run.cardReward.card.cardId].kind === 'camp-grow') merged++;
+    assert.equal(M.getOwnedCards(run).length, 2 + run.stats.flights - merged);
     assert.ok(run.reserveCards.some((card) => card.instanceId === run.cardReward.card.instanceId));
     if (run.phase !== "ended") resolveRewards(state);
   }
@@ -610,6 +614,6 @@ test("all three guardians and elites drop cards, final guardian records trophy w
   assert.ok(M.bankRun(state));
   const restored = reload(state).run;
   assert.deepEqual(restored.finalCardTrophy, run.finalCardTrophy);
-  assert.equal(M.getOwnedCards(restored).length, 2 + run.stats.flights);
+  assert.equal(M.getOwnedCards(restored).length, 2 + run.stats.flights - merged);
   assert.equal(restored.reserveCards.filter((card) => card.instanceId === run.finalCardTrophy.instanceId).length, 1);
 });

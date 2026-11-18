@@ -66,10 +66,10 @@ test('depleted artifacts show full rules and an accurate used-up lifetime withou
 test('pact and challenge inspectors identify their original rules and relevant keywords',()=>{
  const run=richReceipt(),pact=flightRewardReceiptDetail(run,'event-pact');
  assert.equal(pact.title,'The Closed Eye');assert.equal(pact.kind,'event');
- assert.match(pact.markup,/Original encounter/);assert.match(pact.markup,/38%/);assert.match(pact.markup,/triple/);assert.match(pact.markup,/leave the pact freely/);
+ assert.match(pact.markup,/Original encounter/);assert.match(pact.markup,/38%/);assert.match(pact.markup,/Clear the next flight to win/);assert.match(pact.markup,/leave the pact freely/);
  assert.doesNotMatch(pact.markup,/<h3>The Closed Eye<\/h3>/);
  const challenge=flightRewardReceiptDetail(run,'challenge');
- assert.equal(challenge.title,'Wayfinder');assert.match(challenge.markup,/all 3 gold gates/);assert.match(challenge.markup,/2.5s/);
+ assert.equal(challenge.title,'Wayfinder');assert.match(challenge.markup,/all 3 gold gates/);assert.match(challenge.markup,/Stored Sparks/);
  assert.ok(flightRewardReceiptDetail(run,'source-exit').terms.includes('packing'));
  assert.match(flightRewardReceiptDetail(run,'event-chest').markup,/Tollkeeper’s Strongbox/);
 });
