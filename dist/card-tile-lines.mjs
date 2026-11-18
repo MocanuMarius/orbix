@@ -28,6 +28,12 @@ export const CARD_TILE_LINES = Object.freeze({
   'closing-chord': 'Last: all before ×2.5', 'ring-spring': 'Ready 1 s sooner', 'ring-spring-ii': 'Ready 2 s sooner',
   'pacesetter': 'Ready 3 s sooner', 'mending-moss': 'Ready 3 s sooner', 'flash-thread': 'Ready 3 s sooner',
   'chameleon-two': 'Next: any, not growth', 'slip-feather': 'A revealing Pulse', 'edge-reach': 'Pulse; reach +50%', 'double-lift': '2nd Lift is free',
+  // Engine, Pack and Black Hole cards (released 2026-11-18).
+  'metronome': 'Every 3 s: fires next', 'heartbeat': 'Timers wait half', 'slow-wick': 'Pulse: 3 s, then Pulse',
+  'spark-chime': 'Pulse: +1 Spark', 'ember-bell': 'Overfill: sends Pulse', 'long-fuse': 'Pulse: 5 s, fire again',
+  'first-catch': '1st Collect: a Pulse', 'overflow-bell': 'Pulse; keeps 2 Stored', 'flash-tinder': 'Collect: 1 s Flare',
+  'afterglow': 'Flare ends: +2 Sparks', 'third-beat': '3rd Turn counts twice', 'black-hole': 'Eats next: +max Sparks',
+  'full-satchel': 'Pack: +3 Sparks',
 });
 
 /** The line a Deck tile shows: the tile form when the card has one, else its real effect line. */

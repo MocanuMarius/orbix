@@ -137,3 +137,31 @@ The dial is the wait, never a ceiling. The simulation gets a clock (it has none 
 - **Tempo is the dial.** Metronome waits 3 s (Heartbeat 1.5 s). Sweep (`node scripts/balance/simulate.mjs --engine`, now with every Chain of 1 to 3 cards that holds a Metronome, all orders, whole pool): no Chain of 2 or fewer cards pays for all its own Lift; 34 Chains of 3 cards still do (a starter, Metronome, then a +5 or +6 card such as Courier Tip III, Downbeat III or Flash Handling). Measured: 4 s leaves 34, 5 s 23, 6 s 8, 6.5 s 0. The brief's rule (lengthen only while 2-card Chains are unlosable) stops at 3 s; whether to go to 6.5 s is an owner call. 71 of 52569 Chains in all pay for their Lift (was 145 of 41600 at 1.5 s).
 - Medallion numbers now: Chime loop 1 per Turn, 3.3 Turns per 10 s (Heartbeat 6.7); Overflow mill 2 per Turn, 3.3 Turns per 10 s (Heartbeat 6.7).
 - Homing Thread, Momentum and Wave Loom are in the catalog (unreleased). Trigger chips for every engine card: Card Pulse, On gain, Any event, Skim, Low Lift, Each Turn, Timers, Pack, Take-off.
+
+## Release check (18 November 2026, real flights)
+
+Method: each card flown by the repository pilot in the real `WispFlight` (`tests/engine-real-flight.test.mjs`, 6 courses per Chain; the engine log is `flight.cardEngine.log`). Fires and pays are per flight of about 80 s. No loop, no safety stop and no value above 413 (20 times a typical 5-card Chain) in any Chain tried, including Heartbeat + Metronome + Body Spark + Echo III + Overflow Bell (109 Stored a flight).
+
+| Card | Result | Decision |
+| --- | --- | --- |
+| Metronome | Metronome > Body Spark: 21 ticks, +42 Sparks; ticks exactly 3 s apart; a trailing Metronome and a Metronome before a conditional card (Dusk Wick) never fire | Released (help text now says conditions still apply) |
+| Heartbeat | ticks 1.5 s apart, 34.5 ticks with Metronome > Body Spark | Released |
+| Slow Wick, Spark Chime, Ember Bell | First Catch > Chime > Ember Bell > Slow Wick: 8 Turns and 7.5 Sparks a flight; Wick waits exactly 3 s; the loop runs on natural Overfills | Released. The old "Chime loop" is smaller than first written (8 Turns, not 11 Sparks in 30 s); it needs the meter to spill |
+| Long Fuse | with Ember Bell: 8.7 repeats a flight, each exactly 5 s after the Pulse | Released |
+| First Catch | exactly 1 Pulse a flight | Released |
+| Overflow Bell | Body Spark > Overflow Bell: 19 Stored a flight, never more than 2 per Overfill | Released |
+| Flare Tinder + Afterglow | 13.7 one-second Flares and 20.7 Sparks a flight (Afterglow alone: 1.8) | Released together |
+| Third Beat | in Metronome > Body Spark every third Turn pays double: +27% (53 against 42 Sparks) | Released |
+| Full Satchel | +3 into the meter at Pack, 2.5 kept; Echo doubles it | Released (small, like Nest Egg) |
+| Black Hole | eats the card to its right at take-off, +1/+2/+3 max Sparks, confirm dialog exists | Released |
+| Wave Loom | works (21 light Pulses a flight; Wave Loom + Resonant Harvest +36 Sparks); double Pulse with a Slow Wick fixed (a Timer's return Pulse in the same instant merges into the Loom's ring) | Held: no picture. Release when `assets/cards/art/wave-loom.svg` exists |
+| Momentum | works (starts 2.1 times a flight) but +20% Luminance for a Legendary is less than Lantern Lens, a Common | Held. Proposal: +40%, or also +1 Spark per Turn after 5 |
+| Low Ember | 0.6 fires a flight (the meter is rarely under a quarter on a Lift) | Held. Proposal: under half |
+| Close Call | 0.8 skims a flight (+1 Spark and a Pulse) | Held. Proposal: +3 Sparks |
+| Homing Thread | sends the Collector 1.5 times a flight, 0 extra Deliveries in 18 flights | Held. Proposal: search 2x the Collector's reach |
+| Last Round | pays at most +1 and needs a Pulse card to its right | Held. Proposal: the engine's last Turn also fires the Chain's last Trigger |
+| Harvest Home | +1.4 to +3.7 a flight for a Legendary; Dusk and Cluster cards cannot fire on a plain Spark | Held. Proposal: also fire Cluster and Dusk cards, +2 per card |
+
+Two example builds now possible: (1) **Periodic engine**: Metronome > Body Spark (> Third Beat): a Spark card pays every 3 s with no flying; Heartbeat first makes it every 1.5 s. (2) **Overfill mill**: Body Spark > Ember Bell > Slow Wick > Spark Chime (or Overflow Bell for Stored Sparks): each Overfill sends a Pulse that lights the Wick, which returns a Pulse to Slot 1.
+
+Chain screen (same day): a card with a condition on its Trigger (a Dusk Spark, a Cluster, "Pulse · its 1st Spark", a low meter, a busy Collector) no longer reads "No effect here"; it reads "Waits for Dusk Spark" and the reader says "Slot 3: fires when you Collect a Dusk Spark: adds 30." (`dist/ui/chain-model.mjs › conditionOf`). Cards that wait for a Flare ending or a Latch read "waits" too.

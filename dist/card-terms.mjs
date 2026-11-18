@@ -60,7 +60,7 @@ export const CARD_TERMS = Object.freeze({
   clear: ['Finish', 'Trigger: you clear a flight, or you pack your spare Sparks at the end of it.'],
   engine: ['Engine', 'A chain that keeps itself going: one card’s event fires a card to its right, and a Timer sends it back to Slot 1.'],
   turn: ['Turn', 'One trip round an engine: a Timer sends its event back to Slot 1, or a Metronome ticks.'],
-  timer: ['Timer', 'A card that waits, then acts: Slow Wick, Metronome or Long Fuse. An engine needs one to keep turning.'],
+  timer: ['Timer', 'A card that acts on a clock: “Every 3 s” is Metronome, “3 s later” is Slow Wick, “5 s” is Long Fuse. An engine needs one to keep turning.'],
   'engine-skim': ['Skim', 'Trigger: you fly close to terrain until Proximity fills.'],
   timers: ['Timers', 'The card changes every Timer card in your chain.'],
   'take-off': ['Take-off', 'When you start a flight. Cards that say At take-off act then.'],

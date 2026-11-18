@@ -23,7 +23,9 @@ export const TRIGGERS = Object.freeze([
   Object.freeze({kind: 'expedition-victory', name: 'Victory', term: null, meaning: 'You win an expedition.'}),
 ]);
 export const TRIGGER_BY = Object.freeze(Object.fromEntries(TRIGGERS.map(t => [t.kind, t])));
-export const triggerName = kind => TRIGGER_BY[kind]?.name || 'this Trigger';
+// Events a card can wait for that have no tab of their own on the Chain screen (a Flare ending, a Latch, a Swipe).
+const EVENT_LABEL = Object.freeze(Object.fromEntries(Object.values(CARD_TRIGGERS).filter(t => t.event).map(t => [t.event, t.label])));
+export const triggerName = kind => TRIGGER_BY[kind]?.name || EVENT_LABEL[kind] || 'this Trigger';
 
 export const RARITY_WORD = Object.freeze({common: 'Common', rare: 'Rare', legendary: 'Legendary'});
 export const rarityOf = c => SKILL_CARDS[c?.cardId]?.rarity || c?.rarity || 'common';
@@ -63,16 +65,64 @@ export const START_SPARKS = 6;
 export const START_FLAME = START_SPARKS / GLOW_DISPLAY_SCALE;
 const eventFor = kind => Object.freeze({kind, pickupKind: 'light', meterFraction: START_FLAME / METER_MAX});
 
-export function solveTrigger(row, kind, inscriptions = null) {
+// A card with a condition on its Trigger ("Collect · Dusk Spark", "Pulse · its 1st Spark", "meter ⅓ or less") does
+// nothing on the plain preview Spark. That is not a mistake: it waits for a Spark that meets its condition.
+const COND_KEYS = ['pickupKind', 'meterAtMost', 'firstCrossing', 'guardRecovering', 'collectorReeling'];
+// Cards that save Collector time do nothing unless the Collector has time to save; the plain Spark has none.
+const COLLECTOR_OPS = {'shorten-recovery': 'the Collector is recovering', 'shorten-reel': 'the Collector is reeling a Spark in', 'bank-reel': 'the Collector has a reel to shorten'};
+const PICKUP_WORD = {dusk: ['a Dusk Spark', 'Dusk Spark'], cluster: ['a Cluster', 'Cluster'], cache: ['a Cache', 'Cache'], light: ['a plain Spark', 'Plain Spark']};
+const BASE_WORD = {'body-spark': 'when you Collect', 'collector-delivery': 'when Collector delivers', 'guard-rescue': 'when you are saved', 'flash-pickup': 'when you Collect a Flare', 'wave-crossing': 'when a Pulse crosses a Spark'};
+const WAIT_NAME = {'flash-pickup': 'a Flare', 'flash-expiry': 'a Flare ending'};
+/** What a conditional card waits for on its own Trigger: {event: preview fields that meet it, label: plate words, line: "you Collect a Dusk Spark"}. Null for a card without one. */
+export function conditionOf(c, trigger) {
+  const def = SKILL_CARDS[c?.cardId], rule = def ? getCardRowRule(def, c) : null, w = rule?.when;
+  if (!rule || rule.event !== trigger) return null;
+  const timeOp = COLLECTOR_OPS[rule.operation];
+  if (!(w && COND_KEYS.some(k => w[k] !== undefined)) && !timeOp) return null;
+  const event = {}, label = [];
+  let lead = BASE_WORD[trigger] || `on ${triggerName(trigger)}`; const tail = [];
+  if (!w) {Object.assign(event, {availableRecovery: 4, availableReel: 4, collectorReeling: rule.operation === 'shorten-reel'}); return {event, label: 'Collector busy', line: `${lead}, but only while ${timeOp}`};}
+  if (w.pickupKind !== undefined) {
+    const [phrase, short] = PICKUP_WORD[w.pickupKind] || [`a ${w.pickupKind}`, w.pickupKind];
+    event.pickupKind = w.pickupKind; label.push(short);
+    lead = trigger === 'collector-delivery' ? `when Collector delivers ${phrase}` : `when you Collect ${phrase}`;
+  }
+  if (w.firstCrossing !== undefined) {
+    event.firstCrossing = w.firstCrossing; label.push(w.firstCrossing ? 'its 1st Spark' : '2nd Spark onward');
+    lead = w.firstCrossing ? 'when a Pulse crosses the first Spark it reaches' : 'when a Pulse crosses its second or later Spark';
+  }
+  if (w.meterAtMost !== undefined) {event.meterFraction = w.meterAtMost * .5; label.push('low meter'); tail.push('your meter is at a third or less');}
+  if (w.guardRecovering !== undefined) {Object.assign(event, {guardRecovering: w.guardRecovering, availableRecovery: 4}); label.push('after a save'); tail.push('the Collector is recovering from a save');}
+  if (w.collectorReeling !== undefined) {Object.assign(event, {collectorReeling: w.collectorReeling, availableReel: 4, availableRecovery: 4}); label.push('Collector reeling'); tail.push('the Collector is reeling a Spark in');}
+  return {event, label: label.join(', '), line: `${lead}${tail.length ? `, but only while ${tail.join(' and ')}` : ''}`};
+}
+
+export function solveTrigger(row, kind, inscriptions = null, extra = null) {
   const snap = inscriptions?.some(Boolean) ? {cards: row, inscriptions} : row;
   const listens = hasCardRowEvent(snap, kind);
-  const ev = eventFor(kind);
+  const ev = extra ? Object.freeze({...eventFor(kind), ...extra}) : eventFor(kind);
   const receipt = previewCardRow(inscriptions?.some(Boolean) ? {cards: row, inscriptions} : {cards: row}, listens ? ev : {...ev, eligible: false});
   const gainFlame = Math.min(receipt.sparks * CARD_UNIT, Math.max(0, METER_MAX - START_FLAME));
   return {kind, listens, receipt, steps: receipt.steps, sparks: receipt.sparks, gainFlame, gain: glowPoints(gainFlame)};
 }
-/** A Trigger fires this chain when a card listens to it AND the resolver, run with it, has a card that acts. */
-export const triggersFor = (row, inscriptions = null) => TRIGGERS.filter(t => hasCardRowEvent(inscriptions?.some(Boolean) ? {cards: row, inscriptions} : row, t.kind) && solveTrigger(row, t.kind, inscriptions).steps.some(st => st.success));
+/** For each conditional card that did nothing on the plain preview Spark: the same Trigger solved with a Spark that meets its condition. */
+export function conditionalSolves(row, kind, inscriptions, sol) {
+  const out = [], seen = new Set();
+  row.forEach((c, slot) => {
+    if (!c || sol.steps.some(st => st.slot === slot && st.success)) return;
+    const cond = conditionOf(c, kind);
+    if (!cond || seen.has(cond.line)) return;
+    seen.add(cond.line);
+    out.push({...cond, slot, sol: solveTrigger(row, kind, inscriptions, cond.event)});
+  });
+  return out;
+}
+/** A Trigger fires this chain when a card listens to it AND the resolver, run with it, has a card that acts (on the plain Spark, or on the Spark a conditional card waits for). */
+export const triggersFor = (row, inscriptions = null) => TRIGGERS.filter(t => {
+  if (!hasCardRowEvent(inscriptions?.some(Boolean) ? {cards: row, inscriptions} : row, t.kind)) return false;
+  const sol = solveTrigger(row, t.kind, inscriptions);
+  return sol.steps.some(st => st.success) || conditionalSolves(row, t.kind, inscriptions, sol).some(x => x.sol.steps.some(st => st.success));
+});
 
 /** Plates: each card's own contribution in the first firing, with only earlier repeats added to it. */
 export function leftAttribute(row, sol) {
@@ -112,7 +162,7 @@ function whyIdle(ctx, slot, step) {
     default: return {why: `it does not act on ${triggerName(trigger)}`, fix: ''};
   }
 }
-const listensTo = card => {const r = getCardRowRule(SKILL_CARDS[card.cardId], card);return r?.event && r.event !== '*' && TRIGGER_BY[r.event] ? r.event : null;};
+const listensTo = card => {const r = getCardRowRule(SKILL_CARDS[card.cardId], card);return r?.event && r.event !== '*' && (TRIGGER_BY[r.event] || EVENT_LABEL[r.event]) ? r.event : null;};
 
 /** What the plate under one slot says. kind: empty | passive | waits | spent | idle | act (role add/mul/encore/repeat/repeat-paid). */
 export function slotInfo(ctx, slot, {plain} = {}) {
@@ -131,7 +181,11 @@ export function slotInfo(ctx, slot, {plain} = {}) {
     const ownEvent = listensTo(c);
     const copyEvent = ['echo', 'chameleon'].includes(def.kind) && row[slot + 1] ? listensTo(row[slot + 1]) : null;
     const waits = ownEvent || copyEvent;
-    if (waits && waits !== trigger) return {kind: 'waits', plate: `Waits for ${triggerName(waits)}`, waits};
+    if (waits && waits !== trigger) {const waitLabel = WAIT_NAME[waits] || triggerName(waits);return {kind: 'waits', plate: `Waits for ${waitLabel}`, waits, waitLabel};}
+    // Same Trigger, but it needs a Spark that meets its condition (or repeats / boosts one that does).
+    const own = conditionOf(c, trigger)?.line;
+    const hit = (ctx.conds || []).filter(x => x.sol.steps.some(st => st.slot === slot && st.success)).sort((a, b) => (b.line === own) - (a.line === own))[0];
+    if (hit) return {kind: 'waits', plate: `Waits for ${hit.label}`, waits: trigger, waitLabel: hit.label, cond: hit.line, condStep: hit.sol.steps.find(st => st.slot === slot && st.success)};
     return {kind: 'idle', plate: 'No effect here', ...whyIdle(ctx, slot, last)};
   }
   if (ok.operation === 'multiply') {
@@ -173,6 +227,7 @@ export function resolveChain(row, wanted = null, inscriptions = null) {
   const trigger = trigs.some(t => t.kind === wanted) ? wanted : trigs[0]?.kind || 'body-spark';
   const sol = solveTrigger(cards, trigger, inscriptions);
   const ctx = {row: cards, sol, attr: null, plain: false, trigger, trigs};
+  ctx.conds = conditionalSolves(cards, trigger, inscriptions, sol);
   ctx.attr = leftAttribute(cards, sol);
   if (!ctx.attr || Math.abs(plateSum(ctx, true) - Math.round(sol.sparks * 100) / 100) > .011) ctx.plain = true;
   ctx.infos = cards.map((c, i) => slotInfo(ctx, i));
@@ -258,7 +313,13 @@ export function hereLine(ctx, c) {
   if (slot < 0) return 'In your Deck, not in the chain: it does nothing until you put it in a slot.';
   const info = slotInfo(ctx, slot), st = info.step, at = `Slot ${slot + 1}`, on = triggerName(ctx.trigger);
   if (info.kind === 'passive') return `${at}: always on while it is in your chain. It does not fire.`;
-  if (info.kind === 'waits') return `${at}: waits for ${triggerName(info.waits)}. It does nothing on ${on}; that is not a problem.`;
+  if (info.kind === 'waits' && info.cond) {
+    const st2 = info.condStep, next = ctx.row[slot + 1];
+    const does = st2.operation === 'multiply' ? `multiplies the running total by ×${num(st2.multiplier)}` : st2.copiedBy ? `repeats ${next ? shortName(next) : 'the next card'}`
+      : st2.operation === 'replay-row' ? 'fires the chain a second time' : COLLECTOR_OPS[st2.operation] ? 'saves Collector time' : st2.amount > 0 ? `adds ${num(st2.amount)}` : 'acts';
+    return `${at}: fires ${info.cond}: ${does}.`;
+  }
+  if (info.kind === 'waits') return `${at}: waits for ${info.waitLabel || triggerName(info.waits)}. It does nothing on ${on}; that is not a problem.`;
   if (info.kind === 'spent') return `${at}: its Uses were all spent by the repeats to its left, so it cannot act itself. The repeats count on that card.`;
   if (info.kind === 'idle') return `${at}: no effect on ${on}, because ${info.why}.${info.fix ? ` ${info.fix}` : ''}`;
   if (info.role === 'repeat-paid') return `${at}: repeats ${shortName(ctx.row[info.paid.target])} ${info.paid.count} times, +${num(info.paid.amount)} in all. ${shortName(ctx.row[info.paid.target])} then has no Uses left.`;

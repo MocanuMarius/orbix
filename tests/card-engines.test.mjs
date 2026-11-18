@@ -40,8 +40,10 @@ const flightWith = (ids, extra = {}) => {
 
 // ── catalog ─────────────────────────────────────────────────────────────────────────────────────────────────────
 test('the engine cards are in the catalog, unreleased, readable and drawn with existing art', () => {
-  assert.deepEqual(UNRELEASED, ['wave-loom', 'spark-chime', 'ember-bell', 'flash-tinder', 'homing-thread', 'overflow-bell', 'afterglow', 'slow-wick', 'metronome',
-    'long-fuse', 'heartbeat', 'first-catch', 'close-call', 'low-ember', 'third-beat', 'momentum', 'full-satchel', 'last-round', 'harvest-home', 'black-hole', 'chameleon-two', 'whetstone']);
+  // 2026-11-18: 13 engine, Pack and Black Hole cards were released (tests/engine-real-flight.test.mjs); these are still held.
+  assert.deepEqual(UNRELEASED, ['wave-loom', 'homing-thread', 'close-call', 'low-ember', 'momentum', 'last-round', 'harvest-home', 'chameleon-two', 'whetstone']);
+  for (const id of ['spark-chime', 'ember-bell', 'flash-tinder', 'overflow-bell', 'afterglow', 'slow-wick', 'metronome', 'long-fuse', 'heartbeat', 'first-catch', 'third-beat', 'full-satchel', 'black-hole'])
+    assert.ok(LIVE_CARDS.includes(SKILL_CARDS[id]), `${id}: released`);
   for (const id of UNRELEASED) {
     const def = SKILL_CARDS[id], card = describeSkillCard(makeSkillCard(id, `x:${id}`));
     assert.equal(def.unreleased, true); assert.equal(def.excludeStarter, true);

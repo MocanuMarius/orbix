@@ -1,0 +1,137 @@
+// Real flights for the engine, Pack and Black Hole cards (released 2026-11-18). Every card is flown in the actual WispFlight by the
+// repository pilot, in the Chain it is meant for, and the engine log (flight.cardEngine.log) is compared with what the card says.
+// Held cards (still `unreleased`) are listed at the end with the measurement that held them. Table: docs/engine-cards.md, "Release check".
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { fly, sum, BIOME_LEVELS } from '../scripts/balance/real-flight-check.mjs';
+import { SKILL_CARDS, LIVE_CARDS } from '../dist/skill-cards.mjs';
+import { engineFire } from '../dist/chain-strip.mjs';
+import { existsSync } from 'node:fs';
+import { CARD_ART_FILES } from '../dist/card-art-files.mjs';
+import { CARD_TILE_LINES } from '../dist/card-tile-lines.mjs';
+
+const levels = [0, 8, 16].map(i => BIOME_LEVELS[i]).filter(Boolean);
+const flights = (ids, opts = {}) => levels.flatMap(l => [0, 1].map(seedIndex => fly({ ids, levelId: l.id, seedIndex, flare: true, ...opts })));
+const logOf = f => f.log.engine.cardEngine?.log || [];
+const entries = (fl, k, pred = () => true) => fl.flatMap(f => logOf(f).filter(x => x.k === k && pred(x, f)));
+const perFlight = (fl, k, pred) => entries(fl, k, pred).length / fl.length;
+const EPS = 1e-3;
+
+test('Metronome fires the card to its right every 3 s (1.5 s with Heartbeat), only while that card can act', () => {
+  const a = flights(['metronome', 'body-spark']);
+  assert.ok(perFlight(a, 'fired', x => x.slot === 1) >= 8, 'a periodic engine: many ticks per flight');
+  assert.ok(entries(a, 'gain').every(x => x.slot === 1 && x.amount === 2), 'each tick is one Body Spark: +2');
+  for (const f of a) {
+    const t = logOf(f).filter(x => x.k === 'turn').map(x => x.t);
+    for (let i = 1; i < t.length; i++) assert.ok(t[i] - t[i - 1] >= 3 - EPS, 'never faster than 3 s');
+    assert.ok(t.length < 2 || t.some((x, i) => i && Math.abs(x - t[i - 1] - 3) < EPS), 'consecutive ticks are exactly 3 s apart');
+  }
+  const h = flights(['heartbeat', 'metronome', 'body-spark']);
+  for (const f of h) { const t = logOf(f).filter(x => x.k === 'turn').map(x => x.t); for (let i = 1; i < t.length; i++) assert.ok(t[i] - t[i - 1] >= 1.5 - EPS); assert.ok(t.length < 2 || t.some((x, i) => i && Math.abs(x - t[i - 1] - 1.5) < EPS)); }
+  assert.ok(perFlight(h, 'turn') > 1.4 * perFlight(a, 'turn'), 'Heartbeat roughly doubles the ticks');
+  const last = flights(['body-spark', 'metronome']);
+  assert.equal(perFlight(last, 'turn'), 0, 'nothing to its right: it never ticks');
+  assert.ok(perFlight(last, 'metronome-stops') > 0);
+  const cond = flights(['metronome', 'dusk-wick-ii']);
+  assert.equal(perFlight(cond, 'fired'), 0, 'a card whose condition (a Dusk Spark) is not met does not fire');
+});
+
+test('timer firings reach the in-flight Chain strip: a Turn mark for the Metronome Slot, and no timer without a mark', () => {
+  const a = flights(['metronome', 'body-spark']);
+  for (const f of a) {
+    const turns = logOf(f).filter(x => x.k === 'turn');
+    assert.ok(turns.every(x => engineFire(x)?.slot === x.slot), 'every Turn becomes a strip mark for the Timer card');
+    if (turns.length) assert.ok((f.log.engine.cardFires || []).some(m => m.slot === 0 && m.kind === 'fire'), 'the strip log holds a firing for Slot 1');
+  }
+});
+
+test('the Chime loop under today’s rules: First Catch lights it, Ember Bell hears the Overfill, Slow Wick waits 3 s and returns the Pulse; only a Timer returns to Slot 1', () => {
+  const a = flights(['first-catch', 'spark-chime', 'ember-bell', 'slow-wick']);
+  assert.ok(perFlight(a, 'turn') >= 3, `a loop turns: ${perFlight(a, 'turn')} Turns a flight`);
+  assert.ok(entries(a, 'gain').every(x => x.slot === 1 && x.amount === 1), 'Spark Chime gives 1 Spark per Pulse');
+  assert.ok(entries(a, 'hit', x => x.slot === 2).every(x => x.type === 'overfill'), 'Ember Bell hears Overfill and nothing else');
+  assert.ok(entries(a, 'turn').every(x => x.slot === 3), 'only the Timer starts a Turn');
+  assert.ok(entries(a, 'pulse', x => x.slot === -1).every(x => x.back === true), 'only a Timer returns a Pulse to Slot 1');
+  for (const f of a) {
+    const lit = logOf(f).filter(x => x.k === 'lit' || x.k === 'turn');
+    for (let i = 1; i < lit.length; i++) if (lit[i].k === 'turn' && lit[i - 1].k === 'lit') assert.ok(Math.abs(lit[i].t - lit[i - 1].t - 3) < EPS, 'Slow Wick waits 3 s');
+  }
+  assert.equal(perFlight(a, 'halt'), 0);
+  const ember = flights(['body-spark', 'ember-bell', 'slow-wick', 'spark-chime']);
+  assert.ok(perFlight(ember, 'turn') >= 3, 'the loop also runs behind a Collect adder');
+});
+
+test('First Catch sends exactly one Pulse per flight, on the first Collect', () => {
+  const a = flights(['first-catch', 'spark-chime']);
+  for (const f of a) assert.equal(logOf(f).filter(x => x.k === 'hit' && x.slot === 0).length, 1);
+  assert.equal(perFlight(a, 'gain', x => x.slot === 1), 1, 'its Pulse is heard by Spark Chime: +1');
+});
+
+test('Long Fuse repeats the Chain’s last firing exactly 5 s after a Pulse, for what that firing paid', () => {
+  const a = flights(['body-spark', 'ember-bell', 'long-fuse']);
+  assert.ok(perFlight(a, 'fuse') >= 3);
+  assert.ok(entries(a, 'fuse').every(x => x.amount === 2), 'the last firing was a Body Spark: +2');
+  for (const f of a) {
+    const lit = logOf(f).filter(x => x.k === 'lit' || x.k === 'fuse');
+    for (let i = 1; i < lit.length; i++) if (lit[i].k === 'fuse' && lit[i - 1].k === 'lit') assert.ok(Math.abs(lit[i].t - lit[i - 1].t - 5) < EPS);
+  }
+});
+
+test('Overflow Bell sends a Pulse and keeps at most 2 spilled Sparks as Stored Sparks, the same total the flight records', () => {
+  const a = flights(['body-spark', 'overflow-bell']);
+  const kept = entries(a, 'keep');
+  assert.ok(kept.length >= 4 && kept.every(x => x.amount >= 1 && x.amount <= 2), 'keeps 1 to 2 per Overfill');
+  assert.equal(sum(kept, x => x.amount), sum(a, f => f.log.engine.cardEngineStored || 0), 'every kept Spark is a Stored Spark of the flight');
+  const boosted = flights(['body-spark', 'crescendo', 'overflow-bell']);
+  assert.ok(entries(boosted, 'keep').every(x => x.amount <= 2), 'a Boost never makes it keep more');
+});
+
+test('Flare Tinder starts a 1 s Flare on a Collect; its end pays Afterglow +2 each time', () => {
+  const a = flights(['flash-tinder', 'afterglow']);
+  assert.ok(perFlight(a, 'flash') >= 3);
+  const hits = entries(a, 'hit', x => x.slot === 1 && x.type === 'flash-end').length, gains = entries(a, 'gain', x => x.slot === 1);
+  assert.ok(hits >= 3 && gains.every(x => x.amount === 2) && gains.length === hits);
+});
+
+test('Third Beat: every third Turn’s card gain counts twice', () => {
+  const a = flights(['metronome', 'body-spark', 'third-beat']);
+  const gains = entries(a, 'gain');
+  assert.ok(gains.length > 20);
+  assert.ok(gains.every(x => x.amount === (x.turn % 3 === 0 ? 4 : 2)), 'x2 exactly in Turns 3, 6, 9...');
+});
+
+test('Full Satchel (Pack): +3 Sparks go into the meter before it is packed; Echo repeats it', () => {
+  const a = flights(['full-satchel']).filter(f => f.record.success);
+  assert.ok(a.length >= 3);
+  assert.ok(a.every(f => f.log.engine.cardPack?.asked === 3 && f.log.engine.cardPack.sparks <= 3), 'asks 3; the meter takes what fits');
+  assert.ok(a.some(f => f.log.engine.cardPack.sparks > 0));
+  const e = flights(['echo', 'full-satchel']).filter(f => f.record.success);
+  assert.ok(e.length >= 3 && e.every(f => f.log.engine.cardPack?.asked === 6));
+});
+
+test('runaway guard: the strongest released Chains stay under 20 times a typical 5-card Chain (413), never reach the safety stop', () => {
+  const worst = [['heartbeat', 'metronome', 'body-spark', 'echo-iii', 'overflow-bell'], ['metronome', 'body-spark', 'echo-iii', 'overflow-bell', 'heartbeat'], ['first-catch', 'spark-chime', 'echo-iii', 'ember-bell', 'slow-wick'], ['heartbeat', 'metronome', 'downbeat', 'third-beat', 'crescendo']];
+  for (const ids of worst) {
+    const a = flights(ids);
+    for (const f of a) {
+      const ce = f.log.engine.cardEngine;
+      assert.ok(!ce.warned, `${ids.join('+')}: safety limit reached`);
+      assert.ok(ce.asked + ce.stored + f.log.paid < 413, `${ids.join('+')}: ${ce.asked} asked + ${ce.stored} stored + ${f.log.paid} paid`);
+      assert.ok(ce.turn < 200);
+    }
+  }
+});
+
+test('released: every card has a picture and a tile line of 22 characters at most; the held cards are still hidden', () => {
+  const released = ['metronome', 'heartbeat', 'slow-wick', 'spark-chime', 'ember-bell', 'long-fuse', 'first-catch', 'overflow-bell', 'flash-tinder', 'afterglow', 'third-beat', 'black-hole', 'full-satchel'];
+  for (const id of released) {
+    assert.ok(LIVE_CARDS.includes(SKILL_CARDS[id]), `${id} is live`);
+    assert.ok(CARD_ART_FILES[id] && existsSync(new URL('../dist/' + CARD_ART_FILES[id], import.meta.url)), `${id}: picture`);
+    assert.ok(CARD_TILE_LINES[id] && CARD_TILE_LINES[id].length <= 22, `${id}: "${CARD_TILE_LINES[id]}"`);
+  }
+  // Held, with the measurement: Wave Loom has no picture; Momentum is a Legendary worth less than the live Common Lantern Lens (+20% always);
+  // Low Ember fired 0.6 times a flight; Close Call 0.8; Homing Thread sent the Collector 1.5 times a flight and added no Delivery in 18 flights;
+  // Last Round pays at most +1 (it needs a Pulse card to its right); Harvest Home paid +1.4 to +3.7 for a Legendary.
+  for (const id of ['wave-loom', 'momentum', 'low-ember', 'close-call', 'homing-thread', 'last-round', 'harvest-home']) assert.equal(SKILL_CARDS[id].unreleased, true, `${id} stays hidden`);
+  assert.ok(!CARD_ART_FILES['wave-loom'], 'Wave Loom still has no picture, so it stays hidden');
+});

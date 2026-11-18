@@ -93,7 +93,7 @@ const inert = html =>html.replace(/<button type="button"/g, '<span').replace(/<\
 
 function plateHTML(info) {
   const n = num;
-  if (info.kind === 'waits') return `<span class="dk23-waits"><small class="pl-long">Waits for</small><span class="dk23-wline">${triggerIcon(info.waits, 16)}<b class="pl-long">${esc(triggerName(info.waits))}</b><b class="pl-short">Waits</b></span></span>`;
+  if (info.kind === 'waits') return `<span class="dk23-waits"><small class="pl-long">Waits for</small><span class="dk23-wline">${triggerIcon(info.waits, 16)}<b class="pl-long">${esc(info.waitLabel || triggerName(info.waits))}</b><b class="pl-short">Waits</b></span></span>`;
   if (info.kind === 'spent') return '<b class="pl-long">Uses spent</b><b class="pl-short">Spent</b>';
   if (info.role === 'repeat-paid') return `<b class="pl-long">Repeats ×${info.paid.count}: +${n(info.paid.amount)}</b><b class="pl-short">×${info.paid.count}: +${n(info.paid.amount)}</b>`;
   if (info.role === 'mul' && info.m2) return `<b>×${n(info.step.multiplier)}</b><span class="dk23-m2"><b>· ×${n(info.m2)}</b><small>Encore</small></span>`;
@@ -296,13 +296,17 @@ function readerHTML(d, view, opts) {
   return `<div class="dk2-read" id="dk2-read"><div class="dk2-dialog" role="dialog" aria-modal="true" aria-labelledby="dk2-read-name">
     <div class="dk2-face" id="dk2-face" aria-hidden="true">${face}</div>
     <div class="dk2-info">
+     <div class="dk2-info-body">
      <h2 class="dk-sr" id="dk2-read-name">${esc(nameOf(c))}</h2>
      <p class="dk2-rar dc-r-${r}">${gem(r)}<span>${RARITY_WORD[r]}</span></p>
      ${chipOf(c).label ? `<p class="dk21-on"><small>${chipOf(c).kind === 'role' ? 'Role' : 'Trigger'}</small>${chipTermBtn(chipOf(c).id)}</p>` : ''}
      <p class="dk2-here${idle ? ' dk2-here-idle' : ''}">${idle ? `<i class="dk2-warn">${WARN}</i>` : ''}<span>${esc(hereLine(d.chain, c))}</span></p>
      ${at >= 0 && slotInscriptionId(d.run, at) ? inscriptionBlock(at, slotInscriptionId(d.run, at), slotEntry(d.run, at)) : ''}
+     </div>
+     <div class="dk2-info-foot">
      ${acts}
      <button type="button" class="wb-sign wb-sign-quiet dk2-close" id="dk2-close" aria-label="Close ${esc(nameOf(c))}"><span class="wb-sign-text"><b>Close</b></span></button>
+     </div>
     </div></div></div>`;
 }
 
@@ -634,7 +638,9 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
     wrap.classList.toggle('dk21-hasmore', grid.scrollHeight - grid.scrollTop - grid.clientHeight > 2);
   }
   function sizeFace() {
-    const host2 = $('dk2-read'), face = $('dk2-face');
+    const host2 = $('dk2-read'), face = $('dk2-face'), head = $('dk2-head');
+    // The reader starts below the tab bar, so nothing in it can sit on the tabs or the status line.
+    if (host2 && head) host2.style.top = `${head.offsetTop + head.offsetHeight + 4}px`;
     if (host2 && face) face.style.setProperty('--face', `${Math.floor(Math.min(340, host2.clientHeight - 20))}px`);
   }
 

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as M from '../dist/model.mjs';
-import {makeSkillCard, SKILL_CARDS} from '../dist/skill-cards.mjs';
+import {makeSkillCard, SKILL_CARDS, isInventoryOnlyCard} from '../dist/skill-cards.mjs';
 import {cardRewardMarkup} from '../dist/card-ui.mjs';
 import {deckScreenMarkup, createDeckView} from '../dist/ui/deck-screen.mjs';
 
@@ -41,10 +41,12 @@ test('the very first card of a run (nothing mounted) is mounted in the first emp
       const id = Object.keys(SKILL_CARDS).find(k => SKILL_CARDS[k].kind === 'dream');
       draft.offers[0] = makeSkillCard(id, 'dream:offer'); run.cardDraft.offers[0] = draft.offers[0];
     }
-    assert.ok(M.claimDraftedCard(state, draft.id, draft.offers[0].instanceId));
-    assert.equal(run.mountedCards[0]?.instanceId, draft.offers[0].instanceId);
+    // A Rest card (Growth Seed) is never mounted, so a seed whose first offer is one takes the first offer that can be.
+    const at = Math.max(0, draft.offers.findIndex(c => !isInventoryOnlyCard(c)));
+    assert.ok(M.claimDraftedCard(state, draft.id, draft.offers[at].instanceId));
+    assert.equal(run.mountedCards[0]?.instanceId, draft.offers[at].instanceId);
     assert.equal(run.mountedCards.slice(1).filter(Boolean).length, 0, 'no card to its right');
-    assert.equal(M.isCardNew(run, draft.offers[0].instanceId), false, 'a mounted first card needs no badge');
+    assert.equal(M.isCardNew(run, draft.offers[at].instanceId), false, 'a mounted first card needs no badge');
   }
 });
 

@@ -49,8 +49,9 @@ function reachCamp(state) {
 }
 
 test('all 86 literal definitions have supported rules, unique IDs, honest art families and complete bands', () => {
-  // The released catalog; unreleased engine cards (appended last) are covered by tests/card-engines.test.mjs.
-  const defs = Object.values(CARD_CATALOG).filter(def => !def.unreleased), supportedEvents = new Set([
+  // The ordinary chain-walker catalog. Engine cards, Pack cards and Black Hole (released or held) run on the engine and are covered by
+  // tests/card-engines.test.mjs and tests/engine-real-flight.test.mjs.
+  const defs = Object.values(CARD_CATALOG).filter(def => !def.unreleased && !def.engine && def.kind !== 'black-hole'), supportedEvents = new Set([
     '*', 'body-spark', 'wave-crossing', 'flash-pickup', 'flash-expiry', 'downbeat-lift', 'natural-overfill',
     'collector-delivery', 'collector-attach', 'flight-clear', 'rhythm-phrase', 'field-swipe', 'guard-rescue',
   ]), physicalKinds = new Set(['dream', 'luminance', 'proximity-range', 'capacity', 'packing', 'echo', 'chameleon', 'field', 'guide',
@@ -58,7 +59,7 @@ test('all 86 literal definitions have supported rules, unique IDs, honest art fa
     'proximity', 'springboard', 'heart-stitch', 'devourer', 'use-doubler', 'ember-feeder', 'twin-orbit', 'twin-wick', 'collector-range']);
   // 86 since Wave Loom came back as an unreleased engine card (v1.0-engine Phase 2).
   assert.equal(defs.length, 86);
-  assert.equal(new Set(CARD_CATALOG_IDS.filter(id => !CARD_CATALOG[id].unreleased)).size, 86);
+  assert.equal(new Set(CARD_CATALOG_IDS.filter(id => !CARD_CATALOG[id].unreleased && !CARD_CATALOG[id].engine && CARD_CATALOG[id].kind !== 'black-hole')).size, 86);
   assert.deepEqual(defs.reduce((totals, def) => (totals[def.rarity]++, totals), { common: 0, rare: 0, legendary: 0 }),
     { common: 48, rare: 24, legendary: 14 });
   for (const [index, def] of defs.entries()) {
