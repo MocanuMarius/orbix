@@ -1,5 +1,5 @@
-import {getArtifactInfo} from './artifact-info.mjs?v=seed-1';
-import {glowText} from './vitality.mjs?v=seed-1';
+import {getArtifactInfo} from './artifact-info.mjs?v=scroll-1';
+import {glowText} from './vitality.mjs?v=scroll-1';
 
 // One small first-use explanation per flight. Remaining discoveries stay
 // eligible next flight rather than chaining several modal interruptions.
