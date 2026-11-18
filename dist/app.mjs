@@ -1514,7 +1514,7 @@ document.addEventListener('click',e=>{
  const action=button.dataset.action,index=Number(button.dataset.index);
  if(action==='close-sheet'&&button.closest('dialog.card-bench-sheet')){e.stopImmediatePropagation();doneDeck();return;}
  if(action!=='cards'&&!action?.startsWith('card-')&&!action?.startsWith('flight-reward-'))return;
- if(button.closest('.rest2,.forge2')&&button.getAttribute('aria-disabled')==='true')return;
+ if(action!=='card-workshop'&&button.closest('.rest2,.forge2')&&button.getAttribute('aria-disabled')==='true')return;
  switch(action){
   case 'cards':openDeck();break;
   case 'card-rest-select':{const key=button.dataset.key;if(restSelected===key){restConfirm(key,Number(button.dataset.index),button.closest('[data-rest-card]')?.querySelector('[data-token]')?.dataset.token||null);break;}restSelected=key;render(screen);app.querySelector('[data-rest-card="'+key+'"] .rest2-pick')?.focus({preventScroll:true});break;}

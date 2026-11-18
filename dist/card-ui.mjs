@@ -383,7 +383,7 @@ export function restServiceTiles(run) {
 }
 function restTileMarkup(t) {
   const label = `${t.title}${t.price != null ? `, from ${t.price} Stored Sparks` : ''}: ${t.ok ? t.line : t.reason}`;
-  const data = t.id === 'forge' ? `data-action="card-workshop-forge" data-rarity="${esc(t.rarity)}"` : `data-action="card-workshop" data-service="${t.id}"`;
+  const data = t.id === 'forge' && t.ok ? `data-action="card-workshop-forge" data-rarity="${esc(t.rarity)}"` : t.reason === 'Not available now' ? 'data-action="card-rest-unavailable"' : `data-action="card-workshop" data-service="${t.id}"`;
   return `<button type="button" class="rest2-tile${t.ok ? '' : ' is-off'}" ${data} data-rest-service="${t.id}" aria-disabled="${t.ok ? 'false' : 'true'}" aria-label="${esc(label)}"><span class="rest2-ico">${uiIcon(t.icon, {size: 32})}</span><span class="rest2-tname">${esc(t.title)}</span><span class="rest2-price">${t.price != null ? `${resourceSymbol('packed')}<b>${t.price}</b>` : ''}</span><span class="rest2-tline">${esc(t.ok ? t.line : t.reason)}</span><span class="rest2-tstate">${t.ok ? 'Ready' : ''}</span></button>`;
 }
 export function cardRestMarkup(run, node, choices, { selected = null } = {}) {
