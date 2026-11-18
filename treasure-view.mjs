@@ -1,11 +1,11 @@
-import {companionArtSvg} from './companion-art.mjs?v=nozoom-1';
-import {resourceSymbol} from './game-symbols.mjs?v=nozoom-1';
-import {lifeHeartSvg} from './lives.mjs?v=nozoom-1';
-import {getTreasureChoices,getTreasureKind,SKILLS,isCardRun} from './model.mjs?v=nozoom-1';
-import {CHEST_CARD_LINE,chestChoiceLine} from './treasure.mjs?v=nozoom-1';
-import {treasureArt} from './treasure-art.mjs?v=nozoom-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=nozoom-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=nozoom-1';
+import {companionArtSvg} from './companion-art.mjs?v=simrun-1';
+import {resourceSymbol} from './game-symbols.mjs?v=simrun-1';
+import {lifeHeartSvg} from './lives.mjs?v=simrun-1';
+import {getTreasureChoices,getTreasureKind,SKILLS,isCardRun} from './model.mjs?v=simrun-1';
+import {CHEST_CARD_LINE,chestChoiceLine} from './treasure.mjs?v=simrun-1';
+import {treasureArt} from './treasure-art.mjs?v=simrun-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=simrun-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=simrun-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 
