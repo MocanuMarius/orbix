@@ -1,4 +1,4 @@
-import {getPickupSpec} from './pickups.mjs?v=audit-1';
+import {getPickupSpec} from './pickups.mjs?v=tally-1';
 
 // Separate, optional warning lanes. Install after the funded fuel inventory is
 // final: adding Dusk must never replace fuel or enter the reference budget.

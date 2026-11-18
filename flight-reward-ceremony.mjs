@@ -1,14 +1,16 @@
-import {ARTIFACTS,SKILL_CARDS,getCardDraft,lastCourseName} from './model.mjs?v=audit-1';
-import {chipIcon} from './ui/trigger-icons.mjs?v=audit-1';
-import {cardDraftMarkup,cardDraftOffersMarkup} from './card-ui.mjs?v=audit-1';
-import {rewardEarnings} from './reward-screen.mjs?v=audit-1';
-import {resourceSymbol} from './game-symbols.mjs?v=audit-1';
-import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=audit-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=audit-1';
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=audit-1';
-import {sealedPackMarkup} from './flight-reward-pack-art.mjs?v=audit-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=audit-1';
-import {flightRewardReceiptDetail,FLIGHT_REWARD_SOURCE_DETAILS} from './flight-reward-details.mjs?v=audit-1';
+import {ARTIFACTS,SKILL_CARDS,getCardDraft,lastCourseName} from './model.mjs?v=tally-1';
+import {chipIcon} from './ui/trigger-icons.mjs?v=tally-1';
+import {cardDraftMarkup,cardDraftOffersMarkup} from './card-ui.mjs?v=tally-1';
+import {planTally,tallyStateAt,tallyLayout} from './reward-tally.mjs?v=tally-1';
+import {createTallySound} from './reward-tally-sound.mjs?v=tally-1';
+import {rewardEarnings} from './reward-screen.mjs?v=tally-1';
+import {resourceSymbol} from './game-symbols.mjs?v=tally-1';
+import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=tally-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=tally-1';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=tally-1';
+import {sealedPackMarkup} from './flight-reward-pack-art.mjs?v=tally-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=tally-1';
+import {flightRewardReceiptDetail,FLIGHT_REWARD_SOURCE_DETAILS} from './flight-reward-details.mjs?v=tally-1';
 export {flightRewardReceiptDetail};
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -67,8 +69,8 @@ export function flightRewardCeremonyReceipt(run){
   notes:effectEntries.map(entry=>entry.text),effectEntries,wallet:count(run?.condensedGlow)};
 }
 const receiptDetailAttributes=(key,label)=>`type="button" class="flight-reward-detail-trigger" data-action="flight-reward-detail" data-receipt-detail="${esc(key)}" aria-haspopup="dialog" aria-label="Inspect ${esc(label)}"`;
-function renderReceiptSourceRows(rows){
- return rows.map(row=>`<span class="flight-reward-source-row"><button ${receiptDetailAttributes(row.detailKey,row.label)}>${row.chip?`<span class="flight-reward-chip" aria-hidden="true">${chipIcon(row.chip,16)}</span>`:''}<span>${esc(row.label)}</span><span class="flight-reward-detail-affordance" aria-hidden="true">ⓘ</span></button><b>+${row.amount}</b></span>`).join('');
+function renderReceiptSourceRows(rows,offset=0){
+ return rows.map((row,index)=>`<span class="flight-reward-source-row" data-tally-row="${index+offset}"><button ${receiptDetailAttributes(row.detailKey,row.label)}>${row.chip?`<span class="flight-reward-chip" aria-hidden="true">${chipIcon(row.chip,16)}</span>`:''}<span>${esc(row.label)}</span><span class="flight-reward-detail-affordance" aria-hidden="true">ⓘ</span></button><b data-tally-amount>+${row.amount}</b></span>`).join('');
 }
 function renderReceiptEffectRows(entries){
  return entries.map(entry=>`<p><button ${receiptDetailAttributes(entry.detailKey,entry.text)}>${entry.artifactId?`<span class="flight-reward-effect-icon" aria-hidden="true">${artifactIcon(entry.artifactId)}</span>`:''}<span>${esc(entry.text)}</span><span class="flight-reward-detail-affordance" aria-hidden="true">ⓘ</span></button></p>`).join('');
@@ -77,20 +79,21 @@ export function flightRewardCeremonyMarkup(run){
  const draft=getCardDraft(run),stage=flightRewardCeremonyStage(run);
  if(!draft||!stage)return cardDraftMarkup(run);
  const receipt=flightRewardCeremonyReceipt(run),title=draft.boss?'Guardian cleared':draft.elite?'Elite cleared':'Flight cleared';
- const rows=renderReceiptSourceRows(receipt.baseRows);
- const bonus=receipt.bonusRows.length?`<section class="flight-reward-bonus"><header><h2>Optional rewards</h2>${receipt.bonusRows.length>1?`<strong>+<b data-ceremony-bonus>${stage==='income'?0:receipt.bonus}</b></strong>`:''}</header><div class="flight-reward-income-rows">${renderReceiptSourceRows(receipt.bonusRows)}</div></section>`:'';
- const context=receipt.notes.length?`<section class="flight-reward-notes" aria-label="Recorded flight effects"><h2>Recorded effects</h2>${renderReceiptEffectRows(receipt.effectEntries)}</section>`:'';
- const scrollColumn=(className,label,content)=>`<div class="flight-reward-ledger-column ${className}"><div class="flight-reward-scroll-region" data-receipt-scroll role="region" aria-label="${label}" tabindex="0"><div class="flight-reward-scroll-content">${content}</div></div><small class="flight-reward-scroll-cue" data-receipt-scroll-cue hidden>Scroll for more ↓</small></div>`;
- const income=`<article class="flight-reward-income flight-reward-receipt"><div class="flight-reward-summary"><span class="flight-reward-total-label">Earned this flight</span><strong class="flight-reward-income-total" aria-label="Stored Sparks earned">${resourceSymbol('packed')} +<b data-ceremony-income>0</b></strong><span class="flight-reward-bank-status" role="status" data-ceremony-bank-status>Counting Stored Sparks…</span></div><div class="flight-reward-ledger ${context?'has-secondary':'single-column'}">${scrollColumn('flight-reward-ledger-primary','Stored Spark sources',`<section class="flight-reward-clear"><h2>Stored Spark sources</h2><div class="flight-reward-income-rows">${rows||'<span>No clear income</span>'}</div>${bonus}</section>`)}${context?scrollColumn('flight-reward-ledger-secondary','Recorded flight effects',context):''}</div></article>`;
+ const all=[...receipt.baseRows,...receipt.bonusRows],layout=tallyLayout(all.length);
+ const rows=renderReceiptSourceRows(all);
+ const context=receipt.notes.length?`<div class="tally-effects"><div class="flight-reward-scroll-region" data-receipt-scroll role="region" aria-label="Recorded flight effects" tabindex="0"><section class="flight-reward-notes" aria-label="Recorded flight effects"><h2>Recorded effects</h2>${renderReceiptEffectRows(receipt.effectEntries)}</section></div><small class="flight-reward-scroll-cue" data-receipt-scroll-cue hidden>Scroll for more ↓</small></div>`:'';
+ const from=receipt.total>0&&receipt.wallet>=receipt.total?receipt.wallet-receipt.total:null;
+ const income=`<article class="flight-reward-income flight-reward-receipt tally${layout.dense?' tally-dense':''}"><div class="tally-total"><strong class="flight-reward-income-total" aria-label="Stored Sparks earned">${resourceSymbol('packed')}<span>+<b data-ceremony-income>${receipt.total}</b></span></strong><span class="tally-balance" aria-label="Stored Sparks: ${receipt.wallet}"><small>Stored Sparks</small>${from!==null?`<span class="tally-balance-from" data-tally-from><span data-tally-from-value>${from}</span> →</span>`:''}<b data-ceremony-wallet>${receipt.wallet}</b></span><span class="flight-reward-bank-status" role="status" data-ceremony-bank-status>${receipt.total?'Banked ✓':'Clear complete ✓'}</span>${context}</div><div class="tally-sources" style="--tally-rows:${layout.rowsPerColumn}" data-tally-columns="${layout.columns}">${rows||'<span class="tally-empty">No clear income</span>'}</div></article>`;
  const pack=`<div class="flight-reward-pack-context"><p class="flight-reward-bank-status">${receipt.total?`${resourceSymbol('packed')} +${receipt.total} Stored Sparks banked`:'Clear complete'} ✓</p><button type="button" class="flight-reward-pack" data-action="flight-reward-open-pack" data-draft-id="${esc(draft.id)}" aria-label="Open card pack. Reveal three cards, then choose one."><span class="flight-reward-pack-art">${sealedPackMarkup()}</span></button></div>`;
  const fan=stage==='cards'?cardDraftOffersMarkup(draft,{className:'flight-reward-fan'}):'';
- return `<section class="flight-reward-ceremony card-reward-screen ${stage==='cards'?'card-draft-screen':''}" data-stage="${stage}" data-ceremony-draft-id="${esc(draft.id)}"><header class="flight-reward-heading"><div><small>${esc(title)}${lastCourseName(run)?` · <span class="flight-course-name">${esc(lastCourseName(run))}</span>`:''}</small><h1>${stage==='cards'?'Choose 1 card':stage==='pack'?'Your card reward':'Flight rewards'}</h1></div><div class="flight-reward-wallet" aria-label="Wallet: ${receipt.wallet} Stored Sparks">${resourceSymbol('packed')}<b data-ceremony-wallet>${receipt.wallet}</b><small>Stored Sparks</small></div>${stage==='cards'?'<div class="flight-reward-actions flight-reward-header-actions"><button class="secondary" data-action="cards">Deck</button><button class="secondary" data-action="menu">Menu</button></div>':''}</header><div class="flight-reward-stage" data-stage="${stage}">${stage==='income'?income:stage==='pack'?pack:`<p class="flight-reward-choice-note">Tap a card, tap again to take it.</p>${fan||''}`}</div>${stage==='cards'?'':`<footer class="flight-reward-actions">${stage==='income'?`<button type="button" class="flight-reward-receipt-continue" data-action="flight-reward-continue" aria-label="Continue to card pack">Continue</button>`:'<button class="secondary" data-action="cards">Deck</button><button class="secondary" data-action="menu">Menu</button>'}</footer>`}</section>`;
+ const course=lastCourseName(run),kicker=stage==='income'?(course?`<span class="flight-course-name">${esc(course)}</span> · ${esc(title.replace(/^Flight /,''))}`:esc(title)):`${esc(title)}${course?` · <span class="flight-course-name">${esc(course)}</span>`:''}`;
+ return `<section class="flight-reward-ceremony card-reward-screen ${stage==='cards'?'card-draft-screen':''}" data-stage="${stage}" data-ceremony-draft-id="${esc(draft.id)}"><header class="flight-reward-heading"><div><small>${kicker}</small>${stage==='income'?'':`<h1>${stage==='cards'?'Choose 1 card':'Your card reward'}</h1>`}</div>${stage==='income'?'':`<div class="flight-reward-wallet" aria-label="Stored Sparks: ${receipt.wallet}">${resourceSymbol('packed')}<b data-ceremony-wallet>${receipt.wallet}</b><small>Stored Sparks</small></div>`}${stage==='cards'?'<div class="flight-reward-actions flight-reward-header-actions"><button class="secondary" data-action="cards">Deck</button><button class="secondary" data-action="menu">Menu</button></div>':''}</header><div class="flight-reward-stage" data-stage="${stage}">${stage==='income'?income:stage==='pack'?pack:`<p class="flight-reward-choice-note">Tap a card, tap again to take it.</p>${fan||''}`}</div>${stage==='cards'?'':`<footer class="flight-reward-actions">${stage==='income'?`<button type="button" class="flight-reward-receipt-continue" data-action="flight-reward-continue" aria-label="Continue to card pack">Continue</button>`:'<button class="secondary" data-action="cards">Deck</button><button class="secondary" data-action="menu">Menu</button>'}</footer>`}</section>`;
 }
 
 /** Cancellable one-shot feedback. Only a deliberate press advances the receipt. */
-export function mountFlightRewardCeremony({root,run,reducedMotion=false,animateWallet=false}={}){
+export function mountFlightRewardCeremony({root,run,reducedMotion=false,animateWallet=false,createSound}={}){
  if(!root||flightRewardCeremonyStage(run)!=='income')return ()=>{};
- let cancelled=false,frame=0,sprite=null,animation=null;
+ let cancelled=false,frame=0;
  const receipt=flightRewardCeremonyReceipt(run);
  const live=()=>!cancelled&&root.isConnected;
  const scrollRegions=Array.from(root.querySelectorAll('[data-receipt-scroll]'));
@@ -100,35 +103,52 @@ export function mountFlightRewardCeremony({root,run,reducedMotion=false,animateW
  for(const region of scrollRegions){resizeObserver?.observe(region);if(region.firstElementChild)resizeObserver?.observe(region.firstElementChild);}
  root.ownerDocument?.defaultView?.addEventListener('resize',updateScrollCues);
  updateScrollCues();
- const counter=(element,total,duration,initial=0)=>new Promise(resolve=>{
-  if(!element||!total||reducedMotion){if(element)element.textContent=total;resolve();return;}
-  const start=performance.now();const tick=now=>{if(!live()){resolve();return;}const progress=Math.min(1,(now-start)/duration);element.textContent=Math.floor(initial+(total-initial)*(1-Math.pow(1-progress,3)));if(progress<1)frame=requestAnimationFrame(tick);else resolve();};
+ // Display only: the tally is driven by the same receipt, and its last state is exactly the receipt.
+ const wallet=root.querySelector('[data-ceremony-wallet]'),earned=root.querySelector('[data-ceremony-income]'),status=root.querySelector('[data-ceremony-bank-status]');
+ const fromBox=root.querySelector('[data-tally-from]'),fromValue=root.querySelector('[data-tally-from-value]');
+ const rowBoxes=Array.from(root.querySelectorAll('[data-tally-row]')),all=[...receipt.baseRows,...receipt.bonusRows];
+ const walletFrom=receipt.total>0&&receipt.wallet>=receipt.total?receipt.wallet-receipt.total:receipt.wallet;
+ const plan=planTally({rows:all,total:receipt.total,wallet:receipt.wallet,walletFrom,reducedMotion:reducedMotion||!animateWallet});
+ const setFinal=()=>{
+  rowBoxes.forEach((box,i)=>{box.classList.remove('is-pending','is-counting');const b=box.querySelector('[data-tally-amount]');if(b)b.textContent=`+${all[i]?.amount??0}`;});
+  if(earned)earned.textContent=receipt.total;
+  if(wallet)wallet.textContent=receipt.wallet;
+  if(fromValue)fromValue.textContent=walletFrom;
+  root.classList.remove('is-counting','is-banking','tally-playing');root.classList.add('income-counted','bonus-counted','is-banked');
+  if(status){status.textContent=receipt.total?'Banked ✓':'Clear complete ✓';status.classList.add('is-shown');}
+ };
+ const sound=!plan.reducedMotion&&receipt.total>0&&typeof createSound==='function'?createSound():null;
+ let skipped=false,started=0,heard=0,chimed=false,lastRevealed=-1,lastTotal=-1;
+ const skip=()=>{if(!plan.reducedMotion&&!skipped&&root.classList.contains('tally-playing')){skipped=true;cancelAnimationFrame(frame);setFinal();}};
+ if(plan.reducedMotion||plan.endAt===0){setFinal();}
+ else{
+  root.classList.add('tally-playing','is-counting');
+  rowBoxes.forEach(box=>box.classList.add('is-pending'));
+  if(earned)earned.textContent='0';
+  if(wallet)wallet.textContent=walletFrom;
+  if(status){status.textContent='';status.classList.remove('is-shown');}
+  const tick=now=>{
+   if(!live()||skipped)return;
+   started||=now;const t=now-started,state=tallyStateAt(plan,t);
+   rowBoxes.forEach((box,i)=>{
+    const v=state.rows[i];
+    if(v===null){box.classList.add('is-pending');return;}
+    box.classList.remove('is-pending');box.classList.toggle('is-counting',v<all[i].amount);
+    const b=box.querySelector('[data-tally-amount]');if(b)b.textContent=`+${v}`;
+   });
+   while(heard<plan.ticks.length&&t>=plan.ticks[heard]){sound?.tick(heard,plan.ticks.length);heard++;}
+   if(earned&&state.total!==lastTotal){earned.textContent=state.total;lastTotal=state.total;}
+   if(state.revealed!==lastRevealed){lastRevealed=state.revealed;root.classList.remove('tally-bump');void root.offsetWidth;root.classList.add('tally-bump');}
+   if(wallet)wallet.textContent=state.wallet;
+   if(state.done||t>=plan.endAt){if(!chimed){chimed=true;sound?.chime();}setFinal();return;}
+   frame=requestAnimationFrame(tick);
+  };
   frame=requestAnimationFrame(tick);
- });
- const wallet=root.querySelector('[data-ceremony-wallet]'),walletCountAllowed=animateWallet&&!reducedMotion&&receipt.total>0&&receipt.wallet>=receipt.total;
- if(walletCountAllowed&&wallet)wallet.textContent=receipt.wallet-receipt.total;
- (async()=>{
-  root.classList.add('is-counting');
-  await counter(root.querySelector('[data-ceremony-income]'),receipt.base,650);if(!live())return;
-  root.classList.add('income-counted');
-  if(receipt.bonus){await counter(root.querySelector('[data-ceremony-bonus]'),receipt.bonus,420);if(!live())return;}
-  const earned = root.querySelector('[data-ceremony-income]');
-  if (earned) earned.textContent = receipt.total;
-  root.classList.add('bonus-counted','is-banking');
-  const walletArrival=walletCountAllowed?counter(wallet,count(run.condensedGlow),480,receipt.wallet-receipt.total):Promise.resolve();
-  const status=root.querySelector('[data-ceremony-bank-status]');
-  if(status)status.textContent=receipt.total?'Stored Sparks secured in your wallet':'Clear complete';
-  if(receipt.total&&!reducedMotion){
-   const source=root.querySelector('.flight-reward-income-total'),target=root.querySelector('.flight-reward-wallet');
-   if(source&&target){const from=source.getBoundingClientRect(),to=target.getBoundingClientRect();sprite=root.ownerDocument.createElement('div');sprite.className='flight-reward-bank-sprite';sprite.setAttribute('aria-hidden','true');sprite.innerHTML=resourceSymbol('packed');Object.assign(sprite.style,{position:'fixed',left:`${from.left+from.width/2-16}px`,top:`${from.top+from.height/2-16}px`,width:'32px',height:'32px',pointerEvents:'none',zIndex:'1000'});root.ownerDocument.body.appendChild(sprite);
-    animation=sprite.animate([{transform:'translate(0,0) scale(1)',opacity:1},{transform:`translate(${to.left+to.width/2-from.left-from.width/2}px,${to.top+to.height/2-from.top-from.height/2}px) scale(.6)`,opacity:0.6}],{duration:480,easing:'cubic-bezier(.2,.6,.3,1)',fill:'forwards'});
-    try{await animation.finished;}catch{}sprite?.remove();sprite=null;
-   }
-  }
-  await walletArrival;if(!live())return;root.classList.add('is-banked');root.classList.remove('is-counting','is-banking');
-  if(status)status.textContent=receipt.total?'Banked ✓':'Clear complete ✓';
- })();
- return ()=>{cancelled=true;cancelAnimationFrame(frame);animation?.cancel();sprite?.remove();resizeObserver?.disconnect();for(const region of scrollRegions)region.removeEventListener('scroll',updateScrollCues);root.ownerDocument?.defaultView?.removeEventListener('resize',updateScrollCues);if(wallet)wallet.textContent=count(run.condensedGlow);};
+ }
+ // Any press that is not a button (or a source's details) jumps straight to the final numbers; Continue stays one press.
+ const onPress=event=>{if(!event.target.closest?.('[data-action],[data-receipt-detail]'))skip();else if(event.target.closest?.('[data-receipt-detail]'))skip();};
+ root.addEventListener('pointerdown',onPress);
+ return ()=>{cancelled=true;cancelAnimationFrame(frame);sound?.dispose?.();root.removeEventListener('pointerdown',onPress);resizeObserver?.disconnect();for(const region of scrollRegions)region.removeEventListener('scroll',updateScrollCues);root.ownerDocument?.defaultView?.removeEventListener('resize',updateScrollCues);if(wallet)wallet.textContent=count(run.condensedGlow);};
 }
 
 // Keeps the receipt mounted, including each column's scroll position, while a source is open.

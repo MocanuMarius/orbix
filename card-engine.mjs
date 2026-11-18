@@ -18,7 +18,7 @@
 // - Events only move right and each Timer holds at most one pending wait, so one instant always terminates; a hard
 //   safety counter still stops the engine (and warns once) if that is ever exceeded.
 import {SKILL_CARDS, CARD_ECONOMY, cardAmount, getCardRowRule, hasCardRowEvent, matchesRowCondition, matchesRowShape, isInventoryOnlyCard,
-  createCardExecution, resolveCardRow, getCardChargeCapacity} from './skill-cards.mjs?v=audit-1';
+  createCardExecution, resolveCardRow, getCardChargeCapacity} from './skill-cards.mjs?v=tally-1';
 
 export const ENGINE_LIMITS = Object.freeze({ deliveriesPerInstant: 400, timersPerAdvance: 5000, logEntries: 5000, turnLog: 5000 });
 /** Player-made Triggers the engine cards listen to (not CARD_ROW_EVENTS: the ordinary walker never sees them). */
