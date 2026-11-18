@@ -1,48 +1,49 @@
-import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=cue-1';
-import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=cue-1';
-import {drawTerrainBoundary,terrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=cue-1';
-import {spacetimeBaseShape,drawSpacetimeTerrain} from './spacetime.mjs?v=cue-1';
-import {paintContactEdge,isContactEdgeStyle,contactEdgeInk} from './contact-edge-art.mjs?v=cue-1';
-import {ContactEdgeRaster} from './contact-edge-raster.mjs?v=cue-1';
-import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=cue-1';
-import {drawAtlasFlight} from './atlas-flight.mjs?v=cue-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=cue-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=cue-1';
-import { drawShutters } from './shutter-cone.mjs?v=cue-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=cue-1';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=cue-1';
-import {drawCollectorField} from './collector-field-art.mjs?v=cue-1';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=cue-1';
-import {drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=cue-1';
-import {revealLuminanceWaves} from './luminance-waves.mjs?v=cue-1';
-import {drawGlowSense} from './glow-sense.mjs?v=cue-1';
-import {drawLastGlimmer} from './last-glimmer.mjs?v=cue-1';
-import {formatGlow} from './vitality.mjs?v=cue-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=cue-1';
-import {biomePalette,hasBiomeBackground,biomeBackgroundPlacement,drawBiomeBackgroundStrip} from './biome-art.mjs?v=cue-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=cue-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=cue-1';
-import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=cue-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=cue-1';
-import { drawBoss } from './boss.mjs?v=cue-1';
-import {drawFlashTether} from './flash-tether.mjs?v=cue-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=cue-1';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=cue-1';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=cue-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=cue-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery,companionTerrainLight } from './light-field.mjs?v=cue-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=cue-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=cue-1';
-import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=cue-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=cue-1';
-import {drawWispWake} from './wisp-wake.mjs?v=cue-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=cue-1';
-import {drawFallWarning} from './fall-chain-art.mjs?v=cue-1';
-import {castTerrainLight,castTerrainLightGPU,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=cue-1';
-import {LightFogGPU} from './light-gpu.mjs?v=cue-1';
-import {lanternField} from './lantern-layout.mjs?v=cue-1';
+import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=fast-4';
+import {drawTerrainEcology,drawHabitatBackdrop,releaseTerrainEcology} from './terrain-ecology.mjs?v=fast-4';
+import {drawTerrainBoundary,terrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=fast-4';
+import {spacetimeBaseShape,drawSpacetimeTerrain} from './spacetime.mjs?v=fast-4';
+import {paintContactEdge,isContactEdgeStyle,contactEdgeInk} from './contact-edge-art.mjs?v=fast-4';
+import {ContactEdgeRaster} from './contact-edge-raster.mjs?v=fast-4';
+import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=fast-4';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=fast-4';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=fast-4';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=fast-4';
+import { drawShutters } from './shutter-cone.mjs?v=fast-4';
+import {drawProximityMeter} from './proximity-meter.mjs?v=fast-4';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=fast-4';
+import {drawCollectorField} from './collector-field-art.mjs?v=fast-4';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=fast-4';
+import {drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=fast-4';
+import {revealLuminanceWaves} from './luminance-waves.mjs?v=fast-4';
+import {drawGlowSense} from './glow-sense.mjs?v=fast-4';
+import {drawLastGlimmer} from './last-glimmer.mjs?v=fast-4';
+import {formatGlow} from './vitality.mjs?v=fast-4';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=fast-4';
+import {biomePalette,hasBiomeBackground,biomeBackgroundPlacement,drawBiomeBackgroundStrip} from './biome-art.mjs?v=fast-4';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=fast-4';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=fast-4';
+import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=fast-4';
+import { createScenePropArt } from './scene-prop-art.mjs?v=fast-4';
+import { drawBoss } from './boss.mjs?v=fast-4';
+import {drawFlashTether} from './flash-tether.mjs?v=fast-4';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=fast-4';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=fast-4';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=fast-4';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=fast-4';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery,companionTerrainLight } from './light-field.mjs?v=fast-4';
+import {drawExitLandmark} from './exit-landmark.mjs?v=fast-4';
+import {drawBlackHoles,releaseBlackHoleArt} from './black-hole-art.mjs?v=fast-4';
+import {PolygonPath,batchOn} from './rect-raster.mjs?v=fast-4';
+import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=fast-4';
+import {drawShellArcs} from './shell-arcs.mjs?v=fast-4';
+import {drawWispWake} from './wisp-wake.mjs?v=fast-4';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=fast-4';
+import {drawFallWarning} from './fall-chain-art.mjs?v=fast-4';
+import {castTerrainLight,castTerrainLightGPU,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=fast-4';
+import {LightFogGPU} from './light-gpu.mjs?v=fast-4';
+import {lanternField} from './lantern-layout.mjs?v=fast-4';
 // v1.2-level ground, boulders and growth (all twelve biomes). On by default; null with ?scenery=1 or {scenery:1}.
-import {createLevelSceneryTwo} from './level-scenery-two.mjs?v=cue-1';
+import {createLevelSceneryTwo} from './level-scenery-two.mjs?v=fast-4';
 
 const TAU = Math.PI * 2;
 // ?sky=0 keeps the moon and mist drawn rect by rect (the pre-bake path) for comparison.
@@ -51,6 +52,15 @@ const BAKED_SKY = (() => { try { return new URLSearchParams(globalThis.location?
 const BAKED_EDGES = (() => { try { return new URLSearchParams(globalThis.location?.search || '').get('edges') === '1'; } catch { return false; } })();
 const EDGE_LIGHT_PROBE = (() => { try { return new URLSearchParams(globalThis.location?.search || '').get('edgelight') === '0'; } catch { return false; } })();
 const EDGE_CHUNK = 256, EDGE_MARGIN = 48;
+// Cached layers (solid shade course chunks): on by default; ?layers=0 or globalThis.__perfFlags.layers=false rebuilds the shade every frame.
+const LAYERS_URL = (() => { try { return new URLSearchParams(globalThis.location?.search || '').get('layers') !== '0'; } catch { return true; } })();
+const LAYERS_ON = () => { const f = globalThis.__perfFlags; return f && 'layers' in f ? f.layers !== false : LAYERS_URL; };
+// Star layer canvas (one drawImage, repainting only stars whose twinkle changed): OFF by default, ?stars=1.
+// It writes an extra canvas almost every frame; the emulator A/B showed no gain over 57 batched fillRects.
+const STARS_URL = (() => { try { return new URLSearchParams(globalThis.location?.search || '').get('stars') === '1'; } catch { return false; } })();
+const STARS_ON = () => { const f = globalThis.__perfFlags; if (f && f.layers === false) return false; return f && 'stars' in f ? f.stars !== false : STARS_URL; };
+// Diagnostics only (?skip=boss,shutters,light,...): leaves out whole draw groups to bisect a slow frame.
+const SKIP = (() => { try { return new Set((new URLSearchParams(globalThis.location?.search || '').get('skip') || '').split(',').filter(Boolean)); } catch { return new Set(); } })();
 const LOW_RES_OUTPUT = (() => { try { return new URLSearchParams(globalThis.location?.search || '').get('lowres') === '1'; } catch { return false; } })();
 const propContactCache=new WeakMap();
 const cross=(ax,ay,bx,by)=>ax*by-ay*bx;
@@ -123,6 +133,7 @@ export const EDGE_LIGHT = Object.freeze({ peak: .72, floor: .45, reach: .75 });
 const SOLID_FACE_BANDS = Object.freeze([[30, .35], [20, .4], [12, .5], [5, .6]]);
 // Deep rock keeps a trace of its texture instead of turning into a cut-out.
 const SOLID_SHADE_MAX = .86;
+const SHADE_CHUNK = 256;
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 const hash = (x, y = 0, seed = 0) => {
   let n = Math.imul(x | 0, 374761393) ^ Math.imul(y | 0, 668265263) ^ Math.imul(seed | 0, 1274126177);
@@ -364,6 +375,7 @@ export class WispFlightView {
     if (this.backgroundCanvas) this.backgroundCanvas.width = this.backgroundCanvas.height = 1;
     this.backgroundCanvas = null; this.backgroundSample = NaN;
     this.releaseBackgroundStrips();
+    this.releaseShadeChunks();
     this.releaseEdgeChunks?.();
     this.propBounds = new WeakMap();
     this.obstacleCursor = 0; this.lastVisibleDistance = -1;
@@ -393,7 +405,22 @@ export class WispFlightView {
     // Stars: one path per twinkle level when no two stars share a pixel (checked once per size),
     // else one rect each as before. Same pixels and alphas either way.
     const stars = this.starLayout(W, H);
-    if (stars.batch) {
+    if (stars.batch && STARS_ON()) {
+      // Star layer: a transparent canvas holding each star at its current twinkle alpha; only stars whose
+      // level changed are repainted (about one per frame), then one drawImage. Same pixels (no star shares a pixel).
+      const layer = this.starCanvas ??= this.document.createElement('canvas'), lh = Math.ceil(H * .65) + 2;
+      if (layer.width !== W || layer.height !== lh) { layer.width = W; layer.height = lh; this.starLevelNow = null; }
+      const g = layer.getContext('2d'), now = this.starLevelNow ??= new Int8Array(54).fill(-1);
+      g.fillStyle = '#a9b1a0';
+      for (let i = 0; i < 54; i++) {
+        const k = e.reducedMotion ? 5 : Math.floor((Math.sin(t * .7 + i) + 1) * 2); if (now[i] === k) continue; now[i] = k;
+        const x = stars.x[i], y = stars.y[i];
+        g.globalAlpha = .20 + (k === 5 ? .10 : k * .08);
+        g.clearRect(x, y, 1, 1); g.fillRect(x, y, 1, 1);
+        if (i % 17 === 0) { g.clearRect(x - 1, y + 1, 3, 1); g.fillRect(x - 1, y + 1, 3, 1); }
+      }
+      c.drawImage(layer, 0, 0);
+    } else if (stars.batch) {
       c.fillStyle = '#a9b1a0';
       const levels = this.starLevels ??= [[], [], [], [], [], []];
       for (const level of levels) level.length = 0;
@@ -977,7 +1004,7 @@ export class WispFlightView {
     // would light terrain interiors as if nothing blocked them. Where any of
     // them is active, solid rock is re-darkened behind its exposed face.
     const unblocked = !legacy && (e.luminanceWaves?.revealCount > 0 || lanternField(e.layout)?.shutters?.length > 0 || this.flashPropsInView(e));
-    const shade = !legacy && (unblocked || fogAlpha < 1) ? this.solidShade(e) : null;
+    const shade = !legacy && !SKIP.has('shade') && (unblocked || fogAlpha < 1) ? this.solidShade(e) : null;
     // WebGL2 compositor (light-gpu.mjs): same lights, rock law and order, drawn on the GPU.
     // The design lab's legacy look stays on the Canvas 2D path below.
     const gpu = !legacy && this.lightGpu ? this.lightGpu : null;
@@ -1066,31 +1093,96 @@ export class WispFlightView {
     const g = this.shadeContext ??= canvas.getContext('2d'), camera = Math.round(distance * s);
     g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
     g.clearRect(0, 0, W, H); g.fillStyle = '#000000';
+    if (LAYERS_ON() && this.shadeFromChunks(e, g, W, H, s, t, camera)) return canvas;
     for (const o of this.visibleObstacles) {
       if (o.destroyed || o.x + o.width * 2.5 < distance - 10 || o.x - o.width > distance + e.width + 10) continue;
       const center = o.center + Math.sin(t * .9 + (o.phase || 0)) * (o.motion || 0);
       for (const top of SIDES) {
         const shape = top ? o.topShape : o.bottomShape; if (!shape?.length) continue;
         const anchor = center + (top ? -1 : 1) * o.gap / 2;
-        g.beginPath();
-        for (let i = 0; i < shape.length; i++) { const x = Math.round((o.x + shape[i][0]) * s) - camera, y = Math.round((anchor + shape[i][1]) * s); if (i) g.lineTo(x, y); else g.moveTo(x, y); }
-        g.closePath(); g.fill();
+        g.beginPath(); const poly = this.shadePoly ??= new PolygonPath(); poly.begin();
+        for (let i = 0; i < shape.length; i++) poly.add(Math.round((o.x + shape[i][0]) * s) - camera, Math.round((anchor + shape[i][1]) * s));
+        poly.emit(g, -8, W + 8); g.fill();
       }
     }
     const { segments } = terrainBoundary(e, t);
     g.globalCompositeOperation = 'destination-out'; g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = '#000000';
     for (const [depth, alpha] of SOLID_FACE_BANDS) {
       g.globalAlpha = alpha; g.lineWidth = depth * 2 * s; g.beginPath();
+      // Connected segments become one polyline (round joins + round caps cover the same union of
+      // capsules as separate round-capped segments, with far fewer caps to tessellate); ?batch=0: one subpath each.
+      const chain = batchOn(); let lx = NaN, ly = NaN;
       for (const segment of segments) {
         const [ax, ay] = segment.a, [bx, by] = segment.b;
         if (Math.max(ax, bx) < distance - 24 || Math.min(ax, bx) > distance + e.width + 24) continue;
-        g.moveTo(ax * s - camera, ay * s); g.lineTo(bx * s - camera, by * s);
+        if (!chain || ax !== lx || ay !== ly) g.moveTo(ax * s - camera, ay * s);
+        g.lineTo(bx * s - camera, by * s); lx = bx; ly = by;
       }
       g.stroke();
     }
     g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
     return canvas;
   }
+
+  // Solid shade from course chunks (on with ?layers, the default): rock bodies and their lit-face bands
+  // do not move for static obstacles, so each SHADE_CHUNK-pixel column of the course is drawn once with the
+  // same fills and band strokes and then placed with drawImage. Any visible moving or Spacetime obstacle,
+  // or a chunk touching one, uses the per-frame path. Bands of segments up to 30 world units beyond the view
+  // edge are included (the per-frame path drops segments beyond 24), so the outer 3-4 pixels can differ.
+  shadeFromChunks(e, g, W, H, s, t, camera) {
+    const cache = this.shadeChunks ??= { map: new Map(), key: '' }, key = W + ':' + H + ':' + s;
+    if (cache.key !== key) { this.releaseShadeChunks(); cache.key = key; }
+    const first = Math.floor(camera / SHADE_CHUNK), last = Math.floor((camera + W - 1) / SHADE_CHUNK), list = [];
+    for (let i = first; i <= last; i++) {
+      let chunk = cache.map.get(i);
+      if (chunk && !this.shadeChunkValid(chunk)) { cache.invalid = (cache.invalid || 0) + 1; chunk.canvas.width = chunk.canvas.height = 1; cache.map.delete(i); chunk = null; }
+      if (!chunk) { chunk = this.bakeShadeChunk(e, i, H, s, t); if (!chunk) { cache.live = (cache.live || 0) + 1; return false; } cache.bakes = (cache.bakes || 0) + 1; cache.map.set(i, chunk); }
+      else { cache.map.delete(i); cache.map.set(i, chunk); }
+      list.push(chunk);
+    }
+    while (cache.map.size > 8) { const [k, old] = cache.map.entries().next().value; old.canvas.width = old.canvas.height = 1; cache.map.delete(k); }
+    for (const chunk of list) g.drawImage(chunk.canvas, chunk.index * SHADE_CHUNK - camera, 0);
+    cache.used = (cache.used || 0) + 1;
+    return true;
+  }
+  shadeChunkValid(chunk) { for (const [o, destroyed, top, bottom] of chunk.owners) if (!!o.destroyed !== destroyed || o.topShape !== top || o.bottomShape !== bottom) return false; return true; }
+  bakeShadeChunk(e, index, H, s, t) {
+    const x0 = index * SHADE_CHUNK / s, x1 = (index + 1) * SHADE_CHUNK / s, margin = 34, owners = [];
+    for (const o of e.layout.obstacles) {
+      if (o.x - o.width > x1 + margin + 10) break;
+      if (o.x + o.width * 2.5 < x0 - margin - 10) continue;
+      if (o.motion || o.topShape?.spacetime || o.bottomShape?.spacetime) return null;
+      owners.push([o, !!o.destroyed, o.topShape, o.bottomShape]);
+    }
+    const canvas = this.document.createElement('canvas'); canvas.width = SHADE_CHUNK; canvas.height = H;
+    const g = canvas.getContext('2d'); if (!g) return null;
+    const ox = index * SHADE_CHUNK, poly = this.shadePoly ??= new PolygonPath();
+    g.fillStyle = '#000000';
+    for (const [o] of owners) {
+      if (o.destroyed) continue;
+      for (const top of SIDES) {
+        const shape = top ? o.topShape : o.bottomShape; if (!shape?.length) continue;
+        const anchor = o.center + (top ? -1 : 1) * o.gap / 2;
+        g.beginPath(); poly.begin();
+        for (let i = 0; i < shape.length; i++) poly.add(Math.round((o.x + shape[i][0]) * s) - ox, Math.round((anchor + shape[i][1]) * s));
+        poly.emit(g, -8, SHADE_CHUNK + 8); g.fill();
+      }
+    }
+    const { segments } = terrainBoundary(e, t);
+    g.globalCompositeOperation = 'destination-out'; g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = '#000000';
+    for (const [depth, alpha] of SOLID_FACE_BANDS) {
+      g.globalAlpha = alpha; g.lineWidth = depth * 2 * s; g.beginPath(); let lx = NaN, ly = NaN;
+      for (const segment of segments) {
+        const [ax, ay] = segment.a, [bx, by] = segment.b;
+        if (Math.max(ax, bx) < x0 - margin || Math.min(ax, bx) > x1 + margin) continue;
+        if (ax !== lx || ay !== ly) g.moveTo(ax * s - ox, ay * s);
+        g.lineTo(bx * s - ox, by * s); lx = bx; ly = by;
+      }
+      g.stroke();
+    }
+    return { index, canvas, owners };
+  }
+  releaseShadeChunks() { if (!this.shadeChunks) return; for (const c of this.shadeChunks.map.values()) c.canvas.width = c.canvas.height = 1; this.shadeChunks.map.clear(); }
 
   // v1.1 edge light: the contact rim is a soft catch-light, strongest inside
   // the wisp's own light and settling to a calm floor elsewhere, never a
@@ -1450,27 +1542,27 @@ export class WispFlightView {
     c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
     this.updateVisible(e, distance);
     const scenery = this.scenery;
-    this.drawSky(e, t, distance, palette);
+    if (!SKIP.has('sky')) this.drawSky(e, t, distance, palette);
     // Authored parallax supplies the major depth layers in the new art pass.
     c.globalAlpha = rehearsing ? .1 : .34; c.fillStyle = '#03080b'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1;
     const boss = this.bossOptions; boss.height = this.buffer.height; boss.distance = distance; boss.time = t; boss.scale = s; boss.pass = 'silhouette';
-    drawHabitatBackdrop(c,e,{scale:s,distance,time:t});
+    if (!SKIP.has('backdrop')) { drawHabitatBackdrop(c,e,{scale:s,distance,time:t});
     drawCourseArt(c,e,{scale:s,distance});
     drawNearLandscape(c,e,{scale:s,distance});
-    drawCourseArt(c,e,{scale:s,distance,pass:'near'});
+    drawCourseArt(c,e,{scale:s,distance,pass:'near'}); }
     drawFlightForkBackdrops(c,e,{distance,scale:s});
     // The world-anchored guardian stays behind solid ground, but is no longer
     // buried under opaque background layers or the new course landmarks.
-    drawBoss(c, boss);
-    drawGuardianPresence(c,{engine:e,width:this.buffer.width,height:this.buffer.height,distance,time:t});
+    if (!SKIP.has('boss')) drawBoss(c, boss);
+    if (!SKIP.has('presence')) drawGuardianPresence(c,{engine:e,width:this.buffer.width,height:this.buffer.height,distance,time:t});
     if (scenery) this.drawSceneryGrowth(e, t, distance, palette);
-    this.drawTerrain(e, t, distance, palette);
-    boss.pass = 'hands'; drawBoss(c, boss);
+    if (!SKIP.has('terrain')) this.drawTerrain(e, t, distance, palette);
+    boss.pass = 'hands'; if (!SKIP.has('boss')) drawBoss(c, boss);
     this.drawSceneProps(e, t, distance);
     // v1.2-level growth replaces the shared ecology plants and loose stones
     // (e.g. no lichen tufts on ice); Oldgrowth Pines keeps them.
-    if (!scenery || scenery.keepsEcology) drawTerrainEcology(c,e,{scale:s,distance,time:t});
-    if(e.boundaryStyle==='spectral'&&this.edgeRasterEnabled!==false){
+    if ((!scenery || scenery.keepsEcology) && !SKIP.has('ecology')) drawTerrainEcology(c,e,{scale:s,distance,time:t});
+    if(SKIP.has('edges')){}else if(e.boundaryStyle==='spectral'&&this.edgeRasterEnabled!==false){
       const edge=this.contactEdgeRaster??=new ContactEdgeRaster(this.document);
       edge.begin(this.buffer.width,this.buffer.height);
       // Terrain rims are static art: baked per course chunk and drawn as images (see edgeChunks).
@@ -1487,7 +1579,7 @@ export class WispFlightView {
     e.biomeDynamics?.draw(c,{distance,scale:s,height:this.buffer.height});
     this.drawPortal(e,t);
     if (rehearsing) lightDreamScenery(c,this.buffer.width,this.buffer.height);
-    this.drawCollectibles(e, t, distance);
+    if (!SKIP.has('pickups')) this.drawCollectibles(e, t, distance);
     drawFlightForks(c,e,{distance,scale:s});
     this.drawBurstEffects(e, MAIN_LIGHT);
     this.drawMist(e, t, distance, palette);
@@ -1502,11 +1594,11 @@ export class WispFlightView {
     }
     const playerX = e.player.x * s, playerY = yOf(e) * s;
     e.luminanceWaves?.draw(c,{distance,scale:s,time:t});
-    this.lightFog(e, fleet, playerX, playerY);
+    if (!SKIP.has('light')) this.lightFog(e, fleet, playerX, playerY);
     drawWispWake(c,e,s,this.wispRasterScale??1);
     drawFallWarning(c,e,{distance,scale:s,light:this.currentLightState});
     e.drawWayfinder?.(c,s);
-    drawGuardianWarnings(c,{engine:e,distance,scale:s,time:t});
+    if (!SKIP.has('warnings')) drawGuardianWarnings(c,{engine:e,distance,scale:s,time:t});
     e.biomeDynamics?.drawHighlights(c,{distance,scale:s,light:this.currentLightState,playerY:yOf(e)});
     drawAtlasFlight(c,e,{scale:s,distance});
     drawObjectiveMarks(c,e,{scale:s,distance});
@@ -1517,19 +1609,19 @@ export class WispFlightView {
     let collector = null;
     for (let i = 0; i < fleet.length; i++) if (fleet[i].role === 'collector') { collector = fleet[i]; break; }
     this.drawWind(e, t, collector);
-    drawShutters(c,e,{distance,scale:s,playerY:yOf(e),light:this.currentLightState});
+    if (!SKIP.has('shutters')) drawShutters(c,e,{distance,scale:s,playerY:yOf(e),light:this.currentLightState});
     const towLight={engine:e,light:this.currentLightState,playerY:yOf(e)};
     for(const carrier of fleet)if(carrier.role==='collector'&&carrier.carrying)drawCollectorGrip(c,carrier,s,towLight);
-    this.drawFleet(e, t, fleet,'back');
+    if (!SKIP.has('fleet')) this.drawFleet(e, t, fleet,'back');
     for(const carrier of fleet)if(carrier.role==='collector'&&carrier.carrying)drawCarriedSpark(c,carrier,e.captureTime??t,s,e.reducedMotion,e.captureStyle,towLight);
     this.drawMain(e, t, playerX, playerY);
-    this.drawFleet(e, t, fleet,'front');
+    if (!SKIP.has('fleet')) this.drawFleet(e, t, fleet,'front');
     this.drawProtector(e, t, playerX, playerY);
     this.drawAbsorptions(e, t);
     drawFourthBeat(c,e,playerX,playerY,this.wispRasterScale);
     if(e.flashTether)drawFlashTether(c,e.flashTether,{time:e.captureTime ?? t,distance,scale:s,
       playerX:distance+e.player.x,playerY:yOf(e)});
-    drawBlackHoles(c,e,{scale:s,distance,playerY:yOf(e)});
+    if (!SKIP.has('holes')) drawBlackHoles(c,e,{scale:s,distance,playerY:yOf(e)});
     if (!rehearsing) for (const effect of e.pickupEffects || []) {
       const progress = 1 - clamp(effect.life / .72, 0, 1);
       c.globalAlpha = 1 - progress;
@@ -1548,7 +1640,7 @@ export class WispFlightView {
     if(e.completing){c.save();c.globalCompositeOperation='screen';const p=e.completionProgress||0;c.globalAlpha=.11*p*p*(3-2*p)+Math.sin(Math.PI*p)*.02;c.fillStyle='#efd4a0';c.fillRect(0,0,this.buffer.width,this.buffer.height);c.restore();}
     // Composite the closest opaque plane once, after every world light/wash
     // and overlay. Its real-terrain clip leaves open flight and actors clear.
-    drawTerrainForeground(c,e,{scale:s,distance});
+    if (!SKIP.has('foreground')) drawTerrainForeground(c,e,{scale:s,distance});
     if (!rehearsing) drawProximityMeter(c,e,{scale:s});
     this.context.imageSmoothingEnabled = false;
     this.context.drawImage(this.buffer, 0, 0, this.canvas.width, this.canvas.height);
@@ -1562,6 +1654,8 @@ export class WispFlightView {
     releaseTerrainLight(this.engine);
     releaseTerrainBoundaryFrame(this.engine);
     releaseTerrainForeground(this.engine);
+    releaseBlackHoleArt(this.engine);
+    releaseTerrainEcology(this.engine);
     this.contactEdgeRaster?.destroy();this.contactEdgeRaster=null;
     this.releaseEdgeChunks();this.edgeBakeRaster?.destroy();this.edgeBakeRaster=null;
     this.lightGpu?.destroy();this.lightGpu=null;
@@ -1580,11 +1674,12 @@ export class WispFlightView {
     if (this.maskCanvas) this.maskCanvas.width = this.maskCanvas.height = 1;
     if (this.forwardMaskCanvas) this.forwardMaskCanvas.width=this.forwardMaskCanvas.height=1;
     if (this.skyCanvas) this.skyCanvas.width = this.skyCanvas.height = 1;
-    for (const layer of [this.moonLayer, this.mistCanvas, this.wakeLayer]) if (layer) layer.width = layer.height = 1;
-    this.moonLayer = this.mistCanvas = this.wakeLayer = null;
+    for (const layer of [this.moonLayer, this.mistCanvas, this.wakeLayer, this.starCanvas]) if (layer) layer.width = layer.height = 1;
+    this.moonLayer = this.mistCanvas = this.wakeLayer = this.starCanvas = null;
     if (this.backgroundCanvas) this.backgroundCanvas.width = this.backgroundCanvas.height = 1;
     this.backgroundCanvas = this.backgroundContext = null;
     this.releaseBackgroundStrips();
+    this.releaseShadeChunks();
     this.depthLayers=null;
     this.fogPixels = null; this.context = null; this.bufferContext = null; this.fogContext = null;
   }

@@ -1,8 +1,8 @@
-import {WispFlight} from './flight.mjs?v=cue-1';
-import {CARD_SYSTEM,makeSkillCard,getMountedCards,getCardModifiers} from './skill-cards.mjs?v=cue-1';
-import {cardArt} from './card-ui.mjs?v=cue-1';
-import {createRhythmScore} from './rhythm-score.mjs?v=cue-1';
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=cue-1';
+import {WispFlight} from './flight.mjs?v=fast-4';
+import {CARD_SYSTEM,makeSkillCard,getMountedCards,getCardModifiers} from './skill-cards.mjs?v=fast-4';
+import {cardArt} from './card-ui.mjs?v=fast-4';
+import {createRhythmScore} from './rhythm-score.mjs?v=fast-4';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=fast-4';
 
 export const COMBO_LESSON_ID='rhythm-harvest';
 export const COMBO_LESSON_GAP=.8;
@@ -75,10 +75,10 @@ export function createComboLessonController({canvas,mode='guided',preflight=fals
   return controller;
 }
 
-const styles=new URL('./combo-lesson.css?v=cue-1',import.meta.url).href;
+const styles=new URL('./combo-lesson.css?v=fast-4',import.meta.url).href;
 function ensureStyles(doc){
   if(!doc.querySelector('link[data-combo-lesson-style]')){const link=doc.createElement('link');link.rel='stylesheet';link.href=styles;link.dataset.comboLessonStyle='';doc.head.append(link);}
-  if(!doc.querySelector('link[href*="rhythm-score.css"]')){const link=doc.createElement('link');link.rel='stylesheet';link.href=new URL('./rhythm-score.css?v=cue-1',import.meta.url).href;doc.head.append(link);}
+  if(!doc.querySelector('link[href*="rhythm-score.css"]')){const link=doc.createElement('link');link.rel='stylesheet';link.href=new URL('./rhythm-score.css?v=fast-4',import.meta.url).href;doc.head.append(link);}
 }
 function cardPairMarkup(){return getMountedCards(lessonCards()).filter(Boolean).map((card,index)=>`<div class="combo-lesson-card" data-lesson-card="${index}">${cardArt(card,{compact:true})}<span><strong>${card.name}</strong><small>${index?'Common · rank 1':'Rare'}</small></span></div>`).join('');}
 

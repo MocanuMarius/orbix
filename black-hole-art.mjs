@@ -1,5 +1,6 @@
-import {lightVisibility,renderLightState} from './light-field.mjs?v=cue-1';
-import {drawBlackHoleWarning} from './black-hole-warning.mjs?v=cue-1';
+import {lightVisibility,renderLightState} from './light-field.mjs?v=fast-4';
+import {drawBlackHoleWarning} from './black-hole-warning.mjs?v=fast-4';
+import {rectBatch,identityTransform} from './rect-raster.mjs?v=fast-4';
 // Pixel accretion and stolen-light trails. Cosmetics consume recorded drain;
 // rendering never spends fuel or changes the simulation.
 const TAU=Math.PI*2,MAX_MOTES=96;
@@ -10,7 +11,74 @@ function disc(c,x,y,r,ink,quantum=1){
  c.fillStyle=ink;r=Math.max(1,Math.round(r));
  for(let row=-r;row<=r;row+=quantum){const half=Math.floor(Math.sqrt(Math.max(0,r*r-row*row)));c.fillRect(Math.round(x-half),Math.round(y+row),half*2+1,quantum);}
 }
-function view(e){let v=views.get(e);if(!v){v={motes:[],credits:new Map(),lastTime:-Infinity,serial:0,height:e.height};views.set(e,v);}return v;}
+// Hole sprites (on by default; ?bh=0 or globalThis.__perfFlags.bh=false issues every pixel run as its own
+// fillRect, as before): the two halo discs and the core disc are baked once per radius and placed on the same
+// integer pixel grid (pixel-identical). Optional (?bhraster=1): halos, rim sparks and the accretion disk are
+// composited in JS (source-over, same order, alpha and inks) into one small RGBA image per hole.
+const BH_URL=(()=>{try{return new URLSearchParams(globalThis.location?.search||'').get('bh')!=='0';}catch{return true;}})();
+const batchedOn=()=>{const f=globalThis.__perfFlags;return f&&'bh' in f?f.bh!==false:BH_URL;};
+// Per-frame JS compositing of halos, sparks, disk and motes (one putImageData + drawImage per hole): OFF by
+// default (?bhraster=1 turns it on). It cuts ~400 fillRects to 2 operations, but writes an extra canvas every
+// frame, and on the emulator each extra written canvas costs a raster flush; the A/B did not show a gain.
+const RASTER_URL=(()=>{try{return new URLSearchParams(globalThis.location?.search||'').get('bhraster')==='1';}catch{return false;}})();
+const rasterOn=()=>{const f=globalThis.__perfFlags;if(f&&'bh' in f&&f.bh===false)return false;return f&&'bhraster' in f?f.bhraster!==false:RASTER_URL;};
+const DISC_CACHE=24;
+function view(e){let v=views.get(e);if(!v){v={motes:[],credits:new Map(),lastTime:-Infinity,serial:0,height:e.height,discs:new Map(),raster:null};views.set(e,v);}return v;}
+const inks=new Map();
+function inkOf(v){let k=inks.get(v);if(!k){const m=/^#([0-9a-f]{6})$/i.exec(v);if(!m)return null;const n=parseInt(m[1],16);k=[(n>>16)/255,((n>>8)&255)/255,(n&255)/255];inks.set(v,k);}return k;}
+/** The subset of CanvasRenderingContext2D the hole art uses (fillStyle hex, globalAlpha, whole-pixel fillRect). */
+class RectRaster{
+ constructor(doc){this.doc=doc;this.canvas=null;this.w=0;this.h=0;this.x0=0;this.y0=0;this.acc=null;this.image=null;this.ink=[0,0,0];this.alpha=1;this.ok=true;}
+ set fillStyle(v){const k=inkOf(v);if(k)this.ink=k;else this.ok=false;}
+ get fillStyle(){return '#000000';}
+ set globalAlpha(v){if(v>=0&&v<=1)this.alpha=v;}
+ get globalAlpha(){return this.alpha;}
+ begin(x0,y0,w,h){
+  if(!this.canvas||w>this.canvas.width||h>this.canvas.height){
+   this.canvas??=this.doc.createElement('canvas');this.canvas.width=Math.max(w,this.canvas.width|0);this.canvas.height=Math.max(h,this.canvas.height|0);
+   this.g=this.canvas.getContext('2d');this.image=null;
+  }
+  if(!this.image||this.image.width!==w||this.image.height!==h){this.image=this.g.createImageData(w,h);this.acc=new Float32Array(w*h*4);}else this.acc.fill(0);
+  this.x0=x0;this.y0=y0;this.w=w;this.h=h;this.alpha=1;this.ok=true;
+ }
+ fillRect(x,y,w,h){
+  const a=this.alpha;if(!(a>0))return;
+  let x0=Math.round(x)-this.x0,y0=Math.round(y)-this.y0,x1=x0+Math.round(w),y1=y0+Math.round(h);
+  if(x0<0)x0=0;if(y0<0)y0=0;if(x1>this.w)x1=this.w;if(y1>this.h)y1=this.h;if(x1<=x0||y1<=y0)return;
+  const [r,g,b]=this.ink,pr=r*a,pg=g*a,pb=b*a,keep=1-a,acc=this.acc,W=this.w;
+  for(let yy=y0;yy<y1;yy++)for(let i=(yy*W+x0)*4,end=(yy*W+x1)*4;i<end;i+=4){acc[i]=pr+acc[i]*keep;acc[i+1]=pg+acc[i+1]*keep;acc[i+2]=pb+acc[i+2]*keep;acc[i+3]=a+acc[i+3]*keep;}
+ }
+ /** Places the composited image at its pixel origin (the destination's globalAlpha must be 1). */
+ flush(c){
+  const acc=this.acc,d=this.image.data;
+  for(let i=0;i<acc.length;i+=4){const A=acc[i+3];if(A<=0){d[i]=d[i+1]=d[i+2]=d[i+3]=0;continue;}d[i]=acc[i]/A*255+.5;d[i+1]=acc[i+1]/A*255+.5;d[i+2]=acc[i+2]/A*255+.5;d[i+3]=A*255+.5;}
+  this.g.putImageData(this.image,0,0);
+  c.drawImage(this.canvas,0,0,this.w,this.h,this.x0,this.y0,this.w,this.h);
+ }
+ release(){if(this.canvas)this.canvas.width=this.canvas.height=1;this.canvas=null;this.image=null;this.acc=null;}
+}
+function rasterFor(c,v){
+ if(v.raster)return v.raster;
+ const doc=c.canvas?.ownerDocument||globalThis.document;if(!doc?.createElement)return null;
+ try{v.raster=new RectRaster(doc);}catch{return null;}return v.raster;
+}
+function discSprite(c,v,r,ink,q){
+ r=Math.max(1,Math.round(r));const key=r+':'+q+':'+ink;let s=v.discs.get(key);
+ if(s){v.discs.delete(key);v.discs.set(key,s);return s;}
+ const doc=c.canvas?.ownerDocument||globalThis.document;if(!doc?.createElement)return null;
+ const canvas=doc.createElement('canvas');canvas.width=2*r+1;canvas.height=2*r+q;const g=canvas.getContext('2d');if(!g)return null;
+ disc(g,r,r,r,ink,q);s={canvas,r};v.discs.set(key,s);
+ if(v.discs.size>DISC_CACHE){const [k,old]=v.discs.entries().next().value;v.discs.delete(k);old.canvas.width=old.canvas.height=1;}
+ return s;
+}
+/** Same pixels as disc(c,x,y,r,ink,q): rows sit at round(y)+row and start at round(x)-half for whole r. */
+function drawDisc(c,v,x,y,r,ink,q){
+ const s=batchedOn()&&discSprite(c,v,r,ink,q);
+ if(!s)return disc(c,x,y,r,ink,q);
+ c.drawImage(s.canvas,Math.round(x)-s.r,Math.round(y)-s.r);
+}
+/** Frees the canvases of one flight (renderer teardown). */
+export function releaseBlackHoleArt(e){const v=views.get(e);if(!v)return;for(const s of v.discs.values())s.canvas.width=s.canvas.height=1;v.discs.clear();v.raster?.release();v.raster=null;views.delete(e);}
 function update(v,e){
  const now=e.time||0;if(v.height!==e.height){v.height=e.height;v.motes.length=0;}if(v.lastTime===now)return;
  if(now<v.lastTime){v.motes.length=0;v.credits.clear();}v.lastTime=now;
@@ -275,19 +343,25 @@ export function drawBlackHoles(c,e,{scale=1,distance=e.renderDistance??e.distanc
   }
   const proximity=clamp(1-(Math.abs(worldX-e.player.x)-90)/380,.15,1)*lightVisibility(e,light,worldX,hole.y,playerY);
   if(proximity<=0)continue;
+  const raster=rasterOn()&&rasterFor(c,v);
+  let g=c;
+  if(raster){const R=Math.ceil(r*3.7)+2*q+4;raster.begin(Math.round(x)-R,Math.round(y)-R,2*R+1,2*R+1);g=raster;}
   // A dark halo separates the bright disk from the surrounding scenery.
-  c.globalAlpha=.14*proximity;disc(c,x,y,r*3.2,'#020104',q);
-  c.globalAlpha=.3*proximity;disc(c,x,y,r*2.2,'#070307',q);
+  g.globalAlpha=.14*proximity;if(raster)disc(g,x,y,r*3.2,'#020104',q);else drawDisc(c,v,x,y,r*3.2,'#020104',q);
+  g.globalAlpha=.3*proximity;if(raster)disc(g,x,y,r*2.2,'#070307',q);else drawDisc(c,v,x,y,r*2.2,'#070307',q);
   // Bounded cosmetic Hawking-like rim emission: outward blue-white pixels,
   // distinct from the larger stolen-light fragments spiralling inward.
   for(let i=0;i<(e.reducedMotion?4:12);i++){
    const age=(t*.55+i*.61803398875)%1,angle=i*2.39996+(hole.seed||0)*.01;
    const rr=r*(1.05+age*2.6),px=x+Math.cos(angle)*rr,py=y+Math.sin(angle)*rr;
-   c.globalAlpha=proximity*Math.sin(age*Math.PI)*.48;c.fillStyle=i%3?'#adcadd':'#e8f4ed';
-   c.fillRect(Math.round(px),Math.round(py),q,q);
+   g.globalAlpha=proximity*Math.sin(age*Math.PI)*.48;g.fillStyle=i%3?'#adcadd':'#e8f4ed';
+   g.fillRect(Math.round(px),Math.round(py),q,q);
   }
-  accretionDisk(c,x,y,r,proximity,t,hole.seed||0);
+  accretionDisk(g,x,y,r,proximity,t,hole.seed||0);
+  if(raster&&raster.ok){c.globalAlpha=1;raster.flush(c);}
  }
+ // Siphoned motes: one batch (rect-raster.mjs) for all of them when bh is on.
+ const motes=v.motes.length&&rasterOn()&&identityTransform(c)?rectBatch(c.canvas?.ownerDocument,'motes'):null,mg=motes?motes.begin(c.globalAlpha):c;
  for(const p of v.motes){
   const age=(e.captureTime??e.visualTime??now)-p.born;
   if(age<0||age>p.life)continue;
@@ -296,9 +370,10 @@ export function drawBlackHoles(c,e,{scale=1,distance=e.renderDistance??e.distanc
   const x=(point.x-distance)*scale,offset=(1-clamp(age/p.approach,0,1))*(playerY-e.player.y);
   const y=(point.y+offset)*scale;
   if(x<-36||x>e.width*scale+36||y< -36||y>e.height*scale+36)continue;
-  c.globalAlpha=.87*(1-absorption*.45);
-  drawSiphonMote(c,p,age,x,y,scale);
+  mg.globalAlpha=.87*(1-absorption*.45);
+  drawSiphonMote(mg,p,age,x,y,scale);
  }
+ if(motes)motes.flush(c);
  for(const hole of e.blackHoles.items){
   const x=(hole.x-distance)*scale;
   if(hole.giant){
@@ -309,7 +384,7 @@ export function drawBlackHoles(c,e,{scale=1,distance=e.renderDistance??e.distanc
    continue;
   }
   if(x<-100*scale||x>(e.width+100)*scale)continue;
-  c.globalAlpha=1;disc(c,x,hole.y*scale,hole.coreRadius*scale,'#000000',q);
+  c.globalAlpha=1;drawDisc(c,v,x,hole.y*scale,hole.coreRadius*scale,'#000000',q);
  }
  c.restore();
 }

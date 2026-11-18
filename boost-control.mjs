@@ -1,5 +1,5 @@
-import { getCompanionAbility, normalizeCompanionFleet } from './companion-abilities.mjs?v=cue-1';
-import { companionArtSvg, companionPalette } from './companion-art.mjs?v=cue-1';
+import { getCompanionAbility, normalizeCompanionFleet } from './companion-abilities.mjs?v=fast-4';
+import { companionArtSvg, companionPalette } from './companion-art.mjs?v=fast-4';
 const clamp=n=>Math.max(0,Math.min(1,Number(n)||0));
 const finite=(n,f=0)=>Number.isFinite(Number(n))?Number(n):f;
 const sparks=[[0,-54],[38,-38],[54,0],[38,38],[0,54],[-38,38],[-54,0],[-38,-38]];

@@ -1,6 +1,6 @@
-import {drawAuthoredBackdrop,drawAuthoredPlant} from './authored-environment.mjs?v=cue-1';
-import {terrainBoundary,terrainSurfaceExposed} from './terrain-boundary.mjs?v=cue-1';
-import {spacetimeSurfaceOffsetAt} from './spacetime.mjs?v=cue-1';
+import {drawAuthoredBackdrop,drawAuthoredPlant} from './authored-environment.mjs?v=fast-4';
+import {terrainBoundary,terrainSurfaceExposed} from './terrain-boundary.mjs?v=fast-4';
+import {spacetimeSurfaceOffsetAt} from './spacetime.mjs?v=fast-4';
 // Decorative life is anchored to the actual landform. It never enters the
 // collider, pickup, reward or dynamic-hazard registries.
 const habitats = {
@@ -129,8 +129,8 @@ function stroke(c,points,ink,width=1){
   }
   c.strokeStyle=ink;c.lineWidth=width;c.stroke();
 }
-function tuft(c,h,x,y,sign,seed,time,push,reduced,slope){
-  const flutter=reduced?0:Math.sin(time*1.6+seed)*1.3;
+function tuft(c,h,x,y,sign,seed,time,push,reduced,slope,fixedFlutter){
+  const flutter=fixedFlutter??(reduced?0:Math.sin(time*1.6+seed)*1.3);
   const mushroom=h.plant==='mushroom';
   const count=mushroom?3:h.plant==='lichen'?3:5;
   for(let i=0;i<count;i++){
@@ -180,10 +180,79 @@ function animal(c,h,x,y,seed,time,reaction,reduced,slope){
     c.fillStyle=h.flower;c.globalAlpha=.35;c.fillRect(Math.round(xx),Math.round(yy),1,1);c.globalAlpha=1;
   }
 }
+// Site sprites (on by default; ?tufts=0 or globalThis.__perfFlags.tufts=false draws every stroke each frame,
+// as before). A plant tuft, a roof root cluster or a loose stone is drawn once into a small canvas with the
+// same strokes, alpha and scale, and placed with one drawImage on the pixel grid. Sway is quantised to 16
+// phases per cycle, the player's push to half a world unit, the site's sub-unit height to quarters; the
+// sprite's world origin is snapped to a whole pixel (up to half a pixel from the scaled position).
+// Lazy: at most SITE_BAKES bakes per frame (misses draw directly), LRU capped, released with the flight.
+const TUFTS_URL=(()=>{try{return new URLSearchParams(globalThis.location?.search||'').get('tufts')!=='0';}catch{return true;}})();
+const tuftsOn=()=>{const f=globalThis.__perfFlags;return f&&'tufts' in f?f.tufts!==false:TUFTS_URL;};
+const SWAY_PHASES=16,SITE_CACHE=640,SITE_BAKES=6,ATLAS=1024;
+const siteCaches=new WeakMap();
+// Diagnostics only (?skip=plants = every ground plant, tufts = only the stroked tufts, stones, water, animals): leaves out parts of the ecology to bisect a slow frame.
+const SKIP=(()=>{try{return new Set((new URLSearchParams(globalThis.location?.search||'').get('skip')||'').split(',').filter(Boolean));}catch{return new Set();}})();
+// World-unit box around the site anchor that every site drawing fits in.
+const BOX={left:-30,top:-44,right:30,bottom:30};
+// All site sprites live in ONE atlas canvas per flight (one texture: the GPU can batch every
+// site drawImage, unlike hundreds of separate small canvases). Slots are reused LRU.
+function siteCache(c,e,scale){
+  if(!tuftsOn()||!(scale>0))return null;
+  let k=siteCaches.get(e);
+  if(!k){k={map:new Map(),scale,frame:0,bakes:0,made:0,misses:0,atlas:null,g:null,free:[],queue:[]};siteCaches.set(e,k);}
+  if(k.scale!==scale){releaseSites(k);k.scale=scale;}
+  k.frame++;k.bakes=0;if(k.queue?.length&&k.atlas)bakeQueued(k);
+  if(!k.atlas){
+    const doc=c.canvas?.ownerDocument||globalThis.document;if(!doc?.createElement)return null;
+    k.tx=Math.round(-BOX.left*scale)+1;k.ty=Math.round(-BOX.top*scale)+1;k.w=Math.ceil((BOX.right-BOX.left)*scale)+3;k.h=Math.ceil((BOX.bottom-BOX.top)*scale)+3;
+    k.cols=Math.max(1,Math.floor(ATLAS/k.w));const rows=Math.max(1,Math.floor(ATLAS/k.h));k.slots=Math.min(SITE_CACHE,k.cols*rows);
+    k.atlas=doc.createElement('canvas');k.atlas.width=k.cols*k.w;k.atlas.height=Math.ceil(k.slots/k.cols)*k.h;
+    k.g=k.atlas.getContext('2d');if(!k.g){k.atlas=null;return null;}
+    k.free=Array.from({length:k.slots},(_,i)=>k.slots-1-i);
+  }
+  return k;
+}
+function releaseSites(k){if(k.atlas)k.atlas.width=k.atlas.height=1;k.atlas=null;k.g=null;k.map.clear();k.free=[];if(k.queue)k.queue.length=0;}
+/** Frees one flight's site sprites (renderer teardown). */
+export function releaseTerrainEcology(e){const k=siteCaches.get(e);if(k){releaseSites(k);siteCaches.delete(e);}}
+/** Draws a site sprite at world (x,y); returns false when the caller should draw directly (bake budget spent). */
+// The atlas is only written at the start of a frame, before anything is drawn from it this frame:
+// writing a canvas that this frame's recording already samples makes Chrome copy the whole texture.
+// A miss is drawn directly this frame and queued; the queue is baked when the next frame begins.
+function bakeQueued(k){
+  for(const job of k.queue){
+    if(k.map.has(job.key))continue;
+    if(!k.free.length){const [old,s]=k.map.entries().next().value;k.map.delete(old);k.free.push(s);}
+    const slot=k.free.pop(),g=k.g,sx=(slot%k.cols)*k.w,sy=Math.floor(slot/k.cols)*k.h;
+    g.save();g.setTransform(1,0,0,1,0,0);g.clearRect(sx,sy,k.w,k.h);g.beginPath();g.rect(sx,sy,k.w,k.h);g.clip();
+    g.setTransform(k.scale,0,0,k.scale,sx+k.tx,sy+k.ty);g.globalAlpha=job.alpha;g.lineCap='butt';g.lineJoin='miter';g.globalCompositeOperation='source-over';
+    job.draw(g,0,job.fy);g.restore();
+    k.map.set(job.key,slot);k.made++;
+  }
+  k.queue.length=0;
+}
+/** Draws a site sprite at world (x,y); returns false when the caller should draw directly (not baked yet). */
+function placeSite(c,k,key,x,y,fy,alpha,draw){
+  const slot=k.map.get(key);
+  if(slot===undefined){
+    if(k.queue.length<SITE_BAKES&&!k.queue.some(j=>j.key===key))k.queue.push({key,fy,alpha,draw});else k.misses++;
+    return false;
+  }
+  k.map.delete(key);k.map.set(key,slot);
+  const sc=k.scale,sx=(slot%k.cols)*k.w,sy=Math.floor(slot/k.cols)*k.h;
+  c.setTransform(1,0,0,1,0,0);c.globalAlpha=1;
+  c.drawImage(k.atlas,sx,sy,k.w,k.h,Math.round(Math.round(x)*sc)-k.tx,Math.round(Math.floor(y)*sc)-k.ty,k.w,k.h);
+  c.setTransform(sc,0,0,sc,0,0);
+  return true;
+}
+const quarter=v=>Math.round(v*4)/4;
+function drawTerrainEcologyDirect(c,e,o){const F=globalThis.__perfFlags||(globalThis.__perfFlags={}),had='tufts' in F,old=F.tufts;F.tufts=false;try{drawTerrainEcology(c,e,o);}finally{if(had)F.tufts=old;else delete F.tufts;}}
 export function drawTerrainEcology(c,e,{scale=1,distance=e.renderDistance??e.distance,time=e.visualTime??e.time}={}){
   const h=habitats[habitatId(e)];if(!h)return;
   const boundary=terrainBoundary(e,time);
   const py=e.renderPlayerY??e.player.y;
+  const cache=siteCache(c,e,scale);
+  if(cache){const m=c.getTransform?.();if(!m||m.a!==1||m.b||m.c||m.d!==1||m.e||m.f)return drawTerrainEcologyDirect(c,e,{scale,distance,time});}
   c.save();c.scale(scale,scale);c.lineCap='butt';c.lineJoin='miter';
   for(const o of e.layout.obstacles){
     if(o.x-distance>e.width+180)break;
@@ -192,14 +261,17 @@ export function drawTerrainEcology(c,e,{scale=1,distance=e.renderDistance??e.dis
     for(const top of [true,false]){
       const shape=top?o.topShape:o.bottomShape;if(!shape)continue;
       const {sites,stones}=surfaceSites(shape),sign=top?-1:1,base=center+sign*o.gap/2;
-      if(!top)for(const site of stones){
+      if(!top&&!SKIP.has('stones'))for(const site of stones){
         const x=o.x+site.x-distance,y=base+site.y;if(x<-12||x>e.width+12||y<-8||y>e.height+8)continue;
         if(!terrainSurfaceExposed(e,o,false,o.x+site.x,y,time,boundary))continue;
         const r=2+noise(site.seed)*3.5,drop=site.slope*r;
-        c.globalAlpha=.82;c.fillStyle=h.shade;c.beginPath();c.moveTo(Math.round(x-r),Math.round(y-drop+1));
-        c.lineTo(Math.round(x-r*.65),Math.round(y-r*.55));c.lineTo(Math.round(x+r*.1),Math.round(y-r));
-        c.lineTo(Math.round(x+r*.85),Math.round(y-r*.35));c.lineTo(Math.round(x+r),Math.round(y+drop+1));c.closePath();c.fill();
-        if(noise(site.seed+5)>.5)stroke(c,[[x-r*.5,y-r*.55],[x+r*.1,y-r]],h.leaf,1);
+        const stone=(g,x,y)=>{
+        g.fillStyle=h.shade;g.beginPath();g.moveTo(Math.round(x-r),Math.round(y-drop+1));
+        g.lineTo(Math.round(x-r*.65),Math.round(y-r*.55));g.lineTo(Math.round(x+r*.1),Math.round(y-r));
+        g.lineTo(Math.round(x+r*.85),Math.round(y-r*.35));g.lineTo(Math.round(x+r),Math.round(y+drop+1));g.closePath();g.fill();
+        if(noise(site.seed+5)>.5)stroke(g,[[x-r*.5,y-r*.55],[x+r*.1,y-r]],h.leaf,1);};
+        const fy=quarter(y-Math.floor(y));
+        if(!cache||!placeSite(c,cache,'s:'+site.seed+':'+fy,x,y,fy,.82,stone)){c.globalAlpha=.82;stone(c,x,y);}
         c.globalAlpha=1;
       }
       for(const site of sites){
@@ -216,17 +288,27 @@ export function drawTerrainEcology(c,e,{scale=1,distance=e.renderDistance??e.dis
         c.globalAlpha=.92;
         if(top){
           const rooted=['fern','reed','grass'].includes(h.plant);
+          const roots=(g,x,y,push)=>{
           if(rooted)for(let j=0;j<3;j++){
             const xx=x+(j-1)*4,drop=8+noise(seed+j*41)*13;
-            stroke(c,[[xx,y+(xx-x)*site.slope-2],[xx+1,y+drop*.5],[xx-2+push*.12,y+drop]],h.shade,1);
+            stroke(g,[[xx,y+(xx-x)*site.slope-2],[xx+1,y+drop*.5],[xx-2+push*.12,y+drop]],h.shade,1);
           }else{
-            stroke(c,[[x-4,y-2],[x,y+2],[x+4,y-1]],h.leaf,1);
-          }
-        }else if(!drawAuthoredPlant(c,e,{x,y,sign,push,seed}))tuft(c,h,x,y,sign,seed,time,push,e.reducedMotion,site.slope);
+            stroke(g,[[x-4,y-2],[x,y+2],[x+4,y-1]],h.leaf,1);
+          }};
+          const fy=quarter(y-Math.floor(y)),pq=Math.round(push*2)/2;
+          if(!cache||!placeSite(c,cache,'r:'+seed+':'+fy+':'+(rooted?pq:0),x,y,fy,.92,(g,gx,gy)=>roots(g,gx,gy,pq))){c.globalAlpha=.92;roots(c,x,y,cache?pq:push);}
+        }else if(SKIP.has('plants')||drawAuthoredPlant(c,e,{x,y,sign,push,seed})||SKIP.has('tufts')){}else{
+          if(cache){
+            const phase=e.reducedMotion?0:(((Math.round((time*1.6+seed)/(Math.PI*2)*SWAY_PHASES))%SWAY_PHASES)+SWAY_PHASES)%SWAY_PHASES;
+            const flutter=e.reducedMotion?0:Math.sin(phase*Math.PI*2/SWAY_PHASES)*1.3,fy=quarter(y-Math.floor(y)),pq=Math.round(push*2)/2;
+            const draw=(g,gx,gy)=>tuft(g,h,gx,gy,sign,seed,time,pq,e.reducedMotion,site.slope,flutter);
+            if(!placeSite(c,cache,'t:'+seed+':'+fy+':'+phase+':'+pq+':'+site.slope.toFixed(3),x,y,fy,.92,draw)){c.globalAlpha=.92;tuft(c,h,x,y,sign,seed,time,pq,e.reducedMotion,site.slope,flutter);}
+          }else tuft(c,h,x,y,sign,seed,time,push,e.reducedMotion,site.slope);
+        }
         c.globalAlpha=1;
         // Shallow reflective pockets stay inset behind the solid lip. They
         // suggest wet rock and pools without adding a second collision edge.
-        if(!top&&site.cluster===0&&h.water&&Math.abs(site.slope)<.18&&noise(seed)>.42){
+        if(!SKIP.has('water')&&!top&&site.cluster===0&&h.water&&Math.abs(site.slope)<.18&&noise(seed)>.42){
           // Fit the whole waterline inside a single gentle face. A shoal
           // seen in section sits under this line, inside the bank.
           const halfWidth=Math.min(site.room||0,9+noise(seed+5)*9);
@@ -244,7 +326,7 @@ export function drawTerrainEcology(c,e,{scale=1,distance=e.renderDistance??e.dis
             stroke(c,[[x-halfWidth*.45+reflection,waterY],[x+halfWidth*.5+reflection,waterY]],'#92aba5',1);
           }
         }
-        if(!top&&site.cluster===0&&h.animal!=='fish'&&noise(seed+7)>.66)
+        if(!SKIP.has('animals')&&!top&&site.cluster===0&&h.animal!=='fish'&&noise(seed+7)>.66)
           animal(c,h,x,y,seed,time,push,e.reducedMotion,site.slope);
       }
     }

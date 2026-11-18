@@ -1,4 +1,5 @@
-import {WISP_ART} from './companion-art.mjs?v=cue-1';
+import {WISP_ART} from './companion-art.mjs?v=fast-4';
+import {rectBatch,rectsOn,identityTransform} from './rect-raster.mjs?v=fast-4';
 
 const STEP=1/60,RASTER=240/390;
 const INKS=['#9daaa0','#ccd6c6','#f0f1d8'];
@@ -90,20 +91,23 @@ export function drawWispWake(c,e,scale=1,rasterScale=scale/RASTER){
   const wake=e.wispWake;if(!wake||!wake.count||e.destroyed||e.finished)return;
   const time=e.captureTime??e.time,distance=e.renderDistance??e.distance;
   const opacity=e.dream?.mode==='record' ? .48 : 1;
+  // Optional (?rects=1): one batch (rect-raster.mjs) for every mark; off by default (an extra canvas written per frame).
+  const batch=rectsOn()&&identityTransform(c)?rectBatch(c.canvas?.ownerDocument,'wake'):null,g=batch?batch.begin(c.globalAlpha):c;
   c.save();
   for(const mark of wake.marks){
     if(!mark.active)continue;
     const age=time-mark.bornAt;if(age<0||age>=mark.life)continue;
     const fade=1-age/mark.life;
-    c.globalAlpha=fade*.67*opacity;c.fillStyle=INKS[mark.ink];
+    g.globalAlpha=fade*.67*opacity;g.fillStyle=INKS[mark.ink];
     const x=Math.round((mark.x+mark.vx*age-distance)*scale),y=Math.round((mark.y+mark.vy*age)*scale);
     const pixel=rasterScale,size=mark.size*pixel;
-    c.fillRect(Math.round(x-size*.5),Math.round(y-size*.5),size,size);
+    g.fillRect(Math.round(x-size*.5),Math.round(y-size*.5),size,size);
     if(mark.glint){
-      c.globalAlpha=fade*.34*opacity;
-      c.fillRect(Math.round(x-pixel),y,pixel*3,pixel);
-      c.fillRect(x,Math.round(y-pixel),pixel,pixel*3);
+      g.globalAlpha=fade*.34*opacity;
+      g.fillRect(Math.round(x-pixel),y,pixel*3,pixel);
+      g.fillRect(x,Math.round(y-pixel),pixel,pixel*3);
     }
   }
+  if(batch)batch.flush(c);
   c.restore();
 }

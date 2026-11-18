@@ -1,18 +1,18 @@
-import {getBiome} from './biomes.mjs?v=cue-1';
-import {getBossPreview} from './boss.mjs?v=cue-1';
-import {levelMapPreview} from './level-map-art.mjs?v=cue-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=cue-1';
-import {resourceSymbol} from './game-symbols.mjs?v=cue-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=cue-1';
-import {flightRewardKind,SCRIBE_OFFER_COUNT,isCardRun} from './model.mjs?v=cue-1';
-import {bonusIcon} from './route-bonus-ui.mjs?v=cue-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=cue-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=cue-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=cue-1';
-import {sparkHabitat} from './spark-fields.mjs?v=cue-1';
-import {lanternFlightCue} from './map-theme.mjs?v=cue-1';
-import {actionButton} from './ui/primitives.mjs?v=cue-1';
-import {cardTermTextMarkup} from './card-terms.mjs?v=cue-1';
+import {getBiome} from './biomes.mjs?v=fast-4';
+import {getBossPreview} from './boss.mjs?v=fast-4';
+import {levelMapPreview} from './level-map-art.mjs?v=fast-4';
+import {mapStopIconMarkup} from './map-guide.mjs?v=fast-4';
+import {resourceSymbol} from './game-symbols.mjs?v=fast-4';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=fast-4';
+import {flightRewardKind,SCRIBE_OFFER_COUNT,isCardRun} from './model.mjs?v=fast-4';
+import {bonusIcon} from './route-bonus-ui.mjs?v=fast-4';
+import {contextualFlightNotice} from './contextual-events.mjs?v=fast-4';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=fast-4';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=fast-4';
+import {sparkHabitat} from './spark-fields.mjs?v=fast-4';
+import {lanternFlightCue} from './map-theme.mjs?v=fast-4';
+import {actionButton} from './ui/primitives.mjs?v=fast-4';
+import {cardTermTextMarkup} from './card-terms.mjs?v=fast-4';
 
 export const TRAVEL_GUIDE_ART=Object.freeze(['waystone','rootwood','night-atlas']);
 /** One stepped sign, mirrored for the return journey. */
