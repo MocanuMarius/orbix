@@ -388,6 +388,8 @@ function classifySaveDiff(before, after) {
     else if (d.path === 'run.unseenCardIds' && d.before === undefined && Array.isArray(d.after) && d.after.length === 0) allowed.push({...d, reason: 'new empty unseen-cards list'});
     // temp-2 (2026-11-18): chests now end with a choice (Stored Sparks or a surprise card); the stop texts of
     // chests on an already generated map gain that sentence. Text only.
+    // stops-1 (2026-11-18): the chest stop was rebuilt; its map texts are reworded (find shown beside the choice).
+    else if (/^run\.map\.\d+\.\d+\.(fuelPreview|commitment|rewardPreview|reward)$/.test(d.path) && typeof d.before === 'string' && typeof d.after === 'string' && /Stored Sparks or 1 surprise card/.test(d.before) && /^Choose: \+\d+ Stored Sparks or 1 surprise card\./.test(d.after)) allowed.push({...d, reason: 'chest stop text reworded with the rebuilt chest screen'});
     else if (/^run\.map\.\d+\.\d+\.(fuelPreview|commitment|rewardPreview|reward)$/.test(d.path) && typeof d.before === 'string' && typeof d.after === 'string' && d.after.startsWith(d.before) && / Then choose: \+\d+ Stored Sparks or 1 surprise card\.$/.test(d.after)) allowed.push({...d, reason: 'chest stop text gains the new choice'});
     // twin-wick-1 (2026-11-17): Twin Wick's run-wide unlock is gone (a card's effect lives on the card).
     else if (d.path === 'run.cardTwinWickUnlocked' && d.after === undefined) allowed.push({...d, reason: 'run-wide Twin Wick flag removed'});
