@@ -43,9 +43,9 @@ test('context changes neither the first earned offer nor any seeded rarity, and 
       mountedCards:[makeSkillCard('body-spark','body')],reserveCards:[makeSkillCard('spark-cache','pocket')]},
       before=structuredClone(run),offers=drawSkillCardDraft(run,node),bare={...run,mountedCards:[],reserveCards:[]};
     assert.deepEqual(run,before);assert.deepEqual(drawSkillCardDraft(run,node),offers);
-    assert.deepEqual(offers[0],drawSkillCard(run,'flight',node));
-    assert.deepEqual(offers.map(card=>SKILL_CARDS[card.cardId].rarity),[0,1,2].map(index=>
-      SKILL_CARDS[drawSkillCard(bare,index?`flight-draft:${index}`:'flight',node).cardId].rarity));
+    if(tier==='normal')assert.deepEqual(offers[0],drawSkillCard(run,'flight',node));
+    const rarities=offers.map(card=>SKILL_CARDS[card.cardId].rarity);
+    assert.deepEqual(rarities,drawSkillCardDraft(bare,node).map(card=>SKILL_CARDS[card.cardId].rarity));
     assert.equal(new Set(offers.map(card=>SKILL_CARDS[card.cardId].name)).size,3);
     assert.ok(offers.every(card=>!SKILL_CARDS[card.cardId].starterOnly));
     const exhausted={...bare,reserveCards:[{...makeSkillCard('spark-cache','empty'),charges:0}]};
@@ -58,16 +58,16 @@ test('seeded drafts increase executable body-row opportunities while retaining t
     makesCombo=card=>[[owned,card],[card,owned]].some(row=>previewCardRow(row,event).sparks
       >previewCardRow([owned],event).sparks+previewCardRow([card],event).sparks),
     seen=new Set();let actual=0,ordinary=0,newCards=0,drafts=0;
-  for(let seed=0;seed<1200;seed++)for(const tier of ['normal','elite','boss']) {
+  for(let seed=0;seed<8000;seed++)for(const tier of ['normal','elite','boss']) {
     const run={campaignSeed:`discovery:${seed}`,mapIndex:2,mountedCards:[owned],reserveCards:[],cardSlots:3},
       node={id:'body-checkpoint',[tier]:true},offers=drawSkillCardDraft(run,node),
-      control=[0,1,2].map(index=>drawSkillCard(run,index?`flight-draft:${index}`:'flight',node));
+      control=[0,1,2].map(index=>index===0&&tier!=='normal'?offers[0]:drawSkillCard(run,index?`flight-draft:${index}`:'flight',node));
     actual+=Number(offers.some(makesCombo));ordinary+=Number(control.some(makesCombo));drafts++;
     newCards+=Number(offers.some(card=>['use-doubler','ember-feeder'].includes(card.cardId)));
     for(const card of offers)seen.add(card.cardId);
   }
   assert.ok(actual>ordinary+drafts*.06,`executable combos ${actual}/${drafts} vs ordinary ${ordinary}/${drafts}`);
-  assert.ok(newCards>drafts*.05,'new cards retain visible acquisition opportunities');
+  assert.ok(newCards>drafts*.03,'new cards retain visible acquisition opportunities');
   for(const def of Object.values(SKILL_CARDS).filter(def=>!def.starterOnly&&!def.retired&&!def.unreleased))assert.ok(seen.has(def.id),`${def.id} remains obtainable`);
   for(const def of Object.values(SKILL_CARDS).filter(def=>def.unreleased))assert.ok(!seen.has(def.id),`${def.id} is unreleased and never offered`);
 });

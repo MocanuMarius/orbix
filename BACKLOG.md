@@ -15,6 +15,11 @@ The entries below are chronological release snapshots. Their old “current” l
 - **Waiting, owner said "let's wait some more" (18 November):** re-measure balance after the stacked changes (combo sweep with real-flight numbers, Pulse builds, hidden cards' payouts) and the phone performance check (`node scripts/perf/daily.mjs`, last quick run timed out). Do not start until asked. Also parked with them: making the full test suite green and a release gate (about 64 known failures: 7 treasure tests, about 20 in `tests/flight.test.mjs`, Wave Loom double Pulse in `tests/pulse-sources.test.mjs`).
 - Standing rule: items that need no decision are picked up and built continuously; items that need one are put to the owner one case at a time (memory `work-backlog-continuously`). The live queue is in `docs/overnight-plan.md`.
 
+## To flesh out later (owner ideas, 18 November 2026 evening)
+
+- **Re-roll cards.** Owner: "passive cards… keep it in your inventory and allow you to re-roll some card, and you should get one of the same type, even for legendaries maybe". Concept to design: a card kept in the Deck (not mounted) with uses; on a reward pack it re-rolls one offered card into another of the same rarity (so a guaranteed Guardian Legendary can be re-rolled into a different Legendary). Open points: uses per run, whether it can re-roll a whole pack, whether an Inscription version exists, how it shows on the tap-to-pick screen.
+- **Start bonus choice.** At run start choose one: a starter card, an Inscription, or Wisp stats (collect radius, max Spark Meter, etc.).
+
 ## DROPPED 18 November 2026 — Packing as a Chain event (kept for history)
 
 User's words: "packing should also be a chain event and echo and the likes should react to it."

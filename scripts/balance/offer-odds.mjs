@@ -12,6 +12,8 @@ const offerable = LIVE_CARDS.filter(d => !d.starterOnly);
 const ids = offerable.map(d => d.id);
 const offeredRuns = Object.fromEntries(ids.map(id => [id, 0])), offerCount = Object.fromEntries(ids.map(id => [id, 0]));
 let totalOffers = 0, drafts = 0;
+let draftsWithRare = 0, draftsWithLegendary = 0;
+const byRarity = { common: 0, rare: 0, legendary: 0 };
 let pick = 1;
 const rnd = () => (pick = (pick * 1664525 + 1013904223) >>> 0) / 4294967296;
 for (let r = 0; r < runs; r++) {
@@ -22,7 +24,9 @@ for (let r = 0; r < runs; r++) {
     const node = { id: `m${step.m}-${step.i}`, elite: step.kind === 'elite', boss: step.kind === 'boss' };
     const offers = drawSkillCardDraft(run, node);
     drafts++;
-    for (const o of offers) { offerCount[o.cardId] = (offerCount[o.cardId] || 0) + 1; totalOffers++; seen.add(o.cardId); }
+    for (const o of offers) { offerCount[o.cardId] = (offerCount[o.cardId] || 0) + 1; totalOffers++; seen.add(o.cardId); byRarity[SKILL_CARDS[o.cardId].rarity]++; }
+    if (offers.some(o => SKILL_CARDS[o.cardId].rarity === 'rare')) draftsWithRare++;
+    if (offers.some(o => SKILL_CARDS[o.cardId].rarity === 'legendary')) draftsWithLegendary++;
     const chosen = offers[Math.floor(rnd() * offers.length)];
     const def = SKILL_CARDS[chosen.cardId];
     (run.mountedCards.length < 3 ? run.mountedCards : run.reserveCards).push(chosen);
@@ -48,10 +52,12 @@ const lines = [];
 lines.push(`runs=${runs}, drafts/run=${plan.length}, offerable live cards=${rows.length}, commons=${commons.length} (total weight ${commonWeight})`);
 lines.push(`Proximity (slip-feather): offered at least once in ${pct(rows.find(r => r.id === 'slip-feather').atLeastOnce)} of runs; per offer ${pct2(rows.find(r => r.id === 'slip-feather').perOffer)}; rank ${rank} of ${rows.length} from least offered.`);
 lines.push(`Forge hidden card is Proximity: common ${pct2(forge.common)}, rare ${pct2(forge.rare)}, legendary ${pct2(forge.legendary)} (fresh run).`);
+lines.push(`Per run: ${(byRarity.rare / runs).toFixed(2)} Rares and ${(byRarity.legendary / runs).toFixed(2)} Legendaries offered (of ${(totalOffers / runs).toFixed(1)} offers).`);
+lines.push(`Obtainable per run (one pick per draft, a player who always takes the rarest): ${(draftsWithRare / runs).toFixed(2)} Rare-or-better and ${(draftsWithLegendary / runs).toFixed(2)} Legendary (Elite slot 1 reserved Rare, Guardian slot 1 reserved Legendary, other slots rolled flat; 6 Elites and 3 Guardians per run).`);
 lines.push('');
 lines.push('| # | card | rarity | weight | offered >=1x per run | per offer |');
 lines.push('|---|---|---|---|---|---|');
 rows.forEach((r, i) => lines.push(`| ${i + 1} | ${r.name} (${r.id}) | ${r.rarity} | ${r.weight} | ${pct(r.atLeastOnce)} | ${pct2(r.perOffer)} |`));
 const text = lines.join('\n');
-console.log(text.split('\n').slice(0, 3 + 2 + 15).join('\n'));
+console.log(text.split('\n').slice(0, 5).join('\n'));
 if (write) writeFileSync('outputs/balance/offer-odds.table.txt', text);

@@ -4,7 +4,7 @@ import * as M from '../dist/model.mjs';
 import { CARD_CATALOG, CARD_CATALOG_IDS, CARD_DROP_WEIGHTS, CARD_DROP_MIX } from '../dist/card-catalog.mjs';
 import { CARD_ART_IDS } from '../dist/card-art.mjs';
 import { SKILL_CARDS, makeSkillCard, describeSkillCard, getCardRowRule, createCardExecution,
-  resolveCardRow, getCardStarterOffers, drawSkillCard, getCardModifiers, getCardPackingBonus } from '../dist/skill-cards.mjs';
+  resolveCardRow, getCardStarterOffers, drawSkillCard, drawSkillCardDraft, getCardModifiers, getCardPackingBonus } from '../dist/skill-cards.mjs';
 import { WispFlight } from '../dist/flight.mjs';
 
 const fresh = (seed = 'catalog-evolution') => {
@@ -320,4 +320,32 @@ test('every live card has an approved picture or is listed as falling back', asy
     assert.match(cardArt({cardId: def.id}), /data-card-picture="1"/);
   }
   assert.match(cardArt({cardId: 'no-such-card'}), /data-card-art="body-spark"/);
+});
+
+test('every offered card rolls flat 94.5/5/0.5 whatever the node, map or slot', () => {
+  assert.deepEqual(CARD_DROP_WEIGHTS.normal, { common: 94.5, rare: 5, legendary: 0.5 });
+  assert.deepEqual(CARD_DROP_WEIGHTS.elite, CARD_DROP_WEIGHTS.normal);
+  assert.deepEqual(CARD_DROP_WEIGHTS.boss, CARD_DROP_WEIGHTS.normal);
+  const totals = { common: 0, rare: 0, legendary: 0 }; let n = 0;
+  for (let seed = 0; seed < 4000; seed++) {
+    const node = { id: `flat:${seed}` };
+    for (const card of drawSkillCardDraft({ campaignSeed: `flat:${seed}`, mapIndex: seed % 3 }, node)) { totals[SKILL_CARDS[card.cardId].rarity]++; n++; }
+  }
+  assert.ok(Math.abs(totals.rare / n - .05) < .008, `rare ${totals.rare / n}`);
+  assert.ok(Math.abs(totals.legendary / n - .005) < .003, `legendary ${totals.legendary / n}`);
+});
+
+test('an Elite reward reserves slot 1 for a Rare and a Guardian reward for a Legendary; the rest roll flat', () => {
+  const rest = { elite: { common: 0, rare: 0, legendary: 0 }, boss: { common: 0, rare: 0, legendary: 0 } }; let n = 0;
+  for (let seed = 0; seed < 3000; seed++) for (const [kind, rarity] of [['elite', 'rare'], ['boss', 'legendary']]) {
+    const offers = drawSkillCardDraft({ campaignSeed: `guarantee:${seed}`, mapIndex: seed % 3 }, { id: `g:${seed}`, [kind]: true });
+    assert.equal(SKILL_CARDS[offers[0].cardId].rarity, rarity, `${kind} slot 1`);
+    assert.equal(new Set(offers.map(card => SKILL_CARDS[card.cardId].name)).size, 3);
+    for (const card of offers.slice(1)) rest[kind][SKILL_CARDS[card.cardId].rarity]++;
+    n += 2;
+  }
+  for (const kind of ['elite', 'boss']) {
+    assert.ok(Math.abs(rest[kind].rare / (n / 2) - .05) < .008, `${kind} rest rare ${rest[kind].rare / (n / 2)}`);
+    assert.ok(rest[kind].legendary / (n / 2) < .012, `${kind} rest legendary`);
+  }
 });

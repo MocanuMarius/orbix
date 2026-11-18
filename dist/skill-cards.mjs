@@ -790,9 +790,13 @@ export function drawSkillCard(run, source, node = run.current, rarity = null) {
     // neither previews, Forge nor later melting can restart the safeguard.
     if (!acquiredGrowth && commonFlightDrops >= 1) return makeSkillCard('growth-seed-common', identity);
   }
-  const pool = LIVE_CARDS.filter(
-      (d) => d.rarity === tier && !d.starterOnly,
-    );
+  // An empty rarity pool falls to the next lower rarity.
+  const tiers = ['legendary', 'rare', 'common'];
+  let pool = [];
+  for (const t of tiers.slice(Math.max(0, tiers.indexOf(tier)))) {
+    pool = LIVE_CARDS.filter((d) => d.rarity === t && !d.starterOnly);
+    if (pool.length) break;
+  }
   const weight = def => (def.dropWeight || 1) * growthSeedDropFactor(run, def) * (rarity && source.startsWith('forge:v2:')
     ? cardOfferMultiplier({def, rule: getCardRowRule(def, {cardId:def.id, rank:1})}, [], {mode:'forge'}) : 1);
   let ticket = draw() * pool.reduce((sum, def) => sum + weight(def), 0),
@@ -830,7 +834,10 @@ export function drawForgeCard(run, rarity, count = 0) {
  * already on the table (including same-name evolved variants).
  */
 export function drawSkillCardDraft(run, node = run.current) {
-  const offers = [drawSkillCard(run, 'flight', node)], names = new Set([SKILL_CARDS[offers[0].cardId].name]),
+  // Owner decision 2026-11-18: a Guardian's card reward reserves slot 1 for a Legendary, an Elite's for a Rare;
+  // the other two cards roll flat (94.5% Common, 5% Rare, 0.5% Legendary) like any ordinary offer.
+  const reserved = node?.boss ? 'legendary' : node?.elite ? 'rare' : null;
+  const offers = [drawSkillCard(run, 'flight', node, reserved)], names = new Set([SKILL_CARDS[offers[0].cardId].name]),
     seenOwned = new Set(),
     owned = [...(run.mountedCards || []), ...(run.reserveCards || [])].filter(card => {
       const def = SKILL_CARDS[card?.cardId];

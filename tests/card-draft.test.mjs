@@ -78,8 +78,10 @@ test('drafts preserve the seeded tier bias, starter pool and early Growth Seed o
       }
     }
   }
-  assert.ok(totals.normal.common > totals.elite.common && totals.elite.common > totals.boss.common);
-  assert.ok(totals.normal.legendary < totals.elite.legendary && totals.elite.legendary < totals.boss.legendary);
+  // Elite reward: slot 1 is a Rare. Guardian reward: slot 1 is a Legendary. Other slots roll flat. Ordinary rounds roll flat 94.5/5/0.5.
+  assert.ok(totals.elite.rare >= 1800 && totals.elite.rare < 1800 * 1.2 && totals.elite.legendary < 1800 * .03);
+  assert.ok(totals.boss.legendary >= 1800 && totals.boss.legendary < 1800 * 1.1 && totals.boss.rare < 1800 * .2);
+  assert.ok(totals.normal.common > 1800 * 3 * .9 && totals.normal.rare > 1800 * 3 * .03);
   const state = fresh('draft-growth-safeguard'), run = state.run;
   run.mountedCards = [null, null, null]; run.reserveCards = [];
   run.cardHistory = [{type: 'drop', mapIndex: 0, nodeId: 'prior', card: {cardId: 'body-spark', rarity: 'common'}}];
