@@ -1,124 +1,134 @@
-// Starter card balance with human pilots over the INITIAL flights of a run (rewritten 2026-11-18).
-// Flies the first 6 flights of Map 1 as a sequence (hearts, Meter and Stored Sparks carry over, a fall costs a heart and the stop is retried, Rests are
-// taken when the route offers one) with the true starting state: 3 hearts, starting Meter, Lift Guide + the card under test, no other cards,
-// no Inscriptions. Same run seed => same map and flight seeds in every condition (paired). Pilots are the repository's observation-limited
-// human profiles (scripts/human-flight-planner.mjs): beginner = human350, average = human250, good = human150.
-// Lift Guide cue: the pilot's planner cannot see the arrow, so a Lift it taps off-cue is converted into a paid on-cue Lift with probability q, chosen per
-// pilot so that the overall on-cue share reaches the target WITH the arrow (beginner 40%, average 65%, good 85%); the natural share (no arrow) is measured.
-// Run: node scripts/balance/starter-balance.mjs [--runs=30] [--pilots=beginner,average,good] [--cards=a,b] [--out=outputs/balance/starter-balance.md]
-//   (spawns one child process per pilot; children are started with --child=<pilot> and write scripts/balance/starter-balance.<pilot>.json)
+// Starter card balance with simulated pilots over the INITIAL flights of a run (rewritten 2026-11-18 for the realistic player-* pilots).
+// Flies the first 6 stops of Map 1 as a sequence with the true starting state (3 hearts, starting Meter, Lift Guide + the card under test, no other
+// cards or Inscriptions; a fall costs a heart and the stop is retried; the run ends at 0 hearts). Same run seed => same map and flight seeds in
+// every condition (paired). Sequence code: scripts/balance/starter-sim.mjs. Pilot logic: scripts/human-flight-planner.mjs, scripts/player-pilot.mjs.
+// Pilots: NEW player-beginner / player-average / player-good (follow the Lift Guide arrow through their own timing, card-aware behaviours below);
+//         OLD human350 / human250 / human150 for comparison (card-blind; the arrow is emulated by converting off-cue Lifts, as in the first version).
+// Conditions: none, LG (today's Lift Guide: +1 Spark on every on-cue Lift), LGc (Lift Guide with a modelled 50% coin toss on its payout),
+//   LG+card (card-blind and card-aware pilot; today's cards), LGc+card (aware), and modelled boosts (LGc world; payouts injected by the script).
+// Run: node scripts/balance/starter-balance.mjs [--runs=30] [--pilots=...] [--out=outputs/balance/starter-balance.md] [--reuse]
 import fs from 'node:fs';
+import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { createSim } from './starter-sim.mjs';
 const args = Object.fromEntries(process.argv.slice(2).map(a => { const [k, ...v] = a.replace(/^--/, '').split('='); return [k, v.join('=') || true]; }));
 const RUNS = Number(args.runs || 30), FLIGHTS = 6, HEART_VALUE = 15;
-const PILOTS = { beginner: { style: 'human350', target: .40 }, average: { style: 'human250', target: .65 }, good: { style: 'human150', target: .85 } };
+export const PILOTS = {
+  'old-beginner': { style: 'human350', target: .40, old: true, w: .1, skim: .5 }, 'old-average': { style: 'human250', target: .65, old: true, w: .3, skim: 1 }, 'old-good': { style: 'human150', target: .85, old: true, w: .6, skim: 1.5 },
+  'player-beginner': { style: 'player-beginner', w: .1, skim: .5 }, 'player-average': { style: 'player-average', w: .3, skim: 1 }, 'player-good': { style: 'player-good', w: .6, skim: 1.5 }
+};
 const STARTERS = ['skim-line', 'pulse-reader', 'courier-cord', 'meter-mark', 'finish-flag'];
 const NAME = { 'lift-guide': 'Lift Guide', 'skim-line': 'Skim Line', 'pulse-reader': 'Pulse Reader', 'courier-cord': 'Courier Cord', 'meter-mark': 'Meter Mark', 'finish-flag': 'Finish Flag' };
-const CARDS = String(args.cards || STARTERS.join(',')).split(',');
-const here = fileURLToPath(import.meta.url), rawFile = p => fileURLToPath(new URL(`./starter-balance.${p}.json`, import.meta.url));
+// Card-aware behaviour = extra planner options (see playerLiftOptions / selectHumanFuel). Pilot skill scales how hard the skim band is hugged.
+const aware = (card, pilot) => ({
+  'courier-cord': { fetchScale: 2.2, fetchBonus: .25 },       // aim for Sparks inside the Collector's reach and let it fetch them (a Delivery needs a fetched Spark)
+  'skim-line': { skim: pilot.skim, skimReach: 40 },           // reward flying within 40 units of terrain (the skim clearance is 48) when the margin is safe
+  'meter-mark': { fullThreshold: 1.01 },                      // keep collecting at a full Meter: each natural Overfill pays
+  'pulse-reader': { densityBonus: .14 }                       // prefer Spark clusters, so its Pulse crosses uncollected Sparks
+})[card] || {};
+// Modelled boosts for the proposals (payout hooks only, no game change). Each is evaluated with the card-aware pilot in the coin-toss world.
+export const VARIANTS = {
+  'courier-cord +3 Sparks/Delivery': { card: 'courier-cord', opts: { payout: { 'collector-delivery': { sparks: 3 } } } },
+  'courier-cord +6 Sparks/Delivery': { card: 'courier-cord', opts: { payout: { 'collector-delivery': { sparks: 6 } } } },
+  'skim-line +3 Sparks/Skim': { card: 'skim-line', opts: { skimPayout: { sparks: 3 } } },
+  'skim-line +6 Sparks/Skim': { card: 'skim-line', opts: { skimPayout: { sparks: 6 } } },
+  'finish-flag +4 Stored, refill 10 Sparks': { card: 'finish-flag', opts: { finishPayout: { stored: 4, sparks: 10 } } },
+  'finish-flag +4 Stored, refill 20 Sparks': { card: 'finish-flag', opts: { finishPayout: { stored: 4, sparks: 20 } } }
+};
+// Proposal candidates that combine fuel and Stored payouts (second pass, written to <pilot>.proposals.json; `--only=proposals`).
+export const PROPOSALS = {
+  'courier-cord: +6 Sparks and +5 Stored per Delivery': { card: 'courier-cord', opts: { payout: { 'collector-delivery': { sparks: 6, stored: 5 } } } },
+  'skim-line: +6 Sparks and +4 Stored per Skim (aware)': { card: 'skim-line', opts: { skimPayout: { sparks: 6, stored: 4 } } },
+  'skim-line: +6 Sparks and +4 Stored per Skim (blind)': { card: 'skim-line', blind: true, opts: { skimPayout: { sparks: 6, stored: 4 } } },
+  'finish-flag: +6 Stored and Meter refilled to full': { card: 'finish-flag', opts: { finishPayout: { stored: 6, sparks: 30 } } }
+};
+const rawDir = fileURLToPath(new URL('../../outputs/balance/starter-raw/', import.meta.url)), rawFile = p => path.join(rawDir, `${p}.json`);
+const here = fileURLToPath(import.meta.url);
+if (args.child) await child(args.child); else if (!process.argv[1] || path.resolve(process.argv[1]) === here) await parent();
 
-if (args.child) await child(args.child);
-else await parent();
+async function child(name) {
+  fs.mkdirSync(rawDir, { recursive: true });
+  if (args.only === 'proposals') return proposals(name);
+  const P = PILOTS[name], sim = await createSim({ style: P.style });
+  const seeds = Array.from({ length: RUNS }, (_, i) => `sb${i}`), results = {}, meta = { pilot: name, style: P.style, runs: RUNS };
+  const rest = P.old ? 60 : 88;
+  const go = (key, ids, o = {}, awareCard = null) => { results[key] = seeds.map(s => sim.flyRun(ids, s, { restBelow: rest, ...o, pilotExtra: awareCard ? () => aware(awareCard, P) : undefined })); console.error(name, key, 'done'); };
+  go('none', []); // an old pilot's Lift Guide share is converted to the target; new pilots follow the arrow with their own timing (q stays 0)
+  go('LG-noarrow', ['lift-guide'], { q: 0 });
+  const na = results['LG-noarrow'], s0 = 2 * na.reduce((a, r) => a + r.guideLifts, 0) / Math.max(1, na.reduce((a, r) => a + r.lifts, 0));
+  meta.q = P.old ? (s0 >= P.target ? 0 : (P.target - s0) / (1 - s0)) : 0; meta.naturalShare = s0;
+  go('LG', ['lift-guide'], { q: meta.q });
+  go('LGc', ['lift-guide'], { q: meta.q, guideP: .5 });
+  for (const c of STARTERS) go(`LG+${c}`, ['lift-guide', c], { q: meta.q });
+  if (!P.old) {
+    for (const c of STARTERS) go(`LG+${c}:aware`, ['lift-guide', c], { q: 0 }, c);
+    for (const c of STARTERS) go(`LGc+${c}:aware`, ['lift-guide', c], { q: 0, guideP: .5 }, c);
+    for (const [k, v] of Object.entries(VARIANTS)) go(`LGc+${k}:aware`, ['lift-guide', v.card], { q: 0, guideP: .5, ...v.opts }, v.card);
+  } else for (const c of STARTERS) go(`LGc+${c}`, ['lift-guide', c], { q: meta.q, guideP: .5 });
+  fs.writeFileSync(rawFile(name), JSON.stringify({ ...meta, results }));
+}
 
-function mulberry(seed) { let a = 0; for (const c of String(seed)) a = (a * 31 + c.charCodeAt(0)) >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-
-async function child(pilotName) {
-  const { makeRun, M, instrument } = await import('./real-flight-check.mjs');
-  process.argv.push('--importOnly');
-  const { simulate, buildCase } = await import('../balance-current-flight.mjs');
-  const { style, target } = PILOTS[pilotName];
-  const sparksOf = (card, log) => card === 'skim-line' ? (log.engine.cardEngine?.sparks || 0) : (log.slots[card === 'lift-guide' ? 0 : 1]?.sparks || 0);
-  function flyRun(ids, runSeed, q) {
-    const run = makeRun(ids, { seed: runSeed }), card = ids[ids.length - 1];
-    const m = { cleared: 0, attempts: 0, hearts: 0, died: false, denied: 0, under20: 0, minMeter: 1, collected: 0, cardSparks: 0, lgSparks: 0, lifts: 0, guideLifts: 0, stored: 0, cardStored: 0, meterEnd: 0 };
-    let guard = 0; const tries = {};
-    while (m.cleared < FLIGHTS && guard++ < 40) {
-      if (run.phase !== 'map') break;
-      const ch = M.getChoices(run); if (!ch.length) break;
-      const camp = ch.find(n => n.kind === 'camp'), normal = ch.find(n => n.type === 'flight' && !n.elite), elite = ch.find(n => n.type === 'flight');
-      const hurt = run.lives < run.maxLives || run.flame < 60;
-      const pick = (camp && (hurt || (!normal && !elite))) ? camp : normal || elite || camp || ch[0];
-      if (!M.selectNode(run, pick.id)) break;
-      if (pick.type !== 'flight') { // Rest (Recover) or a skipped stop (treasure, event, Scribe): no card or Inscription is taken
-        if (pick.kind === 'camp') M.resolveSupport(run, 0);
-        for (const k of ['pendingChest', 'pendingTemporary', 'cardDraft', 'cardReward']) delete run[k];
-        if (run.phase !== 'map' || run.step <= pick.row) { run.phase = 'map'; run.step = pick.row + 1; run.current = null; }
-        continue;
-      }
-      M.beginFlightAttempt(run); M.markFlightAttemptStarted(run);
-      const config = buildCase({ terrain: pick.terrain, difficulty: 1, stage: pick.row, role: 'collector', style, seedIndex: 0, profile: 'refuge', skills: {} });
-      Object.assign(config, { seed: `${run.seed}-${pick.id}`, duration: pick.duration, node: pick }); config.run = run; config.controllerSeed = tries[pick.id] = (tries[pick.id] || 0) + 1;
-      const log = {}, rnd = mulberry(config.seed + ':cue' + config.controllerSeed); let under = 0;
-      config.prepareEngine = e => {
-        log.engine = e; instrument(e, log);
-        const flap = e.flap.bind(e);
-        e.flap = () => {
-          const before = log.events['guide-lift'] || 0, ok = flap();
-          if (ok && q > 0 && (log.events['guide-lift'] || 0) === before && rnd() < q && rnd() < .5) e.resolveCardRowEvent('guide-lift', { meterFraction: e.flame / e.maxFlame, guardRecovering: e.wisp?.phase === 'guard-recovery' });
-          return ok;
-        };
-        const step = e.step.bind(e); e.step = dt => { if (e.flame < .2 * e.maxFlame) under += dt; return step(dt); };
-      };
-      let rec; try { rec = simulate(config); } catch (err) { rec = { success: false, result: null, err: String(err) }; }
-      m.attempts++; m.under20 += under; m.denied += rec.liftInputs?.deniedEnergy || 0;
-      if (rec.minFuel != null && log.engine) m.minMeter = Math.min(m.minMeter, rec.minFuel / log.engine.maxFlame);
-      if (log.engine) { m.lifts += log.occurred.lifts; m.guideLifts += log.events['guide-lift'] || 0; }
-      const ok = M.finishFlight(run, rec.success && rec.result ? rec.result : { success: false });
-      if (rec.success && rec.result && ok) {
-        m.cleared++; m.collected += rec.pickupCounts ? Object.values(rec.pickupCounts).reduce((a, b) => a + b, 0) : 0;
-        m.cardSparks += sparksOf(card, log); m.lgSparks += log.slots[0]?.sparks || 0; m.cardStored += log.slots[ids.length - 1]?.stored || 0;
-        delete run.cardDraft; delete run.cardReward; m.stored = run.condensedEarned || 0;
-      } else { m.hearts++; if (run.lives <= 0) { m.died = true; break; } }
-    }
-    m.meterEnd = run.flame; return m;
-  }
-  const out = { pilot: pilotName, style, target, runs: RUNS, results: {} };
-  const seeds = Array.from({ length: RUNS }, (_, i) => `sb${i}`);
-  const cond = (name, ids, q) => { out.results[name] = seeds.map(s => flyRun(ids, s, q)); console.error(pilotName, name, 'done'); };
-  cond('none', [], 0);
-  cond('LG-noarrow', ['lift-guide'], 0);
-  const noArrow = out.results['LG-noarrow'], s0 = 2 * noArrow.reduce((a, r) => a + r.guideLifts, 0) / Math.max(1, noArrow.reduce((a, r) => a + r.lifts, 0)); // on-cue share BEFORE the Lift Guide coin toss (a paid Lift is a won coin)
-  out.naturalShare = s0; out.q = s0 >= target ? 0 : (target - s0) / (1 - s0);
-  cond('LG', ['lift-guide'], out.q);
-  out.arrowShare = 2 * out.results.LG.reduce((a, r) => a + r.guideLifts, 0) / Math.max(1, out.results.LG.reduce((a, r) => a + r.lifts, 0));
-  for (const c of CARDS) cond(`LG+${c}`, ['lift-guide', c], out.q);
-  fs.writeFileSync(rawFile(pilotName), JSON.stringify(out));
+async function proposals(name) {
+  const P = PILOTS[name], sim = await createSim({ style: P.style }), seeds = Array.from({ length: RUNS }, (_, i) => `sb${i}`), results = {};
+  for (const [k, v] of Object.entries(PROPOSALS)) { results[`LGc+${k}:aware`] = seeds.map(s => sim.flyRun(['lift-guide', v.card], s, { restBelow: 88, q: 0, guideP: .5, ...v.opts, pilotExtra: v.blind ? undefined : () => aware(v.card, P) })); console.error(name, k, 'done'); }
+  fs.writeFileSync(rawFile(name + '.proposals'), JSON.stringify(results));
 }
 
 async function parent() {
+  fs.mkdirSync(rawDir, { recursive: true });
   const names = String(args.pilots || Object.keys(PILOTS).join(',')).split(',');
-  if (!args.reuse) await Promise.all(names.map(p => new Promise((res, rej) => { const c = spawn(process.execPath, [here, `--child=${p}`, `--runs=${RUNS}`, `--cards=${CARDS.join(',')}`], { stdio: ['ignore', 'inherit', 'inherit'] }); c.on('exit', code => code ? rej(new Error(p + ' exit ' + code)) : res()); })));
+  if (!args.reuse) await Promise.all(names.map(p => new Promise((res, rej) => { const c = spawn(process.execPath, [here, `--child=${p}`, `--runs=${RUNS}`, ...(args.only ? [`--only=${args.only}`] : [])], { stdio: ['ignore', 'inherit', 'inherit'] }); c.on('exit', code => code ? rej(new Error(p + ' exit ' + code)) : res()); })));
+  const D = Object.fromEntries(names.map(p => [p, JSON.parse(fs.readFileSync(rawFile(p), 'utf8'))]));
+  for (const p of names) if (fs.existsSync(rawFile(p + '.proposals'))) Object.assign(D[p].results, JSON.parse(fs.readFileSync(rawFile(p + '.proposals'), 'utf8')));
   const mean = a => a.reduce((x, y) => x + y, 0) / Math.max(1, a.length), sd = a => { const m = mean(a); return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / Math.max(1, a.length - 1)); };
   const f = (x, d = 1) => (Math.round(x * 10 ** d) / 10 ** d).toString();
-  const diff = (R, a, b, fn) => { const d = R[a].map((r, i) => fn(r) - fn(R[b][i])); return { m: mean(d), se: sd(d) / Math.sqrt(d.length) }; };
-  const pm = ({ m, se }) => { const real = se === 0 ? m !== 0 : Math.abs(m) >= 2 * se; return `${f(m, 2)} ± ${f(se, 2)}${real ? '' : ' (noise)'}`; };
-  let md = `# Starter card balance (human pilots, initial flights; generated ${new Date().toISOString().slice(0, 10)})\n\n`;
-  md += `Setup: first ${FLIGHTS} flights of Map 1 flown as a sequence, true starting state (3 hearts, starting Meter, Lift Guide + the card under test, nothing else), Rests taken when the route offers one, a fall costs a heart and the stop is retried, the run ends at 0 hearts. ${RUNS} seeded runs per (card x pilot); every card run is paired with the same run seed for the baseline. Pilots: beginner = human350 (350 ms reaction, jitter .10, drops .40), average = human250, good = human150 (profiles in scripts/human-flight-planner.mjs; assumptions, not fits to real players). Lift Guide cue following with the arrow: beginner 40%, average 65%, good 85% of Lifts on cue (an off-cue Lift is converted to an on-cue paid Lift with probability q so the share reaches the target; the Lift's timing is the pilot's own, so following the arrow costs no survival). Differences are paired means ± standard error; a difference under 2 SE is marked (noise) and is not real.\n\n`;
-  md += `Exchange rate for the combined worth: 1 heart = ${HEART_VALUE} Stored Sparks (the Workshop's base price to restore a resource at a Rest). Worth = extra Stored Sparks + ${HEART_VALUE} x hearts saved. Both raw columns are shown; extra flights cleared and died-runs are shown but not priced.\n\n`;
-  const summary = {};
-  for (const p of names) {
-    const D = JSON.parse(fs.readFileSync(rawFile(p), 'utf8')), R = D.results; summary[p] = {};
-    md += `## ${p} pilot (${D.style})\n\nLift Guide on-cue share: without the arrow ${f(D.naturalShare * 100, 0)}%, with the arrow ${f(D.arrowShare * 100, 0)}% (target ${D.target * 100}%, q=${f(D.q, 2)}).\n\n`;
-    md += `### Absolute (mean per run of ${FLIGHTS} flights)\n\n| Chain | cleared /6 | hearts lost | died before stop 6 | Lifts refused (no Sparks) | s under 20% | lowest Meter % | pickups collected | card Sparks | Stored at end |\n|---|---|---|---|---|---|---|---|---|---|\n`;
-    for (const [name, label] of [['none', 'no card'], ['LG-noarrow', 'Lift Guide (arrow ignored)'], ['LG', 'Lift Guide only'], ...CARDS.map(c => [`LG+${c}`, `LG + ${NAME[c]}`])]) {
-      const a = R[name]; md += `| ${label} | ${f(mean(a.map(r => r.cleared)))} | ${f(mean(a.map(r => r.hearts)), 2)} | ${a.filter(r => r.died).length}/${a.length} | ${f(mean(a.map(r => r.denied)), 1)} | ${f(mean(a.map(r => r.under20)), 1)} | ${f(mean(a.map(r => r.minMeter)) * 100, 0)} | ${f(mean(a.map(r => r.collected)), 1)} | ${f(mean(a.map(r => name === 'none' ? 0 : r.cardSparks)), 1)} | ${f(mean(a.map(r => r.stored)), 1)} |\n`;
-    }
-    md += `\n### Paired difference vs baseline (Lift Guide only; Lift Guide itself vs no card)\n\n| Card | extra Stored | extra flights cleared | hearts saved | died-run change | refused Lifts change | s under 20% change | card Sparks added | worth (Stored + ${HEART_VALUE}/heart) |\n|---|---|---|---|---|---|---|---|---|\n`;
-    for (const c of ['lift-guide', ...CARDS]) {
-      const [a, b] = c === 'lift-guide' ? ['LG', 'none'] : [`LG+${c}`, 'LG'];
-      const st = diff(R, a, b, r => r.stored), cl = diff(R, a, b, r => r.cleared), hs = diff(R, b, a, r => r.hearts), dd = diff(R, a, b, r => r.died ? 1 : 0), dn = diff(R, a, b, r => r.denied), un = diff(R, a, b, r => r.under20), cs = diff(R, a, b, r => c === 'lift-guide' ? r.lgSparks : r.cardSparks);
-      const wv = diff(R, a, b, r => r.stored - HEART_VALUE * r.hearts);
-      const worth = st.m + HEART_VALUE * hs.m; summary[p][c] = { worth, se: wv.se };
-      md += `| ${NAME[c]} | ${pm(st)} | ${pm(cl)} | ${pm(hs)} | ${pm(dd)} | ${pm(dn)} | ${pm(un)} | ${f(cs.m, 1)} | ${f(worth, 1)} ± ${f(wv.se, 1)} |\n`;
-    }
-    md += '\n';
+  const worthOf = (R, a, b) => { const d = R[a].map((r, i) => (r.stored - R[b][i].stored) + HEART_VALUE * (R[b][i].hearts - r.hearts)); return { m: mean(d), se: sd(d) / Math.sqrt(d.length) }; };
+  const noisy = ({ m, se }) => se === 0 ? m === 0 : Math.abs(m) < 2 * se;
+  const ws = ({ m, se }) => `${f(m, 1)} ± ${f(se, 1)}${noisy({ m, se }) ? ' (noise)' : ''}`;
+  const rate = (R, k, key, den) => 100 * R[k].reduce((a, r) => a + r[key], 0) / Math.max(1, R[k].reduce((a, r) => a + r[den], 0));
+  let md = `# Starter card balance (realistic pilots; generated ${new Date().toISOString().slice(0, 10)})\n\n`;
+  md += `Setup: first ${FLIGHTS} stops of Map 1 flown as a sequence, true starting state (3 hearts, starting Meter, Lift Guide + the card under test, nothing else), Rests taken when offered and the Meter is under 88% (old pilots: under 60%) or a heart is lost, a fall costs a heart and the stop is retried (the pilot remembers where Sparks were), the run ends at 0 hearts. ${RUNS} seeded runs per (condition x pilot); every card run is paired with the same run seed for its baseline. Differences are paired means ± standard error; under 2 SE is marked (noise). Worth = extra Stored Sparks + ${HEART_VALUE} x hearts saved (1 heart = the Workshop's base price to restore a resource).\n\n`;
+  md += `Pilots. NEW (scripts/player-pilot.mjs, scripts/human-flight-planner.mjs planPlayerLift): same human limits as the old ones (reaction 350/250/150 ms, observation-limited view, drops) but they Lift only when it pays: each Lift is scheduled near the efficient moment (fall speed back at the Lift's launch speed, which is where Lift Guide's arrow is open) with Gaussian timing error (sigma 110/70/40 ms with the arrow, x1.6-2 without), glide inside a tolerant altitude band, ride lower and spend less when the Meter is low, never climb to the top fifth of the screen, chase Sparks more greedily when low, play safer on the last heart, remember Spark positions and shrink errors on a retried stop, take a Rest whenever the Meter is under 88%. Slips (late press) 12/6/2% and insurance taps 10/4/1% on routine Lifts. Card-aware: Courier Cord = steer for Sparks inside the Collector's reach (the Collector's fetch makes a Delivery); Skim Line = reward holding within 40 units of terrain when the margin is safe (not on the last heart; strength 0.5/1/1.5 by skill); Meter Mark = keep collecting at a full Meter (each natural Overfill pays); Pulse Reader = prefer Spark clusters so its Pulse crosses uncollected Sparks; Finish Flag = nothing. OLD = human350/250/150, card-blind; the arrow is emulated by converting off-cue Lifts to paid on-cue Lifts until the share reaches 40/65/85%.\n\n`;
+  const order = names;
+  md += `## 1. Survival (Lift Guide alone, first ${FLIGHTS} stops)\n\n| pilot | cleared of 6 | died before stop 6 | hearts lost | refused Lifts / run | Lifts / flight | spam share (<0.75 s) | on-cue share | Sparks taken (share of seen) | s under 20% Meter |\n|---|---|---|---|---|---|---|---|---|---|\n`;
+  for (const p of order) {
+    const R = D[p].results, k = 'LG', a = R[k], lifts = a.reduce((x, r) => x + r.lifts, 0), att = a.reduce((x, r) => x + r.attempts, 0), cue = D[p].q > 0 || PILOTS[p].old ? 2 * a.reduce((x, r) => x + r.guideLifts, 0) / Math.max(1, lifts) * 100 : 100 * a.reduce((x, r) => x + r.cueLifts, 0) / Math.max(1, lifts);
+    md += `| ${p} | ${f(mean(a.map(r => r.cleared)))} | ${a.filter(r => r.died).length}/${a.length} | ${f(mean(a.map(r => r.hearts)), 2)} | ${f(mean(a.map(r => r.denied)))} | ${f(lifts / att)} | ${f(100 * a.reduce((x, r) => x + r.spam75, 0) / Math.max(1, lifts), 0)}% | ${f(cue, 0)}% | ${f(rate(R, k, 'fuelTaken', 'fuelSeen'), 0)}% | ${f(mean(a.map(r => r.under20)), 1)} |\n`;
   }
-  const WEIGHT = { good: .6, average: .3, beginner: .1 }, wsum = c => names.reduce((a, p) => a + (WEIGHT[p] || 0) * summary[p][c].worth, 0), T = wsum('lift-guide');
-  md += `## Worth summary (Stored-equivalent per 6 flights, ± standard error)\n\nWeighted worth = 0.6 good + 0.3 average + 0.1 beginner (balance for good players, weigh in worse ones). T = Lift Guide weighted worth = ${f(T, 1)}; target band for the others 0.8x-1.25x = ${f(T * .8, 1)}-${f(T * 1.25, 1)}.\n\n| Card | ${names.join(' | ')} | weighted | x T |\n|---|${names.map(() => '---').join('|')}|---|---|\n`;
-  for (const c of ['lift-guide', ...CARDS]) md += `| ${NAME[c]} | ${names.map(p => `${f(summary[p][c].worth, 1)} ± ${f(summary[p][c].se, 1)}`).join(' | ')} | ${f(wsum(c), 1)} | ${f(wsum(c) / T, 2)} |\n`;
-  const med = names.map(p => { const v = CARDS.map(c => summary[p][c].worth).sort((a, b) => a - b); return v[Math.floor(v.length / 2)]; });
-  md += `| median of the starters tested | ${med.map(x => f(x, 1)).join(' | ')} |\n`;
+  md += `\nDeaths by cause (flights failed, Lift Guide alone): ` + order.map(p => { const a = D[p].results.LG, d = k => a.reduce((x, r) => x + r.deaths[k], 0); return `${p} fuel ${d('fuel')} / terrain ${d('terrain')} / ceiling-floor ${d('boundary')} / obstacle ${d('obstacle')}`; }).join('; ') + '.\n\n';
+  md += `### Survival by condition (cleared of 6 / died-runs / hearts lost / refused Lifts)\n\n| condition | ${order.join(' | ')} |\n|---|${order.map(() => '---').join('|')}|\n`;
+  const keys = [...new Set(order.flatMap(p => Object.keys(D[p].results)))].filter(k => k !== 'LG-noarrow');
+  for (const k of keys) md += `| ${k} | ${order.map(p => { const a = D[p].results[k]; return a ? `${f(mean(a.map(r => r.cleared)))} / ${a.filter(r => r.died).length}/${a.length} / ${f(mean(a.map(r => r.hearts)), 1)} / ${f(mean(a.map(r => r.denied)), 1)}` : '-'; }).join(' | ')} |\n`;
+  // worth tables
+  const sum = {};
+  const weightedFor = (set, key, base) => set.reduce((a, p) => a + PILOTS[p].w * worthOf(D[p].results, key, base).m, 0);
+  const sets = { new: order.filter(p => p.startsWith('player')), old: order.filter(p => p.startsWith('old')) };
+  const printWorth = (setName, title, rows, base, note) => {
+    const set = sets[setName]; if (!set.length) return;
+    const T = weightedFor(set, rows[0][1], rows[0][2] || base);
+    md += `\n## ${title}\n\n${note}\n\n| card | ${set.join(' | ')} | weighted | x T |\n|---|${set.map(() => '---').join('|')}|---|---|\n`;
+    for (const [label, key, bk] of rows) {
+      if (!set.every(p => D[p].results[key])) continue;
+      const cells = set.map(p => worthOf(D[p].results, key, bk || base)), w = set.reduce((a, p, i) => a + PILOTS[p].w * cells[i].m, 0), se = Math.sqrt(set.reduce((a, p, i) => a + (PILOTS[p].w * cells[i].se) ** 2, 0));
+      sum[`${setName}:${label}`] = { w, se };
+      md += `| ${label} | ${cells.map(ws).join(' | ')} | ${f(w, 1)} ± ${f(se, 1)} | ${f(w / T, 2)} |\n`;
+    }
+    md += `\nT = weighted worth of the first row = ${f(T, 1)}; target band 0.8x-1.25x = ${f(T * .8, 1)}-${f(T * 1.25, 1)}.\n`;
+  };
+  const rowsReleased = [['Lift Guide (today: pays on every on-cue Lift) vs no card', 'LG', 'none'], ...STARTERS.map(c => [`${NAME[c]} (today), card-blind pilot`, `LG+${c}`, 'LG']), ...STARTERS.map(c => [`${NAME[c]} (today), card-aware pilot`, `LG+${c}:aware`, 'LG'])];
+  printWorth('new', '2. Worth, realistic pilots, today\'s released cards (baseline: Lift Guide alone)', rowsReleased, 'LG', 'Lift Guide today pays +1 Spark on every on-cue Lift.');
+  const rowsCoin = [['Lift Guide with 50% coin toss (modelled: payout halved) vs no card', 'LGc', 'none'], ...STARTERS.map(c => [`${NAME[c]} (today), aware, next to coin-toss Lift Guide`, `LGc+${c}:aware`, 'LGc']), ...Object.entries(VARIANTS).map(([k]) => [`MODEL ${k}`, `LGc+${k}:aware`, 'LGc']), ...Object.keys(PROPOSALS).map(k => [`PROPOSAL ${k}`, `LGc+${k}:aware`, 'LGc'])];
+  printWorth('new', '3. Worth in the coin-toss world (baseline: coin-toss Lift Guide alone) and modelled boosts', rowsCoin, 'LGc', 'T is the coin-toss Lift Guide\'s weighted worth. Modelled rows inject the payout inside this script (the game does not have them).');
+  const rowsOld = [['Lift Guide (today) vs no card', 'LG', 'none'], ...STARTERS.map(c => [`${NAME[c]} (today), card-blind`, `LG+${c}`, 'LG'])];
+  printWorth('old', '4. Worth, old pilots (human350/250/150, card-blind), for comparison', rowsOld, 'LG', 'The previous measurement method with the same flights and the same table layout.');
+  const rowsOldCoin = [['Lift Guide with 50% coin toss vs no card', 'LGc', 'none'], ...STARTERS.map(c => [`${NAME[c]} (today), card-blind, next to coin-toss Lift Guide`, `LGc+${c}`, 'LGc'])];
+  printWorth('old', '5. Worth, old pilots, coin-toss world', rowsOldCoin, 'LGc', 'Same, with the Lift Guide payout halved.');
+  md += `\n## 6. Card activity per flight (new pilots; card-blind vs card-aware)\n\n| pilot | Deliveries/flight blind -> aware (Courier Cord) | Skims/flight blind -> aware (Skim Line) | Overfills/flight blind -> aware (Meter Mark) | Pulses/flight (Pulse Reader) |\n|---|---|---|---|---|\n`;
+  for (const p of sets.new) {
+    const R = D[p].results, per = (k, key) => mean(R[k].map(r => r[key] / Math.max(1, r.attempts)));
+    md += `| ${p} | ${f(per('LG+courier-cord', 'deliveries'), 2)} -> ${f(per('LG+courier-cord:aware', 'deliveries'), 2)} | ${f(per('LG+skim-line', 'skims'), 2)} -> ${f(per('LG+skim-line:aware', 'skims'), 2)} | ${f(per('LG+meter-mark', 'overfills'), 2)} -> ${f(per('LG+meter-mark:aware', 'overfills'), 2)} | ${f(per('LG+pulse-reader:aware', 'pulses'), 2)} |\n`;
+  }
   fs.writeFileSync(args.out || 'outputs/balance/starter-balance.md', md);
   console.log(md);
 }

@@ -1,103 +1,101 @@
-# Starter card balance (human pilots, initial flights; generated 2026-11-18)
+# Starter card balance (realistic pilots; generated 2026-11-18)
 
-Setup: first 6 flights of Map 1 flown as a sequence, true starting state (3 hearts, starting Meter, Lift Guide + the card under test, nothing else), Rests taken when the route offers one, a fall costs a heart and the stop is retried, the run ends at 0 hearts. 30 seeded runs per (card x pilot); every card run is paired with the same run seed for the baseline. Pilots: beginner = human350 (350 ms reaction, jitter .10, drops .40), average = human250, good = human150 (profiles in scripts/human-flight-planner.mjs; assumptions, not fits to real players). Lift Guide cue following with the arrow: beginner 40%, average 65%, good 85% of Lifts on cue (an off-cue Lift is converted to an on-cue paid Lift with probability q so the share reaches the target; the Lift's timing is the pilot's own, so following the arrow costs no survival). Differences are paired means ± standard error; a difference under 2 SE is marked (noise) and is not real.
+Setup: first 6 stops of Map 1 flown as a sequence, true starting state (3 hearts, starting Meter, Lift Guide + the card under test, nothing else), Rests taken when offered and the Meter is under 88% (old pilots: under 60%) or a heart is lost, a fall costs a heart and the stop is retried (the pilot remembers where Sparks were), the run ends at 0 hearts. 30 seeded runs per (condition x pilot); every card run is paired with the same run seed for its baseline. Differences are paired means ± standard error; under 2 SE is marked (noise). Worth = extra Stored Sparks + 15 x hearts saved (1 heart = the Workshop's base price to restore a resource).
 
-Exchange rate for the combined worth: 1 heart = 15 Stored Sparks (the Workshop's base price to restore a resource at a Rest). Worth = extra Stored Sparks + 15 x hearts saved. Both raw columns are shown; extra flights cleared and died-runs are shown but not priced.
+Pilots. NEW (scripts/player-pilot.mjs, scripts/human-flight-planner.mjs planPlayerLift): same human limits as the old ones (reaction 350/250/150 ms, observation-limited view, drops) but they Lift only when it pays: each Lift is scheduled near the efficient moment (fall speed back at the Lift's launch speed, which is where Lift Guide's arrow is open) with Gaussian timing error (sigma 110/70/40 ms with the arrow, x1.6-2 without), glide inside a tolerant altitude band, ride lower and spend less when the Meter is low, never climb to the top fifth of the screen, chase Sparks more greedily when low, play safer on the last heart, remember Spark positions and shrink errors on a retried stop, take a Rest whenever the Meter is under 88%. Slips (late press) 12/6/2% and insurance taps 10/4/1% on routine Lifts. Card-aware: Courier Cord = steer for Sparks inside the Collector's reach (the Collector's fetch makes a Delivery); Skim Line = reward holding within 40 units of terrain when the margin is safe (not on the last heart; strength 0.5/1/1.5 by skill); Meter Mark = keep collecting at a full Meter (each natural Overfill pays); Pulse Reader = prefer Spark clusters so its Pulse crosses uncollected Sparks; Finish Flag = nothing. OLD = human350/250/150, card-blind; the arrow is emulated by converting off-cue Lifts to paid on-cue Lifts until the share reaches 40/65/85%.
 
-## beginner pilot (human350)
+## 1. Survival (Lift Guide alone, first 6 stops)
 
-Lift Guide on-cue share: without the arrow 49%, with the arrow 49% (target 40%, q=0).
-
-### Absolute (mean per run of 6 flights)
-
-| Chain | cleared /6 | hearts lost | died before stop 6 | Lifts refused (no Sparks) | s under 20% | lowest Meter % | pickups collected | card Sparks | Stored at end |
+| pilot | cleared of 6 | died before stop 6 | hearts lost | refused Lifts / run | Lifts / flight | spam share (<0.75 s) | on-cue share | Sparks taken (share of seen) | s under 20% Meter |
 |---|---|---|---|---|---|---|---|---|---|
-| no card | 1.3 | 3.27 | 30/30 | 4.9 | 19.5 | 2 | 30.7 | 0 | 47.9 |
-| Lift Guide (arrow ignored) | 1.7 | 3.17 | 30/30 | 4.1 | 16.8 | 3 | 40.4 | 33.3 | 69.2 |
-| Lift Guide only | 1.7 | 3.17 | 30/30 | 4.1 | 16.8 | 3 | 40.4 | 33.3 | 69.2 |
-| LG + Skim Line | 2.7 | 3 | 23/30 | 4.2 | 17.7 | 3 | 59.4 | 13.7 | 116.3 |
-| LG + Pulse Reader | 2.6 | 2.77 | 22/30 | 3.6 | 16.1 | 5 | 58.1 | 24.6 | 100.5 |
-| LG + Courier Cord | 1.7 | 3.17 | 30/30 | 4.1 | 16.8 | 3 | 40.4 | 0 | 75.5 |
-| LG + Meter Mark | 1.7 | 3.17 | 30/30 | 4.1 | 16.8 | 3 | 40.4 | 0 | 74.5 |
-| LG + Finish Flag | 1.7 | 3.17 | 30/30 | 4.1 | 16.8 | 3 | 40.4 | 0 | 86.2 |
+| player-beginner | 2.4 | 23/30 | 3.57 | 2.8 | 46.6 | 6% | 71% | 82% | 11.2 |
+| player-average | 4 | 13/30 | 2.8 | 3.2 | 55 | 5% | 74% | 83% | 10.5 |
+| player-good | 3.9 | 14/30 | 2.2 | 4.7 | 57.4 | 5% | 74% | 84% | 9.6 |
 
-### Paired difference vs baseline (Lift Guide only; Lift Guide itself vs no card)
+Deaths by cause (flights failed, Lift Guide alone): player-beginner fuel 41 / terrain 0 / ceiling-floor 0 / obstacle 66; player-average fuel 34 / terrain 1 / ceiling-floor 0 / obstacle 49; player-good fuel 41 / terrain 0 / ceiling-floor 0 / obstacle 25.
 
-| Card | extra Stored | extra flights cleared | hearts saved | died-run change | refused Lifts change | s under 20% change | card Sparks added | worth (Stored + 15/heart) |
-|---|---|---|---|---|---|---|---|---|
-| Lift Guide | 21.27 ± 5.73 | 0.43 ± 0.16 | 0.1 ± 0.1 (noise) | 0 ± 0 (noise) | -0.8 ± 0.28 | -2.75 ± 1.3 | 33.3 | 22.8 ± 5.5 |
-| Skim Line | 47.07 ± 10.57 | 0.97 ± 0.26 | 0.17 ± 0.19 (noise) | -0.23 ± 0.08 | 0.07 ± 0.41 (noise) | 0.93 ± 1.37 (noise) | -19.7 | 49.6 ± 11.6 |
-| Pulse Reader | 31.27 ± 9.81 | 0.87 ± 0.27 | 0.4 ± 0.16 | -0.27 ± 0.08 | -0.53 ± 0.3 (noise) | -0.68 ± 1.37 (noise) | -8.8 | 37.3 ± 10.7 |
-| Courier Cord | 6.27 ± 0.75 | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | -33.3 | 6.3 ± 0.7 |
-| Meter Mark | 5.33 ± 0.77 | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | -33.3 | 5.3 ± 0.8 |
-| Finish Flag | 17 ± 1.74 | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | -33.3 | 17 ± 1.7 |
+### Survival by condition (cleared of 6 / died-runs / hearts lost / refused Lifts)
 
-## average pilot (human250)
+| condition | player-beginner | player-average | player-good |
+|---|---|---|---|
+| none | 0.6 / 30/30 / 3.2 / 3.3 | 1.5 / 27/30 / 3.3 / 6.2 | 2 / 27/30 / 3.4 / 8.8 |
+| LG | 2.4 / 23/30 / 3.6 / 2.8 | 4 / 13/30 / 2.8 / 3.2 | 3.9 / 14/30 / 2.2 / 4.7 |
+| LGc | 1.7 / 28/30 / 3.6 / 3.8 | 2.8 / 21/30 / 3.4 / 5.7 | 3.5 / 19/30 / 2.8 / 8.4 |
+| LG+skim-line | 2.6 / 23/30 / 3.8 / 2.4 | 3.8 / 14/30 / 2.5 / 2.9 | 4 / 11/30 / 2.1 / 4.4 |
+| LG+pulse-reader | 2.9 / 20/30 / 3.4 / 1.6 | 4.3 / 7/30 / 2.2 / 1.4 | 4.3 / 9/30 / 1.6 / 3 |
+| LG+courier-cord | 2.7 / 22/30 / 3.6 / 2.7 | 4 / 13/30 / 2.6 / 2.9 | 3.9 / 14/30 / 2.2 / 4.7 |
+| LG+meter-mark | 2.4 / 23/30 / 3.6 / 2.8 | 4 / 13/30 / 2.8 / 3.2 | 3.9 / 14/30 / 2.2 / 4.7 |
+| LG+finish-flag | 2.4 / 23/30 / 3.6 / 2.8 | 4 / 13/30 / 2.8 / 3.2 | 3.9 / 14/30 / 2.2 / 4.7 |
+| LG+skim-line:aware | 2.9 / 22/30 / 3.9 / 3.3 | 3.3 / 19/30 / 3 / 3 | 3.5 / 17/30 / 2.8 / 3.9 |
+| LG+pulse-reader:aware | 2.9 / 20/30 / 3.4 / 1.6 | 4.3 / 7/30 / 2.2 / 1.4 | 4.3 / 9/30 / 1.6 / 3 |
+| LG+courier-cord:aware | 2.7 / 21/30 / 3.5 / 2.7 | 3.9 / 14/30 / 2.8 / 3.2 | 3.7 / 16/30 / 2.4 / 4.8 |
+| LG+meter-mark:aware | 2.4 / 23/30 / 3.5 / 2.7 | 3.9 / 14/30 / 3 / 3.8 | 3.7 / 15/30 / 2.3 / 3.6 |
+| LG+finish-flag:aware | 2.4 / 23/30 / 3.6 / 2.8 | 4 / 13/30 / 2.8 / 3.2 | 3.9 / 14/30 / 2.2 / 4.7 |
+| LGc+skim-line:aware | 1.9 / 28/30 / 3.7 / 3.6 | 2.9 / 24/30 / 3.5 / 5.8 | 2.5 / 23/30 / 3.5 / 6.4 |
+| LGc+pulse-reader:aware | 2.5 / 23/30 / 3.6 / 2.9 | 3.9 / 12/30 / 2.7 / 3.5 | 3.9 / 16/30 / 2.4 / 6 |
+| LGc+courier-cord:aware | 1.7 / 29/30 / 3.7 / 4.2 | 2.6 / 22/30 / 3.4 / 5.5 | 3.5 / 19/30 / 2.7 / 7.9 |
+| LGc+meter-mark:aware | 1.4 / 30/30 / 3.7 / 3.7 | 3 / 20/30 / 3.2 / 5.6 | 2.5 / 25/30 / 3.2 / 8.4 |
+| LGc+finish-flag:aware | 1.7 / 28/30 / 3.6 / 3.8 | 2.8 / 21/30 / 3.4 / 5.7 | 3.5 / 19/30 / 2.8 / 8.4 |
+| LGc+courier-cord +3 Sparks/Delivery:aware | 1.7 / 29/30 / 3.7 / 4.1 | 2.8 / 20/30 / 3.4 / 5 | 3.6 / 17/30 / 2.5 / 6.9 |
+| LGc+courier-cord +6 Sparks/Delivery:aware | 2.1 / 27/30 / 3.7 / 4 | 2.9 / 20/30 / 3.1 / 4.8 | 3.6 / 17/30 / 2.4 / 6.6 |
+| LGc+skim-line +3 Sparks/Skim:aware | 2 / 27/30 / 3.8 / 3.2 | 3.3 / 22/30 / 3.3 / 5.3 | 2.6 / 22/30 / 3.1 / 5.1 |
+| LGc+skim-line +6 Sparks/Skim:aware | 2 / 27/30 / 3.7 / 3.2 | 2.8 / 23/30 / 3.2 / 5.3 | 2.9 / 20/30 / 2.7 / 4.5 |
+| LGc+finish-flag +4 Stored, refill 10 Sparks:aware | 1.8 / 28/30 / 3.6 / 2.9 | 3 / 22/30 / 3.4 / 4.7 | 3.4 / 18/30 / 2.7 / 7.1 |
+| LGc+finish-flag +4 Stored, refill 20 Sparks:aware | 2.3 / 26/30 / 3.7 / 3.4 | 3 / 21/30 / 3.2 / 5.1 | 3.8 / 15/30 / 2.3 / 6.5 |
+| LGc+courier-cord: +6 Sparks and +5 Stored per Delivery:aware | 2.1 / 27/30 / 3.7 / 4 | 2.9 / 20/30 / 3.1 / 4.8 | 3.6 / 17/30 / 2.4 / 6.6 |
+| LGc+skim-line: +6 Sparks and +4 Stored per Skim (aware):aware | 2 / 27/30 / 3.7 / 3.2 | 2.8 / 23/30 / 3.2 / 5.3 | 2.9 / 20/30 / 2.7 / 4.5 |
+| LGc+skim-line: +6 Sparks and +4 Stored per Skim (blind):aware | 1.7 / 27/30 / 3.5 / 3.3 | 2.7 / 23/30 / 3.3 / 5.2 | 3.5 / 19/30 / 2.8 / 7.5 |
+| LGc+finish-flag: +6 Stored and Meter refilled to full:aware | 2.3 / 26/30 / 3.7 / 3.4 | 3 / 21/30 / 3.2 / 5.1 | 3.8 / 15/30 / 2.3 / 6.5 |
 
-Lift Guide on-cue share: without the arrow 58%, with the arrow 70% (target 65%, q=0.16).
+## 2. Worth, realistic pilots, today's released cards (baseline: Lift Guide alone)
 
-### Absolute (mean per run of 6 flights)
+Lift Guide today pays +1 Spark on every on-cue Lift.
 
-| Chain | cleared /6 | hearts lost | died before stop 6 | Lifts refused (no Sparks) | s under 20% | lowest Meter % | pickups collected | card Sparks | Stored at end |
-|---|---|---|---|---|---|---|---|---|---|
-| no card | 1.7 | 3.37 | 29/30 | 6.6 | 21.6 | 0 | 40.8 | 0 | 62.4 |
-| Lift Guide (arrow ignored) | 3.2 | 2.73 | 19/30 | 4.7 | 17.4 | 2 | 70.9 | 67.7 | 120.9 |
-| Lift Guide only | 3.3 | 2.4 | 18/30 | 3.8 | 14.4 | 2 | 73.6 | 84.1 | 128.5 |
-| LG + Skim Line | 3.6 | 2.1 | 15/30 | 3.5 | 12.8 | 4 | 78.3 | 20 | 157.1 |
-| LG + Pulse Reader | 3.6 | 2.2 | 16/30 | 3.3 | 12.1 | 4 | 79.8 | 33.7 | 144.2 |
-| LG + Courier Cord | 3.3 | 2.4 | 18/30 | 3.8 | 14.4 | 2 | 73.6 | 0 | 139.4 |
-| LG + Meter Mark | 3.3 | 2.4 | 18/30 | 3.8 | 14.4 | 2 | 73.6 | 0 | 139.6 |
-| LG + Finish Flag | 3.3 | 2.4 | 18/30 | 3.8 | 14.4 | 2 | 73.6 | 0 | 161.5 |
-
-### Paired difference vs baseline (Lift Guide only; Lift Guide itself vs no card)
-
-| Card | extra Stored | extra flights cleared | hearts saved | died-run change | refused Lifts change | s under 20% change | card Sparks added | worth (Stored + 15/heart) |
-|---|---|---|---|---|---|---|---|---|
-| Lift Guide | 66.07 ± 11.35 | 1.57 ± 0.31 | 0.97 ± 0.29 | -0.37 ± 0.09 | -2.83 ± 0.82 | -7.23 ± 1.77 | 84.1 | 80.6 ± 13.5 |
-| Skim Line | 28.6 ± 10.99 | 0.27 ± 0.28 (noise) | 0.3 ± 0.23 (noise) | -0.1 ± 0.1 (noise) | -0.27 ± 0.53 (noise) | -1.6 ± 1.18 (noise) | -64.1 | 33.1 ± 13.9 |
-| Pulse Reader | 15.7 ± 8.12 (noise) | 0.27 ± 0.22 (noise) | 0.2 ± 0.12 (noise) | -0.07 ± 0.07 (noise) | -0.5 ± 0.37 (noise) | -2.25 ± 1.11 | -50.4 | 18.7 ± 9.3 |
-| Courier Cord | 10.93 ± 1.36 | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | -84.1 | 10.9 ± 1.4 |
-| Meter Mark | 11.13 ± 1.11 | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | -84.1 | 11.1 ± 1.1 |
-| Finish Flag | 33 ± 2.96 | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | -84.1 | 33 ± 3 |
-
-## good pilot (human150)
-
-Lift Guide on-cue share: without the arrow 67%, with the arrow 105% (target 85%, q=0.54).
-
-### Absolute (mean per run of 6 flights)
-
-| Chain | cleared /6 | hearts lost | died before stop 6 | Lifts refused (no Sparks) | s under 20% | lowest Meter % | pickups collected | card Sparks | Stored at end |
-|---|---|---|---|---|---|---|---|---|---|
-| no card | 2 | 3.37 | 28/30 | 9 | 19.1 | 1 | 48.6 | 0 | 73.9 |
-| Lift Guide (arrow ignored) | 3.1 | 2.53 | 20/30 | 6.5 | 15 | 3 | 72 | 77.8 | 123.6 |
-| Lift Guide only | 4.1 | 1.73 | 9/30 | 3.9 | 11.3 | 5 | 94 | 155.1 | 167.7 |
-| LG + Skim Line | 3.9 | 1.9 | 12/30 | 3.3 | 9.9 | 5 | 88 | 18.8 | 179.4 |
-| LG + Pulse Reader | 4.1 | 1.43 | 9/30 | 2.7 | 8 | 8 | 93.8 | 40.2 | 171.7 |
-| LG + Courier Cord | 4.1 | 1.73 | 9/30 | 3.9 | 11.3 | 5 | 94 | 0 | 181.3 |
-| LG + Meter Mark | 4.1 | 1.73 | 9/30 | 3.9 | 11.3 | 5 | 94 | 0 | 184.7 |
-| LG + Finish Flag | 4.1 | 1.73 | 9/30 | 3.9 | 11.3 | 5 | 94 | 0 | 209.1 |
-
-### Paired difference vs baseline (Lift Guide only; Lift Guide itself vs no card)
-
-| Card | extra Stored | extra flights cleared | hearts saved | died-run change | refused Lifts change | s under 20% change | card Sparks added | worth (Stored + 15/heart) |
-|---|---|---|---|---|---|---|---|---|
-| Lift Guide | 93.8 ± 12.05 | 2.13 ± 0.31 | 1.63 ± 0.26 | -0.63 ± 0.09 | -5.17 ± 0.77 | -7.81 ± 1.89 | 155.1 | 118.3 ± 14.4 |
-| Skim Line | 11.7 ± 6.67 (noise) | -0.27 ± 0.15 (noise) | -0.17 ± 0.19 (noise) | 0.1 ± 0.06 (noise) | -0.53 ± 0.42 (noise) | -1.4 ± 1.13 (noise) | -136.3 | 9.2 ± 8.4 |
-| Pulse Reader | 3.93 ± 0.86 | 0 ± 0 (noise) | 0.3 ± 0.12 | 0 ± 0 (noise) | -1.13 ± 0.46 | -3.32 ± 0.76 | -114.9 | 8.4 ± 2.1 |
-| Courier Cord | 13.6 ± 1.24 | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | -155.1 | 13.6 ± 1.2 |
-| Meter Mark | 16.97 ± 1.24 | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | -155.1 | 17 ± 1.2 |
-| Finish Flag | 41.33 ± 2.7 | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | 0 ± 0 (noise) | -155.1 | 41.3 ± 2.7 |
-
-## Worth summary (Stored-equivalent per 6 flights, ± standard error)
-
-Weighted worth = 0.6 good + 0.3 average + 0.1 beginner (balance for good players, weigh in worse ones). T = Lift Guide weighted worth = 97.4; target band for the others 0.8x-1.25x = 77.9-121.8.
-
-| Card | beginner | average | good | weighted | x T |
+| card | player-beginner | player-average | player-good | weighted | x T |
 |---|---|---|---|---|---|
-| Lift Guide | 22.8 ± 5.5 | 80.6 ± 13.5 | 118.3 ± 14.4 | 97.4 | 1 |
-| Skim Line | 49.6 ± 11.6 | 33.1 ± 13.9 | 9.2 ± 8.4 | 20.4 | 0.21 |
-| Pulse Reader | 37.3 ± 10.7 | 18.7 ± 9.3 | 8.4 ± 2.1 | 14.4 | 0.15 |
-| Courier Cord | 6.3 ± 0.7 | 10.9 ± 1.4 | 13.6 ± 1.2 | 12.1 | 0.12 |
-| Meter Mark | 5.3 ± 0.8 | 11.1 ± 1.1 | 17 ± 1.2 | 14.1 | 0.14 |
-| Finish Flag | 17 ± 1.7 | 33 ± 3 | 41.3 ± 2.7 | 36.4 | 0.37 |
-| median of the starters tested | 17 | 18.7 | 13.6 |
+| Lift Guide (today: pays on every on-cue Lift) vs no card | 68.4 ± 11.7 | 108.2 ± 13.9 | 103.8 ± 14.9 | 101.6 ± 9.9 | 1 |
+| Skim Line (today), card-blind pilot | -2 ± 12.9 (noise) | -2.1 ± 7.3 (noise) | 6.5 ± 11.6 (noise) | 3.1 ± 7.4 | 0.03 |
+| Pulse Reader (today), card-blind pilot | 26 ± 15.7 (noise) | 29.2 ± 16 (noise) | 34.2 ± 12 | 31.9 ± 8.8 | 0.31 |
+| Courier Cord (today), card-blind pilot | 8.9 ± 7.1 (noise) | 3.3 ± 5.7 (noise) | 0.3 ± 0.1 | 2.1 ± 1.9 | 0.02 |
+| Meter Mark (today), card-blind pilot | 31.7 ± 4.3 | 52.1 ± 4 | 51.3 ± 3.6 | 49.6 ± 2.5 | 0.49 |
+| Finish Flag (today), card-blind pilot | 4.9 ± 0.6 | 7.9 ± 0.5 | 7.7 ± 0.5 | 7.5 ± 0.3 | 0.07 |
+| Skim Line (today), card-aware pilot | 6.2 ± 12.4 (noise) | -29.1 ± 13.4 | -31 ± 11.7 | -26.7 ± 8.2 | -0.26 |
+| Pulse Reader (today), card-aware pilot | 26 ± 15.7 (noise) | 29.2 ± 16 (noise) | 34.2 ± 12 | 31.9 ± 8.8 | 0.31 |
+| Courier Cord (today), card-aware pilot | 9.9 ± 5.1 (noise) | -3.5 ± 9.4 (noise) | -8.5 ± 6 (noise) | -5.2 ± 4.6 | -0.05 |
+| Meter Mark (today), card-aware pilot | 33.9 ± 16.6 | 53 ± 14.8 | 46.1 ± 14.6 | 46.9 ± 10 | 0.46 |
+| Finish Flag (today), card-aware pilot | 4.9 ± 0.6 | 7.9 ± 0.5 | 7.7 ± 0.5 | 7.5 ± 0.3 | 0.07 |
+
+T = weighted worth of the first row = 101.6; target band 0.8x-1.25x = 81.3-127.
+
+## 3. Worth in the coin-toss world (baseline: coin-toss Lift Guide alone) and modelled boosts
+
+T is the coin-toss Lift Guide's weighted worth. Modelled rows inject the payout inside this script (the game does not have them).
+
+| card | player-beginner | player-average | player-good | weighted | x T |
+|---|---|---|---|---|---|
+| Lift Guide with 50% coin toss (modelled: payout halved) vs no card | 33.5 ± 8.7 | 49.3 ± 11.8 | 69.5 ± 13.7 | 59.8 ± 9 | 1 |
+| Skim Line (today), aware, next to coin-toss Lift Guide | 9.5 ± 7 (noise) | -2.6 ± 13.1 (noise) | -47.6 ± 11.3 | -28.4 ± 7.9 | -0.47 |
+| Pulse Reader (today), aware, next to coin-toss Lift Guide | 33.2 ± 10.2 | 56.5 ± 14.6 | 23.5 ± 11.5 | 34.4 ± 8.2 | 0.57 |
+| Courier Cord (today), aware, next to coin-toss Lift Guide | 2.6 ± 4.7 (noise) | -7.4 ± 5.8 (noise) | -0.3 ± 6.4 (noise) | -2.1 ± 4.2 | -0.04 |
+| Meter Mark (today), aware, next to coin-toss Lift Guide | 2.5 ± 7.6 (noise) | 45.5 ± 16.3 | -6.4 ± 14.7 (noise) | 10.1 ± 10.1 | 0.17 |
+| Finish Flag (today), aware, next to coin-toss Lift Guide | 3.4 ± 0.5 | 5.6 ± 0.6 | 6.9 ± 0.5 | 6.2 ± 0.4 | 0.1 |
+| MODEL courier-cord +3 Sparks/Delivery | 2.4 ± 7.1 (noise) | -0.8 ± 6.9 (noise) | 7 ± 7.8 (noise) | 4.2 ± 5.2 | 0.07 |
+| MODEL courier-cord +6 Sparks/Delivery | 14.5 ± 9.3 (noise) | 8 ± 8.9 (noise) | 9.8 ± 8.1 (noise) | 9.7 ± 5.6 | 0.16 |
+| MODEL skim-line +3 Sparks/Skim | 11.1 ± 10.1 (noise) | 15.3 ± 11 (noise) | -41.6 ± 13.1 | -19.2 ± 8.6 | -0.32 |
+| MODEL skim-line +6 Sparks/Skim | 8.6 ± 11.7 (noise) | 3.1 ± 14 (noise) | -18.8 ± 16.2 (noise) | -9.5 ± 10.7 | -0.16 |
+| MODEL finish-flag +4 Stored, refill 10 Sparks | 16.7 ± 9.2 (noise) | 20.8 ± 9.6 | 19.8 ± 11 (noise) | 19.8 ± 7.3 | 0.33 |
+| MODEL finish-flag +4 Stored, refill 20 Sparks | 33.6 ± 9.1 | 23.8 ± 11.8 | 37.6 ± 10.8 | 33.1 ± 7.5 | 0.55 |
+| PROPOSAL courier-cord: +6 Sparks and +5 Stored per Delivery | 38.5 ± 12.2 | 39.5 ± 10.7 | 46.1 ± 10.2 | 43.4 ± 7 | 0.72 |
+| PROPOSAL skim-line: +6 Sparks and +4 Stored per Skim (aware) | 19.4 ± 13 (noise) | 24.1 ± 15.5 (noise) | 15.2 ± 19 (noise) | 18.3 ± 12.4 | 0.31 |
+| PROPOSAL skim-line: +6 Sparks and +4 Stored per Skim (blind) | 14.3 ± 8.8 (noise) | 12.9 ± 10 (noise) | 21.1 ± 13.7 (noise) | 18 ± 8.8 | 0.3 |
+| PROPOSAL finish-flag: +6 Stored and Meter refilled to full | 38.3 ± 9.6 | 29.9 ± 12.1 | 45.1 ± 11.2 | 39.9 ± 7.7 | 0.67 |
+
+T = weighted worth of the first row = 59.8; target band 0.8x-1.25x = 47.9-74.8.
+
+## 6. Card activity per flight (new pilots; card-blind vs card-aware)
+
+| pilot | Deliveries/flight blind -> aware (Courier Cord) | Skims/flight blind -> aware (Skim Line) | Overfills/flight blind -> aware (Meter Mark) | Pulses/flight (Pulse Reader) |
+|---|---|---|---|---|
+| player-beginner | 1.37 -> 1.4 | 0.84 -> 0.85 | 6.9 -> 7.92 | 8.19 |
+| player-average | 1.63 -> 1.55 | 1.03 -> 1.5 | 9.57 -> 10.46 | 10.01 |
+| player-good | 1.53 -> 1.53 | 1.05 -> 1.94 | 10.38 -> 10.85 | 10 |

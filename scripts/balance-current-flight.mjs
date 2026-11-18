@@ -1,5 +1,5 @@
 import {observeFlight} from './human-flight-perception.mjs';
-import {planHumanLift,selectHumanFuel} from './human-flight-planner.mjs';
+import {planHumanLift,selectHumanFuel,planPlayerLift,applyRecall} from './human-flight-planner.mjs';
 import {iceShardContact,sampleIceShard} from '../dist/guardian-geometry.mjs';
 import {humanProfile,queueHumanLift} from './human-flight-planner.mjs';
 import fs from 'node:fs';
@@ -151,6 +151,8 @@ function preciseFuelInput(e,target,memory,visible){
 function choose(e,style,memory){
  if(memory.human){
   const view=observeFlight(e);
+  memory.human.player&&applyRecall(view,memory,e);
+  const ex=memory.extra?.(e,view)||{};
   memory.firstSightLead??=new Map();
   for(const spark of view.sparks){
    if(!memory.firstSightLead.has(spark.id))
@@ -158,7 +160,7 @@ function choose(e,style,memory){
    if(!memory.noticed.has(spark.id))memory.noticed.set(spark.id,memory.random()>=memory.human.drop*.5);
   }
   const targetView=memory.human.seekTerrainHelp?view:{...view,sparks:view.sparks.filter(p=>!p.assist)};
-  const fuelTarget=view.energy>=view.maxEnergy*.9?null:selectHumanFuel(targetView,memory.noticed,memory.human.reaction);
+  const fuelTarget=view.energy>=view.maxEnergy*(ex.fullThreshold??.9)?null:selectHumanFuel(targetView,memory.noticed,memory.human.reaction,ex);
   const flashTarget=!view.flashActive?view.sparks.find(p=>p.flash&&memory.noticed.get(p.id)):null;
   // A visible white triangle is useful even at a full meter. Prefer immediate
   // fuel when nearly empty; otherwise seek light before a visibly dark reach.
@@ -169,7 +171,8 @@ function choose(e,style,memory){
    if(memory.random()<memory.human.drop)memory.missedPower++;
    else memory.pendingPower=e.time+memory.human.reaction;
   }
-  return planHumanLift(view,target,memory);
+  memory.guide=!!e.mod.cardLiftGuide;
+ return memory.human.player?planPlayerLift(view,target,memory,ex):planHumanLift(view,target,memory);
  }
  const random=memory.random,world=e.distance+e.player.x,sight=Math.min(e.width-e.player.x,e.getLightState().radius*2.1);
  const nearby=e.getNearbyPickups();
@@ -306,7 +309,7 @@ function simulate(config){
   e.fleet.forEach((item,i)=>{if(before[i]<=0&&item.remaining>0)record.powerUses[item.role]=(record.powerUses[item.role]||0)+1;
    if(item.role==='leveler'&&before[i]>0&&item.remaining<=0)record.levelerReleases++;});}return ok;};
  const human=humanProfile(config.style);
- const memory={lastLift:-2,random:rngFor(config.seed+':'+config.style+':'+(config.controllerSeed||0)),nextDecision:0,pending:null,pendingPower:null,powerGate:0,missedPower:0,human,noticed:new Map(),inputSamples:0,lastTouch:-Infinity};
+ const memory={lastLift:-2,random:rngFor(config.seed+':'+config.style+':'+(config.controllerSeed||0)),nextDecision:0,pending:null,pendingPower:null,powerGate:0,missedPower:0,human,noticed:new Map(),inputSamples:0,lastTouch:-Infinity,retry:(config.controllerSeed||0)>1,lastHeart:(config.run?.lives??3)<=1,extra:config.pilotExtra,echoAt:null,store:config.pilotStore};
  record.liftInputs={attempted:0,successful:0,deniedEnergy:0};
  const flap=e.flap.bind(e);
  e.flap=()=>{
