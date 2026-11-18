@@ -1,3 +1,3 @@
 // The release stamp updates this value together with the game entry point.
 // End-of-Game snapshots retain the producing version when shared later.
-export const GAME_VERSION = 'clear-1';
+export const GAME_VERSION = 'audit-1';

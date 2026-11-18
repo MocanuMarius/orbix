@@ -7,26 +7,26 @@
 // This module draws and handles everything that does not change the save. Every real change (equip, swap,
 // take out, Melt, Workshop) goes through the `actions` the app passes in, which call the model's own
 // transactions and then reopen the sheet; the view state object survives that reopen.
-import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=clear-1';
-import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=clear-1';
-import {uiIcon} from '../ui-icons.mjs?v=clear-1';
-import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=clear-1';
-import {getEquippedCardStatuses} from '../card-status.mjs?v=clear-1';
-import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=clear-1';
-import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=clear-1';
+import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=audit-1';
+import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=audit-1';
+import {uiIcon} from '../ui-icons.mjs?v=audit-1';
+import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=audit-1';
+import {getEquippedCardStatuses} from '../card-status.mjs?v=audit-1';
+import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=audit-1';
+import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=audit-1';
 import {LIFT_KIND, resolveChain, slotInfo, hereLine, fullRuleText, plateWords, whenOf, markOf, TRIGGER_BY, triggerName, RARITY_WORD, rarityOf, nameOf, shortName, isRest, num, METER_MAX, START_FLAME,
-  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=clear-1';
-import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=clear-1';
-import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=clear-1';
+  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=audit-1';
+import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips, TIMER_MARK} from './trigger-icons.mjs?v=audit-1';
+import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=audit-1';
 import {triggerLabel, triggerTermKey} from '../card-trigger-labels.mjs';
-import {CARD_TERMS} from '../card-terms.mjs?v=clear-1';
-import {SKILL_CARDS} from '../skill-cards.mjs?v=clear-1';
-import {isDevourCard} from '../card-black-hole.mjs?v=clear-1';
-import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=clear-1';
-import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=clear-1';
-import {slotInscriptionId, slotInscriptionList, slotEntry} from '../inscriptions.mjs?v=clear-1';
-import {inscriptionEffect} from '../inscription-on-card.mjs?v=clear-1';
-import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=clear-1';
+import {CARD_TERMS} from '../card-terms.mjs?v=audit-1';
+import {SKILL_CARDS} from '../skill-cards.mjs?v=audit-1';
+import {isDevourCard} from '../card-black-hole.mjs?v=audit-1';
+import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=audit-1';
+import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=audit-1';
+import {slotInscriptionId, slotInscriptionList, slotEntry} from '../inscriptions.mjs?v=audit-1';
+import {inscriptionEffect} from '../inscription-on-card.mjs?v=audit-1';
+import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=audit-1';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const SPARK_SRC = SPARK_ICON_SRC;
@@ -191,7 +191,7 @@ function chainPanelHTML(d, view, opts) {
   const origin = has ? triggerIcon(chain.trigger, 32) : start ? chipIcon(start, 32) : `<img src="${WISP_ORB_SRC}" width="32" height="32" alt="">`;
   const originName = has ? termBtn(chain.trigger, {icon: false, cls: 'dk22-term-origin'}) : start ? chipTermBtn(start, {icon: false, cls: 'dk22-term-origin'}) : 'No Trigger';
   const playName = has ? tr.name : start ? CARD_TRIGGERS[start].label : 'this Trigger';
-  const engineRow = ev?.once ? `<p class="dk-runs" id="dk-runs" style="grid-column:2/span ${d.row.length}"><i class="dk2-warn" aria-hidden="true">${WARN}</i><b>Runs once. Add a Timer to keep it turning.</b></p>` : '';
+  const timerMark = ev?.loop ? `<button type="button" class="dk2-btn dk-timer-mark" data-card-term="timer" aria-haspopup="dialog" aria-label="Timer: this chain keeps coming back to the first slot">${TIMER_MARK}</button>` : '';
   return `<div class="dk2-stage dk21-stage${view.placing ? ' dk2-placing' : ''}${ev ? ` dk-eng${ev.once ? ' dk-eng-once' : ''}` : ''}" id="dk2-stage" role="group" aria-label="Your chain. On a Trigger, your cards fire left to right.${ev?.loop ? ' It is an engine: a Timer sends it round again.' : ''}" style="--n:${d.row.length}">
     <div class="dk2-track" id="dk2-track" aria-hidden="true"></div>
     ${ev?.loop ? '<i class="dk-ret dk-ret-a" aria-hidden="true"></i><i class="dk-ret dk-ret-b" aria-hidden="true"></i><i class="dk-ret dk-ret-c" aria-hidden="true"></i>' : ''}
@@ -199,8 +199,7 @@ function chainPanelHTML(d, view, opts) {
      <button type="button" class="wb-sign wb-sign-primary dk2-play dk21-play" id="dk2-play" aria-pressed="false" aria-label="${esc(ev ? `Play the engine from ${playName}: watch it turn, one card at a time` : `Play ${tr.name}: watch a Spark pass through your chain. Result: ${sol.sparks > 0 ? `+${num(sol.sparks)}` : 'no'} Bonus`)}"><span class="wb-sign-text"><b>Play</b></span></button></div>
     <div class="dk2-anchor dk2-start dk21-start" aria-hidden="${has || start ? 'false' : 'true'}"><span class="dk21-origin" id="dk21-origin">${origin}</span><span class="dk2-start-label" id="dk21-origin-name">${originName}</span></div>
     <div class="dk2-stations" id="dk2-stations">${stationsHTML(d, view, opts)}</div>
-    ${engineRow}
-    <div class="dk22-sum${twoNumbers ? ' dk-sum2' : ''}" id="dk22-sum" role="img" aria-label="${esc(sumLabel)}"><i class="dk22-eq" aria-hidden="true"></i><small class="dk23-passes" id="dk23-passes" aria-hidden="true">${twoNumbers ? '' : esc(passes)}</small>${medal}${chain.lift ? `<small class="dk24-net" id="dk24-net">${esc(liftNetWords(chain.lift, sol.sparks))}</small>` : ''}</div>
+    <div class="dk22-sum${twoNumbers ? ' dk-sum2' : ''}" id="dk22-sum" role="img" aria-label="${esc(sumLabel)}"><i class="dk22-eq" aria-hidden="true"></i><small class="dk23-passes" id="dk23-passes" aria-hidden="true">${twoNumbers ? '' : esc(passes)}</small>${medal}${timerMark}${chain.lift ? `<small class="dk24-net" id="dk24-net">${esc(liftNetWords(chain.lift, sol.sparks))}</small>` : ''}</div>
     <div class="dk2-track dk23-track2" id="dk23-track2" aria-hidden="true"></div>
     <div class="dk2-anchor dk2-meter" id="dk2-meter"><span class="dk2-meter-label" aria-hidden="true">Spark Meter</span><div class="dk2-gauge" id="dk2-gauge" aria-hidden="true">${gaugeHTML(chain, false)}</div>
      <div class="dk2-meter-info"><b id="dk2-meter-value">${esc(meterValue(chain, false))}</b><small id="dk2-meter-gain"></small></div></div>

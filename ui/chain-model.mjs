@@ -7,14 +7,14 @@
 // LEFT did to it (an Echo repeating it). Later Boosts and the Encore keep their own plates. Honesty rule: the
 // plates read left to right (+ adds, × multiplies the running figure, Encore repeats the line, each firing
 // rounded up to whole Sparks) must give the resolver's total; when they do not, plates show plain figures.
-import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, getEffectiveCardSources, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=clear-1';
-import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=clear-1';
-import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=clear-1';
+import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, getEffectiveCardSources, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=audit-1';
+import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=audit-1';
+import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=audit-1';
 import {DISPLAY_GROUPS, GROUP_TERM} from '../card-trigger-labels.mjs';
-import {faceTrigger, faceEffect} from '../card-face-lines.mjs?v=clear-1';
-import {getCardRuleBands} from '../card-rule-bands.mjs?v=clear-1';
-import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=clear-1';
-import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=clear-1';
+import {faceTrigger, faceEffect} from '../card-face-lines.mjs?v=audit-1';
+import {getCardRuleBands} from '../card-rule-bands.mjs?v=audit-1';
+import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=audit-1';
+import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=audit-1';
 
 /** The Triggers in the designer's order, with the game's names and glossary keys (card-terms.mjs). */
 export const TRIGGERS = Object.freeze([
@@ -343,7 +343,7 @@ export function hereLine(ctx, c) {
       : st2.operation === 'replay-row' ? 'fires the chain a second time' : COLLECTOR_OPS[st2.operation] ? 'saves Collector time' : st2.amount > 0 ? `adds ${num(st2.amount)}` : 'acts';
     return `${at}: fires ${info.cond}: ${does}.`;
   }
-  if (info.kind === 'waits') return `${at}: waits for ${info.waitLabel || triggerName(info.waits)}. It does nothing on ${on}; that is not a problem.`;
+  if (info.kind === 'waits') return `${at}: fires at ${info.waitLabel || triggerName(info.waits)}.`;
   if (info.kind === 'spent') return `${at}: its Uses were all spent by the repeats to its left, so it cannot act itself. The repeats count on that card.`;
   if (info.kind === 'idle') return `${at}: no effect on ${on}, because ${info.why}.${info.fix ? ` ${info.fix}` : ''}`;
   if (info.role === 'repeat-paid') return `${at}: repeats ${shortName(ctx.row[info.paid.target])} ${info.paid.count} times, +${num(info.paid.amount)} in all. ${shortName(ctx.row[info.paid.target])} then has no Uses left.`;
