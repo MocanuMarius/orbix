@@ -12,7 +12,7 @@ function fit(){
  frame.style.width=`${width}px`;frame.style.height=`${height}px`;
 }
 function update(){
- const variant=variants[selected],params=new URLSearchParams({family:'route',state:'wayfinder',guideArt:selected,v:'polish-2'});
+ const variant=variants[selected],params=new URLSearchParams({family:'route',state:'wayfinder',guideArt:selected,v:'spring-1'});
  document.querySelectorAll('[data-guide]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.guide===selected)));
  document.querySelector('#guide-title').textContent=variant.title;document.querySelector('#guide-description').textContent=variant.description;
  frame.title=`${variant.title} · Thorn Steeple Travel Guide`;frame.src=`components-preview.html?${params}`;

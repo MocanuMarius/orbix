@@ -1,8 +1,8 @@
 // An audition of repeated level flight in still air. Both the guide calculation
 // and its instrument are the ones the game uses.
-import {createMusic} from './music.mjs?v=polish-2';
-import {LiftGuide} from './flight-projection.mjs?v=polish-2';
-import {FLIGHT_TUNING} from './flight.mjs?v=polish-2';
+import {createMusic} from './music.mjs?v=spring-1';
+import {LiftGuide} from './flight-projection.mjs?v=spring-1';
+import {FLIGHT_TUNING} from './flight.mjs?v=spring-1';
 
 const music = createMusic({storage:{getItem:()=>null,setItem(){}},version:1});
 const guide = new LiftGuide(FLIGHT_TUNING);

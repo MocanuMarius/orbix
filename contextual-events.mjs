@@ -1,7 +1,7 @@
-import {completeOffers,eventSparks} from './event-choices.mjs?v=polish-2';
-import {getGlowCapacity} from './vitality.mjs?v=polish-2';
-import {treasureFlightNotice} from './treasure.mjs?v=polish-2';
-import {oathLine,oathReward,pendingOathId} from './oaths.mjs?v=polish-2';
+import {completeOffers,eventSparks} from './event-choices.mjs?v=spring-1';
+import {getGlowCapacity} from './vitality.mjs?v=spring-1';
+import {treasureFlightNotice} from './treasure.mjs?v=spring-1';
+import {oathLine,oathReward,pendingOathId} from './oaths.mjs?v=spring-1';
 // Event stakes are fixed when offered. They are not rolled during flight.
 const choice=(id,title,description,effect)=>({id,title,description,detail:description,effect});
 export const PILGRIM_VOW=Object.freeze({target:4});

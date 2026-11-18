@@ -1,11 +1,11 @@
-import { getCompanionAbility } from './companion-abilities.mjs?v=polish-2';
-import { pickupKind, pickupContactRadius, getPickupSpec } from './pickups.mjs?v=polish-2';
-import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=polish-2';
-import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=polish-2';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=polish-2';
-import {WISP_ART} from './companion-art.mjs?v=polish-2';
-import {collectorTowPose,collectorTowOrbit} from './collector-tow-geometry.mjs?v=polish-2';
-import {COLLECTOR_VORTEX,vortexProgress,vortexScale,vortexCargoPoint,createVortexTrail,recordVortexTrail} from './collector-vortex.mjs?v=polish-2';
+import { getCompanionAbility } from './companion-abilities.mjs?v=spring-1';
+import { pickupKind, pickupContactRadius, getPickupSpec } from './pickups.mjs?v=spring-1';
+import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=spring-1';
+import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=spring-1';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=spring-1';
+import {WISP_ART} from './companion-art.mjs?v=spring-1';
+import {collectorTowPose,collectorTowOrbit} from './collector-tow-geometry.mjs?v=spring-1';
+import {COLLECTOR_VORTEX,vortexProgress,vortexScale,vortexCargoPoint,createVortexTrail,recordVortexTrail} from './collector-vortex.mjs?v=spring-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 const smooth = value => {const u=clamp(value,0,1);return u*u*(3-2*u);};

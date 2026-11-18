@@ -3,9 +3,9 @@
 // Each flight course is the game's own level (terrain polygons, scenery and exit). These hooks only calm
 // it and place the one taught element where the lesson needs it. Lessons are returned as paused coach
 // steps; this module never pauses, draws text or grants anything outside practice.
-import {obstacleEdgeClearance} from './edging-pulse.mjs?v=polish-2';
-import {formatGlow} from './vitality.mjs?v=polish-2';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=polish-2';
+import {obstacleEdgeClearance} from './edging-pulse.mjs?v=spring-1';
+import {formatGlow} from './vitality.mjs?v=spring-1';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=spring-1';
 
 const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));
 /** Free flight before the first in-flight stop, and between stops (simulated seconds). */

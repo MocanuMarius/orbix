@@ -1,11 +1,11 @@
-import {drawFluidCapture, FLUID_STYLES} from './fluid-capture.mjs?v=polish-2';
-import {drawPickup} from './pickup-art.mjs?v=polish-2';
-import {drawShellPuff} from './capture-art.mjs?v=polish-2';
-import {drawShellArcs} from './shell-arcs.mjs?v=polish-2';
-import {sparkArtScale, sparkBodyRadius} from './spark-size.mjs?v=polish-2';
-import {makeWispSprite} from './companion-art.mjs?v=polish-2';
-import {createDepthScenery, drawDepthScenery} from './depth-scenery.mjs?v=polish-2';
-import {biomePalette} from './biome-art.mjs?v=polish-2';
+import {drawFluidCapture, FLUID_STYLES} from './fluid-capture.mjs?v=spring-1';
+import {drawPickup} from './pickup-art.mjs?v=spring-1';
+import {drawShellPuff} from './capture-art.mjs?v=spring-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=spring-1';
+import {sparkArtScale, sparkBodyRadius} from './spark-size.mjs?v=spring-1';
+import {makeWispSprite} from './companion-art.mjs?v=spring-1';
+import {createDepthScenery, drawDepthScenery} from './depth-scenery.mjs?v=spring-1';
+import {biomePalette} from './biome-art.mjs?v=spring-1';
 
 const canvas = document.querySelector('#scene');
 const ctx = canvas.getContext('2d');
