@@ -135,8 +135,8 @@ test('Finish: Growth Ring and Wayfarer Purse pay at the real clear', () => {
   const r = flyRealNode({ ids: ['growth-ring', 'wayfarers-purse'] });
   assert.ok(r.record.success && r.finished);
   const rc = r.run.lastFlight.cardClearReceipt;
-  assert.equal(rc.futureCapacity, 1); assert.equal(rc.stored, 5); assert.equal(r.run.cardFutureCapacity, 1);
-  note('Finish', 'Growth Ring, Wayfarer Purse (real clear through finishFlight)', '1 clear', 2, '+1 max Spark, +5 Stored', 'works');
+  assert.equal(rc.futureCapacity, 0); assert.equal(rc.tallyCapacity, 1); assert.equal(rc.stored, 5); assert.equal(r.run.cardFutureCapacity, 0); assert.equal(r.run.mountedCards[0].tally, 1);
+  note('Finish', 'Growth Ring, Wayfarer Purse (real clear through finishFlight)', '1 clear', 2, '+1 max Spark kept on the card, +5 Stored', 'works');
 });
 
 test('Passive: Lantern Lens and Deep Vessel change the real flight at once', () => {

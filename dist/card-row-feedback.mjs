@@ -10,10 +10,11 @@ const action = step => {
   if (!step.success) return skipNames[step.skipReason] || 'No action for this event';
   if (step.operation === 'replay-row') return 'Encore: fire again from Slot 1';
   if (step.operation === 'multiply') return [`×${number(step.multiplier)} to every card on its left`, step.after !== step.before ? `${number(step.before)} → ${number(step.after)} Sparks` : '',
-    step.stored ? `+${number(step.stored)} Stored Sparks` : '', step.futureCapacity ? `+${number(step.futureCapacity)} max Sparks forever` : '',
+    step.stored ? `+${number(step.stored)} Stored Sparks` : '', step.futureCapacity ? `+${number(step.futureCapacity)} max Sparks` : '',
     step.cruisingSpeed ? `+${number(step.cruisingSpeed)}% speed` : '', step.recoverySeconds ? `−${number(step.recoverySeconds)} s recovery` : '',
     step.reelSeconds ? `−${number(step.reelSeconds)} s reel` : ''].filter(Boolean).join(' · ');
   if (step.operation === 'add-future-capacity' || step.operation === 'multiply-future-capacity') return `${number(step.futureCapacityBefore)} → ${number(step.futureCapacityAfter)} maximum Sparks permanently`;
+  if (step.tallyCapacity > 0) return `+${number(step.tallyCapacity)} max Spark, kept on the card`;
   if (step.cruisingSpeed > 0) return `+${number(step.cruisingSpeed)}% speed, kept on the card (max +10%)`;
   if (step.operation === 'add-stored' || step.operation === 'carried-interest') return `+${number(step.stored)} Stored Sparks`;
   if (step.reelSeconds > 0) return `${number(step.reelBefore)} → ${number(step.reelAfter)} s remaining reel`;
@@ -28,9 +29,10 @@ export function cardRowSequenceMarkup(trace) {
   }).join('');
 }
 const traceTotals = trace => [
-  trace.sparks > 0 || !(trace.reelSeconds || trace.futureCapacity || trace.cruisingSpeed || trace.recoverySeconds || trace.stored) ? `+${number(trace.sparks)} Sparks${Number.isFinite(trace.restoredSparks) ? ' awarded' : ''}${Number.isFinite(trace.sparksExact) && trace.sparksExact - trace.sparks > 1e-7 ? ` (${number(trace.sparksExact)} rounded down)` : ''}` : '',
+  trace.sparks > 0 || !(trace.reelSeconds || trace.futureCapacity || trace.tallyCapacity || trace.cruisingSpeed || trace.recoverySeconds || trace.stored) ? `+${number(trace.sparks)} Sparks${Number.isFinite(trace.restoredSparks) ? ' awarded' : ''}${Number.isFinite(trace.sparksExact) && trace.sparksExact - trace.sparks > 1e-7 ? ` (${number(trace.sparksExact)} rounded down)` : ''}` : '',
   trace.reelSeconds ? `−${number(trace.reelSeconds)} s remaining reel` : '',
-  trace.futureCapacity ? `+${number(trace.futureCapacity)} maximum Sparks permanently` : '',
+  trace.futureCapacity ? `+${number(trace.futureCapacity)} maximum Sparks` : '',
+  trace.tallyCapacity ? `+${number(trace.tallyCapacity)} max Spark, kept on the card` : '',
   trace.cruisingSpeed ? `+${number(trace.cruisingSpeed)}% speed, kept on the card (max +10%)` : '',
   trace.stored ? `+${number(trace.stored)} Stored Sparks` : '',
   trace.recoverySeconds ? `−${number(trace.recoverySeconds)} s recovery` : '',

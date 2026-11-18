@@ -93,7 +93,7 @@ export function getEquippedCardStatuses(run = {}, native = null) {
   const receipts = fixtures(context).map(event => previewCardRowEvent(snap, event));
   const successes = new Set(), copiedUse = new Set(), replaySlots = new Set();
   for (const receipt of receipts) {
-    const replayPays = receipt.steps.some(step => step.pass === 2 && step.success && step.operation !== 'replay-row' && (step.amount > 0 || step.stored > 0 || step.recoverySeconds > 0 || step.reelSeconds > 0 || step.futureCapacity > 0 || step.cruisingSpeed > 0));
+    const replayPays = receipt.steps.some(step => step.pass === 2 && step.success && step.operation !== 'replay-row' && (step.amount > 0 || step.stored > 0 || step.recoverySeconds > 0 || step.reelSeconds > 0 || step.futureCapacity > 0 || step.tallyCapacity > 0 || step.cruisingSpeed > 0));
     for (const step of receipt.steps) {
       if (step.success && step.operation !== 'replay-row') successes.add(step.slot);
       if (step.success && step.copiedBy && step.chargesAfter === 0) copiedUse.add(step.sourceInstanceId);
@@ -139,7 +139,7 @@ export function getEquippedCardStatuses(run = {}, native = null) {
     }
     if (kind === 'capacity' && capacityFull(slot)) return max100();
     const rule = getCardRowRule(def, physical);
-    if (rule?.operation === 'add-future-capacity' && maxed) return max100();
+    if (['add-future-capacity', 'add-tally-capacity'].includes(rule?.operation) && maxed) return max100();
     const missing = getCardRowTriggerIssue(rule, context);
     if (missing) return missing;
     if (kind === 'keystone') return cards[slot - 1] || cards[slot + 1] ? ready('The cards on both sides of it fire twice when their Trigger happens. Their uses go each time.') : blocked('Needs a neighbour', 'Keystone makes the cards on its left and right fire twice, and both Slots next to it are empty.', 'Put a card in the Slot beside it.', 'no-neighbour');

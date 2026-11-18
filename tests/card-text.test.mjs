@@ -23,7 +23,7 @@ const BOOST_TEXT = {'prism-lens':'Every card before it ×1.25','prism-lens-ii':'
 test('all 85 approved cards carry their Trigger chip as data and the approved plain wording', () => {
   assert.equal(CARD_TEXT.length, 85);
   // Wave Loom came back as an engine card with its own chip (tests/card-engines.test.mjs); the lab table keeps its old line.
-  for (const entry of CARD_TEXT.filter(entry => !SKILL_CARDS[entry.id]?.engine && !['home-beacon', 'last-light', 'mending-moss'].includes(entry.id))) { // reworked 2026-11-18 (Save removed); see tests/real-flight-triggers.test.mjs
+  for (const entry of CARD_TEXT.filter(entry => !SKILL_CARDS[entry.id]?.engine && !['home-beacon', 'last-light', 'mending-moss', 'growth-ring'].includes(entry.id))) { // reworked 2026-11-18 (Save removed); see tests/real-flight-triggers.test.mjs
     const def = SKILL_CARDS[entry.id], card = describeSkillCard(makeSkillCard(entry.id, `text:${entry.id}`));
     assert.ok(def, entry.id);
     assert.equal(def.trigger, CHIP[entry.t], `${entry.id} trigger id`);

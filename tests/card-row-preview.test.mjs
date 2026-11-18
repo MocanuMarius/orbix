@@ -78,7 +78,7 @@ test('clear uses real carry-in and remaining cruising speed room, with a separat
   const run = row(['nest-egg','wind-feather','growth-ring','refrain'],{condensedGlow:99,cardCruisingSpeedUnlocked:5,attemptActive:true,attemptEntry:{cardCarriedStored:20,condensedGlow:80}});
   const p = previewEquippedCardRow(run,option(run,CARD_ROW_EVENTS.clear).id);
   assert.equal(p.event.carriedStored,20);
-  assert.equal(p.totals.stored,4);assert.equal(p.totals.cruisingSpeed,2);assert.equal(p.totals.futureCapacity,2);
+  assert.equal(p.totals.stored,4);assert.equal(p.totals.cruisingSpeed,2);assert.equal(p.totals.futureCapacity,0);assert.equal(p.totals.tallyCapacity,2);
   assert.match(p.assumptions,/20 Stored Sparks carried into this flight/);
   const last = p.frames.at(-1);
   for (const key of Object.keys(p.totals)) assert.equal(last.totals[key],p.trace[key]);

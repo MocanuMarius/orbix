@@ -69,7 +69,7 @@ export function getCardBlackHoleBonus(run) {
 export function getCardTallyCapacity(run) {
   if (!isCardRun(run)) return 0;
   let total = 0;
-  for (const card of run.mountedCards || []) if (['gilded-rim', 'tithe'].includes(SKILL_CARDS[card?.cardId]?.kind)) total += cleanCardFutureCapacity(integer(card.tally));
+  for (const card of run.mountedCards || []) if (['gilded-rim', 'tithe', 'growth-ring'].includes(SKILL_CARDS[card?.cardId]?.kind)) total += cleanCardFutureCapacity(integer(card.tally));
   return total * CARD_UNIT;
 }
 /** Wind Feather (2026-11-18): +1% flight speed per cleared flight while mounted, kept as `tally` on each Feather, at most +10% in all. */
@@ -1093,7 +1093,7 @@ export function resolveCardRow(runtime, event = {}) {
     availableReel: Math.max(0,Number(event.availableReel)||0),
     availableRecovery: Math.max(0,Number(event.availableRecovery)||0), carriedStored: integer(event.carriedStored),
     cruisingSpeedRoom:event.cruisingSpeedRoom==null?6:cleanCardCruisingSpeed(event.cruisingSpeedRoom) }, passes: 0, slotVisits: 0, sparks: 0, stored: 0,
-    futureCapacity: 0, cruisingSpeed: 0, recoverySeconds: 0, reelSeconds: 0, nextReelSeconds: 0, executions: 0, payerActions: 0, steps: [], charges: {}, cards: [], sparksExact: 0, sparksUnboosted: 0, firings: [] };
+    futureCapacity: 0, tallyCapacity: 0, cruisingSpeed: 0, recoverySeconds: 0, reelSeconds: 0, nextReelSeconds: 0, executions: 0, payerActions: 0, steps: [], charges: {}, cards: [], sparksExact: 0, sparksUnboosted: 0, firings: [] };
   if (!runtime || !rowEventKinds.has(kind) || event.eligible === false) {
     receipt.charges = getCardCharges(runtime);return freezeReceipt(receipt);
   }
@@ -1244,6 +1244,11 @@ export function resolveCardRow(runtime, event = {}) {
         const increase = cleanCardFutureCapacity(amount);
         if (increase > 0) { succeed();pay("futureCapacity", increase); }
         else step.skipReason = "empty-future-capacity";
+      } else if (operation === "add-tally-capacity") {
+        // Growth Ring: the +1 max Spark is stored on the card itself (`tally`) and counts only while it is mounted (getCardTallyCapacity). Boosts never touch it.
+        step.operation = operation;
+        if (amount > 0) { succeed(); source.tally = integer(source.tally) + amount; step.tallyCapacity = amount; receipt.tallyCapacity += amount; }
+        else step.skipReason = "empty-future-capacity";
       } else if (operation === "add-cruising-speed") {
         // Wind Feather: the gain is stored on the card itself (`tally`, max WIND_FEATHER_MAX). Boosts never touch it.
         step.operation = operation;
@@ -1361,6 +1366,7 @@ export function cardTallyLine(card) {
   if (def.kind === 'collectors-ledger') return `Deliveries ${n} · +${1 + Math.floor(n / 10)} now`;
   if (def.kind === 'old-friend') return `Flights ${n} · +${n} now`;
   if (def.kind === 'gilded-rim') return `Overfills ${n} · +${n} max Sparks`;
+  if (def.kind === 'growth-ring') return `+1 max Spark · now +${n}`;
   if (def.kind === 'wind-feather') return n >= WIND_FEATHER_MAX ? `+${WIND_FEATHER_MAX}% speed (max)` : `+1% speed · now +${n}%`;
   if (def.kind === 'tithe') return `Tithes ${n} · +${n} max Sparks`;
   if (def.kind === 'tributary') return `Collects ${n} · Delivery in ${3 - n % 3}`;

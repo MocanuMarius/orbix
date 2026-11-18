@@ -29,7 +29,7 @@ export function rewardEarnings(run){
 export function rewardEarningsDetailMarkup(run){
  const {rows,total}=rewardEarnings(run),f=run?.lastFlight||{};
  const notes=[routeBonusReceiptText(f.routeBonus),f.treasureWager?.message,f.vow?.message,f.chestIncome?.message||(f.chestIncome?.sources?.length?`${f.chestIncome.sources.join(' + ')} · +${f.chestIncome.amount} Stored Sparks`:null),
-  f.cardClearReceipt?.futureCapacity?`Growth Ring · +${f.cardClearReceipt.futureCapacity} maximum Sparks permanently`:null,
+  f.cardClearReceipt?.tallyCapacity?`Growth Ring · +${f.cardClearReceipt.tallyCapacity} max Spark, kept on the card while it is in your Chain`:null,
   f.cardClearReceipt?.cruisingSpeed?`Wind Feather · +${f.cardClearReceipt.cruisingSpeed}% speed, kept on the card (max +10%)`:null].filter(Boolean);
  return `<div class="re-root wb-reskin wb-ground wb-inline"><button type="button" class="wb-sign wb-sign-quiet reward-earnings-back" data-action="close-sheet">Back to rewards</button><section class="reward-earnings-detail"><header><h2 class="wb-title">Stored Sparks earned</h2><strong>${resourceSymbol('packed')} +${total}</strong></header><dl>${rows.map(row=>`<div><dt>${esc(row.label)}</dt><dd>+${row.amount}</dd></div>`).join('')}</dl>${notes.length?`<div class="reward-earnings-context">${notes.map(note=>`<p>${esc(note)}</p>`).join('')}</div>`:''}</section></div>`;
 }
@@ -67,7 +67,7 @@ export function scribeMarkup(state,{scribe={},upgradeCount=0,skillsAvailable=fal
 export function flightRewardMarkup(state,{artifactArt=artifactIcon,upgradeCount=0,skillsAvailable=true,deckAvailable=false,acquiredPresentation='horizontal',scribe=null}={}){
  if(state.run?.flightReward?.kind==='inscription'){
   const r=state.run,f=r.lastFlight||{},earned=rewardEarnings(r).total;
-  const receiptAvailable=earned>0||!!routeBonusReceiptText(f.routeBonus)||['treasureWager','vow','chestIncome'].some(key=>f[key]?.message?.trim())||f.cardClearReceipt?.futureCapacity>0||f.cardClearReceipt?.cruisingSpeed>0;
+  const receiptAvailable=earned>0||!!routeBonusReceiptText(f.routeBonus)||['treasureWager','vow','chestIncome'].some(key=>f[key]?.message?.trim())||f.cardClearReceipt?.futureCapacity>0||f.cardClearReceipt?.tallyCapacity>0||f.cardClearReceipt?.cruisingSpeed>0;
   return scribeMarkup(state,{scribe:scribe||{},upgradeCount,skillsAvailable,deckAvailable,receiptAvailable,earned,title:f.boss?'Guardian defeated':'Elite cleared'});
  }
  const r=state.run,reward=r.flightReward,offers=(reward?.offers||[]).filter(id=>ARTIFACTS[id]),open=!!reward&&!reward.claimed&&offers.length>0;

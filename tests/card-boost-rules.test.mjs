@@ -120,7 +120,7 @@ test('a Boost strengthens Sparks and Collector time to its left, never Stored Sp
   assert.deepEqual([wave.sparks,wave.stored],[4,1],'Sparks doubled, the Stored Spark paid at base');
   assert.deepEqual(wave.cards[0].boostedByKind.stored,[]);assert.deepEqual(wave.cards[0].boostedByKind.sparks,[1]);
   assert.equal(wave.cards[0].effective.stored,wave.cards[0].base.stored);
-  for(const [ids,kind,base] of [[['wayfarers-purse'],'stored',5],[['growth-ring'],'futureCapacity',1],[['wind-feather'],'cruisingSpeed',1]])
+  for(const [ids,kind,base] of [[['wayfarers-purse'],'stored',5],[['wind-feather'],'cruisingSpeed',1]])
     for(const boosts of [['crescendo'],['prism-lens-ii','crescendo','closing-chord'],['second-sun']]){
       const r=quote([...ids,...boosts],clear);
       assert.equal(r[kind],base,`${ids} ${boosts} pays base`);
@@ -130,9 +130,9 @@ test('a Boost strengthens Sparks and Collector time to its left, never Stored Sp
   assert.equal(quote(['nest-egg','crescendo'],{...clear,carriedStored:50}).stored,5,'Nest Egg pays its base 5');
   // Repeats and the Encore are firings, not Boosts: they still count.
   assert.equal(quote(['echo-iii','wayfarers-purse','prism-lens-ii','crescendo','closing-chord'],clear).stored,20);
-  assert.equal(quote(['echo-iii','growth-ring','prism-lens-ii','crescendo','closing-chord'],clear).futureCapacity,4);
-  // Wildcard + cards still do nothing on Clear.
-  assert.equal(quote(['growth-ring','kindling-bead','crescendo'],clear).futureCapacity,1);
+  // Growth Ring keeps its +1 on its own card (tally); Boosts never touch it and a wildcard + card does nothing on Clear.
+  for(const boosts of [['crescendo'],['prism-lens-ii','crescendo','closing-chord']]){const ring=run(['growth-ring',...boosts]);ring.mountedCards[0].tally=0;const r=quote(['growth-ring',...boosts],clear);assert.equal(r.futureCapacity,0);assert.equal(r.steps.find(step=>step.operation==='multiply').skipReason,'empty-subtotal');}
+  assert.equal(quote(['growth-ring','kindling-bead','crescendo'],clear).steps.filter(step=>step.tallyCapacity).length,1);
 });
 
 test('several Boosts multiply together, and Echo or Encore firings are boosted and credited to the real card',()=>{
@@ -243,15 +243,15 @@ function clearOne(state){
 test('clear income and permanent gains settle at base value beside Boosts, once, across reload',()=>{
   let state=fresh(['wayfarers-purse','growth-ring','prism-lens-ii']);
   clearOne(state);const receipt=state.run.lastFlight.cardClearReceipt;
-  assert.equal(receipt.stored,5);assert.equal(receipt.futureCapacity,1);
+  assert.equal(receipt.stored,5);assert.equal(receipt.futureCapacity,0);assert.equal(receipt.tallyCapacity,1);
   assert.equal(receipt.cards.reduce((sum,card)=>sum+(card?.effective.stored||0),0),5);
-  M.settleCheckpoint(state);assert.equal(state.profile.cardFutureCapacity,1);
+  M.settleCheckpoint(state);assert.equal(state.profile.cardFutureCapacity,0);
   const wallet=state.run.condensedGlow;
   let data;const storage={getItem:()=>data,setItem:(_,v)=>{data=v;}};assert.ok(M.saveState(state,storage));
   state=M.loadState(storage);
   assert.equal(state.run.cardClearReceipts.length,1,'the receipt passes the save validation');
   assert.ok(Object.isFrozen(state.run.cardClearReceipts[0].cards));
-  assert.equal(M.settleCheckpoint(state),0);assert.equal(state.run.condensedGlow,wallet);assert.equal(state.profile.cardFutureCapacity,1);
+  assert.equal(M.settleCheckpoint(state),0);assert.equal(state.run.condensedGlow,wallet);assert.equal(state.profile.cardFutureCapacity,0);assert.equal(state.run.mountedCards[1].tally,1);
 });
 
 // The designer overruled a wave-reach ceiling (2026-11-17): broken combos stay discoverable.

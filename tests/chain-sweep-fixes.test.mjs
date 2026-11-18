@@ -95,11 +95,11 @@ test('Chameleon (two) does not fire growth cards: Growth Ring, tally cards', () 
   assert.equal(SKILL_CARDS['chameleon-two'].ruleBands[1].text, 'Fires the card to its right on any Trigger (not growth cards)');
   for (const kind of ['body-spark', 'wave-crossing', 'downbeat-lift', 'collector-delivery', 'rhythm-phrase', 'flash-pickup', 'natural-overfill']) {
     const r = fire(['chameleon-two', 'growth-ring'], {...COLLECT, kind});
-    assert.equal(r.futureCapacity, 0, `${kind}: Growth Ring gives no max Sparks`);
+    assert.equal(r.tallyCapacity, 0, `${kind}: Growth Ring gives no max Sparks`);
     assert.equal(r.steps.filter(s => s.slot === 0 && s.success).length, 0, kind);
   }
   assert.equal(hasCardRowEvent(createCardExecution(row(['chameleon-two', 'growth-ring'])), 'downbeat-lift'), false);
-  assert.equal(fire(['growth-ring'], {kind: 'flight-clear'}).futureCapacity, 1, 'Growth Ring still grows at Finish');
+  assert.equal(fire(['growth-ring'], {kind: 'flight-clear'}).tallyCapacity, 1, 'Growth Ring still grows at Finish');
   const friend = fire(['chameleon-two', 'old-friend'], LIFT);
   assert.equal(friend.steps.filter(s => s.slot === 0 && s.success).length, 0, 'a tally card is skipped');
   assert.equal(fire(['chameleon-two', 'body-spark'], LIFT).sparks, SKILL_CARDS['body-spark'].amount, 'ordinary cards still answer any Trigger');

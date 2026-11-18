@@ -30,7 +30,7 @@ test('Last Light doubles Spark rewards on the last heart only, never Stored Spar
   const without = resolveCardRow(row(['body-spark']), { kind: CARD_ROW_EVENTS.body, lastHeart: true });
   assert.equal(without.sparks, plain.sparks, 'no Last Light, no doubling');
   const clear = resolveCardRow(row(['home-beacon', 'growth-ring', 'last-light']), { kind: CARD_ROW_EVENTS.clear, heartsLeft: 1, lastHeart: true });
-  assert.equal(clear.stored, 3); assert.equal(clear.futureCapacity, 1);
+  assert.equal(clear.stored, 3); assert.equal(clear.futureCapacity, 0);
   assert.equal(SKILL_CARDS['last-light'].trigger, 'always-on');
 });
 

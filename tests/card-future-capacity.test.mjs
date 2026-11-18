@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as M from '../dist/model.mjs';
 import {CARD_UNIT,CARD_ROW_EVENTS,SKILL_CARDS,makeSkillCard,createCardExecution,resolveCardRow,previewCardRow,drawSkillCard} from '../dist/skill-cards.mjs';
-import {getGlowCapacity,getLifeCapacity,formatGlow} from '../dist/vitality.mjs';
+import {getGlowCapacity,getLifeCapacity,formatGlow,GLOW_CAPACITY_LIMIT_UNITS} from '../dist/vitality.mjs';
 import {getEquippedCardStatuses} from '../dist/card-status.mjs';
 import {cardVictoryRecap} from '../dist/card-ui.mjs';
 import {cardTallyLine} from '../dist/skill-cards.mjs';
@@ -16,7 +16,7 @@ function fresh(ids=['growth-ring'],profile=null){
  state.run.mountedCards=row(ids);state.run.cardSlots=Math.max(3,ids.length);return state;
 }
 function selectNext(state){
- const r=state.run;if(r.phase==='map-clear')assert.ok(M.advanceMap(r));
+ const r=state.run;
  const choices=M.getChoices(r),node=choices.find(n=>n.type!=='support'&&!n.elite)||choices[0];
  assert.ok(node);assert.ok(M.selectNode(r,node.id));return node;
 }
@@ -33,48 +33,50 @@ function acknowledge(state){
 }
 function reload(state){let data;const storage={getItem:()=>data,setItem:(_,v)=>{data=v;}};assert.ok(M.saveState(state,storage));return M.loadState(storage);}
 
-test('Growth Ring uses flight clears, integer permanent units, copies and one shared replay',()=>{
+test('Growth Ring puts +1 max Spark on its own card per Finish: copies and one shared replay add more, Boosts never',()=>{
  for(const [ids,gain]of [[['growth-ring'],1],[['echo','growth-ring'],2],[['chameleon','growth-ring'],2],
   [['echo-iii','growth-ring'],4],[['growth-ring','refrain'],2],[['echo-iii','growth-ring','refrain'],8],
-  // Boosts never multiply permanent gains (point 3 revised 2026-11-17).
   [['growth-ring','prism-lens','kindling-bead','mirror-grain','second-sun'],1]]){
   const runtime=createCardExecution(row(ids)),before=JSON.stringify(runtime),preview=previewCardRow(runtime,{kind:CARD_ROW_EVENTS.clear});
   assert.equal(JSON.stringify(runtime),before);const receipt=resolveCardRow(runtime,{kind:CARD_ROW_EVENTS.clear});
-  assert.deepEqual(receipt,preview);assert.equal(receipt.futureCapacity,gain,ids.join(','));assert.equal(receipt.sparks,0);assert.equal(receipt.stored,0);
+  assert.deepEqual(receipt,preview);assert.equal(receipt.futureCapacity,0,'no permanent bank any more');
+  assert.equal(runtime.cards[ids.indexOf('growth-ring')].tally,gain,ids.join(','));assert.equal(receipt.sparks,0);assert.equal(receipt.stored,0);
   assert.ok(Object.isFrozen(receipt));assert.ok(receipt.steps.every(Object.isFrozen));assert.ok(receipt.passes<=2);
   assert.equal(previewCardRow(row(ids),{kind:CARD_ROW_EVENTS.victory}).futureCapacity,0,'a final win is not a second clear');
  }
 });
 
-test('ordinary clear grows this vessel without a refill, then permanently settles once across reload',()=>{
+test('ordinary clear grows the ring on its card without a refill; nothing is banked in the run or profile',()=>{
  let state=fresh(['echo','growth-ring','refrain']);const opening=getGlowCapacity(state.run);
  clearFirst(state);const receipt=state.run.lastFlight.cardClearReceipt;
- assert.equal(receipt.futureCapacity,4);assert.equal(state.profile.cardFutureCapacity,0);assert.ok(Object.isFrozen(receipt));
+ assert.equal(receipt.futureCapacity,0);assert.equal(receipt.tallyCapacity,4);assert.equal(state.run.mountedCards[1].tally,4);
+ assert.equal(state.profile.cardFutureCapacity,0);assert.equal(state.run.cardFutureCapacity,0);
  near(getGlowCapacity(state.run),opening+4*CARD_UNIT);near(state.run.flame,opening*.5);
- M.settleCheckpoint(state);assert.equal(state.profile.cardFutureCapacity,4);
- const wallet=state.run.condensedGlow;state=reload(state);
- assert.equal(state.profile.cardFutureCapacity,4);assert.ok(Object.isFrozen(state.run.cardClearReceipts[0]));
- assert.equal(M.settleCheckpoint(state),0);assert.equal(state.run.condensedGlow,wallet);
+ M.settleCheckpoint(state);assert.equal(state.profile.cardFutureCapacity,0);
+ state=reload(state);assert.equal(state.run.mountedCards[1].tally,4);near(getGlowCapacity(state.run),opening+4*CARD_UNIT);
  assert.equal(M.finishFlight(state.run,{success:true}),false);
- const next=fresh(['body-spark'],state.profile);assert.equal(formatGlow(getGlowCapacity(next.run)),'34');near(next.run.flame,getGlowCapacity(next.run));
+ const next=fresh(['body-spark'],state.profile);near(getGlowCapacity(next.run),opening);
+ // Unmounted: the number stays on the card, the capacity leaves with it. Old banked capacity is kept.
+ state.run.mountedCards[1]=null;near(getGlowCapacity(state.run),opening);
 });
 
-test('an unsettled clear settles on load, and every subsequent real clear accumulates through the final bank',()=>{
- let state=fresh(['growth-ring']);clearFirst(state);state=reload(state);assert.equal(state.profile.cardFutureCapacity,1);acknowledge(state);
+test('a second real clear adds one more to the ring while it is mounted, up to the 100 Spark Meter cap',()=>{
+ let state=fresh(['growth-ring']);clearFirst(state);state=reload(state);acknowledge(state);
  let flights=1;
- for(let visit=0;visit<80&&state.run.phase!=='ended';visit++){
-  selectNext(state);
-  if(state.run.phase==='support'&&state.run.current?.kind==='scribe'){assert.ok(M.chooseFlightReward(state,state.run.flightReward.offers[0]));assert.ok(M.leaveScribe(state.run));continue;}
-  if(state.run.phase==='support'){
-   const choices=M.getSupportChoices(state.run,state.profile),index=choices.findIndex(c=>!c.disabled&&(c.id==='rest-continue'||c.effect?.rest==='recover'||c.effect?.restContinue));
-   assert.ok(M.resolveSupport(state.run,index>=0?index:choices.findIndex(c=>!c.disabled),state.profile));continue;
+ for(let visit=0;visit<12&&flights<4;visit++){
+  const r=state.run;if(r.phase==='map-clear')assert.ok(M.advanceMap(r));
+  const choices=M.getChoices(r),node=choices.find(n=>n.type==='flight'&&!n.elite&&!n.boss)||choices.find(n=>n.type==='support');if(!node||!M.selectNode(r,node.id))break;
+  if(r.phase==='support'){
+   if(r.current?.kind==='scribe'){assert.ok(M.chooseFlightReward(state,r.flightReward.offers[0]));assert.ok(M.leaveScribe(r));continue;}
+   const options=M.getSupportChoices(r,state.profile),index=options.findIndex(c=>!c.disabled&&(c.id==='rest-continue'||c.effect?.rest==='recover'||c.effect?.restContinue));
+   assert.ok(M.resolveSupport(r,index>=0?index:options.findIndex(c=>!c.disabled),state.profile));continue;
   }
   clearSelected(state);flights++;M.settleCheckpoint(state);acknowledge(state);
  }
- assert.ok(state.run.success);assert.ok(flights>3);assert.equal(state.profile.cardFutureCapacity,flights);
- assert.ok(M.bankRun(state));state=reload(state);M.settleCheckpoint(state);assert.equal(state.profile.cardFutureCapacity,flights);
- assert.match(cardVictoryRecap(state.run),new RegExp(`\\+${flights} maximum Sparks permanently`));
- assert.equal(state.run.cardClearReceipts.length,flights);
+ assert.ok(flights>=2);assert.equal(state.profile.cardFutureCapacity,0);
+ const ring=state.run.mountedCards.find(card=>card?.cardId==='growth-ring');assert.equal(ring.tally,flights);
+ assert.equal(cardTallyLine(ring),`+1 max Spark · now +${flights}`);
+ assert.ok(getGlowCapacity({...state.run,mountedCards:[{...ring,tally:500}]})<=GLOW_CAPACITY_LIMIT_UNITS,'the Spark Meter never holds more than 100');
 });
 
 test('failed, TEST, Dream and legacy attempts do not earn permanent growth',()=>{

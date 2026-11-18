@@ -120,7 +120,7 @@ test('a final guardian draft survives reload before banking and preserves the ac
   const beforeCapacity = run.cardFutureCapacity;
   assert.ok(M.beginFlightAttempt(run)); assert.ok(M.markFlightAttemptStarted(run));
   assert.ok(M.finishFlight(run, {success: true, flame: 30})); M.settleCheckpoint(state);
-  assert.equal(run.cardFutureCapacity, beforeCapacity + 1);
+  assert.equal(run.cardFutureCapacity, beforeCapacity, 'Growth Ring keeps its gain on the card');
   const draft = M.getCardDraft(run), hand = structuredClone(run.winningHand), receipt = structuredClone(run.lastFlight.cardClearReceipt);
   assert.ok(draft.final); assert.equal(M.bankRun(state), false);
   state = reload(state); run = state.run;
@@ -129,14 +129,14 @@ test('a final guardian draft survives reload before banking and preserves the ac
   assert.equal(run.cardReward.trophy, true);
   assert.deepEqual(run.winningHand, hand);
   assert.deepEqual(run.lastFlight.cardClearReceipt, receipt);
-  assert.equal(run.cardFutureCapacity, beforeCapacity + 1);
+  assert.equal(run.cardFutureCapacity, beforeCapacity);
   assert.ok(cardRewardMarkup(run).includes('FINAL GUARDIAN'));
   assert.doesNotMatch(cardRewardMarkup(run), /data-action="card-reward-equip"|data-action="card-preview-reward-melt"/);
   if (run.flightReward && !run.flightReward.claimed) assert.ok(M.chooseFlightReward(state, run.flightReward.offers[0]));
   assert.ok(M.acknowledgeVictory(state)); assert.equal(M.bankRun(state), false);
   run.cardReward.uiAcknowledged = true; assert.ok(M.bankRun(state));
   state = reload(state); assert.deepEqual(state.run.winningHand, hand);
-  assert.equal(state.profile.cardFutureCapacity, 1);
+  assert.equal(state.profile.cardFutureCapacity, 0);
 });
 
 test('a failed attempt has no draft and draft markup uses the shared full portrait renderer', () => {
