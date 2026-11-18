@@ -225,3 +225,5 @@ html body #dk-root.dk.dk2 .dk2-note{display:block;white-space:nowrap;text-overfl
 html body #dk-root.dk.dk2 .dk2-tab:has(.dk2-tabdot){padding-right:26px}
 html body #dk-root.dk.dk2 .dk2-tabdot{top:50%;right:8px;transform:translateY(-50%)}
 html body #dk-root.dk.dk2 .dk2-read{grid-template-rows:minmax(0,1fr);grid-template-columns:minmax(0,1fr)}
+/* Card info dialog at phone-tab height (924x308): tighter rows so the text fits without its own scrollbar. */
+@media(max-height:340px){html body #dk-root.dk.dk2 .dk2-info-body{gap:3px;overflow-y:auto}html body #dk-root.dk.dk2 .dk2-info-body p{margin-block:0;line-height:1.15}}
