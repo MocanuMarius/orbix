@@ -281,8 +281,12 @@ export const chipOf = c => getCardTrigger(c || {}, SKILL_CARDS[c?.cardId || c?.i
 /** How often each Trigger fires in a flight, in words, from the firing model of scripts/balance/simulate.mjs
  * (Collect 10, Pulse 6, Lift while falling 8 per 30 s flight: often; Delivery 4, Latch 3, Flare 3 (now under Collect), a Flare ending 3, Rhythm 4,
  * Overfill 2, skims 2 to 3, low Lifts a few: a few times; Save, Finish, Pack, Take-off: once). */
+// One short line per Trigger for the compact Triggers tab (the full sentence stays in `does` and in the glossary).
+const BOOK_SHORT = {collect: 'You pick up a Spark or a Flare.', lift: 'You Lift: falling, on the beat, or low.', pulse: 'A Pulse crosses a Spark.', delivery: 'Collector brings you a pickup.',
+  overfill: 'A Spark overfills your meter.', finish: 'You clear a flight.', skim: 'You fly close to terrain.', passive: 'Works the whole time it is mounted.',
+  boost: 'Fires with whatever fires your chain.', repeat: 'Fires when the card to its right fires.'};
 export const TRIGGER_BOOK = Object.freeze(DISPLAY_GROUPS.map(g => Object.freeze({id: g.id, group: g.group, label: g.label, kind: g.kind,
-  does: g.does, often: g.often, term: GROUP_TERM[g.group]})));
+  does: g.does, short: BOOK_SHORT[g.group] || g.does, often: g.often, term: GROUP_TERM[g.group]})));
 /** The Trigger collection for one run: every Trigger, with the player's own cards that use it (a tile per card
  * kind, with a count). `owned` false rows read "No card yet". */
 export function triggerBook(run) {

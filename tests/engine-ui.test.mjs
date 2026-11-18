@@ -133,3 +133,11 @@ test('the Chain tab medallion equals the flight engine for the same Chain (Turns
     } finally { e.destroy(); }
   }
 });
+
+test('Triggers tab is compact (2026-11-18): every row has one short line, two columns of five rows, no scroll needed at 890x400', async () => {
+  for (const t of TRIGGER_BOOK) assert.ok(t.short && t.short.length <= 40 && t.short.endsWith('.'), `${t.id}: "${t.short}"`);
+  const css = (await import('node:fs')).readFileSync(new URL('../dist/ui/card-screens.css', import.meta.url), 'utf8');
+  assert.match(css, /\.tb-list\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\);grid-auto-flow:column;grid-template-rows:repeat\(5,minmax\(0,1fr\)\)/);
+  const html = deckScreenMarkup(run(['body-spark'], ['deep-vessel']), Object.assign(createDeckView(), {tab: 'triggers'}));
+  assert.equal((html.match(/class="tb-does"/g) || html.match(/class="tb-does" title/g) || []).length || (html.match(/tb-does/g) || []).length, 10);
+});

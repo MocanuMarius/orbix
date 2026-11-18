@@ -47,3 +47,17 @@ test('Skim Line cue is a few whole-pixel rects and draws only with the card moun
   calls.length = 0; e.mod.cardSkimLine = false; drawSkimLine(c, e, { scale: 2, distance: 0, playerY: 100 });
   assert.equal(calls.length, 0);
 });
+
+test('Skim Line band follows the terrain surface near the wisp (2026-11-18): a sloping floor makes a sloping band, still a few whole-pixel rects', async () => {
+  const { drawSkimLine } = await import('../dist/starter-cues.mjs');
+  const calls = []; const c = { save() {}, restore() {}, set globalAlpha(v) {}, set fillStyle(v) {}, fillRect: (...a) => calls.push(a) };
+  // A floor that rises to the right: ground y = 300 - local x * 0.5 (bottom shape: two far points, then the surface edge).
+  const obstacle = { x: -500, width: 1000, center: 200, gap: 200, bottomShape: [[0, 900], [1200, 900], [0, 0], [1200, -600]], topShape: null };
+  const e = { mod: { cardSkimLine: true }, player: { x: 100, y: 240, radius: 10 }, distance: 0, time: 1, layout: { obstacles: [obstacle] }, obstacleCenter: o => o.center,
+    edgingPulse: { live: true, charge: .5, surface: { x: 100, y: 300, clearance: 30 } } };
+  drawSkimLine(c, e, { scale: 2, distance: 0, playerY: 240 });
+  assert.ok(calls.length >= 6 && calls.length <= 80, `${calls.length} rects`);
+  assert.ok(calls.flat().every(Number.isInteger), 'whole pixels');
+  const gold = calls.filter(a => a[3] <= 2 * 6 && a[2] <= 2 * 9 + 1), ys = new Set(gold.map(a => a[1]));
+  assert.ok(ys.size >= 4, `band height varies along the slope (${ys.size} distinct heights)`);
+});

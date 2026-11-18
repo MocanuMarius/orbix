@@ -67,8 +67,13 @@
 .run-checkpoint .front-glow{display:inline-flex;align-items:center;gap:3px}
 .run-checkpoint .front-glow>.resource-symbol-energy{width:16px;height:16px}
 /* Meter Mark: a gold notch beside the top of the Spark Meter; it glows when the Meter is nearly full (no text). */
-.glow-side-gauge .meter-mark{position:absolute;left:calc(50% + 8px);top:-2px;width:10px;height:6px;background:#d39a3a;border:1px solid #2a1d12;box-shadow:inset 0 1px #f0c86a;pointer-events:none;z-index:2}
+.glow-side-gauge .meter-mark{position:absolute;left:calc(50% + 10px);top:-4px;width:20px;height:12px;background:#d39a3a;border:2px solid #2a1d12;box-shadow:inset 0 2px #f0c86a;pointer-events:none;z-index:2}
 .glow-side-gauge .meter-mark[hidden]{display:none}
-.glow-side-gauge .meter-mark.meter-mark-lit{background:#fffdf1;box-shadow:inset 0 1px #fff,0 0 0 1px #f0c86a,0 0 7px 2px #f0c86a}
+/* Finish Flag (starter card): the top progress line becomes a 10 px gold bar with a flag at the finish end. HUD markup, so night and light layers never dim it. */
+html body[data-screen=flight] .flight-progress.finish-flag{height:10px;background:#2a1d12;border-bottom:2px solid #5b4630;overflow:visible}
+html body[data-screen=flight] .flight-progress.finish-flag>i{height:100%;background:linear-gradient(#fffdf1 0 3px,#f0c86a 3px 6px,#d39a3a 6px)}
+html body[data-screen=flight] .flight-progress.finish-flag::after{content:'';position:absolute;right:0;top:0;width:16px;height:12px;background:#f0c86a;border:2px solid #2a1d12;border-top-color:#fffdf1;box-sizing:content-box}
+html body[data-screen=flight] .flight-progress.finish-flag::before{content:'';position:absolute;right:20px;top:0;width:3px;height:26px;background:#dcc693;border:1px solid #2a1d12;z-index:1}
+.glow-side-gauge .meter-mark.meter-mark-lit{background:#fffdf1;box-shadow:inset 0 2px #fff,0 0 0 2px #f0c86a,0 0 9px 3px #f0c86a}
 @media(prefers-reduced-motion:no-preference){.glow-side-gauge .meter-mark.meter-mark-lit{animation:meter-mark-glow 1.2s steps(2,end) infinite}}
-@keyframes meter-mark-glow{50%{box-shadow:inset 0 1px #fff,0 0 0 1px #f0c86a,0 0 3px 1px #f0c86a}}
+@keyframes meter-mark-glow{50%{box-shadow:inset 0 2px #fff,0 0 0 2px #f0c86a,0 0 4px 1px #f0c86a}}

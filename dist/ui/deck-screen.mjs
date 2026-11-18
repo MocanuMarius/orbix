@@ -265,7 +265,7 @@ function bookPanelHTML(d, view, opts) {
   const rows = triggerBook(d.run), mine = rows.filter(r => r.owned).length;
   const row = r => `<li class="tb-row${r.owned ? '' : ' tb-none'}" data-chip="${esc(r.id)}">
      <span class="tb-icon" aria-hidden="true">${chipIcon(r.id, 32)}</span>
-     <span class="tb-text"><span class="tb-name">${chipTermBtn(r.id, {icon: false, cls: 'tb-term'})}<small class="tb-often">${esc(r.often)}</small></span><span class="tb-does">${esc(r.does)}</span></span>
+     <span class="tb-text"><span class="tb-name">${chipTermBtn(r.id, {icon: false, cls: 'tb-term'})}<small class="tb-often">${esc(r.often)}</small></span><span class="tb-does" title="${esc(r.does)}">${esc(r.short)}</span></span>
      <span class="tb-cards">${r.owned ? r.cards.map(k => `<button type="button" class="dk2-btn tb-card dc-r-${rarityOf(k.card)}${k.inChain ? ' tb-inchain' : ''}" data-uid="${esc(k.card.instanceId)}" aria-label="${esc(`${nameOf(k.card)}, ${RARITY_WORD[rarityOf(k.card)]}${k.count > 1 ? `, ${k.count} owned` : ''}${k.inChain ? ', in your chain' : ''}. Open it`)}">${cardArt(k.card, {compact: true})}${k.count > 1 ? `<b class="tb-count" aria-hidden="true">×${k.count}</b>` : ''}</button>`).join('') : '<small class="tb-nocard">No card yet</small>'}</span></li>`;
   const back = view.bookFrom === 'outside' ? 'Close' : 'Back';
   return `<div class="tb-bar"><button type="button" class="wb-sign wb-sign-quiet tb-back" id="tb-back" aria-label="${back === 'Close' ? 'Close the Triggers' : `Back to the ${view.bookFrom === 'deck' ? 'Deck' : 'Chain'}`}"><span class="wb-sign-text"><b>${back}</b></span></button>

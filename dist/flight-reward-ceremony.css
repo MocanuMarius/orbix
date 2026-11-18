@@ -271,9 +271,12 @@ html body .flight-reward-ceremony .flight-reward-income.tally{grid-template-colu
 .tally .flight-reward-bank-status{min-height:18px;text-align:left;font-size:14px;color:#3d4a22;opacity:0}
 .tally .flight-reward-bank-status.is-shown,.tally.is-banked .flight-reward-bank-status{opacity:1}
 .tally-effects{position:relative;flex:1 1 0;min-height:0;width:100%;overflow:hidden}
-.tally-effects .flight-reward-scroll-region{padding:0 6px 24px 0;scrollbar-gutter:auto}
+.tally-effects .flight-reward-scroll-region{padding:0 6px 0 0;scrollbar-gutter:auto;overflow:hidden}
 .tally-effects .flight-reward-scroll-cue{right:0;left:0}
-.tally .flight-reward-notes{font-size:13px}.tally .flight-reward-notes>p{padding:3px 0}
+.tally .flight-reward-notes{font-size:13px}.tally .flight-reward-notes>p{padding:3px 0}.tally .flight-reward-notes>p[hidden]{display:none}
+.tally .flight-reward-notes>p>button{min-height:0}
+/* Recorded effects are compact rows (no scrolling): short phone screens use a smaller line, the rest hide behind "+K more". */
+@media(max-height:420px){.tally .flight-reward-notes{font-size:12px;line-height:1.15}.tally .flight-reward-notes>p{padding:1px 0}.tally .flight-reward-notes>h2{font-size:11px}}
 .tally-sources{display:grid;grid-auto-flow:column;grid-template-rows:repeat(var(--tally-rows,4),min-content);align-content:start;gap:0 18px;min-width:0;min-height:0;padding-top:2px;font:15px/1.2 var(--pixel,monospace);color:var(--wb-title,#2a2118)}
 .tally-sources[data-tally-columns="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}
 .tally-sources[data-tally-columns="1"]{grid-template-columns:minmax(0,1fr)}
@@ -315,3 +318,4 @@ html body .flight-reward-ceremony .flight-reward-income.tally{grid-template-colu
 @media(max-height:360px) and (orientation:landscape){
  html body .flight-reward-ceremony .flight-reward-income.tally.tally-dense{--tally-row:20px!important}
 }
+@media(max-height:420px){html body .flight-reward-ceremony .tally .flight-reward-notes button.flight-reward-detail-trigger{min-height:26px!important}}

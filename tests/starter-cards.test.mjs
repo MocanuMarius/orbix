@@ -6,7 +6,7 @@ import { SKILL_CARDS, makeSkillCard, createCardExecution, resolveCardRow, CARD_R
 import { faceEffect, faceTrigger } from '../dist/card-face-lines.mjs';
 import { getCardTrigger } from '../dist/card-rule-bands.mjs';
 import { triggerDisplay } from '../dist/card-trigger-labels.mjs';
-import { drawPulseRing, drawCourierFlash, drawFinishBar } from '../dist/starter-cues.mjs';
+import { drawPulseRing, drawCourierFlash } from '../dist/starter-cues.mjs';
 import { glowGaugeMarkup } from '../dist/glow-ui.mjs';
 
 const fire = (ids, inscriptions, kind, extra = {}) => {
@@ -74,7 +74,6 @@ test('cues are cheap whole-pixel rects, drawn only with the card mounted', () =>
   drawPulseRing(c, e, { scale: 2, playerY: 100 }); assert.equal(calls.length, 16); assert.ok(calls.flat().every(Number.isInteger));
   calls.length = 0; drawCourierFlash(c, e, { scale: 2, playerY: 100 }); assert.ok(calls.length <= 3 && calls.length > 0 && calls.flat().every(Number.isInteger));
   calls.length = 0; e.time = 6; drawCourierFlash(c, e, { scale: 2 }); assert.equal(calls.length, 0, 'the flash lasts 0.35 s');
-  calls.length = 0; drawFinishBar(c, e, { scale: 2 }); assert.ok(calls.length <= 8 && calls.flat().every(Number.isInteger));
   for (const [id, key] of [['pulse-reader', 'cardPulseReader'], ['courier-cord', 'cardCourierCord'], ['meter-mark', 'cardMeterMark'], ['finish-flag', 'cardFinishFlag']])
     assert.equal(getCardModifiers({ skillSystem: 'cards-v1', mountedCards: [makeSkillCard(id, 'm')], reserveCards: [] })[key], true, key);
   assert.match(glowGaugeMarkup({ flame: 10, skillSystem: 'cards-v1' }), /class="meter-mark"[^>]*hidden/);
@@ -94,4 +93,12 @@ test('Pulse Reader alone: it sends its own Pulse every 8 s, is paid by it, and c
   const right = fly({ ids: ['pulse-reader', 'harvest-common'], seedIndex: 0 }), left = fly({ ids: ['harvest-common', 'pulse-reader'], seedIndex: 0 });
   assert.ok((right.log.slots[1]?.fired || 0) >= 1, 'a Pulse card to its right is fired');
   assert.equal(left.log.slots[0]?.fired || 0, 0, 'a Pulse card to its left is not');
+});
+
+test('Finish Flag bar is HUD markup (night layers never dim it): the flight state carries the card, the HUD gets the .finish-flag class, the bar is 10 px (2026-11-18)', async () => {
+  const fs = await import('node:fs'), read = f => fs.readFileSync(new URL(`../dist/${f}`, import.meta.url), 'utf8');
+  assert.match(read('flight.mjs'), /cardFinishFlag:!!this\.mod\.cardFinishFlag/);
+  assert.match(read('app.mjs'), /classList\.toggle\('finish-flag'/);
+  assert.match(read('glow-ui.css'), /\.flight-progress\.finish-flag\{height:10px/);
+  assert.doesNotMatch(read('starter-cues.mjs'), /drawFinishBar/, 'no dimmed canvas copy');
 });
