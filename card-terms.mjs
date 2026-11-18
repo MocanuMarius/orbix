@@ -1,16 +1,16 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=tap-1';
-import {lifeHeartSvg} from './lives.mjs?v=tap-1';
-import {duskGlyphArt} from './spark-symbol.mjs?v=tap-1';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=tap-1';
-import {glowGaugeUnits} from './glow-ui.mjs?v=tap-1';
-import {getRunModifiers} from './model.mjs?v=tap-1';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=tap-1';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=tap-1';
-import {dreamEye} from './dream.mjs?v=tap-1';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=tap-1';
-import {INSCRIPTIONS} from './inscriptions.mjs?v=tap-1';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=tap-1';
+import { resourceSymbol } from './game-symbols.mjs?v=seed-1';
+import {lifeHeartSvg} from './lives.mjs?v=seed-1';
+import {duskGlyphArt} from './spark-symbol.mjs?v=seed-1';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=seed-1';
+import {glowGaugeUnits} from './glow-ui.mjs?v=seed-1';
+import {getRunModifiers} from './model.mjs?v=seed-1';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=seed-1';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=seed-1';
+import {dreamEye} from './dream.mjs?v=seed-1';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=seed-1';
+import {INSCRIPTIONS} from './inscriptions.mjs?v=seed-1';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=seed-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   inscription: ['Inscription', 'An effect written on a Chain slot, not on a card. It stays on the slot when cards move, swap or leave. Some change the card on that slot; some work on any slot, even an empty one. Get one from the Scribe after an Elite or Guardian. One per slot; writing again replaces it.'],
@@ -95,7 +95,7 @@ const CARD_TERM_DETAILS = Object.freeze({
   "copy": "Echo repeats the action on the card to its right. Higher Echo tiers repeat it more times, as printed. Chameleon borrows its ability. They share that card’s uses. Echo cannot repeat Deep Vessel or Edge Reach, because passive abilities have no action. Neither can copy Echo, Chameleon, Lift Guide, Rhythm, Cache Handling or Rest cards.",
   "packing": "Convert spare passage Sparks into Stored Sparks during a Round and from the spare meter at its successful exit. Tight Packing adds extras to the Stored Sparks this conversion normally makes. Open Stored Sparks from packing for examples and exclusions.",
   "packing-efficiency": "Adds extra Stored Sparks to the amount ordinary packing makes from spare passage Sparks. +50% means 2 ordinarily made → 3 total; +75% means 4 → 7 total; +100% means 1 → 2 total. Cards in your chain, Echo repeats and Chameleon copies add their percentages: two +50% sources give +100%. A Boost to the right of a packing card multiplies its percentage (+50% ×2 = +100%), up to +900% in all. Fractions carry between cleared Rounds, and whole extras pay as they are earned. With Rare and no earlier fraction, making 1, 2, 3, then 4 ordinary Stored Sparks earns 0, 1, 2, then 3 extras in total. With Common, making 1 this Round and 1 next Round earns 1 extra overall. A failed Round keeps the fraction saved before that attempt and banks none of that attempt’s new packing. Rewards, card payouts, Melt and the extra Stored Sparks do not earn packing extras. Generated or Dream pickups and bonus fuel from cards do not count.",
-  "grow": "Keep Growth Seeds in your Deck to unlock Grow at Rest. Each owned Seed adds its printed amount to your maximum Sparks, up to +90 total: Common +3, Rare +5, Legendary +8 (improved to +9 or +10). Grow refills the meter once and does not heal hearts. All Seeds share 3 Grow actions per journey. No active slot is needed; copying cards cannot copy Rest cards.",
+  "grow": "Keep Growth Seeds in your Deck to unlock Grow at Rest. You hold only one Growth Seed: any Seed you gain merges into it, adds its amount and the best rarity shows. Each Seed adds its printed amount to your maximum Sparks, up to +90 total: Common +3, Rare +5, Legendary +8 (improved to +9 or +10). Grow refills the meter once and does not heal hearts. All Seeds share 3 Grow actions per journey. No active slot is needed; copying cards cannot copy Rest cards.",
   "pass": "Your chain fires only when a card in it has that Trigger, such as Collect when your wisp touches a Spark. The cards then fire left to right, from Slot 1. A card works only if its Trigger and condition match; empty Slots, always-on cards and cards with other Triggers wait. The Sparks start at zero each time: + cards add Sparks, and a Boost (× card) multiplies the Sparks and Collector time of every card to its left; Stored Sparks and forever gains always stay at their printed amount. Echo repeats the next card in its own Slot and spends that card’s uses. With Refrain, the chain fires once more from Slot 1 for the same Trigger, an Encore. Uses spent stay spent, so the Encore can give less or nothing, and it makes no extra pickup or Pulse. Card Sparks fill only the room left in your meter after the pickup’s own fuel.",
   slot: "Order matters only where a card says so: Boosts reach cards to their left, Echo and Chameleon copy the next card, Kindling Bead needs a + card before it, and Closing Chord must be the last card. You start with 3 Slots and Rest can add up to 5.",
   trigger: "The Triggers are Collect, Lift, Pulse, Delivery, Overfill, Save, Finish and Skim. Boost cards work with all of them; Passive cards and At Rest cards do not wait for one. One touch can be two Triggers: a Spark that overfills your meter is Overfill, then Collect.",
@@ -181,9 +181,9 @@ const CARD_NOTES = Object.freeze({
   'harvest-rare': 'The Pulse must cross an uncollected fuel pickup already in the passage. Pickups created by powers do not count. This refills your meter without collecting the Spark or adding packing rewards.',
   'harvest-legendary': 'The Pulse must cross an uncollected fuel pickup already in the passage. Pickups created by powers do not count. The meter refill does not collect it or add packing rewards. The extra Stored Spark is awarded once per Pulse, at its first crossing, even if the meter is full.',
   'flash-handling': 'Either your wisp or Collector picking up Flare is Collect a Flare: each Flare Handling in your chain, or copy of one, gives +6 Sparks, and a Boost to its right strengthens it. Collector makes one pickup; the meter cannot go above its maximum.',
-  'growth-seed-common': 'Keep in your Deck to unlock Grow at Rest. Each owned Seed adds its printed maximum Sparks, up to +90 total. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Common to Rare for 25 Stored Sparks, then Rare to Legendary for 150.',
-  'growth-seed': 'Keep in your Deck to unlock Grow at Rest. Each owned Seed adds its printed maximum Sparks, up to +90 total. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Rare to Legendary for 150 Stored Sparks.',
-  'growth-seed-legendary': 'Keep in your Deck to unlock Grow at Rest. Each owned Seed adds its printed maximum Sparks, up to +90 total: +8 at rank 1, +9 at rank 2 and +10 at rank 3. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts.',
+  'growth-seed-common': 'Keep in your Deck to unlock Grow at Rest. You hold only one Growth Seed: any Seed you gain merges into it, adds its amount and the best rarity shows. Each owned Seed adds its printed maximum Sparks, up to +90 total. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Common to Rare for 25 Stored Sparks, then Rare to Legendary for 150.',
+  'growth-seed': 'Keep in your Deck to unlock Grow at Rest. You hold only one Growth Seed: any Seed you gain merges into it, adds its amount and the best rarity shows. Each owned Seed adds its printed maximum Sparks, up to +90 total. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Rare to Legendary for 150 Stored Sparks.',
+  'growth-seed-legendary': 'Keep in your Deck to unlock Grow at Rest. You hold only one Growth Seed: any Seed you gain merges into it, adds its amount and the best rarity shows. Each owned Seed adds its printed maximum Sparks, up to +90 total: +8 at rank 1, +9 at rank 2 and +10 at rank 3. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts.',
   'tight-packing': CARD_TERMS['packing-efficiency'][1],
   'tight-packing-ii': CARD_TERMS['packing-efficiency'][1],
   'tight-packing-iii': CARD_TERMS['packing-efficiency'][1],
@@ -463,7 +463,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=tap-1').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=seed-1').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -474,7 +474,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=tap-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=seed-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

@@ -1,10 +1,10 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=tap-1";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=seed-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=tap-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=tap-1';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=tap-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=seed-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=seed-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=seed-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -173,9 +173,43 @@ function cleanCard(card, seen) {
     // Scar Tissue, Collector's Ledger, Old Friend: what the card has counted (batch 2).
     ...((def.tallyEvent || def.tallied) && integer(card.tally) ? { tally: integer(card.tally) } : {}),
     ...(def.edition && integer(card.edition) ? { edition: integer(card.edition) } : {}),
+    // Growth Seed: the amount of the Seeds merged into this one (one Seed per run, see mergeGrowthSeeds).
+    ...(def.kind === 'camp-grow' && integer(card.seedBonus) ? { seedBonus: integer(card.seedBonus) } : {}),
   };
 }
 /** Rewards are receipts. The actual card enters the reserve before progression. */
+const RARITY_RANK = { common: 0, rare: 1, legendary: 2 };
+export const isGrowthSeed = card => SKILL_CARDS[card?.cardId || card?.id]?.kind === 'camp-grow';
+/** Seeds are offered half as often once the run owns one. */
+export const growthSeedDropFactor = (run, def) => def?.kind === 'camp-grow'
+  && [...(run?.mountedCards || []), ...(run?.reserveCards || [])].some(isGrowthSeed) ? 0.5 : 1;
+/** A run holds at most ONE Growth Seed. Every Seed beyond the first merges into it: the survivor keeps the highest rarity
+ * (and rank) merged, and its amount is the sum of all merged amounts, stored as `seedBonus` on top of the card's own printed
+ * amount. Evolving the merged card later raises it by exactly what one Seed would gain. `keepId` names the instance that
+ * survives (the newest one, so a reward receipt still points at the deck card); default: the first one found.
+ * Returns the surviving card when something merged, else null. Grow rules (3 per run, +90 cap, meter 100) are unchanged. */
+export function mergeGrowthSeeds(run, keepId = null) {
+  if (!run) return null;
+  const holders = [...(run.mountedCards || []).map((card, i) => ({ card, list: run.mountedCards, i })),
+    ...(run.reserveCards || []).map((card, i) => ({ card, list: run.reserveCards, i }))].filter(h => h.card && isGrowthSeed(h.card));
+  if (holders.length < 2) return null;
+  const total = holders.reduce((sum, h) => sum + cardAmount(h.card), 0),
+    best = holders.reduce((a, b) => {
+      const da = RARITY_RANK[SKILL_CARDS[a.card.cardId].rarity], db = RARITY_RANK[SKILL_CARDS[b.card.cardId].rarity];
+      return db > da || (db === da && integer(b.card.rank || 1) > integer(a.card.rank || 1)) ? b : a;
+    }),
+    host = holders.find(h => String(h.card.instanceId) === String(keepId)) || holders[0],
+    def = SKILL_CARDS[best.card.cardId], rank = Math.max(1, integer(best.card.rank || 1)),
+    base = def.amount + (rank - 1) * (def.rankStep || 1);
+  host.card.cardId = best.card.cardId;
+  host.card.rank = rank;
+  const bonus = Math.max(0, total - base);
+  if (bonus) host.card.seedBonus = bonus; else delete host.card.seedBonus;
+  const gone = new Set(holders.filter(h => h !== host).map(h => h.card));
+  run.reserveCards = (run.reserveCards || []).filter(card => !gone.has(card));
+  run.mountedCards = (run.mountedCards || []).map(card => gone.has(card) ? null : card);
+  return host.card;
+}
 export function settleCardReward(run) {
   const reward = run?.cardReward;
   if (!isCardRun(run) || !reward || reward.claimed) return false;
@@ -184,6 +218,9 @@ export function settleCardReward(run) {
     card = cleanCard(reward.card, new Set());
   if (!card) return false;
   if (!seen.has(card.instanceId)) (run.reserveCards ??= []).push(card);
+  // A run holds one Growth Seed: a second one merges into it, and the receipt shows the merged card.
+  const merged = mergeGrowthSeeds(run, card.instanceId);
+  if (merged) reward.card = { ...merged };
   reward.claimed = true;
   reward.choice = "deck";
   reward.slot = null;
@@ -266,6 +303,7 @@ export function cleanCardRun(run) {
     run.reserveCards.push(card);
     run.mountedCards[index] = null;
   }
+  mergeGrowthSeeds(run); // old saves with several Seeds hold one
   run.cardHistory = Array.isArray(run.cardHistory) ? run.cardHistory : [];
   run.cardRewardedNodes = Array.isArray(run.cardRewardedNodes)
     ? run.cardRewardedNodes
@@ -332,7 +370,8 @@ function retireHeldCards(run) {
 }
 export function cardAmount(card) {
   const def = SKILL_CARDS[card?.cardId];
-  return def ? def.amount + (Math.max(1, integer(card.rank || 1)) - 1) * (def.rankStep || 1) : 0;
+  // A merged Growth Seed carries the amounts of the Seeds merged into it (seedBonus, see mergeGrowthSeeds).
+  return def ? def.amount + (Math.max(1, integer(card.rank || 1)) - 1) * (def.rankStep || 1) + (def.kind === 'camp-grow' ? integer(card.seedBonus) : 0) : 0;
 }
 export function getCardMeltValue(card) {
   const def = SKILL_CARDS[card?.cardId];
@@ -403,7 +442,7 @@ export function describeSkillCard(card) {
       break;
     case "camp-grow":
       effect =
-        `At Rest: Grow adds +${amount} max Sparks for this Growth Seed (each one you own adds its amount, up to +90 per Grow) and refills your meter once. It does not heal hearts. All Growth Seeds share 3 Grows per journey, and the meter never holds more than 100.`;
+        `At Rest: Grow adds +${amount} max Sparks for this Growth Seed (merged Seeds add their amounts, up to +90 per Grow) and refills your meter once. It does not heal hearts. All Growth Seeds share 3 Grows per journey, and the meter never holds more than 100.`;
       break;
     case "prism":
       effect = `Boost: every card to its left gives ×${amount} Sparks and Collector time (never Stored Sparks or forever gains). Passive cards to its left get ×${amount} on their bonus too.`;
@@ -744,7 +783,7 @@ export function drawSkillCard(run, source, node = run.current, rarity = null) {
   const pool = LIVE_CARDS.filter(
       (d) => d.rarity === tier && !d.starterOnly,
     );
-  const weight = def => (def.dropWeight || 1) * (rarity && source.startsWith('forge:v2:')
+  const weight = def => (def.dropWeight || 1) * growthSeedDropFactor(run, def) * (rarity && source.startsWith('forge:v2:')
     ? cardOfferMultiplier({def, rule: getCardRowRule(def, {cardId:def.id, rank:1})}, [], {mode:'forge'}) : 1);
   let ticket = draw() * pool.reduce((sum, def) => sum + weight(def), 0),
     d = pool.at(-1);
@@ -794,7 +833,7 @@ export function drawSkillCardDraft(run, node = run.current) {
       tier = SKILL_CARDS[rolled.cardId].rarity,
       pool = LIVE_CARDS.filter(def => def.rarity === tier && !def.starterOnly && !names.has(def.name)),
       draw = random(`${run.campaignSeed || run.seed}:${run.mapIndex}:${node?.id}:draft:${index}:distinct:v1`),
-      weight = def => (def.dropWeight || 1) * (index === contextSlot
+      weight = def => (def.dropWeight || 1) * growthSeedDropFactor(run, def) * (index === contextSlot
         ? cardOfferMultiplier({def,rule:getCardRowRule(def,{cardId:def.id,rank:1})}, owned, {slots:run.cardSlots || 3}) : 1);
     let ticket = draw() * pool.reduce((sum, def) => sum + weight(def), 0), selected = pool.at(-1);
     for (const def of pool) { ticket -= weight(def); if (ticket < 0) { selected = def; break; } }

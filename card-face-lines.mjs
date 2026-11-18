@@ -5,7 +5,7 @@
 // full rules, which the "?" help window shows (card-ui.mjs › cardHelpDescription). Numbers the player tracks during a
 // run (uses left, a growth or tally counter) stay on the face as badges, not here.
 // The internal trigger keys (card-rule-bands.mjs › CARD_TRIGGERS) are untouched; this is a wording layer on top of them.
-import {getCardRuleBands, getCardTrigger} from './card-rule-bands.mjs?v=tap-1';
+import {getCardRuleBands, getCardTrigger} from './card-rule-bands.mjs?v=seed-1';
 
 /** Words for Triggers that the display layer (card-trigger-labels.mjs) leaves without a chip, as [word, glossary key]. */
 const EXTRA_WORDS = Object.freeze({
@@ -15,9 +15,13 @@ const EXTRA_WORDS = Object.freeze({
 const GROUP_KEYS = Object.freeze({collect: 'collect', lift: 'falling-lift', pulse: 'wave', delivery: 'delivery', overfill: 'overfill',
   save: 'save', finish: 'clear', skim: 'engine-skim', passive: 'always-on', boost: 'boost', repeat: 'next'});
 
+/** Cards whose effect happens as a flight starts read "Start" with the take-off icon, though their Trigger key is Passive. */
+const START_CARDS = new Set(['twin-wick', 'use-doubler', 'dream', 'black-hole']);
+
 /** {word, term, iconId}: the one word on line 1, its glossary entry and the id its icon is drawn for. */
 export function faceTrigger(card = {}, definition = {}) {
   const chip = getCardTrigger(card, definition);
+  if (START_CARDS.has(card.cardId || card.id || definition.id)) return {word: 'Start', term: 'take-off', iconId: 'take-off'};
   const extra = EXTRA_WORDS[chip.id];
   if (extra) return {word: extra[0], term: extra[1], iconId: chip.id};
   return {word: chip.label || 'Passive', term: GROUP_KEYS[chip.group] || chip.id, iconId: chip.id};

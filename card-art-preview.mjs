@@ -1,6 +1,6 @@
-import {cardFace} from './card-ui.mjs?v=tap-1';
-import {makeSkillCard,describeSkillCard} from './skill-cards.mjs?v=tap-1';
-import {installCardTermHelp} from './card-terms.mjs?v=tap-1';
+import {cardFace} from './card-ui.mjs?v=seed-1';
+import {makeSkillCard,describeSkillCard} from './skill-cards.mjs?v=seed-1';
+import {installCardTermHelp} from './card-terms.mjs?v=seed-1';
 const variants = [{name:'Current',scale:1,note:'Original illustration'},{name:'Mild',scale:.75,note:'75% resolution · nearest neighbor'},{name:'Medium',scale:.58,note:'58% resolution · nearest neighbor'}];
 const cards = ['body-spark','field-impulse','flash-handling','harvest-legendary'];
 const load = image => image.decode();
