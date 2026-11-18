@@ -1,6 +1,6 @@
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=wind-1';
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=wind-1';
-import {sparkMass} from './spark-size.mjs?v=wind-1';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=rates-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=rates-1';
+import {sparkMass} from './spark-size.mjs?v=rates-1';
 
 // All counters belong to one attempt. No reaction dispatches a second pickup.
 export class GuardianReactions {

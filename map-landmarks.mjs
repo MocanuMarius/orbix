@@ -1,4 +1,4 @@
-import {pixelPath} from './pixel-contour.mjs?v=wind-1';
+import {pixelPath} from './pixel-contour.mjs?v=rates-1';
 // Route categories and guardian names. The stop icons themselves are the approved v2.0-icons set (ui-icons.mjs); only the muted ground layer is drawn here.
 export const guardianNames=Object.freeze({'hollow-warden':'Hollow Warden',moonweaver:'Moonweaver','frost-matron':'Frost Matron','rootbound-heart':'Rootbound Heart','storm-shepherd':'Storm Shepherd','hollow-sun':'Hollow Sun'});
 export function landmarkCategory(value){const n=typeof value==='string'?{kind:value}:value||{};if(n.boss||['boss','guardian','combat'].includes(n.kind)||n.type==='boss')return'boss';if(n.elite||n.kind==='elite')return'elite';if(['rest','camp'].includes(n.kind)||n.type==='camp')return'rest';if(n.kind==='treasure')return'treasure';if(n.kind==='scribe')return'scribe';if(['encounter','event','shrine','support'].includes(n.kind)||n.type==='support')return'encounter';return'flight';}

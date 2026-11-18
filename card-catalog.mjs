@@ -333,8 +333,10 @@ const freeze = value => {
 export const CARD_CATALOG = freeze(Object.fromEntries(cards.map(card => [card.id, card])));
 export const CARD_CATALOG_IDS = freeze(cards.map(card => card.id));
 export const CARD_DROP_WEIGHTS = freeze({
-  normal: { common: 83, rare: 15, legendary: 2 },
-  elite: { common: 55, rare: 32, legendary: 13 },
-  boss: { common: 35, rare: 47, legendary: 18 },
+  // Owner decision 2026-11-18: every offered card rolls on its own, flat for the whole run
+  // (94.5% Common, 5% Rare, 0.5% Legendary), whatever the node, map or earlier offers.
+  normal: { common: 94.5, rare: 5, legendary: 0.5 },
+  elite: { common: 94.5, rare: 5, legendary: 0.5 },
+  boss: { common: 94.5, rare: 5, legendary: 0.5 },
 });
 export const CARD_DROP_MIX = freeze({ normal: 75, elite: 20, boss: 5 });
