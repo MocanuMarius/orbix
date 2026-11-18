@@ -1,5 +1,5 @@
-import {terrainBoundary} from './terrain-boundary.mjs?v=bar-1';
-import {PolygonPath} from './rect-raster.mjs?v=bar-1';
+import {terrainBoundary} from './terrain-boundary.mjs?v=prune-1';
+import {PolygonPath} from './rect-raster.mjs?v=prune-1';
 const poly=new PolygonPath();
 
 // The closest plane is cut paper: opaque black land and foliage, without any

@@ -1,4 +1,4 @@
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=bar-1';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=prune-1';
 const clamp=value=>Math.max(0,Math.min(1,Number(value)||0));
 const explanation='Proximity (unlocked skill): skim near solid terrain for 2 seconds total. Brief gaps keep your progress for 1.25 seconds, then it fades slowly. A full meter automatically reveals the scene.';
 const regenExplanation='Regenerative Pulse: a revealing pulse also restores 3 missing Sparks. Eight recoveries per flight; the normal reveal keeps working afterwards. No surplus is stored.';

@@ -1,18 +1,18 @@
-import {getBiome} from './biomes.mjs?v=bar-1';
-import {getBossPreview} from './boss.mjs?v=bar-1';
-import {levelMapPreview} from './level-map-art.mjs?v=bar-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=bar-1';
-import {resourceSymbol} from './game-symbols.mjs?v=bar-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=bar-1';
-import {flightRewardKind,SCRIBE_OFFER_COUNT,isCardRun} from './model.mjs?v=bar-1';
-import {bonusIcon} from './route-bonus-ui.mjs?v=bar-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=bar-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=bar-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=bar-1';
-import {sparkHabitat} from './spark-fields.mjs?v=bar-1';
-import {lanternFlightCue} from './map-theme.mjs?v=bar-1';
-import {actionButton} from './ui/primitives.mjs?v=bar-1';
-import {cardTermTextMarkup} from './card-terms.mjs?v=bar-1';
+import {getBiome} from './biomes.mjs?v=prune-1';
+import {getBossPreview} from './boss.mjs?v=prune-1';
+import {levelMapPreview} from './level-map-art.mjs?v=prune-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=prune-1';
+import {resourceSymbol} from './game-symbols.mjs?v=prune-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=prune-1';
+import {flightRewardKind,SCRIBE_OFFER_COUNT,isCardRun} from './model.mjs?v=prune-1';
+import {bonusIcon} from './route-bonus-ui.mjs?v=prune-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=prune-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=prune-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=prune-1';
+import {sparkHabitat} from './spark-fields.mjs?v=prune-1';
+import {lanternFlightCue} from './map-theme.mjs?v=prune-1';
+import {actionButton} from './ui/primitives.mjs?v=prune-1';
+import {cardTermTextMarkup} from './card-terms.mjs?v=prune-1';
 
 export const TRAVEL_GUIDE_ART=Object.freeze(['waystone','rootwood','night-atlas']);
 /** One stepped sign, mirrored for the return journey. */
