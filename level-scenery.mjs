@@ -1,7 +1,7 @@
-import {pineCrown} from './pixel-contour.mjs?v=fast-5';
-import {drawBiomeBackground,drawBiomeMaterial,drawBiomeLife} from './biome-art.mjs?v=fast-5';
-import {drawExpandedBackdrop} from './world-scenery.mjs?v=fast-5';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=fast-5';
+import {pineCrown} from './pixel-contour.mjs?v=cord-1';
+import {drawBiomeBackground,drawBiomeMaterial,drawBiomeLife} from './biome-art.mjs?v=cord-1';
+import {drawExpandedBackdrop} from './world-scenery.mjs?v=cord-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=cord-1';
 
 const TAU = Math.PI * 2;
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));

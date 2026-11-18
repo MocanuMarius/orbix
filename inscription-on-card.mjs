@@ -2,9 +2,9 @@
 // sentence for the card detail panel, the Scribe's write preview and the Chain tab. Menu screens only, never in flight.
 //   inscriptionOnCard('kindled', card)  ->  "Kindled: no effect on this card (it only fires at Finish)"
 //   inscriptionEffect('gilded', card)   ->  {works: true, text: '+2 Sparks each time it fires'}
-import {getInscription} from './inscriptions.mjs?v=fast-5';
-import {SKILL_CARDS, getCardRowRule, isOncePerTriggerPayout} from './skill-cards.mjs?v=fast-5';
-import {getCardTrigger, getCardRuleBands} from './card-rule-bands.mjs?v=fast-5';
+import {getInscription} from './inscriptions.mjs?v=cord-1';
+import {SKILL_CARDS, getCardRowRule, isOncePerTriggerPayout} from './skill-cards.mjs?v=cord-1';
+import {getCardTrigger, getCardRuleBands} from './card-rule-bands.mjs?v=cord-1';
 
 const ALSO = {'wave-crossing': 'a Pulse', 'downbeat-lift': 'every Lift', 'collector-delivery': 'a Delivery', 'natural-overfill': 'an Overfill', 'flash-pickup': 'a Flare Collect'};
 const no = why => ({works: false, text: `no effect on this card (${why})`});

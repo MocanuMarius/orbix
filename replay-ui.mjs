@@ -1,9 +1,9 @@
-import {getBossPreview} from './boss.mjs?v=fast-5';
-import {artifactDescriptionMarkup} from './artifact-copy.mjs?v=fast-5';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=fast-5';
-import {resourceSymbol} from './game-symbols.mjs?v=fast-5';
-import {artifactIcon} from './upgrade-icons.mjs?v=fast-5';
-import {encounterFamilyPreview} from './encounter-families.mjs?v=fast-5';
+import {getBossPreview} from './boss.mjs?v=cord-1';
+import {artifactDescriptionMarkup} from './artifact-copy.mjs?v=cord-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=cord-1';
+import {resourceSymbol} from './game-symbols.mjs?v=cord-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=cord-1';
+import {encounterFamilyPreview} from './encounter-families.mjs?v=cord-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const THEME_INKS=Object.freeze({sustain:'#b9d995',precision:'#a8d5e2',tempo:'#e4c286',dream:'#cbb2e6',risk:'#e4a894'});
 export function rewardThemeMarkup(source={},label='RELIC PATH'){
