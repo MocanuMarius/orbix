@@ -195,7 +195,7 @@ const CARD_NOTES = Object.freeze({
   'fast-spool': 'Touching a natural passage Spark while a Collector reels shortens one active reel by up to 3 seconds. The longest active reel is chosen. Each successful action spends one of this card’s three uses. Copies spend this card’s uses too. No use is spent when there is no remaining reel time.',
   rhythm: 'All 3 Lifts must succeed and be evenly spaced. You perform them yourself. Extra Rhythm cards still send one Pulse.',
   'camp-kit': 'Keep in your Deck when arriving at Rest to choose 2 different actions. No active slot is needed. Spend the use only after the second action succeeds. Extra Second Ember cards do not add a third action or spend another use.',
-  'lift-guide': 'The amber chevron uses your current fall and Lift impulse. It opens when a Lift can rise back to its starting height, as from level flight. It does not judge terrain; choose when to tap. Extra copies keep one chevron.',
+  'lift-guide': 'The amber chevron uses your current fall and Lift impulse. It opens when a Lift can rise back to its starting height, as from level flight. It does not judge terrain; choose when to tap. A Lift tapped while the chevron is open is on the beat: +1 Spark. Extra copies keep one chevron.',
 });
 
 // Explanatory pictures are captures of the running game, never replacement art.

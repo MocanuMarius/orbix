@@ -21,6 +21,7 @@ const eventNames={
   [CARD_ROW_EVENTS.overfill]:'Overfill · a Spark brings more than your meter can hold',
   [CARD_ROW_EVENTS.delivery]:'Delivery · Collector brings you a pickup',
   [CARD_ROW_EVENTS.rhythm]:'Lift · 3 even Lifts on the beat complete',
+  [CARD_ROW_EVENTS.guideLift]:'Lift · tapped while the Lift Guide arrow is open',
   [CARD_ROW_EVENTS.guard]:'Save · Collector stops a fatal crash',
   [CARD_ROW_EVENTS.clear]:'Finish · you clear a flight',
   [CARD_ROW_EVENTS.victory]:'You defeat the third guardian',

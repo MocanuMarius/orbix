@@ -1347,6 +1347,8 @@ export class WispFlight {
       }
     }
     const descendingBeforeLift = this.player.vy > 0;
+    // Lift Guide: a Lift tapped while its arrow is open (its own cue window, not Rhythm's 3-Lift phrase).
+    const guideCue=this.mod.cardLiftGuide?this.getLiftGuide():null,guideBeat=!!guideCue&&!guideCue.loan&&guideCue.phase==='open'&&!guideCue.late;
     const sincePreviousLift = this.cardLastAcceptedLift === null ? -Infinity : this.time-this.cardLastAcceptedLift;
     const cardLiftContext={meterFraction:this.flame/this.maxFlame,guardRecovering:this.wisp.phase==='guard-recovery'};
     this.cancelLeveler(true); this.levelDive = 0;
@@ -1369,6 +1371,7 @@ export class WispFlight {
       this.resolveCardRowEvent(CARD_ROW_EVENTS.lift,cardLiftContext);
       this.undertowCollect(cardLiftContext);
     }else this.resolveCardRowEvent(CARD_ROW_EVENTS.plainLift,cardLiftContext);
+    if(guideBeat)this.resolveCardRowEvent(CARD_ROW_EVENTS.guideLift,cardLiftContext);
     this.lastFlapTime = this.time;
     this.liftGuide?.clear();
     this.cardRhythm?.lift(this.time,cardLiftContext);

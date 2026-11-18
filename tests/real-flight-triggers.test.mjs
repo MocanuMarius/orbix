@@ -186,3 +186,33 @@ test('Take-off: Black Hole and Dream eat the card on their right when the flight
 });
 
 test.after(() => { if (process.env.RF_TABLE) fs.writeFileSync(process.env.RF_TABLE, rows.map(r => `| ${r.trigger} | ${r.cards} | ${r.occurred} | ${r.fired} | ${r.paid} | ${r.verdict} | ${r.extra} |`).join('\n')); });
+
+/** Assist: the pilot's own Lifts are muted; a Lift is tapped only when Lift Guide's arrow is open (`beat`), or only when it is not (`off`). */
+function tapByGuide(mode) {
+  return (e, log) => {
+    const raw = e.flap.bind(e), step = e.step.bind(e); let muted = true; log.beatTaps = 0; log.offTaps = 0;
+    e.flap = () => (muted ? false : raw());
+    e.step = dt => {
+      const cue = e.mod.cardLiftGuide ? e.getLiftGuide() : null, open = !!cue && cue.phase === 'open' && !cue.late && !cue.loan;
+      const falling = e.player.vy > 0 && e.player.y > 90;
+      if (mode === 'beat' && open) { muted = false; if (raw()) log.beatTaps++; muted = true; }
+      else if (mode === 'off' && !open && falling && e.player.vy > 60 * e.scaleY) { muted = false; if (raw()) log.offTaps++; muted = true; }
+      return step(dt);
+    };
+  };
+}
+
+test('Lift on the beat: Lift Guide pays +1 Spark per Lift tapped while its arrow is open, nothing off the beat or unmounted', () => {
+  const on = flights({ ids: ['lift-guide'], hook: tapByGuide('beat') });
+  const taps = sum(on, f => f.log.beatTaps), fired = slotSum(on, 0, 'fired'), paid = slotSum(on, 0, 'sparks');
+  assert.ok(taps >= 3, `${taps} on-beat Lifts`);
+  assert.equal(sum(on, f => f.log.events['guide-lift'] || 0), taps, 'one event per on-beat Lift');
+  assert.equal(fired, taps); assert.equal(paid, taps, '+1 Spark each');
+  note('Lift (on the beat)', 'Lift Guide (Lifts tapped while the arrow is open)', `${taps} on-beat Lifts`, fired, `${paid} Sparks (1 each)`, 'works', 'Own arrow window, not the Rhythm phrase.');
+  const off = flights({ ids: ['lift-guide'], hook: tapByGuide('off') });
+  assert.ok(sum(off, f => f.log.offTaps) >= 3, 'Lifts were tapped with the arrow closed');
+  assert.equal(sum(off, f => f.log.events['guide-lift'] || 0), 0, 'off the beat: no Spark');
+  const without = flights({ ids: ['body-spark'], hook: tapByGuide('beat') });
+  assert.equal(sum(without, f => f.log.beatTaps), 0);
+  assert.equal(sum(without, f => f.log.events['guide-lift'] || 0), 0, 'no Lift Guide mounted: nothing fires');
+});

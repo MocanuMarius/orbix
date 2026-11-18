@@ -24,7 +24,7 @@ export const TRIGGERS = Object.freeze([
 ]);
 export const TRIGGER_BY = Object.freeze(Object.fromEntries(TRIGGERS.map(t => [t.kind, t])));
 // Events a card can wait for that have no tab of their own on the Chain screen (a Flare ending, a Latch, a Swipe).
-const EVENT_LABEL = Object.freeze(Object.fromEntries(Object.values(CARD_TRIGGERS).filter(t => t.event).map(t => [t.event, t.label])));
+const EVENT_LABEL = Object.freeze({...Object.fromEntries(Object.values(CARD_TRIGGERS).filter(t => t.event).map(t => [t.event, t.label])), 'guide-lift': 'Lift'});
 export const triggerName = kind => TRIGGER_BY[kind]?.name || EVENT_LABEL[kind] || 'this Trigger';
 
 export const RARITY_WORD = Object.freeze({common: 'Common', rare: 'Rare', legendary: 'Legendary'});

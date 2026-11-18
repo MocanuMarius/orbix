@@ -31,7 +31,7 @@ test('a real but empty second pass remains visible after pass 1 spends the last 
 });
 
 test('empty, passive-only and Refrain-only rows never invent a listener or replacement cards', () => {
-  for (const ids of [[null,null,null],['deep-vessel','lift-guide',null],['refrain','prism-lens',null]]) {
+  for (const ids of [[null,null,null],['deep-vessel','rhythm',null],['refrain','prism-lens',null]]) {
     const run = row(ids), p = previewEquippedCardRow(run);
     assert.deepEqual(p.cards,run.mountedCards);assert.equal(p.trace.passes,0);assert.equal(p.frames.length,0);
     assert.equal(p.started,false);assert.match(p.noPayReason,/chain does not fire/i); // plain wording (v1.0-words)

@@ -46,6 +46,7 @@ function fixtures(context) {
   add(CARD_ROW_EVENTS.victory, {}, { guard: false, recovery: false });
   add(CARD_ROW_EVENTS.clear, {carriedStored:100}, { guard: false, recovery: false });
   if (context.rhythm) add(CARD_ROW_EVENTS.rhythm);
+  if (context.guide) add(CARD_ROW_EVENTS.guideLift);
   if (context.field) for (const direction of ['up', 'down', 'right'])
     add(CARD_ROW_EVENTS.field, { direction, availableRecovery: 10 }, { guard: false, recovery: false });
   if (context.guard) add(CARD_ROW_EVENTS.guard, { availableRecovery: 40 }, { guard: false, recovery: false });
@@ -73,7 +74,7 @@ export function getCardRowTriggerContext(run = {}, native = null) {
   const cards = (Array.isArray(run) ? run : run.mountedCards || run.cards || []).slice(0, 5);
   const base = buildContext(run, native), sources = getEffectiveCardSources(cards);
   const has = kind => sources.some(entry => entry.def.kind === kind);
-  return { ...base, rhythm: has('rhythm'), field: base.collector && (base.field || has('field')),
+  return { ...base, rhythm: has('rhythm'), guide: has('guide'), field: base.collector && (base.field || has('field')),
     guard: base.collector && (base.guard || has('watchlight')), cache: base.collector && (base.cache || has('cache-handling')) };
 }
 

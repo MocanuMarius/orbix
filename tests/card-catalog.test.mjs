@@ -53,7 +53,7 @@ test('all 86 literal definitions have supported rules, unique IDs, honest art fa
   // tests/card-engines.test.mjs and tests/engine-real-flight.test.mjs.
   const defs = Object.values(CARD_CATALOG).filter(def => !def.unreleased && !def.engine && def.kind !== 'black-hole'), supportedEvents = new Set([
     '*', 'body-spark', 'wave-crossing', 'flash-pickup', 'flash-expiry', 'downbeat-lift', 'natural-overfill',
-    'collector-delivery', 'collector-attach', 'flight-clear', 'rhythm-phrase', 'field-swipe', 'guard-rescue',
+    'collector-delivery', 'collector-attach', 'flight-clear', 'rhythm-phrase', 'guide-lift', 'field-swipe', 'guard-rescue',
   ]), physicalKinds = new Set(['dream', 'luminance', 'proximity-range', 'capacity', 'packing', 'echo', 'chameleon', 'field', 'guide',
     'rhythm', 'rapid-lift', 'camp-extra', 'camp-grow', 'cache-handling', 'refrain', 'watchlight', 'wave-loom', 'spillway',
     'proximity', 'springboard', 'heart-stitch', 'devourer', 'use-doubler', 'ember-feeder', 'twin-orbit', 'twin-wick', 'collector-range']);

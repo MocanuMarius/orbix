@@ -17,7 +17,7 @@ export const CARD_TEXT = [
     keep: {t: 'Next card', x: 'Repeats the next card', u: 'Not × or always-on cards'}, simple: {t: 'Next card', x: 'Repeats the next card'},
     n: '"Share its uses" dropped: a repeat spends a use like any other firing.'},
   {id: 'field-impulse', t: 'Always on', c: 'Collector home, ¼ charge', x: 'Swipe: float, dive or speed up, 0.8 s', n: 'Dropped "Extra sources extend duration": copies adding time is the normal expectation.'},
-  {id: 'lift-guide', t: 'Always on', x: 'An arrow shows when a Lift regains height', n: 'Dropped "Motion only. Read the terrain…" (advice, not a rule).'},
+  {id: 'lift-guide', t: 'Rhythm', x: '+1 Spark', u: 'Shows the arrow', n: 'Lift Guide pays +1 Spark for a Lift tapped while its arrow is open (2026-11-18); the arrow stays on.'},
   {id: 'harvest-common', t: 'Wave', x: '+1 Spark', n: '"Leaves the pickup in place" belongs to the Wave Trigger (the wave crosses a Spark you have not collected).'},
   {id: 'camp-kit', t: 'At Rest', x: 'Take 2 different Rest actions', u: '1 use', n: 'The use is still spent only when the second action succeeds (normal use rule).'},
   {id: 'downbeat', t: 'Falling Lift', x: '+2 Sparks', n: '"Paid Lift while falling, 0.75 s after the last Lift" moves into the Falling Lift glossary entry; rule unchanged.'},

@@ -216,3 +216,89 @@ function flight(run) {
   g.running=true;
   return g;
 }
+
+// ── Pick 1 of 2 (2026-11-18) ────────────────────────────────────────────────────────────────────────────
+import {CARD_SYSTEM} from '../dist/skill-cards.mjs';
+import {eventCardOptions} from '../dist/model.mjs';
+import {eventPickMarkup, eventPickKind} from '../dist/event-pick.mjs';
+function cardEvent(index, {cards = ['body-spark', 'courier-glass', 'toll-bell'], deck = ['downbeat'], used = {}} = {}) {
+  const state = visit(index), run = state.run;
+  run.skillSystem = CARD_SYSTEM; run.cardSlots = 5;
+  run.mountedCards = cards.map((id, i) => makeSkillCard(id, `pick:${i}`));
+  run.reserveCards = deck.map((id, i) => makeSkillCard(id, `pickdeck:${i}`));
+  for (const [id, uses] of Object.entries(used)) for (const c of [...run.mountedCards, ...run.reserveCards]) if (c.cardId === id) c.charges = uses;
+  return state;
+}
+const CARD_EVENTS = [[0, 'refill-card'], [3, 'refill-card'], [5, 'improve-card'], [9, 'refill-card'], [11, 'improve-card']];
+
+test('every event offers exactly two options, and an event with a card outcome keeps it on screen', () => {
+  for (const {index, name} of EVENT_SCENARIOS) for (const late of [false, true]) {
+    if (index === 4) continue; // the Marked Passage keeps its own shape: one mark per exit
+    const state = visit(index, {late});
+    assert.equal(getSupportChoices(state.run, state.profile).length, 2, name);
+  }
+  for (const [index, id] of CARD_EVENTS) {
+    const state = cardEvent(index, {used: {'courier-glass': 2}});
+    state.run.flame = 10; // low meter: no spring drink, so the refill (event 0) stays on offer
+    const offers = getSupportChoices(state.run, state.profile);
+    assert.equal(offers.length, 2, EVENT_SCENARIOS[index].name);
+    if (index) assert.ok(offers.some(o => o.id === id && !o.disabled), EVENT_SCENARIOS[index].name + ' offers ' + id);
+  }
+});
+
+test('an event grants exactly the one outcome chosen, never both', () => {
+  const state = cardEvent(11, {used: {'courier-glass': 2}}), run = state.run;
+  const before = {wallet: run.condensedGlow, ranks: run.mountedCards.map(c => c.rank), cardIds: run.mountedCards.map(c => c.cardId)};
+  const offers = getSupportChoices(run, state.profile), sparksIndex = offers.findIndex(o => o.effect.packedReward);
+  assert.notEqual(sparksIndex, -1);
+  const paid = structuredClone(state);
+  assert.ok(resolveSupport(paid.run, sparksIndex, paid.profile));
+  assert.deepEqual(paid.run.mountedCards.map(c => [c.rank, c.cardId]), before.ranks.map((r, i) => [r, before.cardIds[i]]), 'Stored Sparks chosen: no card improved');
+  const improved = structuredClone(state), improveIndex = offers.findIndex(o => o.effect.improveCard);
+  assert.ok(resolveSupport(improved.run, improveIndex, improved.profile, {cardId: 'pick:2'}));
+  assert.equal(improved.run.condensedGlow, before.wallet, 'a card chosen: no Stored Sparks');
+});
+
+test('a card outcome lists the eligible cards with what changes and applies to the tapped one', () => {
+  const state = cardEvent(3, {used: {'courier-glass': 2}}), run = state.run;
+  const list = eventCardOptions(run, 'refill');
+  assert.deepEqual(list.map(c => c.instanceId), ['pick:1'], 'only a card that used some uses');
+  assert.equal(list[0].change, 'Uses 2 → 5');
+  assert.equal(list[0].slot, 0 + 1);
+  const offers = getSupportChoices(run, state.profile), index = offers.findIndex(o => eventPickKind(o) === 'refill');
+  assert.notEqual(index, -1);
+  assert.match(eventPickMarkup(run, 'refill'), /data-id="pick:1"[^>]*>[\s\S]*Uses 2 → 5/);
+  assert.equal(resolveSupport(run, index, state.profile, {cardId: 'pick:0'}), false, 'an ineligible card cannot be tapped');
+  assert.ok(resolveSupport(run, index, state.profile, {cardId: 'pick:1'}));
+  assert.equal(run.mountedCards[1].charges, 5);
+  const imp = cardEvent(11, {used: {'courier-glass': 2}});
+  const options = eventCardOptions(imp.run, 'improve');
+  assert.ok(options.length >= 2); assert.ok(options.every(o => !/-\d/.test(o.change)), 'no negative numbers');
+  const target = options.at(-1), others = imp.run.mountedCards.concat(imp.run.reserveCards).filter(c => c.instanceId !== target.instanceId).map(c => [c.cardId, c.rank]);
+  const idx = getSupportChoices(imp.run, imp.profile).findIndex(o => eventPickKind(o) === 'improve');
+  assert.ok(resolveSupport(imp.run, idx, imp.profile, {cardId: target.instanceId}));
+  assert.deepEqual(imp.run.mountedCards.concat(imp.run.reserveCards).filter(c => c.instanceId !== target.instanceId).map(c => [c.cardId, c.rank]), others, 'only the tapped card changed');
+});
+
+test('with no eligible card the option stays, disabled, with its reason', () => {
+  const state = cardEvent(3, {cards: ['body-spark'], deck: []}), run = state.run;
+  assert.deepEqual(eventCardOptions(run, 'refill'), []);
+  const offers = getSupportChoices(run, state.profile), refill = offers.find(o => o.effect.refillCard);
+  assert.equal(offers.length, 2);
+  assert.equal(refill.disabled, true); assert.match(refill.disabledReason, /used any of its uses/);
+  assert.equal(resolveSupport(run, offers.indexOf(refill), state.profile), false);
+  assert.ok(offers.some(o => !o.disabled));
+});
+
+test('the stop preview says choose 1 of 2 rewards, and the guide never says paid at once', () => {
+  const run = visit(3).run, node = run.map.flat().find(n => n.kind === 'event');
+  assert.equal(node.rewardPreview, 'Event: choose 1 of 2 rewards');
+  assert.doesNotMatch(JSON.stringify(EVENT_SCENARIOS), /paid at once|chooses the first card/);
+});
+
+test('an event stopped mid-way saves and loads to the same two options', () => {
+  const state = cardEvent(5, {used: {'courier-glass': 2}}), offers = getSupportChoices(state.run, state.profile);
+  const loaded = reload(state);
+  assert.deepEqual(getSupportChoices(loaded.run, loaded.profile).map(o => [o.id, !!o.disabled]), offers.map(o => [o.id, !!o.disabled]));
+  assert.equal(loaded.run.phase, 'support');
+});

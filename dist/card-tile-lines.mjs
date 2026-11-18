@@ -7,7 +7,7 @@ import {SKILL_CARDS, describeSkillCard, cardTallyLine} from './skill-cards.mjs?v
 
 export const CARD_TILE_LINES = Object.freeze({
   'climb': 'Lifts 2 and 3 free', 'watchlight': 'Collector saves you', 'springboard': 'Collect: free bounce',
-  'lift-guide': 'Shows when to Lift', 'cache-handling': 'Fetches Caches: +12', 'second-sun': '×2 before, ×3 Encore',
+  'lift-guide': 'On the beat: +1 Spark', 'cache-handling': 'Fetches Caches: +12', 'second-sun': '×2 before, ×3 Encore',
   'twin-wick': '2 Collectors a flight', 'harvest-legendary': '+2 Sparks, +1 Stored',
   'nest-egg': '+1 Stored per 10', 'flash-handling': '+6; fetches Flare',
   'dream': 'Devour: longer Dream', 'spillway': '2nd Overfill: a Pulse', 'mirror-grain': 'Adds last + again',

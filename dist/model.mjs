@@ -7,6 +7,7 @@ import {commitCardTallies,getCardTallies,getCardChargeCapacity,getCardFeederCapa
 import {consumeBlackHoles} from './card-black-hole.mjs?v=guide-clarity-1';
 import {CARD_UNIT as ENGINE_CARD_UNIT} from './skill-cards.mjs?v=guide-clarity-1';
 import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=guide-clarity-1';
+import {getCardRuleBands} from './card-rule-bands.mjs?v=guide-clarity-1';
 import {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,isInventoryOnlyCard,getInventoryCampCards,makeSkillCard,cleanCardRun,settleCardReward,getCardStarterOffers,drawSkillCard,drawSkillCardDraft,describeSkillCard,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,getCardModifiers,getCardPackingBonus,getCardGrowthUses,getCardGrowthBonus,cleanCardFutureCapacity,createCardExecution,resolveCardRow,CARD_ROW_EVENTS,commitCardCharges,recordCardEvent,drawForgeCard,CARD_FORGE_RARITIES} from './skill-cards.mjs?v=guide-clarity-1';
 export {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,commitCardCharges} from './skill-cards.mjs?v=guide-clarity-1';
 import {pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=guide-clarity-1';
@@ -415,7 +416,7 @@ export function makeMap(seed,mapIndex,difficulty,cards=false){
    description:camp?'Recover hearts or grow Spark capacity, then prepare for the next flight.':scribe?SCRIBE_STOP_SUMMARY:support?EVENT_SCENARIOS[eventIndex].detail:biome.description};
   if(!support)Object.assign(n,getFlightLengthProfile({seed:seed+':'+n.id,mapIndex,row:encounterStage,elite,boss}));
   const economy=nodeEconomy(n);n.challengeBonus=0;n.clearReward=getFlightClearReward(n);n.glowReward=economy.salvageGlow;
-  n.rewardPreview=boss?(mapIndex===2?'Expedition victory':'Choose 1 of 2 artifacts'):elite?'Choose 1 of 2 artifacts':camp?'Recover or Grow':scribe?SCRIBE_STOP_REWARD:support?EVENT_SCENARIOS[eventIndex].reward:getFlightClearReward(n)+' Stored Sparks + overflow';
+  n.rewardPreview=boss?(mapIndex===2?'Expedition victory':'Choose 1 of 2 artifacts'):elite?'Choose 1 of 2 artifacts':camp?'Recover or Grow':scribe?SCRIBE_STOP_REWARD:support?'Event: choose 1 of 2 rewards':getFlightClearReward(n)+' Stored Sparks + overflow';
   n.reward=n.rewardPreview;
   if(treasure)Object.assign(n,describeTreasure(chests[chestCursor++],{card:cards,mapIndex}));
   return[n];
@@ -1787,6 +1788,27 @@ export function eventCardTargets(run){
  }
  return {improve,refill};
 }
+/** The cards an event can improve or refill, for the player to tap: the Chain first (left to right), then the Deck.
+ * Each: {instanceId, name, cardId, card (described), slot (0-based, or null in the Deck), change (the plain "what changes" line)}. */
+const spendPlain=text=>String(text||'').replace(/\s*Sparks?\b/g,'').trim();
+export function eventCardOptions(run,kind){
+ if(!isCardRun(run)||!['improve','refill'].includes(kind))return [];
+ const out=[];
+ [...(run.mountedCards||[]).map((c,slot)=>[c,slot]),...(run.reserveCards||[]).map(c=>[c,null])].forEach(([card,slot])=>{
+  const def=SKILL_CARDS[card?.cardId];if(!def||out.some(o=>o.instanceId===card.instanceId))return;
+  if(kind==='improve'){
+   const p=getCardImprovePreview(run,card.instanceId);if(!p.kind||!p.before||(def.charges&&!(card.charges>0)))return;
+   const was=cardTileEffect(p.before),now=cardTileEffect(p.after);
+   out.push({instanceId:card.instanceId,name:def.name,cardId:card.cardId,card:p.before,slot,
+    change:p.kind==='evolution'?'Evolves into '+(SKILL_CARDS[p.after.cardId]?.name||def.name):was&&now&&was!==now?spendPlain(was)+' → '+spendPlain(now):'Rank '+card.rank+' → '+(p.after.rank??card.rank+1)});
+  }else{
+   const p=getCardRefillPreview(run,card.instanceId);if(!(p.supported&&p.missing>0&&count(card.charges)>0))return;
+   out.push({instanceId:card.instanceId,name:def.name,cardId:card.cardId,card:p.before,slot,change:'Uses '+count(card.charges)+' → '+p.maximum});
+  }
+ });
+ return out;
+}
+const cardTileEffect=d=>{const def=SKILL_CARDS[d?.cardId];const e=def?getCardRuleBands(d,def).find(b=>b.type==='effect')?.text:'';return String(e||'').replace(/\.$/,'');};
 /** A free Improve (rank up or evolution, the existing rules, no price). Returns {name, rank} or false. */
 function freeImproveCard(run,instanceId){
  const preview=getCardImprovePreview(run,instanceId),owned=findOwnedCard(run,instanceId),card=owned?.card;
@@ -1846,15 +1868,16 @@ function rawSupportChoices(run,profile=null){
 
 }
 function makeSupportChoices(run,profile=null){return rawSupportChoices(run,profile).map(c=>({...c,description:c.displayUnits?c.description:glowText(c.description,getGlowCapacity(run)),detail:c.displayUnits?c.detail:glowText(c.detail,getGlowCapacity(run)),...(c.effect.pickupGlow?{glowPreview:previewGlowReward(run,c.effect.pickupGlow,{removeArtifact:c.effect.sell})}:{})}));}
-export function resolveSupport(run,index,profile=null){
+export function resolveSupport(run,index,profile=null,opts={}){
  if(!run||run.pendingTemporary||run.pendingChest||run.phase!=='support'||!Number.isInteger(index)||index<0)return false;
  if(isCardRun(run)&&run.current.kind==='camp')return resolveCardCamp(run,index);
  if(isPracticeCourseRun(run)&&!practiceStopReady(run))return false;
  const offers=getSupportChoices(run,profile),offer=offers[index],e=offer?.effect;if(!e||offer.disabled)return false;if((e.rest||e.restContinue)&&run.restVisits?.some(v=>v.key===`${run.mapIndex}:${run.current.id}`))return false;const wallet=runWallet(run),cost=count(e.condensedCost),restBefore=e.rest||e.restContinue?{lives:run.lives,flame:run.flame}:null;
  if(e.oath&&(!getOath(e.oath)||run.pendingOath||!eventNextFlights(run).length))return false;
  if(e.eventCard&&!isCardRun(run))return false;
- if(e.improveCard&&eventCardTargets(run).improve?.instanceId!==e.improveCard)return false;
- if(e.refillCard&&eventCardTargets(run).refill?.instanceId!==e.refillCard)return false;
+ // A card outcome acts on the card the player tapped (opts.cardId); without one it takes the first eligible card.
+ const cardPick=e.improveCard||e.refillCard?(()=>{const list=eventCardOptions(run,e.improveCard?'improve':'refill');return opts.cardId?list.find(c=>c.instanceId===opts.cardId):list[0];})():null;
+ if((e.improveCard||e.refillCard)&&!cardPick)return false;
  if(e.routePreparation&&!eventNextFlights(run).some(node=>node.id===e.routePreparation.nodeId))return false;
  if(wallet.condensedGlow<cost||run.flame+Math.min(0,finite(e.flame))<0)return false;
  if(e.lives&&run.lives>=getLifeCapacity(run))return false;
@@ -1880,8 +1903,8 @@ export function resolveSupport(run,index,profile=null){
  if(e.burden)run.nextFlightBurden=true;if(e.blessing)run.nextFlightBlessing=true;
  if(e.oath){run.pendingOath={id:e.oath};run.lastEvent={title:'Wager taken',message:oathLine(run,e.oath)};}
  if(e.eventCard){const card=grantEventCard(run);if(card)run.lastEvent={title:'A card',message:card.name+' is in your Deck.'};}
- if(e.improveCard){const done=freeImproveCard(run,e.improveCard);if(done)run.lastEvent={title:'Card improved',message:done.name+' is now rank '+done.rank+'.'};}
- if(e.refillCard){const done=freeRefillCard(run,e.refillCard);if(done)run.lastEvent={title:'Uses refilled',message:done.name+' has all its uses again.'};}
+ if(e.improveCard){const done=freeImproveCard(run,cardPick.instanceId);if(done)run.lastEvent={title:'Card improved',message:done.name+' is now rank '+done.rank+'.'};}
+ if(e.refillCard){const done=freeRefillCard(run,cardPick.instanceId);if(done)run.lastEvent={title:'Uses refilled',message:done.name+' has all its uses again.'};}
  if(e.routePreparation){
   const source=nodes(run).find(node=>node.id===run.current.id)||run.current;
   run.routePreparation={...e.routePreparation,originalNextIds:[...source.nextIds]};

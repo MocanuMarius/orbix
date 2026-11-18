@@ -372,7 +372,7 @@ export function describeSkillCard(card) {
       break;
     case "guide":
       effect =
-        "An amber upward arrow shows a safe, efficient moment to Lift. You choose when to Lift. Extra copies keep one arrow.";
+        "An amber upward arrow shows when a Lift regains its height. A Lift tapped while the arrow is open is on the beat: +1 Spark, after the Lift's cost. Extra copies keep one arrow.";
       break;
     case "rhythm":
       effect =
@@ -558,7 +558,7 @@ function effectiveCardSummary(kind, sources, cards) {
     "flash-handling": `Collect a Flare: +${total} Sparks when your wisp or Collector picks up Flare. Collector makes one pickup.`,
     "camp-grow": `Grow adds +${total} max Sparks and refills the meter once. All Growth Seeds share 3 Grows per journey.`,
     harvest: `+${total} Sparks when a Pulse crosses an uncollected fuel pickup already in the passage${matching.some((entry) => entry.def.stored) ? `; +${matching.reduce((sum, entry) => sum + (entry.def.stored || 0), 0)} Stored Sparks at the first crossing per Pulse` : ""}.`,
-    guide: "One amber arrow shows when to Lift, even with extra copies.",
+    guide: "Lift on the beat, while the amber arrow is open: +1 Spark.",
     rhythm: "3 successful Lifts at an even pace send one Pulse, even with extra copies.",
     "rapid-lift": matching.some(entry => entry.def.rapidRank === 2)
       ? "Climb: within 1 second, the second and third successful manual Lifts are free. The third sends one shared light pulse; extra cards keep one trio."
@@ -846,7 +846,7 @@ export const CARD_ROW_EVENTS = Object.freeze({
   body: "body-spark", wave: "wave-crossing", flash: "flash-pickup",
   flashExpiry: "flash-expiry",
   lift: "downbeat-lift", plainLift: "plain-lift", overfill: "natural-overfill",
-  delivery: "collector-delivery", rhythm: "rhythm-phrase", field: "field-swipe", guard: "guard-rescue",
+  delivery: "collector-delivery", rhythm: "rhythm-phrase", guideLift: "guide-lift", field: "field-swipe", guard: "guard-rescue",
   victory: "expedition-victory",
   clear: "flight-clear",
   attach: "collector-attach",

@@ -70,6 +70,7 @@ test('each event offers two outcomes that both work at once', () => {
     assert.ok(offers.length >= 2, `event ${eventIndex}`);
     for (let i = 0; i < offers.length; i++) {
       const copy = structuredClone(s), rr = copy.run; rr.supportOffers = null;
+      if (offers[i].disabled) { assert.ok(offers[i].disabledReason, `event ${eventIndex} offer ${i} says why`); assert.equal(M.resolveSupport(rr, i, copy.profile), false); continue; } // a card outcome with no eligible card stays on screen, disabled
       assert.ok(M.resolveSupport(rr, i, copy.profile), `event ${eventIndex} offer ${i}: ${offers[i].title}`);
       assert.equal(rr.pendingTemporary, undefined);
     }

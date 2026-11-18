@@ -64,7 +64,7 @@ const legacy = {
   echo: () => [condition('Repeat', 'next'), effect('Repeats the next card')],
   chameleon: () => [condition('Repeat', 'next'), effect('Acts as the next card')],
   field: () => [condition('Passive · Collector home, ¼ charge', 'always-on'), effect('Swipe: float, dive or speed up, 0.8 s')],
-  guide: () => [condition('Passive', 'always-on'), effect('An arrow shows when a Lift regains height')],
+  guide: () => [condition('Lift on the beat', 'rhythm'), effect('+1 Spark'), note('Shows the arrow')],
   rhythm: () => [condition('Passive', 'always-on'), effect('3 even Lifts send out a Pulse')],
   harvest: (card, def) => [condition('Pulse', 'wave'), effect(`+${card.amount} Sparks${def.stored || card.rarity === 'legendary' ? `, +${def.stored || 1} Stored on its 1st Spark` : ''}`)],
   'camp-extra': () => [condition('At Rest', 'rest'), effect('Take 2 different Rest actions'), note('1 use')],
