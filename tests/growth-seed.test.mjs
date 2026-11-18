@@ -165,7 +165,8 @@ test('only Common flight drops count toward protection; Forge, failed attempts a
     run.cardHistory.pop();
   }
   run.reserveCards.push(makeSkillCard('growth-seed-legendary', 'legacy-owned'));
-  assert.deepEqual(drawSkillCard(run, 'flight', node), ordinary, 'old owned Seeds suppress protection');
+  // Owning a Seed also halves Seed drop weights, so the ordinary draw may differ; protection must not return a Seed.
+  assert.notEqual(drawSkillCard(run, 'flight', node).cardId, 'growth-seed-common', 'old owned Seeds suppress protection');
   run.reserveCards = [];
   assert.equal(SKILL_CARDS[drawSkillCard(run, 'forge:test', null, 'rare').cardId].rarity, 'rare');
   assert.equal(SKILL_CARDS[drawSkillCard(run, 'forge:test', null, 'legendary').cardId].rarity, 'legendary');

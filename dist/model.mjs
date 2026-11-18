@@ -8,6 +8,7 @@ import {consumeBlackHoles} from './card-black-hole.mjs?v=guide-clarity-1';
 import {CARD_UNIT as ENGINE_CARD_UNIT} from './skill-cards.mjs?v=guide-clarity-1';
 import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=guide-clarity-1';
 import {getCardRuleBands} from './card-rule-bands.mjs?v=guide-clarity-1';
+import {mergeGrowthSeeds} from './skill-cards.mjs?v=guide-clarity-1';
 import {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,isInventoryOnlyCard,getInventoryCampCards,makeSkillCard,cleanCardRun,settleCardReward,getCardStarterOffers,drawSkillCard,drawSkillCardDraft,describeSkillCard,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,getCardModifiers,getCardPackingBonus,getCardGrowthUses,getCardGrowthBonus,cleanCardFutureCapacity,createCardExecution,resolveCardRow,CARD_ROW_EVENTS,commitCardCharges,recordCardEvent,drawForgeCard,CARD_FORGE_RARITIES} from './skill-cards.mjs?v=guide-clarity-1';
 export {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,commitCardCharges} from './skill-cards.mjs?v=guide-clarity-1';
 import {pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=guide-clarity-1';
@@ -703,7 +704,7 @@ export function grantChestCard(run) {
   settleCardReward(run);
   markCardNew(run, card.instanceId);
   placeClaimedCard(run, run.cardReward);
-  const revealed = describeSkillCard(card);
+  const revealed = describeSkillCard(run.cardReward.card || card);
   recordCardEvent(run, 'chest', { card: revealed, nodeId: node.id });
   run.chestCards[key] = card.instanceId;
   run.lastChestCard = copy(revealed);
@@ -1033,6 +1034,7 @@ export function forgeOwnedCard(state, rarity = "rare", expectedPreviewToken) {
   if (run.cardForgePricing?.key !== preview.restKey) run.cardForgePricing = { key: preview.restKey, counts: { common: 0, rare: 0, legendary: 0 } };
   (run.cardForgePricing.counts ??= {})[rarity] = preview.craftCount + 1;
   (run.reserveCards ??= []).push(card);
+  mergeGrowthSeeds(run, card.instanceId);
   markCardNew(run, card.instanceId);
   const revealed = describeSkillCard(card);
   run.lastCardForged = copy(revealed);

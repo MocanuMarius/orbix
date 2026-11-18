@@ -117,7 +117,7 @@ export const CARD_GUIDE_TOPICS = {
       ),
       step(
         "Growth Seed",
-        "Keep Growth Seeds in your Deck to unlock Grow at Rest. Each owned Seed adds its printed amount: Common +3, Rare +5, Legendary +8 (improved to +9 or +10). Grow refills once without healing hearts. All Seeds share 3 Grows per journey, and the meter never holds more than 100 Sparks.",
+        "Keep Growth Seeds in your Deck to unlock Grow at Rest. You hold only one Growth Seed: any Seed you gain merges into it, adds its amount and the best rarity shows. Each Seed adds its printed amount: Common +3, Rare +5, Legendary +8 (improved to +9 or +10). Grow refills once without healing hearts. All Seeds share 3 Grows per journey, and the meter never holds more than 100 Sparks.",
         "meter",
       ),
       step(

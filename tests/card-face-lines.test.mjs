@@ -31,6 +31,7 @@ test('the trigger appears once, as a linked word, and Start, Rest and Lift Guide
   const html = cardFace(describeSkillCard(makeSkillCard('spark-cache', 'x')));
   assert.equal((html.match(/data-card-term="collect"/g) || []).length, 1);
   assert.equal(faceTrigger(makeSkillCard('black-hole', 'x'), SKILL_CARDS['black-hole']).word, 'Start');
+  for (const id of ['twin-wick', 'use-doubler', 'dream']) assert.equal(faceTrigger(makeSkillCard(id, 'x'), SKILL_CARDS[id]).word, 'Start', id);
   assert.equal(faceTrigger(makeSkillCard('growth-seed', 'x'), SKILL_CARDS['growth-seed']).word, 'Rest');
   assert.equal(faceEffect(makeSkillCard('growth-seed', 'x'), SKILL_CARDS['growth-seed']), '+5 max Sparks');
   const guide = makeSkillCard('lift-guide', 'x');
