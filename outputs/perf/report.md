@@ -38,3 +38,26 @@ The slowdown comes from things that grow during a run:
 ## Limits
 
 CPU throttling is not a phone: GPU fill, texture upload, thermal throttling and real vsync are not captured. One course per biome was measured, not all 48. Real-device check: play 8+ flights with `?perf=1`, save the report after flight 1 and after a retry of the same course at flight 8.
+
+---
+
+# 18 November 2026: heavy load, stress scene, GPU lighting
+
+## Tools
+- **Stress test flight** `dist/stress-scene.mjs`: `?scene=stress` (confirm first; `&go=1` skips it) or Settings › Advanced › Stress test. Marsh landform course, Guardian (Hollow Sun, lantern shutters), giant Black Hole, a 5-slot Chain (Rhythm, Spillway II, Echo III, Resonant Harvest legendary, Twin Orbit) with Bell, Resonant, Twin Mark, Kindled and Lodestone, Sparks ×4, a Flare every 3.5 s and card Pulses every 0.25 s in the 35 s peak. Flies itself (`dist/flight-autopilot.mjs`), cannot be lost, writes nothing. Result panel + `window.__stressResult` + console line.
+- `scripts/perf/heavy.mjs`: the stress scene (default) and the marsh/coral/frost/basalt-guardian scenarios at 4×/6× throttle; `--ab=<root>` interleaves two builds; `--check` compares p95 with `outputs/perf/heavy/baseline.json` (fails over +15% and +2 ms); `--save-baseline`.
+- `scripts/perf/android/stress.mjs` (emulator, hands-off), `profile.mjs`, `trace.mjs`, `play.mjs` (autopilot flights; desktop works up to the departure gate, which needs a trusted tap: unfinished).
+- `scripts/perf/pixel-probe.mjs` (now prints a histogram), `gl-diff.mjs` (GPU vs 2D on stress frames; slow, unfinished), `stall.mjs`, `trace.mjs`.
+
+## Causes (stress scene, desktop 4×, CPU profile of busy time, before)
+light masks 64% · terrain/scenery 11% · native canvas 8% · sprites 4% · final blit 3% · card engine 3% · simulation 2% · Pulse rings ~1% · style/layout ~5% of main thread. Pixi/Three are not used by the live flight (`pixi-renderer.mjs` is imported by nothing).
+
+## Fixes
+1. `terrain-light.mjs` CPU rewrite (identical pixels): clear-pixel table, typed sample arrays, one 32-bit store per pixel, ray/box culling, cell-key memo, per-polygon edge grid for ray cuts and the point-in-polygon test.
+2. `light-gpu.mjs` WebGL2 compositor: 128×128 masks rendered on the GPU from cached ray-span textures (same polar 96-ray sampling, lattice and 12 Hz blends), fog composite with Flare prisms, Pulse reveal bands, solid-rock shade and lantern wake. Max difference 2/255 per channel on the test frames. On by default; `?gl=0` or any failure → Canvas 2D; context loss handled.
+3. `contact-edge-raster.mjs`: only written rows are cleared, converted and uploaded (identical).
+4. `wisp-renderer.mjs`: moon, stars, mist and labels as one path per fill (529/530 frames identical, 1 pixel differs in one).
+5. Profiler start was the 1 s "stall" in yesterday's harness; heavy.mjs starts it before wake.
+
+## Emulator finding
+In host-GPU mode the GPU process main thread is ~95% busy executing Canvas 2D raster commands while the page main thread is ~57% idle: the emulator is raster-bound. A low-resolution output canvas (`?lowres=1`) gave nothing there. Reaching 60 FPS needs the whole frame on WebGL (static layers as textures, batched sprites), not more CPU work.
