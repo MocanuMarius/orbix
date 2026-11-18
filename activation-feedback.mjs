@@ -1,10 +1,10 @@
-import {ActivationFeed} from './activation-events.mjs?v=evolve-1';
-import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=evolve-1';
-import {companionArtSvg} from './companion-art.mjs?v=evolve-1';
-import {resourceSymbol} from './game-symbols.mjs?v=evolve-1';
-import {ARTIFACTS,SKILLS} from './model.mjs?v=evolve-1';
-import {formatGlow} from './vitality.mjs?v=evolve-1';
-import {lifeHeartSvg} from './lives.mjs?v=evolve-1';
+import {ActivationFeed} from './activation-events.mjs?v=cue-1';
+import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=cue-1';
+import {companionArtSvg} from './companion-art.mjs?v=cue-1';
+import {resourceSymbol} from './game-symbols.mjs?v=cue-1';
+import {ARTIFACTS,SKILLS} from './model.mjs?v=cue-1';
+import {formatGlow} from './vitality.mjs?v=cue-1';
+import {lifeHeartSvg} from './lives.mjs?v=cue-1';
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const names={'card-watchlight':'Watchlight',collector:'Collector',protector:'Protector',swift:'Runner',leveler:'Space Timer',
   'main-echo-sight':'Echo Luminance','main-purifying-touch':'Purifying Touch','main-kindled-touch':'Kindled Touch',

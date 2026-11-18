@@ -1,4 +1,4 @@
-import {guardianPortraits} from './guardian-portraits.mjs?v=evolve-1';
+import {guardianPortraits} from './guardian-portraits.mjs?v=cue-1';
 // Hand-authored pixel silhouettes, shared by rewards, Collection, HUD and lessons.
 // 1=ink, 2=shade, 3=material, 4=lit edge, 5=magic, 6=hot highlight, 7=metal.
 const sprites={

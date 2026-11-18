@@ -1,4 +1,4 @@
-import {terrainBoundary} from './terrain-boundary.mjs?v=evolve-1';
+import {terrainBoundary} from './terrain-boundary.mjs?v=cue-1';
 
 // The closest plane is cut paper: opaque black land and foliage, without any
 // material, rim light or texture. Three small plates are baked per biome.

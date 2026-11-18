@@ -7,25 +7,25 @@
 // This module draws and handles everything that does not change the save. Every real change (equip, swap,
 // take out, Melt, Workshop) goes through the `actions` the app passes in, which call the model's own
 // transactions and then reopen the sheet; the view state object survives that reopen.
-import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=evolve-1';
-import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=evolve-1';
-import {uiIcon} from '../ui-icons.mjs?v=evolve-1';
-import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=evolve-1';
-import {getEquippedCardStatuses} from '../card-status.mjs?v=evolve-1';
-import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=evolve-1';
-import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=evolve-1';
+import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=cue-1';
+import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=cue-1';
+import {uiIcon} from '../ui-icons.mjs?v=cue-1';
+import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=cue-1';
+import {getEquippedCardStatuses} from '../card-status.mjs?v=cue-1';
+import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=cue-1';
+import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=cue-1';
 import {LIFT_KIND, resolveChain, slotInfo, hereLine, fullRuleText, plateWords, whenOf, markOf, TRIGGER_BY, triggerName, RARITY_WORD, rarityOf, nameOf, shortName, isRest, num, METER_MAX, START_FLAME,
-  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=evolve-1';
-import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=evolve-1';
-import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=evolve-1';
+  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=cue-1';
+import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=cue-1';
+import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=cue-1';
 import {triggerLabel, triggerTermKey} from '../card-trigger-labels.mjs';
-import {CARD_TERMS} from '../card-terms.mjs?v=evolve-1';
-import {SKILL_CARDS} from '../skill-cards.mjs?v=evolve-1';
-import {isDevourCard} from '../card-black-hole.mjs?v=evolve-1';
-import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=evolve-1';
-import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=evolve-1';
-import {slotInscriptionId, slotInscriptionList, slotEntry} from '../inscriptions.mjs?v=evolve-1';
-import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=evolve-1';
+import {CARD_TERMS} from '../card-terms.mjs?v=cue-1';
+import {SKILL_CARDS} from '../skill-cards.mjs?v=cue-1';
+import {isDevourCard} from '../card-black-hole.mjs?v=cue-1';
+import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=cue-1';
+import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=cue-1';
+import {slotInscriptionId, slotInscriptionList, slotEntry} from '../inscriptions.mjs?v=cue-1';
+import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=cue-1';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const SPARK_SRC = SPARK_ICON_SRC;
@@ -144,7 +144,7 @@ function liftOptsHTML(d, view) {
   const o = d.chain.liftOptions;
   if (!o || d.chain.trigger !== LIFT_KIND || !(o.falling || o.cue)) return '';
   const btn = (key, label, short, on) => `<button type="button" class="dk2-btn dk24-lopt${on ? ' dk24-on' : ''}" data-lift-opt="${key}" aria-pressed="${on}" aria-label="Lift ${esc(label.toLowerCase())}: ${on ? 'on' : 'off'}"><i aria-hidden="true"></i><span class="dk24-long">${esc(label)}</span><span class="dk24-short" aria-hidden="true">${esc(short)}</span></button>`;
-  return `<div class="dk24-lopts" role="group" aria-label="Which Lift">${o.falling ? btn('falling', 'Falling', 'Fall', view.liftFalling !== false) : ''}${o.cue ? btn('cue', 'On the cue', 'Cue', view.liftCue !== false) : ''}</div>`;
+  return `<div class="dk24-lopts" role="group" aria-label="Which Lift">${o.falling ? btn('falling', 'Falling', 'Fall', view.liftFalling !== false) : ''}</div>`;
 }
 function chipsHTML(d, ev = null, view = {}) {
   const {chain} = d, short = shortScreen();

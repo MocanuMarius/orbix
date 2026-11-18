@@ -1,6 +1,6 @@
-import {WispFlight} from './flight.mjs?v=evolve-1';
-import {BIOMES,BIOME_LEVELS} from './biomes.mjs?v=evolve-1';
-import {getRunModifiers} from './model.mjs?v=evolve-1';
+import {WispFlight} from './flight.mjs?v=cue-1';
+import {BIOMES,BIOME_LEVELS} from './biomes.mjs?v=cue-1';
+import {getRunModifiers} from './model.mjs?v=cue-1';
 const canvas=document.querySelector('canvas'),select=document.querySelector('select'),slider=document.querySelector('input');
 const course=document.querySelector('#course');
 const mode=document.querySelector('#mode'),light=document.querySelector('#light'),status=document.querySelector('#status'),gate=document.querySelector('#gate');
