@@ -1,4 +1,4 @@
-import {mapStopIconMarkup} from './map-guide.mjs?v=fast-2';
+import {mapStopIconMarkup} from './map-guide.mjs?v=fast-3';
 const number = (n,min=0) => Math.max(min,Math.floor(Number(n)||0));
 export function campaignStrip(run,profile={}) {
   if(run?.isTutorial)return '';

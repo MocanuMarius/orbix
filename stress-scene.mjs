@@ -7,13 +7,13 @@
 // scripts/course-design/pilot-courses.mjs, without its look-ahead search so the pilot costs almost nothing), cannot be
 // lost (hits and deaths are ignored, the meter is kept up), and never touches the run or the save: it builds its own
 // WispFlight from a local run object, writes no storage, gives no rewards and starts no tutorial.
-import {WispFlight} from './flight.mjs?v=fast-2';
-import {attachAutopilot} from './flight-autopilot.mjs?v=fast-2';
-import {BIOME_LEVELS} from './biomes.mjs?v=fast-2';
-import {getRunModifiers} from './model.mjs?v=fast-2';
-import {CARD_SYSTEM,makeSkillCard} from './skill-cards.mjs?v=fast-2';
-import {createFpsCounter} from './fps-counter.mjs?v=fast-2';
-import {createCardRowFeedback} from './card-row-feedback.mjs?v=fast-2';
+import {WispFlight} from './flight.mjs?v=fast-3';
+import {attachAutopilot} from './flight-autopilot.mjs?v=fast-3';
+import {BIOME_LEVELS} from './biomes.mjs?v=fast-3';
+import {getRunModifiers} from './model.mjs?v=fast-3';
+import {CARD_SYSTEM,makeSkillCard} from './skill-cards.mjs?v=fast-3';
+import {createFpsCounter} from './fps-counter.mjs?v=fast-3';
+import {createCardRowFeedback} from './card-row-feedback.mjs?v=fast-3';
 
 // Phases: 10 s ramp (the build on its own), 35 s peak (Flares back to back, card Pulses every 0.25 s on top of
 // Rhythm, Bell and Spillway, Black Hole, Guardian), 10 s tail (injections stop).
@@ -50,7 +50,7 @@ export function createStressEngine(canvas,{scene=STRESS_SCENE,reducedMotion=fals
   return engine;
 }
 
-export {safeBands} from './flight-autopilot.mjs?v=fast-2';
+export {safeBands} from './flight-autopilot.mjs?v=fast-3';
 
 /** Attaches the timeline, autopilot and invulnerability to an engine. Returns {phase(), stats}. */
 export function scriptStressScene(engine,scene=STRESS_SCENE){
@@ -76,8 +76,8 @@ export function scriptStressScene(engine,scene=STRESS_SCENE){
 }
 
 // ---- results --------------------------------------------------------------------------------------------------
-export {summarizeFrames} from './flight-autopilot.mjs?v=fast-2';
-import {summarizeFrames} from './flight-autopilot.mjs?v=fast-2';
+export {summarizeFrames} from './flight-autopilot.mjs?v=fast-3';
+import {summarizeFrames} from './flight-autopilot.mjs?v=fast-3';
 const version=()=>{try{return new URL(import.meta.url).searchParams.get('v')||'dev';}catch{return 'dev';}};
 export function stressSummaryLine(r){
   return `Wispbound stress ${r.scene} · ${r.avgFps} fps avg · 1% low ${r.low1Fps} · min ${r.minFps} · >33ms ${r.over33} · >50ms ${r.over50} · longest ${r.longestMs} ms · peak ${r.phases?.peak?.avgFps??'-'} fps · ${r.renderer} · DPR ${r.dpr} · ${r.viewport} · ${r.version}`;
