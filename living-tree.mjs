@@ -1,10 +1,10 @@
-import {resourceSymbol} from './game-symbols.mjs?v=fast-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=fast-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=fast-1';
-import {SKILLS} from './model.mjs?v=fast-1';
-import {skillIcon} from './upgrade-icons.mjs?v=fast-1';
-import {companionArtSvg} from './companion-art.mjs?v=fast-1';
-import {skillTreeState,safeTreeSelection,skillTreeStatus} from './skill-tree-state.mjs?v=fast-1';
+import {resourceSymbol} from './game-symbols.mjs?v=fast-2';
+import {getCompanionAbility} from './companion-abilities.mjs?v=fast-2';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=fast-2';
+import {SKILLS} from './model.mjs?v=fast-2';
+import {skillIcon} from './upgrade-icons.mjs?v=fast-2';
+import {companionArtSvg} from './companion-art.mjs?v=fast-2';
+import {skillTreeState,safeTreeSelection,skillTreeStatus} from './skill-tree-state.mjs?v=fast-2';
 export const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const lockIcon='<svg class="bud-lock" viewBox="0 0 24 24" aria-hidden="true" shape-rendering="crispEdges"><path fill="#1b2631" d="M5 9h2V5h2V3h6v2h2v4h3v12H4V9z"/><path fill="#aebac2" d="M8 9V6h2V4h4v2h2v4h-2V7h-4v3H8z"/><path fill="#697d88" d="M5 10h14v10H5z"/><path fill="#c0cad0" d="M5 10h12v2H7v7H5z"/><path fill="#263640" d="M11 13h3v3h-1v2h-2z"/></svg>';
 const stateKey=`<div class="tree-state-key" aria-label="Skill states"><span class="learned"><i aria-hidden="true">✓</i> Owned</span><span class="available"><i aria-hidden="true">+</i> Can learn</span><span class="saving"><i aria-hidden="true"></i> Saving up</span><span class="locked"><i aria-hidden="true">${lockIcon}</i> Locked</span></div>`;

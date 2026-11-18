@@ -1,6 +1,6 @@
-import { createDraftZones } from './drafts.mjs?v=fast-1';
-import { pickupKind } from './pickups.mjs?v=fast-1';
-import { inLanternRoom } from './lantern-layout.mjs?v=fast-1';
+import { createDraftZones } from './drafts.mjs?v=fast-2';
+import { pickupKind } from './pickups.mjs?v=fast-2';
+import { inLanternRoom } from './lantern-layout.mjs?v=fast-2';
 
 const FAMILIES = Object.freeze({
   'stillwater-tunnel': Object.freeze({ id:'stillwater-tunnel', name:'Stillwater Tunnel', icon:'ruins', rewardTheme:'precision',
