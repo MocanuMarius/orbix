@@ -1,2 +1,2 @@
 // Public scenery entry point. Plates are prepared once per course.
-export {createNearLandscape,drawNearLandscapePlates} from './habitat-compositions.mjs?v=fixes-1';
+export {createNearLandscape,drawNearLandscapePlates} from './habitat-compositions.mjs?v=polish-2';

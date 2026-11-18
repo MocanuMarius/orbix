@@ -1,16 +1,16 @@
-import {ARTIFACTS,SKILL_CARDS,getCardDraft,lastCourseName} from './model.mjs?v=fixes-1';
-import {chipIcon} from './ui/trigger-icons.mjs?v=fixes-1';
-import {cardDraftMarkup,cardDraftOffersMarkup} from './card-ui.mjs?v=fixes-1';
-import {planTally,tallyStateAt,tallyLayout} from './reward-tally.mjs?v=fixes-1';
-import {createTallySound} from './reward-tally-sound.mjs?v=fixes-1';
-import {rewardEarnings} from './reward-screen.mjs?v=fixes-1';
-import {resourceSymbol} from './game-symbols.mjs?v=fixes-1';
-import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=fixes-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=fixes-1';
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=fixes-1';
-import {sealedPackMarkup} from './flight-reward-pack-art.mjs?v=fixes-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=fixes-1';
-import {flightRewardReceiptDetail,FLIGHT_REWARD_SOURCE_DETAILS} from './flight-reward-details.mjs?v=fixes-1';
+import {ARTIFACTS,SKILL_CARDS,getCardDraft,lastCourseName} from './model.mjs?v=polish-2';
+import {chipIcon} from './ui/trigger-icons.mjs?v=polish-2';
+import {cardDraftMarkup,cardDraftOffersMarkup} from './card-ui.mjs?v=polish-2';
+import {planTally,tallyStateAt,tallyLayout} from './reward-tally.mjs?v=polish-2';
+import {createTallySound} from './reward-tally-sound.mjs?v=polish-2';
+import {rewardEarnings} from './reward-screen.mjs?v=polish-2';
+import {resourceSymbol} from './game-symbols.mjs?v=polish-2';
+import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=polish-2';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=polish-2';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=polish-2';
+import {sealedPackMarkup} from './flight-reward-pack-art.mjs?v=polish-2';
+import {artifactIcon} from './upgrade-icons.mjs?v=polish-2';
+import {flightRewardReceiptDetail,FLIGHT_REWARD_SOURCE_DETAILS} from './flight-reward-details.mjs?v=polish-2';
 export {flightRewardReceiptDetail};
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -72,8 +72,8 @@ const receiptDetailAttributes=(key,label)=>`type="button" class="flight-reward-d
 function renderReceiptSourceRows(rows,offset=0){
  return rows.map((row,index)=>`<span class="flight-reward-source-row" data-tally-row="${index+offset}"><button ${receiptDetailAttributes(row.detailKey,row.label)}>${row.chip?`<span class="flight-reward-chip" aria-hidden="true">${chipIcon(row.chip,16)}</span>`:''}<span>${esc(row.label)}</span><span class="flight-reward-detail-affordance" aria-hidden="true">ⓘ</span></button><b data-tally-amount>+${row.amount}</b></span>`).join('');
 }
-function renderReceiptEffectRows(entries){
- return entries.map(entry=>`<p><button ${receiptDetailAttributes(entry.detailKey,entry.text)}>${entry.artifactId?`<span class="flight-reward-effect-icon" aria-hidden="true">${artifactIcon(entry.artifactId)}</span>`:''}<span>${esc(entry.text)}</span><span class="flight-reward-detail-affordance" aria-hidden="true">ⓘ</span></button></p>`).join('');
+function renderReceiptEffectRows(entries,tagged=false){
+ return entries.map((entry,index)=>`<p${tagged?` data-effect="${index}"`:''}><button ${receiptDetailAttributes(entry.detailKey,entry.text)}>${entry.artifactId?`<span class="flight-reward-effect-icon" aria-hidden="true">${artifactIcon(entry.artifactId)}</span>`:''}<span>${esc(entry.text)}</span><span class="flight-reward-detail-affordance" aria-hidden="true">ⓘ</span></button></p>`).join('');
 }
 export function flightRewardCeremonyMarkup(run){
  const draft=getCardDraft(run),stage=flightRewardCeremonyStage(run);
@@ -81,7 +81,7 @@ export function flightRewardCeremonyMarkup(run){
  const receipt=flightRewardCeremonyReceipt(run),title=draft.boss?'Guardian cleared':draft.elite?'Elite cleared':'Flight cleared';
  const all=[...receipt.baseRows,...receipt.bonusRows],layout=tallyLayout(all.length);
  const rows=renderReceiptSourceRows(all);
- const context=receipt.notes.length?`<div class="tally-effects"><div class="flight-reward-scroll-region" data-receipt-scroll role="region" aria-label="Recorded flight effects" tabindex="0"><section class="flight-reward-notes" aria-label="Recorded flight effects"><h2>Recorded effects</h2>${renderReceiptEffectRows(receipt.effectEntries)}</section></div><small class="flight-reward-scroll-cue" data-receipt-scroll-cue hidden>Scroll for more ↓</small></div>`:'';
+ const context=receipt.notes.length?`<div class="tally-effects"><div class="flight-reward-scroll-region" data-receipt-scroll role="region" aria-label="Recorded flight effects" tabindex="0"><section class="flight-reward-notes" aria-label="Recorded flight effects"><h2>Recorded effects</h2>${renderReceiptEffectRows(receipt.effectEntries,true)}<p class="flight-reward-effects-more" data-effects-more hidden><button type="button" class="flight-reward-detail-trigger" data-receipt-detail="effects-more" aria-haspopup="dialog" aria-label="Show the other recorded effects"><span>+<b data-more-count>0</b> more</span><span class="flight-reward-detail-affordance" aria-hidden="true">ⓘ</span></button></p></section></div></div>`:'';
  const from=receipt.total>0&&receipt.wallet>=receipt.total?receipt.wallet-receipt.total:null;
  const income=`<article class="flight-reward-income flight-reward-receipt tally${layout.dense?' tally-dense':''}"><div class="tally-total"><strong class="flight-reward-income-total" aria-label="Stored Sparks earned">${resourceSymbol('packed')}<span>+<b data-ceremony-income>${receipt.total}</b></span></strong><span class="tally-balance" aria-label="Stored Sparks: ${receipt.wallet}"><small>Stored Sparks</small>${from!==null?`<span class="tally-balance-from" data-tally-from><span data-tally-from-value>${from}</span> →</span>`:''}<b data-ceremony-wallet>${receipt.wallet}</b></span><span class="flight-reward-bank-status" role="status" data-ceremony-bank-status>${receipt.total?'Banked ✓':'Clear complete ✓'}</span>${context}</div><div class="tally-sources" style="--tally-rows:${layout.rowsPerColumn}" data-tally-columns="${layout.columns}">${rows||'<span class="tally-empty">No clear income</span>'}</div></article>`;
  const pack=`<div class="flight-reward-pack-context"><p class="flight-reward-bank-status">${receipt.total?`${resourceSymbol('packed')} +${receipt.total} Stored Sparks banked`:'Clear complete'} ✓</p><button type="button" class="flight-reward-pack" data-action="flight-reward-open-pack" data-draft-id="${esc(draft.id)}" aria-label="Open card pack. Reveal three cards, then choose one."><span class="flight-reward-pack-art">${sealedPackMarkup()}</span></button></div>`;
@@ -97,10 +97,12 @@ export function mountFlightRewardCeremony({root,run,reducedMotion=false,animateW
  const receipt=flightRewardCeremonyReceipt(run);
  const live=()=>!cancelled&&root.isConnected;
  const scrollRegions=Array.from(root.querySelectorAll('[data-receipt-scroll]'));
- const updateScrollCues=()=>{for(const region of scrollRegions){const cue=region.parentElement?.querySelector('[data-receipt-scroll-cue]');if(cue)cue.hidden=region.scrollHeight-region.clientHeight-region.scrollTop<=2;}};
- for(const region of scrollRegions)region.addEventListener('scroll',updateScrollCues,{passive:true});
+ // Recorded effects never scroll: rows that do not fit the space under the total are hidden and one "+K more" row opens them in the info dialog.
+ const updateScrollCues=()=>{for(const region of scrollRegions){const rows=Array.from(region.querySelectorAll('.flight-reward-notes>p[data-effect]')),more=region.querySelector('[data-effects-more]');if(!rows.length||!more)continue;
+  rows.forEach(row=>{row.hidden=false;});more.hidden=true;let hidden=0;
+  while(region.scrollHeight>region.clientHeight+1&&hidden<rows.length-1){hidden++;rows[rows.length-hidden].hidden=true;more.hidden=false;more.querySelector('[data-more-count]').textContent=hidden;}}};
  const resizeObserver=typeof ResizeObserver==='function'?new ResizeObserver(updateScrollCues):null;
- for(const region of scrollRegions){resizeObserver?.observe(region);if(region.firstElementChild)resizeObserver?.observe(region.firstElementChild);}
+ for(const region of scrollRegions)resizeObserver?.observe(region);
  root.ownerDocument?.defaultView?.addEventListener('resize',updateScrollCues);
  updateScrollCues();
  // Display only: the tally is driven by the same receipt, and its last state is exactly the receipt.
@@ -166,7 +168,10 @@ export function mountReceiptInspector(root,run) {
   if(restoreFocus&&previous?.isConnected)previous.focus({preventScroll:true});
  }
  function inspect(button,pinned){
-  const detail=flightRewardReceiptDetail(run,button.dataset.receiptDetail);
+  // "+K more": the effect rows that did not fit under the total, as the same tappable rows, in the info dialog.
+  const detail=button.dataset.receiptDetail==='effects-more'
+   ?{kind:'terms',title:'Recorded effects',markup:`<section class="flight-reward-notes">${renderReceiptEffectRows(flightRewardCeremonyReceipt(run).effectEntries.filter((entry,index)=>root.querySelector(`[data-effect="${index}"]`)?.hidden))}</section>`}
+   :flightRewardReceiptDetail(run,button.dataset.receiptDetail);
   if(!detail)return;
   dismiss();
   opener=button;

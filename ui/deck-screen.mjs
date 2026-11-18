@@ -7,26 +7,26 @@
 // This module draws and handles everything that does not change the save. Every real change (equip, swap,
 // take out, Melt, Workshop) goes through the `actions` the app passes in, which call the model's own
 // transactions and then reopen the sheet; the view state object survives that reopen.
-import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=fixes-1';
-import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=fixes-1';
-import {uiIcon} from '../ui-icons.mjs?v=fixes-1';
-import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=fixes-1';
-import {getEquippedCardStatuses} from '../card-status.mjs?v=fixes-1';
-import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=fixes-1';
-import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=fixes-1';
+import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=polish-2';
+import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=polish-2';
+import {uiIcon} from '../ui-icons.mjs?v=polish-2';
+import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=polish-2';
+import {getEquippedCardStatuses} from '../card-status.mjs?v=polish-2';
+import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=polish-2';
+import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=polish-2';
 import {LIFT_KIND, resolveChain, slotInfo, hereLine, fullRuleText, plateWords, whenOf, markOf, TRIGGER_BY, triggerName, RARITY_WORD, rarityOf, nameOf, shortName, isRest, num, METER_MAX, START_FLAME,
-  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=fixes-1';
-import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips, TIMER_MARK} from './trigger-icons.mjs?v=fixes-1';
-import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=fixes-1';
+  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=polish-2';
+import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips, TIMER_MARK} from './trigger-icons.mjs?v=polish-2';
+import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=polish-2';
 import {triggerLabel, triggerTermKey} from '../card-trigger-labels.mjs';
-import {CARD_TERMS} from '../card-terms.mjs?v=fixes-1';
-import {SKILL_CARDS} from '../skill-cards.mjs?v=fixes-1';
-import {isDevourCard} from '../card-black-hole.mjs?v=fixes-1';
-import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=fixes-1';
-import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=fixes-1';
-import {slotInscriptionId, slotInscriptionList, slotEntry} from '../inscriptions.mjs?v=fixes-1';
-import {inscriptionEffect} from '../inscription-on-card.mjs?v=fixes-1';
-import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=fixes-1';
+import {CARD_TERMS} from '../card-terms.mjs?v=polish-2';
+import {SKILL_CARDS} from '../skill-cards.mjs?v=polish-2';
+import {isDevourCard} from '../card-black-hole.mjs?v=polish-2';
+import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=polish-2';
+import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=polish-2';
+import {slotInscriptionId, slotInscriptionList, slotEntry} from '../inscriptions.mjs?v=polish-2';
+import {inscriptionEffect} from '../inscription-on-card.mjs?v=polish-2';
+import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=polish-2';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const SPARK_SRC = SPARK_ICON_SRC;
@@ -265,7 +265,7 @@ function bookPanelHTML(d, view, opts) {
   const rows = triggerBook(d.run), mine = rows.filter(r => r.owned).length;
   const row = r => `<li class="tb-row${r.owned ? '' : ' tb-none'}" data-chip="${esc(r.id)}">
      <span class="tb-icon" aria-hidden="true">${chipIcon(r.id, 32)}</span>
-     <span class="tb-text"><span class="tb-name">${chipTermBtn(r.id, {icon: false, cls: 'tb-term'})}<small class="tb-often">${esc(r.often)}</small></span><span class="tb-does">${esc(r.does)}</span></span>
+     <span class="tb-text"><span class="tb-name">${chipTermBtn(r.id, {icon: false, cls: 'tb-term'})}<small class="tb-often">${esc(r.often)}</small></span><span class="tb-does" title="${esc(r.does)}">${esc(r.short)}</span></span>
      <span class="tb-cards">${r.owned ? r.cards.map(k => `<button type="button" class="dk2-btn tb-card dc-r-${rarityOf(k.card)}${k.inChain ? ' tb-inchain' : ''}" data-uid="${esc(k.card.instanceId)}" aria-label="${esc(`${nameOf(k.card)}, ${RARITY_WORD[rarityOf(k.card)]}${k.count > 1 ? `, ${k.count} owned` : ''}${k.inChain ? ', in your chain' : ''}. Open it`)}">${cardArt(k.card, {compact: true})}${k.count > 1 ? `<b class="tb-count" aria-hidden="true">×${k.count}</b>` : ''}</button>`).join('') : '<small class="tb-nocard">No card yet</small>'}</span></li>`;
   const back = view.bookFrom === 'outside' ? 'Close' : 'Back';
   return `<div class="tb-bar"><button type="button" class="wb-sign wb-sign-quiet tb-back" id="tb-back" aria-label="${back === 'Close' ? 'Close the Triggers' : `Back to the ${view.bookFrom === 'deck' ? 'Deck' : 'Chain'}`}"><span class="wb-sign-text"><b>${back}</b></span></button>

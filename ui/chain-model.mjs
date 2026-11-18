@@ -7,14 +7,14 @@
 // LEFT did to it (an Echo repeating it). Later Boosts and the Encore keep their own plates. Honesty rule: the
 // plates read left to right (+ adds, × multiplies the running figure, Encore repeats the line, each firing
 // rounded up to whole Sparks) must give the resolver's total; when they do not, plates show plain figures.
-import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, getEffectiveCardSources, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=fixes-1';
-import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=fixes-1';
-import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=fixes-1';
+import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, getEffectiveCardSources, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=polish-2';
+import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=polish-2';
+import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=polish-2';
 import {DISPLAY_GROUPS, GROUP_TERM} from '../card-trigger-labels.mjs';
-import {faceTrigger, faceEffect} from '../card-face-lines.mjs?v=fixes-1';
-import {getCardRuleBands} from '../card-rule-bands.mjs?v=fixes-1';
-import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=fixes-1';
-import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=fixes-1';
+import {faceTrigger, faceEffect} from '../card-face-lines.mjs?v=polish-2';
+import {getCardRuleBands} from '../card-rule-bands.mjs?v=polish-2';
+import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=polish-2';
+import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=polish-2';
 
 /** The Triggers in the designer's order, with the game's names and glossary keys (card-terms.mjs). */
 export const TRIGGERS = Object.freeze([
@@ -281,8 +281,12 @@ export const chipOf = c => getCardTrigger(c || {}, SKILL_CARDS[c?.cardId || c?.i
 /** How often each Trigger fires in a flight, in words, from the firing model of scripts/balance/simulate.mjs
  * (Collect 10, Pulse 6, Lift while falling 8 per 30 s flight: often; Delivery 4, Latch 3, Flare 3 (now under Collect), a Flare ending 3, Rhythm 4,
  * Overfill 2, skims 2 to 3, low Lifts a few: a few times; Save, Finish, Pack, Take-off: once). */
+// One short line per Trigger for the compact Triggers tab (the full sentence stays in `does` and in the glossary).
+const BOOK_SHORT = {collect: 'You pick up a Spark or a Flare.', lift: 'You Lift: falling, on the beat, or low.', pulse: 'A Pulse crosses a Spark.', delivery: 'Collector brings you a pickup.',
+  overfill: 'A Spark overfills your meter.', finish: 'You clear a flight.', skim: 'You fly close to terrain.', passive: 'Works the whole time it is mounted.',
+  boost: 'Fires with whatever fires your chain.', repeat: 'Fires when the card to its right fires.'};
 export const TRIGGER_BOOK = Object.freeze(DISPLAY_GROUPS.map(g => Object.freeze({id: g.id, group: g.group, label: g.label, kind: g.kind,
-  does: g.does, often: g.often, term: GROUP_TERM[g.group]})));
+  does: g.does, short: BOOK_SHORT[g.group] || g.does, often: g.often, term: GROUP_TERM[g.group]})));
 /** The Trigger collection for one run: every Trigger, with the player's own cards that use it (a tile per card
  * kind, with a count). `owned` false rows read "No card yet". */
 export function triggerBook(run) {
