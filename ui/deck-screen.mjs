@@ -7,25 +7,25 @@
 // This module draws and handles everything that does not change the save. Every real change (equip, swap,
 // take out, Melt, Workshop) goes through the `actions` the app passes in, which call the model's own
 // transactions and then reopen the sheet; the view state object survives that reopen.
-import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=fast-3';
-import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=fast-3';
-import {uiIcon} from '../ui-icons.mjs?v=fast-3';
-import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=fast-3';
-import {getEquippedCardStatuses} from '../card-status.mjs?v=fast-3';
-import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=fast-3';
-import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=fast-3';
+import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=guide-2';
+import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=guide-2';
+import {uiIcon} from '../ui-icons.mjs?v=guide-2';
+import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=guide-2';
+import {getEquippedCardStatuses} from '../card-status.mjs?v=guide-2';
+import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=guide-2';
+import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=guide-2';
 import {resolveChain, slotInfo, hereLine, plateWords, whenOf, markOf, TRIGGER_BY, triggerName, RARITY_WORD, rarityOf, nameOf, shortName, isRest, num, METER_MAX, START_FLAME,
-  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=fast-3';
-import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=fast-3';
-import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=fast-3';
+  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=guide-2';
+import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=guide-2';
+import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=guide-2';
 import {triggerLabel, triggerTermKey} from '../card-trigger-labels.mjs';
-import {CARD_TERMS} from '../card-terms.mjs?v=fast-3';
-import {SKILL_CARDS} from '../skill-cards.mjs?v=fast-3';
-import {isDevourCard} from '../card-black-hole.mjs?v=fast-3';
-import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=fast-3';
-import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=fast-3';
-import {slotInscriptionId, slotInscriptionList, slotEntry} from '../inscriptions.mjs?v=fast-3';
-import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=fast-3';
+import {CARD_TERMS} from '../card-terms.mjs?v=guide-2';
+import {SKILL_CARDS} from '../skill-cards.mjs?v=guide-2';
+import {isDevourCard} from '../card-black-hole.mjs?v=guide-2';
+import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=guide-2';
+import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=guide-2';
+import {slotInscriptionId, slotInscriptionList, slotEntry} from '../inscriptions.mjs?v=guide-2';
+import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=guide-2';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const SPARK_SRC = SPARK_ICON_SRC;

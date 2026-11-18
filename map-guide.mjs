@@ -1,37 +1,37 @@
-import {OATHS} from './oaths.mjs?v=fast-3';
-import {OBJECTIVE_SPARKS} from './route-bonuses.mjs?v=fast-3';
-import {getBiome} from './biomes.mjs?v=fast-3';
-import {sparkHabitat} from './spark-fields.mjs?v=fast-3';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=fast-3';
-import {landmarkCategory,guardianNames} from './map-landmarks.mjs?v=fast-3';
-import {uiIcon} from './ui-icons.mjs?v=fast-3';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=fast-3';
-import {glowText} from './vitality.mjs?v=fast-3';
+import {OATHS} from './oaths.mjs?v=guide-2';
+import {OBJECTIVE_SPARKS} from './route-bonuses.mjs?v=guide-2';
+import {getBiome} from './biomes.mjs?v=guide-2';
+import {sparkHabitat} from './spark-fields.mjs?v=guide-2';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=guide-2';
+import {landmarkCategory,guardianNames} from './map-landmarks.mjs?v=guide-2';
+import {uiIcon} from './ui-icons.mjs?v=guide-2';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=guide-2';
+import {glowText} from './vitality.mjs?v=guide-2';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Flight length sets its Stored Sparks reward; overflow adds a bonus. Ordinary flights do not offer an Inscription.'),
 treasure:stop('treasure','TREASURE','Treasure','Inspect a chest to see its two offers. Taking one leaves the other behind.'),
 scribe:stop('scribe','SCRIBE','The Scribe','Scribe — choose an Inscription for a slot of your Chain.'),
 rest:stop('rest','REST','Rest','Recover missing hearts or Grow Spark capacity. Both refill Sparks.'),
-encounter:stop('encounter','ENCOUNTER','Encounter','Choose one of two outcomes, all paid at once. Some offer a one-flight wager or a route mark. Preview the stakes before choosing.'),
+encounter:stop('encounter','ENCOUNTER','Encounter','Choose one of two rewards: you get only the one you tap. Card rewards ask which card. Some offer a one-flight wager or a route mark.'),
 boss:stop('boss','ELITE / GUARDIAN','Creature','Small creature: elite. Large head: guardian. Both offer two Inscriptions; choose one to write on your Chain.'),
 });
-// Every event offers two outcomes that are paid at once (dist/event-choices.mjs). The wager events (dist/oaths.mjs) offer a bet on the NEXT flight only.
+// Every event offers two outcomes and the player takes ONE (dist/event-choices.mjs). The wager events (dist/oaths.mjs) offer a bet on the NEXT flight only.
 const wagerPay = id => OBJECTIVE_SPARKS.map(n => n * OATHS[id].multiple).join(' / ');
 const wagerLine = id => OATHS[id].rule + ' Won: +' + wagerPay(id) + ' Stored Sparks by map. Not met: nothing. One flight only.';
 export const EVENT_SCENARIOS=Object.freeze([
-{id:'ash-spring',index:0,name:'Ash Spring',summary:'Drink the spring, or bottle the ash for Stored Sparks.',detail:'Drinking refills your Spark Meter. With a full meter the spring relights a missing heart, or refills one card’s uses instead. The other choice is 20 / 30 / 40 Stored Sparks by map.',reward:'Refill Sparks, a heart or one card’s uses, or Stored Sparks'},
+{id:'ash-spring',index:0,name:'Ash Spring',summary:'Drink the spring, or bottle the ash for Stored Sparks.',detail:'Drinking refills your Spark Meter. With a full meter the spring relights a missing heart, or lets you refill one card’s uses instead. The other choice is 20 / 30 / 40 Stored Sparks by map.',reward:'Refill Sparks, a heart or one card’s uses, or Stored Sparks'},
 {id:'cinder-bargain',index:1,name:'Night’s Ledger',summary:'Wager the next flight at 55% Luminance, or leave freely.',detail:wagerLine('night-ledger'),reward:'Wager: +'+wagerPay('night-ledger')+' Stored Sparks if you clear the next flight'},
 {id:'pilgrim-vow',index:2,name:'Pilgrim’s Vow',summary:'Wager four body Spark pickups on the next flight, or drink the offering.',detail:wagerLine('pilgrim-vow')+' Collector deliveries and Dreams do not count. The other choice restores 6 Sparks.',reward:'Wager: +'+wagerPay('pilgrim-vow')+' Stored Sparks, or restore 6 Sparks'},
-{id:'weathered-shrine',index:3,name:'Weathered Shrine',summary:'Refill one card’s uses, or leave an offering for Stored Sparks.',detail:'The shrine chooses the first card of your Chain that has used some of its uses and refills it, free. The other choice is 20 / 30 / 40 Stored Sparks by map.',reward:'Refill one card’s uses, or Stored Sparks'},
+{id:'weathered-shrine',index:3,name:'Weathered Shrine',summary:'Refill one card’s uses, or leave an offering for Stored Sparks.',detail:'Refill pays off on any card that has used some of its uses: you tap which one, free. The other choice is 20 / 30 / 40 Stored Sparks by map.',reward:'Refill one card’s uses, or Stored Sparks'},
 {id:'surveyors-cairn',index:4,name:'Surveyor’s Cairn',summary:'Prepare one reachable passage, or take light and keep your fork open.',detail:'Mark a linked exit for gentler drafts or more Luminance on its first attempt. Where the path forks, marking one exit commits the route. Falling spends the preparation and reopens a fork. The other choice restores Sparks, or gives Stored Sparks with a full meter.',reward:'A route mark for your next flight, or Sparks'},
-{id:'ember-archive',index:5,name:'The Sparks Archive',summary:'Copy the ledger for Stored Sparks, or take a heart or an upgrade.',detail:'Copying pays 16 Stored Sparks. The other choice relights a missing heart, or with full hearts improves one card (free).',reward:'+16 Stored Sparks, or a heart or one card improved'},
+{id:'ember-archive',index:5,name:'The Sparks Archive',summary:'Copy the ledger for Stored Sparks, or take a heart or an upgrade.',detail:'Copying pays 16 Stored Sparks. The other choice relights a missing heart, or with full hearts lets you improve one card of your choice (free).',reward:'+16 Stored Sparks, or a heart or one card improved'},
 {id:'ember-dice',index:6,name:'Prism Dice',summary:'Take a small sure sum or cast the prism once.',detail:'The sure sum is 10 Stored Sparks. The prism rolls once: faces 1–2 improve one card, 3–4 give a free card, 5–6 give 22 Stored Sparks. With no card to improve, faces 1–2 pay 22 Stored Sparks.',reward:'10 Stored Sparks, or one roll: card improved, free card or 22 Stored Sparks'},
 {id:'lost-lanterns',index:7,name:'The Closed Eye',summary:'Wager the next flight in deep darkness for a large prize, or leave freely.',detail:wagerLine('closed-eye'),reward:'Wager: +'+wagerPay('closed-eye')+' Stored Sparks if you clear the next flight'},
 {id:'wisp-bargain',index:8,name:'The Silent Orbit',summary:'Wager the next flight with shorter Collector reach, or leave freely.',detail:wagerLine('silent-orbit')+' Body pickups keep full value.',reward:'Wager: +'+wagerPay('silent-orbit')+' Stored Sparks if you clear the next flight'},
-{id:'sanctuary',index:9,name:'Quiet Sanctuary',summary:'Restore a missing heart, or refill one card’s uses.',detail:'The first choice relights a missing heart; at full hearts it refills your Spark Meter, or pays Stored Sparks if that is full too. The other choice refills one card’s uses, free.',reward:'A heart or Sparks, or one card’s uses refilled'},
-{id:'workshop',index:10,name:'Lantern Workshop',summary:'Unweave a paid branch for a refund, or improve one card.',detail:'Unweaving removes a skill branch’s paid ranks and refunds their Stored Sparks. Without a useful refund the workshop buys your scrap for Stored Sparks. The other choice improves one card, free.',reward:'A skill refund or Stored Sparks, or one card improved'},
-{id:'companion-shrine',index:11,name:'Companion Shrine',summary:'Improve one card, or salvage the tuning fork for Stored Sparks.',detail:'The first choice improves one card of your Chain, free. The other pays 12 Stored Sparks.',reward:'One card improved, or +12 Stored Sparks'},
+{id:'sanctuary',index:9,name:'Quiet Sanctuary',summary:'Restore a missing heart, or refill one card’s uses.',detail:'The first choice relights a missing heart; at full hearts it refills your Spark Meter, or pays Stored Sparks if that is full too. The other choice refills one card’s uses, free: you tap which card.',reward:'A heart or Sparks, or one card’s uses refilled'},
+{id:'workshop',index:10,name:'Lantern Workshop',summary:'Unweave a paid branch for a refund, or improve one card.',detail:'Unweaving removes a skill branch’s paid ranks and refunds their Stored Sparks. Without a useful refund the workshop buys your scrap for Stored Sparks. The other choice improves one card of your choice, free.',reward:'A skill refund or Stored Sparks, or one card improved'},
+{id:'companion-shrine',index:11,name:'Companion Shrine',summary:'Improve one card, or salvage the tuning fork for Stored Sparks.',detail:'The first choice improves one card you tap, free. The other pays 12 Stored Sparks.',reward:'One card improved, or +12 Stored Sparks'},
 ].map(entry=>Object.freeze(entry)));
 export function getEventScenarios(){return EVENT_SCENARIOS.map(entry=>({...entry}));}
 function kindOf(value){

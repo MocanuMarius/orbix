@@ -1,5 +1,5 @@
-import {getPickupSpec,pickupKind} from './pickups.mjs?v=fast-3';
-import {sparkMass} from './spark-size.mjs?v=fast-3';
+import {getPickupSpec,pickupKind} from './pickups.mjs?v=guide-2';
+import {sparkMass} from './spark-size.mjs?v=guide-2';
 
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const fuel=p=>!p.generated&&!p.harmful?getPickupSpec(p).fuel:0;

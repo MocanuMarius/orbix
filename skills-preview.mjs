@@ -1,5 +1,5 @@
-import {newState,createRun,getSkillWallet,buyCheckpointSkill,chooseStartingSkill} from './model.mjs?v=fast-3';
-import {skillBookMarkup} from './skill-book.mjs?v=fast-3';
+import {newState,createRun,getSkillWallet,buyCheckpointSkill,chooseStartingSkill} from './model.mjs?v=guide-2';
+import {skillBookMarkup} from './skill-book.mjs?v=guide-2';
 
 const book=document.querySelector('#preview-book'),status=document.querySelector('#preview-status');
 const storageLink=()=>new URLSearchParams(location.search).get('chapter')==='packing'||location.hash==='#packing';

@@ -1,5 +1,5 @@
-import {getBiome} from './biomes.mjs?v=fast-3';
-import {biomePalette} from './biome-art.mjs?v=fast-3';
+import {getBiome} from './biomes.mjs?v=guide-2';
+import {biomePalette} from './biome-art.mjs?v=guide-2';
 // Original pixel materials painted inside the simulation's solid prop parts.
 // Animation belongs to the parent transform; these local surfaces stay cached.
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));

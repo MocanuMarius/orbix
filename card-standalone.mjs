@@ -1,6 +1,6 @@
 // Physical card effects listen to real world events; row replay never creates
 // another pickup, bounce, heart-collection mark or final Flare Pulse.
-import {getEffectiveCardSources,CARD_ROW_EVENTS} from './skill-cards.mjs?v=fast-3';
+import {getEffectiveCardSources,CARD_ROW_EVENTS} from './skill-cards.mjs?v=guide-2';
 
 const eligible = e => !!(e.cardExecution && e.running && !e.paused && e.alive && !e.finished &&
   !e.destroyed && !e.dying && !e.completing && !e.tutorial && (!e.dream || e.dream.phase === 'done'));

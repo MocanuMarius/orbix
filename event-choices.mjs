@@ -1,7 +1,7 @@
-import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=fast-3';
-import {isCardRun} from './skill-cards.mjs?v=fast-3';
+import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=guide-2';
+import {isCardRun} from './skill-cards.mjs?v=guide-2';
 
-// Every event is ONE screen with a choice of two outcomes that happen at once: Stored Sparks, a heart, Sparks, a card (the normal claim
+// Every event is ONE screen with two outcomes; the player takes ONE of them (pick 1 of 2, 2026-11-18): Stored Sparks, a heart, Sparks, a card (the normal claim
 // path), one card's uses refilled, or one card improved. The two events that are not immediate on purpose keep their own shape:
 // the wager events (Night's Ledger, The Closed Eye, The Silent Orbit, Pilgrim's Vow: dist/oaths.mjs) and the Marked Passage (it
 // changes the map). Nothing here opens a slot-choice step. Values in descriptions are player-facing; effects use simulation units.
@@ -12,8 +12,11 @@ export const eventSparks=run=>[20,30,40][Math.max(0,Math.min(2,Math.floor(Number
 const sparks=(run,id='event-sparks',title='Pocket the coins',amount=eventSparks(run))=>pick(id,title,'+'+amount+' Stored Sparks. Spend on skills at any time.','packed',{packedReward:amount});
 const heart=()=>pick('rekindle','Relight a lost heart','Restore one missing attempt.','heart',{lives:1});
 const takeCard=run=>isCardRun(run)?pick('free-card','Take a card','A surprise card goes to your Deck.','card',{eventCard:true}):null;
-const improve=target=>target?pick('improve-card','Improve '+target.name,target.kind==='evolution'?`Evolve ${target.name} into ${target.afterName}. Free.`:`${target.name} rises to rank ${target.rank}. Free.`,'card',{improveCard:target.instanceId}):null;
-const refill=target=>target?pick('refill-card','Refill '+target.name,`All uses of ${target.name} return. Free.`,'wick',{refillCard:target.instanceId}):null;
+// A card outcome (improve, refill) is picked on the same screen: the offer says "a card", the player then taps which one
+// (eventCardOptions in model.mjs lists the eligible cards). With none eligible the offer stays on screen, disabled, with its reason.
+const cardOffer=(id,title,description,art,effect,reason,usable)=>usable?pick(id,title,description,art,effect):{...pick(id,title,reason,art,effect),disabled:true,disabledReason:reason};
+const improve=(run,targets)=>isCardRun(run)?cardOffer('improve-card','Improve a card','Choose one card: it rises a rank or evolves. Free.','card',{improveCard:true},'No card can be improved right now.',!!targets.improve):null;
+const refill=(run,targets)=>isCardRun(run)?cardOffer('refill-card','Refill a card','Choose one card: all its uses return. Free.','wick',{refillCard:true},'No card has used any of its uses.',!!targets.refill):null;
 export const hasFutureRest=run=>{
  if(run.mapIndex<2||!run.map?.length)return true;
  const byId=new Map(run.map.flat().map(n=>[n.id,n])),seen=new Set();
@@ -36,19 +39,19 @@ export function eventChoices(run,{refunds=[],targets={}}={}){
  const refuel=(raw,id='bottle',title='Drink the spring')=>pick(id,title,'Recover Sparks. This refill cannot be stored.','energy',{flame:Math.min(room,raw)});
  let list;
  switch(n.kind==='shrine'?3:n.eventIndex){
- case 0: list=[room>=20?refuel(room):injured?heart():refill(targets.refill),sparks(run,'ash-coins','Bottle the ash')];break;
+ case 0: list=[room>=20?refuel(room):injured?heart():refill(run,targets),sparks(run,'ash-coins','Bottle the ash')];break;
  case 1: list=[room>=20?refuel(40,'bargain-safe','Keep the warm coal'):sparks(run),takeCard(run)];break;
- case 3: list=[refill(targets.refill),sparks(run,'shrine-offering','Leave an offering at the shrine')];break;
- case 5: list=[sparks(run,'archive-packed','Copy the star ledger',16),injured?heart():improve(targets.improve)];break;
+ case 3: list=[refill(run,targets),sparks(run,'shrine-offering','Leave an offering at the shrine')];break;
+ case 5: list=[sparks(run,'archive-packed','Copy the star ledger',16),injured?heart():improve(run,targets)];break;
  case 6: list=[sparks(run,'dice-safe','Pocket the sure thing',10),pick('dice-roll','Cast the prism','Roll once. Faces 1–2: one card improved. 3–4: a free card. 5–6: 22 Stored Sparks.','dice',{dice:true})];break;
- case 7: list=[room>=30?refuel(room,'lantern-fuel','Drink the pale lantern'):sparks(run),improve(targets.improve)];break;
+ case 7: list=[room>=30?refuel(room,'lantern-fuel','Drink the pale lantern'):sparks(run),improve(run,targets)];break;
  case 8: list=[takeCard(run),sparks(run)];break;
- case 9: list=[injured?heart():room>=20?refuel(room):sparks(run),refill(targets.refill)];break;
+ case 9: list=[injured?heart():room>=20?refuel(room):sparks(run),refill(run,targets)];break;
  case 10: {
   const best=refunds.filter(x=>x.refund>0).sort((a,b)=>b.refund-a.refund)[0];
-  list=[best&&training?pick('workshop-'+best.root,'Unweave '+best.name,'Remove this branch’s paid ranks. Refund '+best.refund+' Stored Sparks; keep your starting gift.','skills',{respec:best.root}):sparks(run,'workshop-scrap','Sell the scrap'),improve(targets.improve)];break;
+  list=[best&&training?pick('workshop-'+best.root,'Unweave '+best.name,'Remove this branch’s paid ranks. Refund '+best.refund+' Stored Sparks; keep your starting gift.','skills',{respec:best.root}):sparks(run,'workshop-scrap','Sell the scrap'),improve(run,targets)];break;
  }
- case 11: list=[improve(targets.improve),sparks(run,'shrine-packed','Salvage the tuning fork',12)];break;
+ case 11: list=[improve(run,targets),sparks(run,'shrine-packed','Salvage the tuning fork',12)];break;
  default:return null;
  }
  return completeOffers(list,run);

@@ -1,9 +1,9 @@
 /** Configuration hints only. Every numeric verdict comes from a read-only row quote. */
-import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=fast-3';
-import { rowSnapshot, slotInscriptionList } from './inscriptions.mjs?v=fast-3';
-import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=fast-3';
-import { normalizeCompanionFleet } from './companion-abilities.mjs?v=fast-3';
-import { skillProgress } from './skill-increments.mjs?v=fast-3';
+import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=guide-2';
+import { rowSnapshot, slotInscriptionList } from './inscriptions.mjs?v=guide-2';
+import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=guide-2';
+import { normalizeCompanionFleet } from './companion-abilities.mjs?v=guide-2';
+import { skillProgress } from './skill-increments.mjs?v=guide-2';
 
 /** Labels are plain instructions (docs/card-teaching-plan.md §3); `code` is stable for code. */
 const ready = reason => ({ state: 'ready', symbol: '✓', label: 'Ready', code: 'ready', reason, fix: 'Keep this order to use it when its Trigger happens.' });
@@ -46,6 +46,7 @@ function fixtures(context) {
   add(CARD_ROW_EVENTS.victory, {}, { guard: false, recovery: false });
   add(CARD_ROW_EVENTS.clear, {carriedStored:100}, { guard: false, recovery: false });
   if (context.rhythm) add(CARD_ROW_EVENTS.rhythm);
+  if (context.guide) add(CARD_ROW_EVENTS.guideLift);
   if (context.field) for (const direction of ['up', 'down', 'right'])
     add(CARD_ROW_EVENTS.field, { direction, availableRecovery: 10 }, { guard: false, recovery: false });
   if (context.guard) add(CARD_ROW_EVENTS.guard, { availableRecovery: 40 }, { guard: false, recovery: false });
@@ -73,7 +74,7 @@ export function getCardRowTriggerContext(run = {}, native = null) {
   const cards = (Array.isArray(run) ? run : run.mountedCards || run.cards || []).slice(0, 5);
   const base = buildContext(run, native), sources = getEffectiveCardSources(cards);
   const has = kind => sources.some(entry => entry.def.kind === kind);
-  return { ...base, rhythm: has('rhythm'), field: base.collector && (base.field || has('field')),
+  return { ...base, rhythm: has('rhythm'), guide: has('guide'), field: base.collector && (base.field || has('field')),
     guard: base.collector && (base.guard || has('watchlight')), cache: base.collector && (base.cache || has('cache-handling')) };
 }
 

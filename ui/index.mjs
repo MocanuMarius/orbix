@@ -1,9 +1,9 @@
 /** Shared UI catalog. Production code should import only the family it needs. */
-export {escapeHtml,actionAttributes,actionButton} from './primitives.mjs?v=fast-3';
-export * as relics from './relics.mjs?v=fast-3';
-export * as cards from './cards.mjs?v=fast-3';
-export * as route from './route.mjs?v=fast-3';
-export * as menus from './menus.mjs?v=fast-3';
-export * as hud from './hud.mjs?v=fast-3';
-export * as art from './art.mjs?v=fast-3';
-export * as dialogs from './dialogs.mjs?v=fast-3';
+export {escapeHtml,actionAttributes,actionButton} from './primitives.mjs?v=guide-2';
+export * as relics from './relics.mjs?v=guide-2';
+export * as cards from './cards.mjs?v=guide-2';
+export * as route from './route.mjs?v=guide-2';
+export * as menus from './menus.mjs?v=guide-2';
+export * as hud from './hud.mjs?v=guide-2';
+export * as art from './art.mjs?v=guide-2';
+export * as dialogs from './dialogs.mjs?v=guide-2';

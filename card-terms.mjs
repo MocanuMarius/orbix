@@ -1,16 +1,16 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=fast-3';
-import {lifeHeartSvg} from './lives.mjs?v=fast-3';
-import {duskGlyphArt} from './spark-symbol.mjs?v=fast-3';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=fast-3';
-import {glowGaugeUnits} from './glow-ui.mjs?v=fast-3';
-import {getRunModifiers} from './model.mjs?v=fast-3';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=fast-3';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=fast-3';
-import {dreamEye} from './dream.mjs?v=fast-3';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=fast-3';
-import {INSCRIPTIONS} from './inscriptions.mjs?v=fast-3';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=fast-3';
+import { resourceSymbol } from './game-symbols.mjs?v=guide-2';
+import {lifeHeartSvg} from './lives.mjs?v=guide-2';
+import {duskGlyphArt} from './spark-symbol.mjs?v=guide-2';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=guide-2';
+import {glowGaugeUnits} from './glow-ui.mjs?v=guide-2';
+import {getRunModifiers} from './model.mjs?v=guide-2';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=guide-2';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=guide-2';
+import {dreamEye} from './dream.mjs?v=guide-2';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=guide-2';
+import {INSCRIPTIONS} from './inscriptions.mjs?v=guide-2';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=guide-2';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   inscription: ['Inscription', 'An effect written on a Chain slot, not on a card. It stays on the slot when cards move, swap or leave. Some change the card on that slot; some work on any slot, even an empty one. Get one from the Scribe after an Elite or Guardian. One per slot; writing again replaces it.'],
@@ -195,7 +195,7 @@ const CARD_NOTES = Object.freeze({
   'fast-spool': 'Touching a natural passage Spark while a Collector reels shortens one active reel by up to 3 seconds. The longest active reel is chosen. Each successful action spends one of this card’s three uses. Copies spend this card’s uses too. No use is spent when there is no remaining reel time.',
   rhythm: 'All 3 Lifts must succeed and be evenly spaced. You perform them yourself. Extra Rhythm cards still send one Pulse.',
   'camp-kit': 'Keep in your Deck when arriving at Rest to choose 2 different actions. No active slot is needed. Spend the use only after the second action succeeds. Extra Second Ember cards do not add a third action or spend another use.',
-  'lift-guide': 'The amber chevron uses your current fall and Lift impulse. It opens when a Lift can rise back to its starting height, as from level flight. It does not judge terrain; choose when to tap. Extra copies keep one chevron.',
+  'lift-guide': 'The amber chevron uses your current fall and Lift impulse. It opens when a Lift can rise back to its starting height, as from level flight. It does not judge terrain; choose when to tap. A Lift tapped while the chevron is open is on the beat: +1 Spark. Extra copies keep one chevron.',
 });
 
 // Explanatory pictures are captures of the running game, never replacement art.
@@ -463,7 +463,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=fast-3').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=guide-2').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -474,7 +474,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=fast-3').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=guide-2').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

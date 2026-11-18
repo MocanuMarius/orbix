@@ -7,12 +7,12 @@
 // LEFT did to it (an Echo repeating it). Later Boosts and the Encore keep their own plates. Honesty rule: the
 // plates read left to right (+ adds, × multiplies the running figure, Encore repeats the line, each firing
 // rounded up to whole Sparks) must give the resolver's total; when they do not, plates show plain figures.
-import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=fast-3';
-import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=fast-3';
-import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=fast-3';
+import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=guide-2';
+import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=guide-2';
+import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=guide-2';
 import {DISPLAY_GROUPS, GROUP_TERM} from '../card-trigger-labels.mjs';
-import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=fast-3';
-import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=fast-3';
+import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=guide-2';
+import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=guide-2';
 
 /** The Triggers in the designer's order, with the game's names and glossary keys (card-terms.mjs). */
 export const TRIGGERS = Object.freeze([
@@ -24,7 +24,7 @@ export const TRIGGERS = Object.freeze([
 ]);
 export const TRIGGER_BY = Object.freeze(Object.fromEntries(TRIGGERS.map(t => [t.kind, t])));
 // Events a card can wait for that have no tab of their own on the Chain screen (a Flare ending, a Latch, a Swipe).
-const EVENT_LABEL = Object.freeze(Object.fromEntries(Object.values(CARD_TRIGGERS).filter(t => t.event).map(t => [t.event, t.label])));
+const EVENT_LABEL = Object.freeze({...Object.fromEntries(Object.values(CARD_TRIGGERS).filter(t => t.event).map(t => [t.event, t.label])), 'guide-lift': 'Lift'});
 export const triggerName = kind => TRIGGER_BY[kind]?.name || EVENT_LABEL[kind] || 'this Trigger';
 
 export const RARITY_WORD = Object.freeze({common: 'Common', rare: 'Rare', legendary: 'Legendary'});

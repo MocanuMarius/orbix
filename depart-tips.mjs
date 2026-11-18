@@ -21,14 +21,14 @@
 //   devour                      a Devour card is in the Chain (card-black-hole.mjs isDevourCard)
 //   rest-ahead / scribe-ahead   a stop right after this flight is a Rest / a Scribe stop
 //   can-add-slot                the Chain has fewer than five slots
-import {pendingOathId, getOath, oathShort} from './oaths.mjs?v=fast-3';
-import {CARD_CATALOG} from './card-catalog.mjs?v=fast-3';
-import {getBiome} from './biomes.mjs?v=fast-3';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=fast-3';
-import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=fast-3';
-import {onboardingFlightPlan} from './onboarding.mjs?v=fast-3';
-import {isDevourCard} from './card-black-hole.mjs?v=fast-3';
-import {getInscription} from './inscriptions.mjs?v=fast-3';
+import {pendingOathId, getOath, oathShort} from './oaths.mjs?v=guide-2';
+import {CARD_CATALOG} from './card-catalog.mjs?v=guide-2';
+import {getBiome} from './biomes.mjs?v=guide-2';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=guide-2';
+import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=guide-2';
+import {onboardingFlightPlan} from './onboarding.mjs?v=guide-2';
+import {isDevourCard} from './card-black-hole.mjs?v=guide-2';
+import {getInscription} from './inscriptions.mjs?v=guide-2';
 
 export const TIPS = Object.freeze([
  // ── General: fine in any run ──────────────────────────────────────────────────────────────
@@ -45,7 +45,7 @@ export const TIPS = Object.freeze([
  // ── Card-specific: only when that card is equipped ────────────────────────────────────────
  {id:'rhythm-glide',context:'card:rhythm',icon:'beat',headline:'Lift, rise, then glide',text:'In still air, glide back to takeoff height between Lifts. Rhythm needs even gaps.'},
  {id:'rhythm-three',context:'card:rhythm',icon:'beat',headline:'Three even Lifts, one Pulse',text:'Three successful, evenly spaced Lifts send one Pulse. Choose a pace the passage allows.'},
- {id:'lift-guide-chevron',context:'card:lift-guide',icon:'note',headline:'Follow the amber chevron',text:'The chevron marks a Lift that regains height. With sound on, Lift on the higher note.'},
+ {id:'lift-guide-chevron',context:'card:lift-guide',icon:'note',headline:'Follow the amber chevron',text:'Lift while the chevron is open: Lift Guide adds 1 Spark.'},
  {id:'harvest-pulse',context:'card:harvest-common|harvest-rare|harvest-legendary',icon:'pulse',headline:'Harvest the Pulse',text:'Resonant Harvest pays when a Pulse crosses an uncollected Spark. The Spark stays.'},
  {id:'echo-copy',context:'card:echo|echo-ii|echo-iii',icon:'chain',headline:'Echo copies the next card',text:'Echo repeats the card directly to its right, and spends that card’s uses.'},
  {id:'chameleon-borrow',context:'card:chameleon',icon:'chain',headline:'Chameleon borrows the next card',text:'It acts as the card to its right and shares that card’s uses.'},
@@ -69,7 +69,7 @@ export const TIPS = Object.freeze([
  {id:'falling-lift',context:'trigger:falling-lift',icon:'wisp',headline:'Wait, fall, then Lift',text:'Lift while falling: a paid Lift, at least 0.75 s after your last.'},
  {id:'flash-trigger',context:'trigger:flash',icon:'flash',headline:'Collect a Flare',text:'Collecting a Flare triangle fires your Flare cards as well as lighting the passage.'},
  // The Rhythm Trigger only fires from the Rhythm card's three even Lifts, so the card is part of the context.
- {id:'rhythm-trigger',context:'trigger:rhythm&card:rhythm',icon:'beat',headline:'Lift on the beat',text:'Cards that say Lift on the beat fire each time your three even Lifts complete.'},
+ {id:'rhythm-trigger',context:'trigger:rhythm&card:rhythm',icon:'beat',headline:'Lift on the beat',text:'Rhythm’s three even Lifts fire the cards that say Lift on the beat.'},
  // ── Place-specific: biome hints from biomes.mjs, kept to its own wording ──────────────────
  {id:'biome-moonruins',context:'biome:moonruins',icon:'arch',headline:'Loose stones tremble',text:'Cracked masonry shakes, then falls. Do not linger under it.'},
  {id:'biome-frost',context:'biome:frost',icon:'peaks',headline:'Ice melts in your light',text:'Your light melts hanging ice into falling shards. Keep clear below it.'},

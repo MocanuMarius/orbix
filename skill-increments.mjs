@@ -1,4 +1,4 @@
-import {tuneMainDefinition,priceSkillDefinition} from './main-tuning.mjs?v=fast-3';
+import {tuneMainDefinition,priceSkillDefinition} from './main-tuning.mjs?v=guide-2';
 // Separate purchases along a path, not a repeatable stat allocation screen.
 const styles={
  'main-lift':['−2% cost','Lift spends 2% less Sparks.'],

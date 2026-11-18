@@ -1,8 +1,8 @@
 /** Try row is a quote of the equipped row, never a flight or a reward settlement. */
-import {CARD_ROW_EVENTS, SKILL_CARDS, describeSkillCard, previewCardRowEvent, hasCardRowEvent, cleanCardCruisingSpeed} from './skill-cards.mjs?v=fast-3';
-import {rowSnapshot} from './inscriptions.mjs?v=fast-3';
-import {getCardRowCards, getCardRowSource, describeCardRowScenario} from './card-row-help.mjs?v=fast-3';
-import {getCardRowTriggerContext, getCardRowTriggerIssue} from './card-status.mjs?v=fast-3';
+import {CARD_ROW_EVENTS, SKILL_CARDS, describeSkillCard, previewCardRowEvent, hasCardRowEvent, cleanCardCruisingSpeed} from './skill-cards.mjs?v=guide-2';
+import {rowSnapshot} from './inscriptions.mjs?v=guide-2';
+import {getCardRowCards, getCardRowSource, describeCardRowScenario} from './card-row-help.mjs?v=guide-2';
+import {getCardRowTriggerContext, getCardRowTriggerIssue} from './card-status.mjs?v=guide-2';
 
 const n = value => Number((Number(value) || 0).toFixed(3));
 const count = value => Math.max(0, Math.floor(Number(value) || 0));
@@ -10,7 +10,7 @@ const count = value => Math.max(0, Math.floor(Number(value) || 0));
 const labels = {
   [CARD_ROW_EVENTS.body]:'Collect', [CARD_ROW_EVENTS.wave]:'Pulse', [CARD_ROW_EVENTS.flash]:'Flare',
   [CARD_ROW_EVENTS.flashExpiry]:'Flare', [CARD_ROW_EVENTS.lift]:'Lift', [CARD_ROW_EVENTS.overfill]:'Overfill',
-  [CARD_ROW_EVENTS.delivery]:'Delivery', [CARD_ROW_EVENTS.attach]:'Delivery', [CARD_ROW_EVENTS.rhythm]:'Lift',
+  [CARD_ROW_EVENTS.delivery]:'Delivery', [CARD_ROW_EVENTS.attach]:'Delivery', [CARD_ROW_EVENTS.rhythm]:'Lift', [CARD_ROW_EVENTS.guideLift]:'Lift',
   [CARD_ROW_EVENTS.field]:'Swipe', [CARD_ROW_EVENTS.guard]:'Save', [CARD_ROW_EVENTS.clear]:'Finish',
   [CARD_ROW_EVENTS.victory]:'Third Guardian defeated',
 };
