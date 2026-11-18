@@ -1,5 +1,7 @@
 # Autonomous plan — 17 November 2026
 
+> **18 November 2026, evening: this file is history. The current rules, state, release procedure, decided defaults and ordered backlog are in `handoff.md` at the repository root. Read that first; the weekly stop line is 95%.**
+
 The user is away until tomorrow and asked the coordinator to "decide and carry through… don't stop until we achieved all of our goals". This file is the working list, so the work survives a context reset. Update it as items land.
 
 ## Rules while unattended
