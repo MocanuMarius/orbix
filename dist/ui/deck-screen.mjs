@@ -14,7 +14,7 @@ import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=guide
 import {getEquippedCardStatuses} from '../card-status.mjs?v=guide-clarity-1';
 import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=guide-clarity-1';
 import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=guide-clarity-1';
-import {resolveChain, slotInfo, hereLine, plateWords, whenOf, markOf, TRIGGER_BY, triggerName, RARITY_WORD, rarityOf, nameOf, shortName, isRest, num, METER_MAX, START_FLAME,
+import {resolveChain, slotInfo, hereLine, fullRuleText, plateWords, whenOf, markOf, TRIGGER_BY, triggerName, RARITY_WORD, rarityOf, nameOf, shortName, isRest, num, METER_MAX, START_FLAME,
   chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=guide-clarity-1';
 import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=guide-clarity-1';
 import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=guide-clarity-1';
@@ -300,6 +300,7 @@ function readerHTML(d, view, opts) {
      <h2 class="dk-sr" id="dk2-read-name">${esc(nameOf(c))}</h2>
      <p class="dk2-rar dc-r-${r}">${gem(r)}<span>${RARITY_WORD[r]}</span></p>
      ${chipOf(c).label ? `<p class="dk21-on"><small>${chipOf(c).kind === 'role' ? 'Role' : 'Trigger'}</small>${chipTermBtn(chipOf(c).id)}</p>` : ''}
+     ${isRest(c) ? '' : `<p class="dk2-rule">${esc(fullRuleText(c))}</p>`}
      <p class="dk2-here${idle ? ' dk2-here-idle' : ''}">${idle ? `<i class="dk2-warn">${WARN}</i>` : ''}<span>${esc(hereLine(d.chain, c))}</span></p>
      ${at >= 0 && slotInscriptionId(d.run, at) ? inscriptionBlock(at, slotInscriptionId(d.run, at), slotEntry(d.run, at)) : ''}
      </div>

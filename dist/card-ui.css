@@ -1862,3 +1862,16 @@ html body .skill-card .card-rule-condition .card-rule-text{display:flex;align-it
 html body .skill-card .card-rule-condition button.card-term{text-decoration:underline dotted;text-underline-offset:3px;background:none;border:0;box-shadow:none;padding:0;font:inherit;color:inherit!important;white-space:nowrap}
 html body .skill-card .card-rule-effect{font-size:inherit}
 html body .skill-card.card-readable .card-rule-band .card-rule-effect{flex:1 1 auto;justify-content:center;padding-top:4px;padding-bottom:4px}
+
+/* Large card face is always a true 5:7 card (2026-11-18): its height is --card-height, not "as tall as its content", so the frame art
+   (drawn for 5:7, with a 9/200 side opening) lines up with the padding on every rarity and every screen (Deck detail, "?" info,
+   reward reveal, Forge result). The effect line wraps to a second line instead of running past the frame. */
+html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *):not(.card-thumbnail){
+  height:var(--card-height)!important;max-height:none!important;aspect-ratio:5/7!important;
+  width:calc(var(--card-height) * 5 / 7)!important;max-width:100%!important;min-width:0!important;
+}
+html body .skill-card.card-readable:not(#k):not(#k) .card-rule-band .card-rule-effect .card-rule-text,
+html body .skill-card.card-readable:not(#k):not(#k) .card-rule-band .card-mechanic-main{white-space:normal!important;overflow-wrap:break-word;min-width:0;text-align:center}
+html body .skill-card.card-readable:not(#k):not(#k) .card-rule-band .card-rule-effect{min-width:0;justify-content:center;padding-inline:4px}
+html body .skill-card.card-readable:not(#k):not(#k) .card-rule-band .card-rule-condition{min-width:0;padding-inline:4px}
+html body .skill-card.card-readable:not(#k):not(#k) .card-rule-band .card-rule-condition .card-rule-text{flex-wrap:nowrap;overflow:hidden}

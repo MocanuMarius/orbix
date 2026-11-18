@@ -78,3 +78,17 @@ test('every live card, alone in Slot 1: the equipped-card status never says "Can
   }
   assert.deepEqual(bad, []);
 });
+
+test('no released card with a Trigger says "does not fire" in its opened-card line (Overflow Bell fires on Overfill)', async () => {
+  const {chipOf, isRest, fullRuleText} = await import('../dist/ui/chain-model.mjs');
+  const bad = [];
+  for (const d of live) {
+    const c = card(d.id), row = [card('body-spark', 9), card('lift-guide', 8), c], ctx = resolveChain(row, null), line = hereLine(ctx, c), chip = chipOf(c);
+    if (isRest(c) || chip.group === 'passive' || chip.kind === 'none' && !d.engine) continue;
+    if (/does not fire/i.test(line)) bad.push(`${d.id}: ${line}`);
+  }
+  assert.deepEqual(bad, []);
+  const row = [card('body-spark'), card('lift-guide', 1), card('overflow-bell', 2)], ctx = resolveChain(row, 'body-spark');
+  assert.match(hereLine(ctx, row[2]), /^Slot 3: fires on Overfill: sends a Pulse, keeps 2/);
+  assert.match(fullRuleText(row[2]), /Overfill: Sends a Pulse; keeps up to 2 spilled Sparks as Stored/);
+});
