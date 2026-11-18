@@ -45,6 +45,12 @@ import {lanternField} from './lantern-layout.mjs?v=guide-clarity-1';
 import {createLevelSceneryTwo} from './level-scenery-two.mjs?v=guide-clarity-1';
 
 const TAU = Math.PI * 2;
+// ?sky=0 keeps the moon and mist drawn rect by rect (the pre-bake path) for comparison.
+const BAKED_SKY = (() => { try { return new URLSearchParams(globalThis.location?.search || '').get('sky') !== '0'; } catch { return true; } })();
+// Terrain-rim chunk bake: opt-in with ?edges=1 until a frame-rate gain is shown (emulator runs were inconclusive).
+const BAKED_EDGES = (() => { try { return new URLSearchParams(globalThis.location?.search || '').get('edges') === '1'; } catch { return false; } })();
+const EDGE_LIGHT_PROBE = (() => { try { return new URLSearchParams(globalThis.location?.search || '').get('edgelight') === '0'; } catch { return false; } })();
+const EDGE_CHUNK = 256, EDGE_MARGIN = 48;
 const LOW_RES_OUTPUT = (() => { try { return new URLSearchParams(globalThis.location?.search || '').get('lowres') === '1'; } catch { return false; } })();
 const propContactCache=new WeakMap();
 const cross=(ax,ay,bx,by)=>ax*by-ay*bx;
@@ -358,6 +364,7 @@ export class WispFlightView {
     if (this.backgroundCanvas) this.backgroundCanvas.width = this.backgroundCanvas.height = 1;
     this.backgroundCanvas = null; this.backgroundSample = NaN;
     this.releaseBackgroundStrips();
+    this.releaseEdgeChunks?.();
     this.propBounds = new WeakMap();
     this.obstacleCursor = 0; this.lastVisibleDistance = -1;
     this.context.imageSmoothingEnabled = false;
@@ -415,6 +422,14 @@ export class WispFlightView {
     c.globalAlpha = 1;
   }
 
+  mistStrip(ink) {
+    if (this.mistCanvas?.ink === ink) return this.mistCanvas;
+    const canvas = this.mistCanvas ??= this.document.createElement('canvas'); canvas.width = 5 * 80 + 61; canvas.height = 4; canvas.ink = ink;
+    const m = canvas.getContext('2d'); m.clearRect(0, 0, canvas.width, 4); m.fillStyle = ink;
+    for (let patch = 0; patch < 5; patch++) { const x = patch * 80; m.fillRect(x, 0, 61, 1); m.fillRect(x + 7, 1, 46, 2); m.fillRect(x + 18, 3, 28, 1); }
+    return canvas;
+  }
+
   starLayout(W, H) {
     if (this.stars?.W === W && this.stars?.H === H) return this.stars;
     const x = new Int32Array(54), y = new Int32Array(54), seen = new Set(); let batch = true;
@@ -455,10 +470,25 @@ export class WispFlightView {
     }
     const moonX = W * (sceneId === 'chasm' ? .62 : sceneId === 'belfry' ? .30 : .78);
     const moonY = H * (sceneId === 'hanging' || sceneId === 'glass' ? .31 : .16);
-    c.save(); c.globalAlpha = .64;
+    c.save();
+    if (BAKED_SKY) {
+      // The moon never moves: its discs are painted once, with the same alphas, into a layer
+      // drawn as one image (rounding may differ by a level where the two discs overlap).
+      let moon = this.moonLayer;
+      if (!moon || moon.width !== W || moon.height !== H) {
+        moon = this.moonLayer ??= this.document.createElement('canvas'); moon.width = W; moon.height = H;
+        const m = moon.getContext('2d'); m.globalAlpha = .64;
+        pixelDisc(m, Math.round(moonX), Math.round(moonY), sceneId === 'chasm' ? 26 : 15, '#8e9b91');
+        if (sceneId !== 'chasm') pixelDisc(m, Math.round(moonX + 5), Math.round(moonY - 3), 13, palette.sky[0]);
+        else { m.globalAlpha = .32; pixelDisc(m, Math.round(W * .28), Math.round(H * .26), 9, '#9aa5b0'); }
+      }
+      c.globalAlpha = 1; c.drawImage(moon, 0, 0);
+    } else {
+    c.globalAlpha = .64;
     pixelDisc(c, Math.round(moonX), Math.round(moonY), sceneId === 'chasm' ? 26 : 15, '#8e9b91');
     if (sceneId !== 'chasm') pixelDisc(c, Math.round(moonX + 5), Math.round(moonY - 3), 13, palette.sky[0]);
     else { c.globalAlpha = .32; pixelDisc(c, Math.round(W * .28), Math.round(H * .26), 9, '#9aa5b0'); }
+    }
     c.globalAlpha = 1;
     if (strips) for (const strip of strips.layers) c.drawImage(strip.canvas, strip.x - (scroll - sample), 0);
     else c.drawImage(this.backgroundCanvas, -pad - (scroll - sample), 0);
@@ -570,6 +600,11 @@ export class WispFlightView {
       const y = Math.round(H * (start + layer * spacing));
       const shift = (distance * (.012 + layer * .007) + (e.reducedMotion ? 0 : t * 1.4)) % 80;
       c.globalAlpha = .055 + layer * .012; c.fillStyle = palette.mist;
+      if (BAKED_SKY) {
+        // One baked strip of the 80 px pattern per colour, drawn with the layer's alpha (same single paint per pixel).
+        const strip = this.mistStrip(palette.mist), x0 = Math.round(-shift) - 80;
+        c.drawImage(strip, x0, y); continue;
+      }
       for (let patch = -1; patch < 4; patch++) {
         const x = Math.round(patch * 80 - shift);
         c.fillRect(x, y, 61, 1); c.fillRect(x + 7, y + 1, 46, 2); c.fillRect(x + 18, y + 3, 28, 1);
@@ -1060,14 +1095,57 @@ export class WispFlightView {
   // v1.1 edge light: the contact rim is a soft catch-light, strongest inside
   // the wisp's own light and settling to a calm floor elsewhere, never a
   // uniform white wire. One place for every biome; deterministic per frame.
-  compositeEdgeLight(edge, c, e) {
+  // Baked terrain rims: every segment overlapping a chunk of EDGE_CHUNK buffer pixels (plus a margin,
+  // so lines enter the chunk on the same pixels) is painted once into that chunk with the same raster
+  // code, then copied to a GPU canvas. Per frame each visible chunk is one drawImage of its core.
+  edgeChunksUsable(e, distance) {
+    for (const o of this.visibleObstacles) if (o.motion || o.bossPhase) return false;
+    return !e.spacetime?.revision;
+  }
+
+  drawEdgeChunks(g, e, distance, t) {
+    const s = this.scale, H = this.buffer.height, W = this.buffer.width, camera = Math.round(distance * s);
+    const cache = this.edgeChunkCache ??= new Map();
+    if (cache.heightKey !== H + ':' + s) { this.releaseEdgeChunks(); cache.heightKey = H + ':' + s; }
+    const first = Math.floor(camera / EDGE_CHUNK), last = Math.floor((camera + W) / EDGE_CHUNK);
+    for (let k = first; k <= last; k++) {
+      let chunk = cache.get(k);
+      if (!chunk) {
+        chunk = this.bakeEdgeChunk(e, k, t); cache.set(k, chunk);
+        while (cache.size > 16) { const old = cache.keys().next().value; const o = cache.get(old); if (o) o.width = o.height = 1; cache.delete(old); }
+      } else { cache.delete(k); cache.set(k, chunk); }
+      g.drawImage(chunk, EDGE_MARGIN, 0, EDGE_CHUNK, H, k * EDGE_CHUNK - camera, 0, EDGE_CHUNK, H);
+    }
+  }
+
+  bakeEdgeChunk(e, k, t) {
+    const s = this.scale, H = this.buffer.height, width = EDGE_CHUNK + EDGE_MARGIN * 2, startPx = k * EDGE_CHUNK - EDGE_MARGIN;
+    const raster = this.edgeBakeRaster ??= new ContactEdgeRaster(this.document);
+    raster.begin(width, H);
+    // A view of the engine whose camera sits at the chunk's left edge and whose width is the chunk:
+    // the same code draws only this chunk's segments, at the pixels the full view would use.
+    const view = Object.create(e, { width: { value: width / s }, renderDistance: { value: startPx / s }, distance: { value: startPx / s } });
+    drawTerrainBoundary(raster, view, { scale: s, distance: startPx / s, time: t, line: pixelLine });
+    const out = this.document.createElement('canvas'); out.width = width; out.height = H;
+    raster.composite(out.getContext('2d'));
+    return out;
+  }
+
+  releaseEdgeChunks() {
+    for (const chunk of this.edgeChunkCache?.values() || []) if (chunk) chunk.width = chunk.height = 1;
+    this.edgeChunkCache?.clear();
+  }
+
+  compositeEdgeLight(edge, c, e, chunks = null) {
     if (e.options?.legacyLook === true) { edge.composite(c); return; }
     const W = this.buffer.width, H = this.buffer.height, s = this.scale;
     const layer = this.edgeLayer ??= this.document.createElement('canvas');
     if (layer.width !== W || layer.height !== H) { layer.width = W; layer.height = H; }
     const g = this.edgeLayerContext ??= layer.getContext('2d');
     g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, W, H);
+    chunks?.(g);
     edge.composite(g);
+    if (EDGE_LIGHT_PROBE) { c.globalAlpha = EDGE_LIGHT.peak; c.drawImage(layer, 0, 0); c.globalAlpha = 1; return; } // ?edgelight=0: measurement probe only
     const strength = this.edgeStrength ??= this.document.createElement('canvas');
     if (strength.width !== W || strength.height !== H) { strength.width = W; strength.height = H; }
     const m = this.edgeStrengthContext ??= strength.getContext('2d');
@@ -1395,10 +1473,13 @@ export class WispFlightView {
     if(e.boundaryStyle==='spectral'&&this.edgeRasterEnabled!==false){
       const edge=this.contactEdgeRaster??=new ContactEdgeRaster(this.document);
       edge.begin(this.buffer.width,this.buffer.height);
-      drawTerrainBoundary(edge,e,{scale:s,distance,time:t,line:pixelLine});
+      // Terrain rims are static art: baked per course chunk and drawn as images (see edgeChunks).
+      // Moving geometry, the design lab's legacy look and ?edges=0 keep the per-frame raster.
+      const baked=BAKED_EDGES&&e.options?.legacyLook!==true&&this.edgeChunksUsable(e,distance);
+      if(!baked)drawTerrainBoundary(edge,e,{scale:s,distance,time:t,line:pixelLine});
       this.bufferContext=edge;
       try { this.drawScenePropContacts(e,t,distance); } finally { this.bufferContext=c; }
-      this.compositeEdgeLight(edge, c, e);
+      this.compositeEdgeLight(edge, c, e, baked?g=>this.drawEdgeChunks(g,e,distance,t):null);
     }else{
       drawTerrainBoundary(c,e,{scale:s,distance,time:t,line:pixelLine});
       this.drawScenePropContacts(e,t,distance);
@@ -1482,6 +1563,7 @@ export class WispFlightView {
     releaseTerrainBoundaryFrame(this.engine);
     releaseTerrainForeground(this.engine);
     this.contactEdgeRaster?.destroy();this.contactEdgeRaster=null;
+    this.releaseEdgeChunks();this.edgeBakeRaster?.destroy();this.edgeBakeRaster=null;
     this.lightGpu?.destroy();this.lightGpu=null;
     if (this.engine.canvas.style) this.engine.canvas.style.opacity = this.originalOpacity;
     this.canvas?.remove();
@@ -1498,6 +1580,8 @@ export class WispFlightView {
     if (this.maskCanvas) this.maskCanvas.width = this.maskCanvas.height = 1;
     if (this.forwardMaskCanvas) this.forwardMaskCanvas.width=this.forwardMaskCanvas.height=1;
     if (this.skyCanvas) this.skyCanvas.width = this.skyCanvas.height = 1;
+    for (const layer of [this.moonLayer, this.mistCanvas, this.wakeLayer]) if (layer) layer.width = layer.height = 1;
+    this.moonLayer = this.mistCanvas = this.wakeLayer = null;
     if (this.backgroundCanvas) this.backgroundCanvas.width = this.backgroundCanvas.height = 1;
     this.backgroundCanvas = this.backgroundContext = null;
     this.releaseBackgroundStrips();
