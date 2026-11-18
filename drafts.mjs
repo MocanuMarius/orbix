@@ -1,7 +1,7 @@
 // One-shot, world-anchored air pockets. Reading a puff never advances it.
-import { LEVEL_LENGTH } from './level-length.mjs?v=forge-1';
-import { scenePropBounds } from './scene-props.mjs?v=forge-1';
-import {stormZoneState} from './storm-encounter.mjs?v=forge-1';
+import { LEVEL_LENGTH } from './level-length.mjs?v=evolve-1';
+import { scenePropBounds } from './scene-props.mjs?v=evolve-1';
+import {stormZoneState} from './storm-encounter.mjs?v=evolve-1';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => { const t = clamp(n, 0, 1); return t * t * (3 - 2 * t); };
 export const DRAFT_TUNING = Object.freeze({ warning: 1.15, duration: 1.65, fade: .35,

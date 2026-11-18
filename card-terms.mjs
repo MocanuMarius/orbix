@@ -1,16 +1,16 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=forge-1';
-import {lifeHeartSvg} from './lives.mjs?v=forge-1';
-import {duskGlyphArt} from './spark-symbol.mjs?v=forge-1';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=forge-1';
-import {glowGaugeUnits} from './glow-ui.mjs?v=forge-1';
-import {getRunModifiers} from './model.mjs?v=forge-1';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=forge-1';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=forge-1';
-import {dreamEye} from './dream.mjs?v=forge-1';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=forge-1';
-import {INSCRIPTIONS} from './inscriptions.mjs?v=forge-1';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=forge-1';
+import { resourceSymbol } from './game-symbols.mjs?v=evolve-1';
+import {lifeHeartSvg} from './lives.mjs?v=evolve-1';
+import {duskGlyphArt} from './spark-symbol.mjs?v=evolve-1';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=evolve-1';
+import {glowGaugeUnits} from './glow-ui.mjs?v=evolve-1';
+import {getRunModifiers} from './model.mjs?v=evolve-1';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=evolve-1';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=evolve-1';
+import {dreamEye} from './dream.mjs?v=evolve-1';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=evolve-1';
+import {INSCRIPTIONS} from './inscriptions.mjs?v=evolve-1';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=evolve-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   inscription: ['Inscription', 'An effect written on a Chain slot, not on a card. It stays on the slot when cards move, swap or leave. Some change the card on that slot; some work on any slot, even an empty one. Get one from the Scribe after an Elite or Guardian. One per slot; writing again replaces it.'],
@@ -180,8 +180,8 @@ const CARD_NOTES = Object.freeze({
   'harvest-rare': 'The Pulse must cross an uncollected fuel pickup already in the passage. Pickups created by powers do not count. This refills your meter without collecting the Spark or adding packing rewards.',
   'harvest-legendary': 'The Pulse must cross an uncollected fuel pickup already in the passage. Pickups created by powers do not count. The meter refill does not collect it or add packing rewards. The extra Stored Spark is awarded once per Pulse, at its first crossing, even if the meter is full.',
   'flash-handling': 'Either your wisp or Collector picking up Flare is Collect a Flare: each Flare Handling in your chain, or copy of one, gives +6 Sparks, and a Boost to its right strengthens it. Collector makes one pickup; the meter cannot go above its maximum.',
-  'growth-seed-common': 'Keep in your Deck to unlock Grow at Rest. You hold only one Growth Seed: any Seed you gain merges into it, adds its amount and the best rarity shows. Each owned Seed adds its printed maximum Sparks, up to +90 total. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Common to Rare for 25 Stored Sparks, then Rare to Legendary for 150.',
-  'growth-seed': 'Keep in your Deck to unlock Grow at Rest. You hold only one Growth Seed: any Seed you gain merges into it, adds its amount and the best rarity shows. Each owned Seed adds its printed maximum Sparks, up to +90 total. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Rare to Legendary for 150 Stored Sparks.',
+  'growth-seed-common': 'Keep in your Deck to unlock Grow at Rest. You hold only one Growth Seed: any Seed you gain merges into it, adds its amount and the best rarity shows. Each owned Seed adds its printed maximum Sparks, up to +90 total. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Common to Rare for the current Rare Forge price, then Rare to Legendary for the current Legendary Forge price.',
+  'growth-seed': 'Keep in your Deck to unlock Grow at Rest. You hold only one Growth Seed: any Seed you gain merges into it, adds its amount and the best rarity shows. Each owned Seed adds its printed maximum Sparks, up to +90 total. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Rare to Legendary for the current Legendary Forge price.',
   'growth-seed-legendary': 'Keep in your Deck to unlock Grow at Rest. You hold only one Growth Seed: any Seed you gain merges into it, adds its amount and the best rarity shows. Each owned Seed adds its printed maximum Sparks, up to +90 total: +8 at rank 1, +9 at rank 2 and +10 at rank 3. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts.',
   'tight-packing': CARD_TERMS['packing-efficiency'][1],
   'tight-packing-ii': CARD_TERMS['packing-efficiency'][1],
@@ -461,7 +461,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=forge-1').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=evolve-1').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -472,7 +472,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=forge-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=evolve-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

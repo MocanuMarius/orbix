@@ -1,9 +1,9 @@
 /** Three stills from an isolated flight: the same natural Cache, three events. */
-import {WispFlight} from './flight.mjs?v=forge-1';
-import {cardAmount, getCardModifiers, makeSkillCard, SKILL_CARDS} from './skill-cards.mjs?v=forge-1';
-import {getPickupSpec, pickupKind} from './pickups.mjs?v=forge-1';
-import {glowPoints} from './vitality.mjs?v=forge-1';
-import {wispHome} from './wisp.mjs?v=forge-1';
+import {WispFlight} from './flight.mjs?v=evolve-1';
+import {cardAmount, getCardModifiers, makeSkillCard, SKILL_CARDS} from './skill-cards.mjs?v=evolve-1';
+import {getPickupSpec, pickupKind} from './pickups.mjs?v=evolve-1';
+import {glowPoints} from './vitality.mjs?v=evolve-1';
+import {wispHome} from './wisp.mjs?v=evolve-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const views = ['touch','deliver','cross'];
@@ -22,7 +22,7 @@ function exampleCard(card) {
 function loadStyles(doc) {
   if(doc.querySelector('link[data-cache-help-styles]'))return;
   const link=doc.createElement('link');
-  link.rel='stylesheet';link.href=new URL('./cache-card-help.css?v=forge-1',import.meta.url).href;
+  link.rel='stylesheet';link.href=new URL('./cache-card-help.css?v=evolve-1',import.meta.url).href;
   link.dataset.cacheHelpStyles='';doc.head.append(link);
 }
 

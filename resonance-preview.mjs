@@ -1,8 +1,8 @@
-import {createMusic} from './music.mjs?v=forge-1';
+import {createMusic} from './music.mjs?v=evolve-1';
 
-import {createFlightFX} from './reactive-fx.mjs?v=forge-1';
+import {createFlightFX} from './reactive-fx.mjs?v=evolve-1';
 
-import {LuminanceWaves} from './luminance-waves.mjs?v=forge-1';
+import {LuminanceWaves} from './luminance-waves.mjs?v=evolve-1';
 
 // Deliberately isolated: the audition never reads or writes a saved game.
 

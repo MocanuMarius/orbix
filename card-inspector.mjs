@@ -1,9 +1,9 @@
 // A disposable deck for phone inspection. Never reads or writes a player save.
-import { newState, createRun, advanceMap, getSupportChoices, getChoices, selectNode, beginFlightAttempt, markFlightAttemptStarted, finishFlight, settleCheckpoint } from './model.mjs?v=forge-1';
-import { makeSkillCard, describeSkillCard } from './skill-cards.mjs?v=forge-1';
-import { grantTreasureGift } from './treasure.mjs?v=forge-1';
-import { cleanSlotInscriptions, writeInscription, INSCRIPTIONS } from './inscriptions.mjs?v=forge-1';
-import { ROUTE_BONUSES } from './route-bonuses.mjs?v=forge-1';
+import { newState, createRun, advanceMap, getSupportChoices, getChoices, selectNode, beginFlightAttempt, markFlightAttemptStarted, finishFlight, settleCheckpoint } from './model.mjs?v=evolve-1';
+import { makeSkillCard, describeSkillCard } from './skill-cards.mjs?v=evolve-1';
+import { grantTreasureGift } from './treasure.mjs?v=evolve-1';
+import { cleanSlotInscriptions, writeInscription, INSCRIPTIONS } from './inscriptions.mjs?v=evolve-1';
+import { ROUTE_BONUSES } from './route-bonuses.mjs?v=evolve-1';
 
 export function prepareCardInspectorReward(run, cardId = 'harvest-rare', objective = 'gilded') {
   if (run.cardReward && !run.cardReward.uiAcknowledged) return;

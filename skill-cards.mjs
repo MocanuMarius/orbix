@@ -1,10 +1,10 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=forge-1";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=evolve-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=forge-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=forge-1';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=forge-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=evolve-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=evolve-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=evolve-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -15,9 +15,8 @@ export const CARD_ECONOMY = Object.freeze({
   forge: { common: 15, rare: 40, legendary: 150 },
   forgeGrowth: 2,
   improve: { common: 15, rare: 25, legendary: 40 },
-  // Evolving into a Legendary costs the first Legendary forge (2026-11-17), so a Common
-  // Prism Lens is no cheap road to Prism Lens II.
-  evolve: { rare: 25, legendary: 150 },
+  // Evolve has no price of its own (2026-11-18): evolving into a rarity costs that rarity's current Forge price
+  // and counts as a Forge of it (run.cardForgeTally), so Forge and Evolve share one price track per rarity.
   maxSlots: 5,
   maxEffectiveSources: 9,
   maxPackingWeight: 36,
