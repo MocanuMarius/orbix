@@ -1,7 +1,7 @@
-import {artifactRarityLabel} from '../replay-ui.mjs?v=calm-2';
-import {artifactLimitSummary,effectMarkup} from '../artifact-copy.mjs?v=calm-2';
-import {artifactIcon} from '../upgrade-icons.mjs?v=calm-2';
-import {escapeHtml as esc,actionButton} from './primitives.mjs?v=calm-2';
+import {artifactRarityLabel} from '../replay-ui.mjs?v=gpu-1';
+import {artifactLimitSummary,effectMarkup} from '../artifact-copy.mjs?v=gpu-1';
+import {artifactIcon} from '../upgrade-icons.mjs?v=gpu-1';
+import {escapeHtml as esc,actionButton} from './primitives.mjs?v=gpu-1';
 
 // Two layout recipes share the same identity and rule decisions. Existing
 // production classes remain the styling API while the surfaces migrate here.

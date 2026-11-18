@@ -1,6 +1,6 @@
-import {flashPowerupDuration} from './pickups.mjs?v=calm-2';
-import {resourceCycleSteps} from './resource-cycle.mjs?v=calm-2';
-import {LANTERN_THEME} from './map-theme.mjs?v=calm-2';
+import {flashPowerupDuration} from './pickups.mjs?v=gpu-1';
+import {resourceCycleSteps} from './resource-cycle.mjs?v=gpu-1';
+import {LANTERN_THEME} from './map-theme.mjs?v=gpu-1';
 // First-run lessons (Edition 5 tutorial, 18 November 2026): in a player's first two card runs, one paused card the first
 // time they meet something First Light did not reach. Menu screens only (never in flight), at most one per checkpoint,
 // each once per profile (onboarding.seen), and only while automatic tips are on.

@@ -1,6 +1,6 @@
-import {createNearLandscape,drawNearLandscapePlates} from './near-landscape.mjs?v=calm-2';
-import {prepareWildlife} from './habitat-wildlife.mjs?v=calm-2';
-import {makeCourseTableaux,drawCourseTableaux} from './course-tableaux.mjs?v=calm-2';
+import {createNearLandscape,drawNearLandscapePlates} from './near-landscape.mjs?v=gpu-1';
+import {prepareWildlife} from './habitat-wildlife.mjs?v=gpu-1';
+import {makeCourseTableaux,drawCourseTableaux} from './course-tableaux.mjs?v=gpu-1';
 // Artwork by Luis Zuno / Ansimuz. Source packs and licences are listed in
 // nature-credits.html and assets/nature/licenses/. Prepared once per document.
 const artFiles = {
@@ -227,4 +227,4 @@ function drawGeologicalRelief(c,{identity,width,height,surface,top,seed,tone}){
 }
 
 // Nearest-camera cut-paper land is shared by both flight renderers.
-export {drawTerrainForeground,releaseTerrainForeground} from './terrain-foreground.mjs?v=calm-2';
+export {drawTerrainForeground,releaseTerrainForeground} from './terrain-foreground.mjs?v=gpu-1';

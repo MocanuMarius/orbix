@@ -6,7 +6,7 @@
 // run.cardHistory. Practice and tutorial runs are not card runs, so Black Hole is inert there; it never eats a loaned
 // practice card in any case. Resolved left to right with the Use Doubler at real flight entry (model.mjs ›
 // markFlightAttemptStarted), never by a preview, a Dream rehearsal or a retry of the same attempt.
-import {SKILL_CARDS, CARD_ECONOMY, isCardRun, describeSkillCard, recordCardEvent} from './skill-cards.mjs?v=calm-2';
+import {SKILL_CARDS, CARD_ECONOMY, isCardRun, describeSkillCard, recordCardEvent} from './skill-cards.mjs?v=gpu-1';
 
 // Devour (docs/card-proposals.md section 11): at real flight entry the card destroys the card to its right and grows by
 // an amount set by the eaten card's rarity. The growth is stored on the devouring instance (eaten, eatenGrowth), counts

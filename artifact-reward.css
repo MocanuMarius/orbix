@@ -1,4 +1,4 @@
-@import url('./ui/acquired-reward.css?v=calm-2');
+@import url('./ui/acquired-reward.css?v=gpu-1');
 /* Relic reward screens · v2.5-theme (kit: ui/waystone.css; shared page and header pieces: artifact-collection.css).
    One paper page (the kit's page art, named directly because this stylesheet is outside dist/ui/), the earned
    chip as a leather plaque, Full rules leather, Take artifact and Continue moss. Offers are plain paper panels,
@@ -96,7 +96,6 @@ html body :is(.route-entry-rest,.route-consequences b,.wallet-rest-marker,.skill
 /* The tag: "Card" / "Slot" (glossary links) or how long a temporary one lasts. */
 .scribe-screen .ins-tag{display:inline-flex;align-items:center;min-height:20px;padding:0 6px;box-sizing:border-box;border:2px solid #6b5335;font:400 12px/16px var(--pixel,monospace);color:#2a2118;letter-spacing:1px}
 .scribe-screen .scribe-standalone .ins-tag,.scribe-screen .scribe-chosen.scribe-standalone .ins-tag{border-color:#536430}
-.scribe-screen .ins-tag-temp{border-color:#a4561f;border-style:dashed;color:#6b3410}
 html body .scribe-screen .ins-tag .card-term{min-height:0;padding:0;border:0;background:none!important;box-shadow:none;color:inherit!important;font:inherit;letter-spacing:inherit;text-decoration:underline dotted;text-underline-offset:3px}
 /* One keyword line on the dark plaque (light text, about 12:1); linked words keep the text colour, dotted underline only. */
 .scribe-screen .scribe-rule,.scribe-screen .scribe-confirm p{margin:0;align-self:stretch;padding:6px 8px;box-sizing:border-box;background:#2a2118;color:#f6ebcc;border:2px solid #6b5335;font:400 15px/19px var(--pixel,monospace);text-align:left;overflow-wrap:anywhere}
@@ -110,8 +109,6 @@ html body .scribe-screen :is(.scribe-rule,.scribe-confirm p,.ins-tag) .card-term
 .scribe-screen .scribe-chosen-id>div{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0}
 .scribe-screen .scribe-chosen .scribe-rule{font-size:14px;line-height:17px}
 .scribe-screen .scribe-chosen .scribe-back{margin-top:auto;align-self:stretch;min-height:44px;flex:none}
-.scribe-screen .scribe-temporary{border-color:#a4561f;border-style:dashed}
-.scribe-screen .scribe-mark-temp{padding:2px;border:2px dashed #a4561f}
 .scribe-screen .scribe-source{font:400 12px/15px var(--pixel,monospace);color:#6b3410;overflow-wrap:anywhere}
 .scribe-screen .scribe-slots{flex:1 1 0;min-width:0;min-height:0;display:grid;grid-template-columns:repeat(var(--slots,3),minmax(0,1fr));gap:6px}
 .scribe-screen .scribe-slot{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;min-width:0;min-height:0;margin:0;padding:6px 4px;box-sizing:border-box;border:2px solid #6b5335;background:#e8d6a4;color:#2a2118;text-align:center;font:400 13px/15px var(--pixel,monospace);cursor:pointer;overflow:hidden}
@@ -202,7 +199,6 @@ html body .ins-write .iw-head .iw-write{flex:0 0 auto!important;width:auto!impor
 .ins-write .iw-brand-help::before{content:"";position:absolute;inset:-6px -2px}
 .ins-write .iw-brand-help>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:underline dotted;text-underline-offset:3px}
 .ins-write .iw-brand-new .iw-brand-help{color:#1f3a14}
-.ins-write .iw-brand-temp .ins-glyph{outline:2px dashed #a4561f;outline-offset:-1px}
 .ins-write .iw-old{display:block;max-width:100%;color:#7a2f2a;font:400 11px/13px var(--pixel,monospace);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ins-write .iw-result{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:100%;padding:1px 3px;box-sizing:border-box;background:#2a2118;color:#f6ebcc;font:400 11px/13px var(--pixel,monospace);overflow-wrap:anywhere}
 .ins-write .iw-result.iw-warn{background:#7a2f2a;color:#fff1c5}

@@ -1,4 +1,4 @@
-@import url('./ui/reliquary.css?v=calm-2');
+@import url('./ui/reliquary.css?v=gpu-1');
 
 .collection-dock{display:flex;align-items:center;gap:7px;margin:0!important;min-height:44px}.collection-dock>svg{width:28px;height:28px}.collection-dock>span{font:12px/1.2 var(--pixel)}
 .collection-dock>svg{width:28px;height:28px}@media(orientation:landscape) and (max-height:350px){.collection-dock>svg{width:22px;height:22px}}

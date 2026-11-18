@@ -7,13 +7,13 @@
 // scripts/course-design/pilot-courses.mjs, without its look-ahead search so the pilot costs almost nothing), cannot be
 // lost (hits and deaths are ignored, the meter is kept up), and never touches the run or the save: it builds its own
 // WispFlight from a local run object, writes no storage, gives no rewards and starts no tutorial.
-import {WispFlight} from './flight.mjs?v=calm-2';
-import {attachAutopilot} from './flight-autopilot.mjs?v=calm-2';
-import {BIOME_LEVELS} from './biomes.mjs?v=calm-2';
-import {getRunModifiers} from './model.mjs?v=calm-2';
-import {CARD_SYSTEM,makeSkillCard} from './skill-cards.mjs?v=calm-2';
-import {createFpsCounter} from './fps-counter.mjs?v=calm-2';
-import {createCardRowFeedback} from './card-row-feedback.mjs?v=calm-2';
+import {WispFlight} from './flight.mjs?v=gpu-1';
+import {attachAutopilot} from './flight-autopilot.mjs?v=gpu-1';
+import {BIOME_LEVELS} from './biomes.mjs?v=gpu-1';
+import {getRunModifiers} from './model.mjs?v=gpu-1';
+import {CARD_SYSTEM,makeSkillCard} from './skill-cards.mjs?v=gpu-1';
+import {createFpsCounter} from './fps-counter.mjs?v=gpu-1';
+import {createCardRowFeedback} from './card-row-feedback.mjs?v=gpu-1';
 
 // Phases: 10 s ramp (the build on its own), 35 s peak (Flares back to back, card Pulses every 0.25 s on top of
 // Rhythm, Bell and Spillway, Black Hole, Guardian), 10 s tail (injections stop).
@@ -50,7 +50,7 @@ export function createStressEngine(canvas,{scene=STRESS_SCENE,reducedMotion=fals
   return engine;
 }
 
-export {safeBands} from './flight-autopilot.mjs?v=calm-2';
+export {safeBands} from './flight-autopilot.mjs?v=gpu-1';
 
 /** Attaches the timeline, autopilot and invulnerability to an engine. Returns {phase(), stats}. */
 export function scriptStressScene(engine,scene=STRESS_SCENE){
@@ -76,8 +76,8 @@ export function scriptStressScene(engine,scene=STRESS_SCENE){
 }
 
 // ---- results --------------------------------------------------------------------------------------------------
-export {summarizeFrames} from './flight-autopilot.mjs?v=calm-2';
-import {summarizeFrames} from './flight-autopilot.mjs?v=calm-2';
+export {summarizeFrames} from './flight-autopilot.mjs?v=gpu-1';
+import {summarizeFrames} from './flight-autopilot.mjs?v=gpu-1';
 const version=()=>{try{return new URL(import.meta.url).searchParams.get('v')||'dev';}catch{return 'dev';}};
 export function stressSummaryLine(r){
   return `Wispbound stress ${r.scene} · ${r.avgFps} fps avg · 1% low ${r.low1Fps} · min ${r.minFps} · >33ms ${r.over33} · >50ms ${r.over50} · longest ${r.longestMs} ms · peak ${r.phases?.peak?.avgFps??'-'} fps · ${r.renderer} · DPR ${r.dpr} · ${r.viewport} · ${r.version}`;
@@ -117,17 +117,21 @@ export async function runStressScene({document=globalThis.document,host=null,sce
   const script=scriptStressScene(engine,scene);
   const baseRender=engine.render;engine.render=function(){fps.frame(performance.now());return baseRender.apply(this,arguments);};
   await engine.ready;
-  const gaps=[],phases={ramp:[],peak:[],tail:[]};let last=0,raf=0,stopped=false;
+  const gaps=[],phases={ramp:[],peak:[],tail:[]};let last=0,raf=0,stopped=false,hiddenMs=0,pausedFrames=0,resumes=0;
   const total=scene.ramp+scene.peak+scene.tail;
   const result=await new Promise(resolve=>{
     const finish=()=>{if(stopped)return;stopped=true;cancelAnimationFrame(raf);resolve();};
     engine.onFinish=finish;
-    const frame=t=>{if(stopped)return;if(last&&engine.time>=scene.warmup){const g=t-last;gaps.push(g);phases[script.phase()].push(g);}last=t;
+    // Frames while the page is hidden (or the engine paused) are not counted.
+    const frame=t=>{if(stopped)return;if(document.visibilityState==='hidden'||engine.paused){hiddenMs+=last?t-last:0;last=0;
+      // The engine pauses itself when the page is hidden or the screen turns; the test resumes on its own.
+      if(engine.paused&&document.visibilityState!=='hidden'){pausedFrames++;if(pausedFrames>20){pausedFrames=0;resumes++;try{engine.resume();}catch{}}}
+      raf=requestAnimationFrame(frame);return;}if(last&&engine.time>=scene.warmup){const g=t-last;gaps.push(g);phases[script.phase()].push(g);}last=t;
       if(engine.time>=total||engine.finished||engine.destroyed)return finish();raf=requestAnimationFrame(frame);};
     engine.start();raf=requestAnimationFrame(frame);
   }).then(()=>{
     const view=engine.pixiView,gpuFrames=view?.lightGpu?.stats?.frames||0,renderer=engine.pixiReady&&view?(gpuFrames>0?(view.lightGpu.stats.fallbacks?'WebGL lighting (some Canvas 2D frames)':'WebGL lighting'):'Canvas 2D fallback'):'Canvas 2D (basic)';
-    const r={scene:scene.id,...summarizeFrames(gaps),seconds:+(gaps.reduce((a,b)=>a+b,0)/1000).toFixed(1),
+    const r={scene:scene.id,...summarizeFrames(gaps),seconds:+(gaps.reduce((a,b)=>a+b,0)/1000).toFixed(1),hiddenMs:Math.round(hiddenMs),resumes,
       phases:Object.fromEntries(Object.entries(phases).map(([k,v])=>[k,summarizeFrames(v)])),
       renderer,dpr:+(win.devicePixelRatio||1).toFixed(3),viewport:`${win.innerWidth}x${win.innerHeight}`,
       buffer:view?.buffer?`${view.buffer.width}x${view.buffer.height}`:null,version:version(),

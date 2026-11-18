@@ -12,7 +12,7 @@ export class FlightBoon {
   get recoveryRate() { return 1; }
   get drainScale() { return 1; }
   get luminanceScale() { return 1; }
-  get wardReady() { return false; }
+  get wardReady() { return this.ward; }
   tryReserve() { return 0; }
   liftSaving() { return 0; }
   spendLift(cost) { return cost; }
