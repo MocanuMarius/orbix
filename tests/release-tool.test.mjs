@@ -129,6 +129,6 @@ test('the real dist: the player graph holds the pages players open and keeps laz
   // reel-near.png is named inside a template literal in tutorial-visuals.mjs, so it is a root.
   for (const f of ['assets/previews/collector-tether/reel-near.png', 'assets/previews/collector-tether/reel-front.png', 'assets/previews/collector-tether/reel.mp4']) assert.ok(files.has(f), f);
   const devOnly = new Set(await developerOnlyFiles(dist));
-  for (const f of ['components.html', 'travel-guide-compare.html', 'spark-preview.html']) assert.ok(!files.has(f) && devOnly.has(f), f + ' is developer-only');
+  for (const f of ['components.html', 'components-preview.html']) assert.ok(!files.has(f) && devOnly.has(f), f + ' is developer-only');
   for (const f of files) assert.ok(!devOnly.has(f), f + ' is both player and developer-only');
 });
