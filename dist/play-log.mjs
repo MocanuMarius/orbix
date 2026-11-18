@@ -72,7 +72,7 @@ export function parseLog(text, codes = {}) {
 
 // ---- storage: its own keys, never the save ----
 const store = storage => storage || globalThis.localStorage;
-export function loadRecordPlay(storage) { try { return store(storage)?.getItem?.(PLAY_LOG_ON_KEY) === 'on'; } catch { return false; } }
+export function loadRecordPlay(storage) { try { if (isLocalDev() && /[?&]record=1\b/.test(globalThis.location?.search || '')) return true; return store(storage)?.getItem?.(PLAY_LOG_ON_KEY) === 'on'; } catch { return false; } }
 export function saveRecordPlay(on, storage) { try { store(storage)?.setItem?.(PLAY_LOG_ON_KEY, on ? 'on' : 'off'); } catch { /* private mode: stays off */ } }
 export function readLines(storage) { try { const raw = store(storage)?.getItem?.(PLAY_LOG_KEY); return raw ? raw.split('\n').filter(Boolean) : []; } catch { return []; } }
 export function countFlights(storage) { return readLines(storage).length; }
@@ -81,8 +81,17 @@ export function appendLine(line, storage, max = PLAY_LOG_MAX) {
   try {
     const s = store(storage); if (!s || !line) return false;
     const lines = readLines(s); lines.push(line);
-    s.setItem(PLAY_LOG_KEY, lines.slice(-max).join('\n')); return true;
+    s.setItem(PLAY_LOG_KEY, lines.slice(-max).join('\n')); mirrorToDevServer(line); return true;
   } catch { return false; }
+}
+// Local development only: on localhost each recorded line is also posted to the dev server (server.mjs, /__playlog),
+// which appends it to outputs/play-log-live.txt so a session on this machine can read the flights as they are played.
+// Never runs on the public site: the host check is the whole gate.
+const LOCAL_HOSTS = ['localhost', '127.0.0.1', '[::1]'];
+// Also true for a private LAN address (the dev server reached from a phone on the same Wi-Fi), never for a public host.
+export const isLocalDev = () => { const h = globalThis.location?.hostname || ''; return LOCAL_HOSTS.includes(h) || /^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)\d+\.\d+$/.test(h) || /^192\.168\.\d+\.\d+$/.test(h); };
+function mirrorToDevServer(line) {
+  try { if (isLocalDev() && globalThis.fetch) globalThis.fetch('/__playlog', {method: 'POST', body: `${HEADER}\n${line}`, keepalive: true}).catch(() => {}); } catch { /* dev server not there: ignore */ }
 }
 export function clearLog(storage) { try { store(storage)?.removeItem?.(PLAY_LOG_KEY); } catch { /* nothing to clear */ } }
 export function exportText(storage) { const lines = readLines(storage); return lines.length ? `${HEADER}\n${lines.join('\n')}` : ''; }
