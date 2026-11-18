@@ -1,4 +1,4 @@
-import {newState,createRun,chooseStartingGift} from './model.mjs?v=spring-1';
+import {newState,createRun,chooseStartingGift} from './model.mjs?v=bar-1';
 
 export function createLanternMapInspectorState() {
  const state=newState();
