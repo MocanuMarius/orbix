@@ -1,50 +1,50 @@
-import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=finish-1';
-import {drawTerrainEcology,drawHabitatBackdrop,releaseTerrainEcology} from './terrain-ecology.mjs?v=finish-1';
-import {drawTerrainBoundary,terrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=finish-1';
-import {spacetimeBaseShape,drawSpacetimeTerrain} from './spacetime.mjs?v=finish-1';
-import {paintContactEdge,isContactEdgeStyle,contactEdgeInk} from './contact-edge-art.mjs?v=finish-1';
-import {ContactEdgeRaster} from './contact-edge-raster.mjs?v=finish-1';
-import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=finish-1';
-import {drawAtlasFlight} from './atlas-flight.mjs?v=finish-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=finish-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=finish-1';
-import { drawShutters } from './shutter-cone.mjs?v=finish-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=finish-1';
-import {drawStarterCues} from './starter-cues.mjs?v=finish-1';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=finish-1';
-import {drawCollectorField} from './collector-field-art.mjs?v=finish-1';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=finish-1';
-import {drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=finish-1';
-import {revealLuminanceWaves} from './luminance-waves.mjs?v=finish-1';
-import {drawGlowSense} from './glow-sense.mjs?v=finish-1';
-import {drawLastGlimmer} from './last-glimmer.mjs?v=finish-1';
-import {formatGlow} from './vitality.mjs?v=finish-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=finish-1';
-import {biomePalette,hasBiomeBackground,biomeBackgroundPlacement,drawBiomeBackgroundStrip} from './biome-art.mjs?v=finish-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=finish-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=finish-1';
-import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=finish-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=finish-1';
-import { drawBoss } from './boss.mjs?v=finish-1';
-import {drawFlashTether} from './flash-tether.mjs?v=finish-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=finish-1';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=finish-1';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=finish-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=finish-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery,companionTerrainLight } from './light-field.mjs?v=finish-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=finish-1';
-import {drawBlackHoles,releaseBlackHoleArt} from './black-hole-art.mjs?v=finish-1';
-import {PolygonPath,batchOn} from './rect-raster.mjs?v=finish-1';
-import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=finish-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=finish-1';
-import {drawWispWake} from './wisp-wake.mjs?v=finish-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=finish-1';
-import {drawFallWarning} from './fall-chain-art.mjs?v=finish-1';
-import {castTerrainLight,castTerrainLightGPU,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=finish-1';
-import {LightFogGPU} from './light-gpu.mjs?v=finish-1';
-import {lanternField} from './lantern-layout.mjs?v=finish-1';
+import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=fast-5';
+import {drawTerrainEcology,drawHabitatBackdrop,releaseTerrainEcology} from './terrain-ecology.mjs?v=fast-5';
+import {drawTerrainBoundary,terrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=fast-5';
+import {spacetimeBaseShape,drawSpacetimeTerrain} from './spacetime.mjs?v=fast-5';
+import {paintContactEdge,isContactEdgeStyle,contactEdgeInk} from './contact-edge-art.mjs?v=fast-5';
+import {ContactEdgeRaster} from './contact-edge-raster.mjs?v=fast-5';
+import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=fast-5';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=fast-5';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=fast-5';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=fast-5';
+import { drawShutters } from './shutter-cone.mjs?v=fast-5';
+import {drawProximityMeter} from './proximity-meter.mjs?v=fast-5';
+import {drawStarterCues} from './starter-cues.mjs?v=fast-5';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=fast-5';
+import {drawCollectorField} from './collector-field-art.mjs?v=fast-5';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=fast-5';
+import {drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=fast-5';
+import {revealLuminanceWaves} from './luminance-waves.mjs?v=fast-5';
+import {drawGlowSense} from './glow-sense.mjs?v=fast-5';
+import {drawLastGlimmer} from './last-glimmer.mjs?v=fast-5';
+import {formatGlow} from './vitality.mjs?v=fast-5';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=fast-5';
+import {biomePalette,hasBiomeBackground,biomeBackgroundPlacement,drawBiomeBackgroundStrip} from './biome-art.mjs?v=fast-5';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=fast-5';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=fast-5';
+import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=fast-5';
+import { createScenePropArt } from './scene-prop-art.mjs?v=fast-5';
+import { drawBoss } from './boss.mjs?v=fast-5';
+import {drawFlashTether} from './flash-tether.mjs?v=fast-5';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=fast-5';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=fast-5';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=fast-5';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=fast-5';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery,companionTerrainLight } from './light-field.mjs?v=fast-5';
+import {drawExitLandmark} from './exit-landmark.mjs?v=fast-5';
+import {drawBlackHoles,releaseBlackHoleArt} from './black-hole-art.mjs?v=fast-5';
+import {PolygonPath,batchOn} from './rect-raster.mjs?v=fast-5';
+import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=fast-5';
+import {drawShellArcs} from './shell-arcs.mjs?v=fast-5';
+import {drawWispWake} from './wisp-wake.mjs?v=fast-5';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=fast-5';
+import {drawFallWarning} from './fall-chain-art.mjs?v=fast-5';
+import {castTerrainLight,castTerrainLightGPU,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=fast-5';
+import {LightFogGPU} from './light-gpu.mjs?v=fast-5';
+import {lanternField} from './lantern-layout.mjs?v=fast-5';
 // v1.2-level ground, boulders and growth (all twelve biomes). On by default; null with ?scenery=1 or {scenery:1}.
-import {createLevelSceneryTwo} from './level-scenery-two.mjs?v=finish-1';
+import {createLevelSceneryTwo} from './level-scenery-two.mjs?v=fast-5';
 
 const TAU = Math.PI * 2;
 // ?sky=0 keeps the moon and mist drawn rect by rect (the pre-bake path) for comparison.
@@ -135,6 +135,8 @@ const SOLID_FACE_BANDS = Object.freeze([[30, .35], [20, .4], [12, .5], [5, .6]])
 // Deep rock keeps a trace of its texture instead of turning into a cut-out.
 const SOLID_SHADE_MAX = .86;
 const SHADE_CHUNK = 256;
+const GL_SHADE_URL = (() => { try { return new URLSearchParams(globalThis.location?.search || '').get('glshade') !== '0'; } catch { return true; } })();
+const GL_SHADE = () => { const f = globalThis.__perfFlags; return f && 'glshade' in f ? f.glshade !== false : GL_SHADE_URL; };
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 const hash = (x, y = 0, seed = 0) => {
   let n = Math.imul(x | 0, 374761393) ^ Math.imul(y | 0, 668265263) ^ Math.imul(seed | 0, 1274126177);
@@ -1005,15 +1007,22 @@ export class WispFlightView {
     // would light terrain interiors as if nothing blocked them. Where any of
     // them is active, solid rock is re-darkened behind its exposed face.
     const unblocked = !legacy && (e.luminanceWaves?.revealCount > 0 || lanternField(e.layout)?.shutters?.length > 0 || this.flashPropsInView(e));
-    const shade = !legacy && !SKIP.has('shade') && (unblocked || fogAlpha < 1) ? this.solidShade(e) : null;
+    const wantShade = !legacy && !SKIP.has('shade') && (unblocked || fogAlpha < 1);
     // WebGL2 compositor (light-gpu.mjs): same lights, rock law and order, drawn on the GPU.
     // The design lab's legacy look stays on the Canvas 2D path below.
     const gpu = !legacy && this.lightGpu ? this.lightGpu : null;
+    // GPU shade from the baked course chunks (?glshade=0 turns it off): each chunk is uploaded once into a
+    // texture array and placed by the fog shader, so the per-frame shade canvas and its upload disappear.
+    // Only while nothing in 2D needs the composed shade (fogAlpha 1) and every visible chunk is baked.
+    const chunks = wantShade && gpu && fogAlpha >= 1 && GL_SHADE() && LAYERS_ON() ? this.shadeChunkList(e, W, H, s, timeOf(e), Math.round(distanceOf(e) * s)) : null;
+    let shade = wantShade && !chunks ? this.solidShade(e) : null;
     if (gpu) {
       gpu.begin(W, H);
       castFlightFlashLights(gpu.recorder, this.lightMask(), e, light, s, distanceOf(e), yOf(e));
       gpu.waves(e.luminanceWaves, distanceOf(e), s);
-      gpu.shade(shade, SOLID_SHADE_MAX);
+      if (SKIP.has('shadeup')) gpu.shade(null, 0); // diagnostics: leaves out the shade upload
+      else if (chunks) gpu.shadeChunks(chunks, Math.round(distanceOf(e) * s), SHADE_CHUNK, SOLID_SHADE_MAX);
+      else gpu.shade(shade, SOLID_SHADE_MAX);
       // Lantern wake: the 2D routine removes darkness from an opaque layer; its alpha is what stays dark.
       if (lanternField(e.layout)?.shutters?.length) {
         const w = this.wakeLayer ??= this.document.createElement('canvas');
@@ -1032,14 +1041,17 @@ export class WispFlightView {
         const orb = fleet[i], glow = companionTerrainLight(orb, this.lightDimScale, this.lightIntensity);
         ok = castTerrainLightGPU(gpu, e, { x: orb.x, y: orb.y, ...glow, scale: s, channel: `fleet${i}` }) && ok;
       }
+      // Diagnostics: skip=glfog leaves out the GL draw and its composite, skip=fogdraw only the composite.
+      if (SKIP.has('glfog')) return;
       const fog = ok ? gpu.render() : null;
       if (fog) {
-        c.globalAlpha = fogAlpha; c.drawImage(fog, 0, 0);
+        c.globalAlpha = fogAlpha; if (!SKIP.has('fogdraw')) c.drawImage(fog, 0, 0);
         if (shade && fogAlpha < 1) { c.globalAlpha = (1 - fogAlpha) * SOLID_SHADE_MAX; c.drawImage(shade, 0, 0); }
         c.globalAlpha = 1;
         return;
       }
       gpu.stats.fallbacks++;
+      if (wantShade && !shade) shade = this.solidShade(e);
     }
     f.setTransform(1, 0, 0, 1, 0, 0); f.globalCompositeOperation = 'source-over'; f.globalAlpha = 1;
     f.clearRect(0, 0, W, H); f.fillStyle = '#000000'; f.fillRect(0, 0, W, H);
@@ -1131,20 +1143,25 @@ export class WispFlightView {
   // or a chunk touching one, uses the per-frame path. Bands of segments up to 30 world units beyond the view
   // edge are included (the per-frame path drops segments beyond 24), so the outer 3-4 pixels can differ.
   shadeFromChunks(e, g, W, H, s, t, camera) {
+    const list = this.shadeChunkList(e, W, H, s, t, camera); if (!list) return false;
+    for (const chunk of list) g.drawImage(chunk.canvas, chunk.index * SHADE_CHUNK - camera, 0);
+    return true;
+  }
+  /** The baked shade chunks covering the view, or null when any of them must be drawn per frame. */
+  shadeChunkList(e, W, H, s, t, camera) {
     const cache = this.shadeChunks ??= { map: new Map(), key: '' }, key = W + ':' + H + ':' + s;
     if (cache.key !== key) { this.releaseShadeChunks(); cache.key = key; }
     const first = Math.floor(camera / SHADE_CHUNK), last = Math.floor((camera + W - 1) / SHADE_CHUNK), list = [];
     for (let i = first; i <= last; i++) {
       let chunk = cache.map.get(i);
       if (chunk && !this.shadeChunkValid(chunk)) { cache.invalid = (cache.invalid || 0) + 1; chunk.canvas.width = chunk.canvas.height = 1; cache.map.delete(i); chunk = null; }
-      if (!chunk) { chunk = this.bakeShadeChunk(e, i, H, s, t); if (!chunk) { cache.live = (cache.live || 0) + 1; return false; } cache.bakes = (cache.bakes || 0) + 1; cache.map.set(i, chunk); }
+      if (!chunk) { chunk = this.bakeShadeChunk(e, i, H, s, t); if (!chunk) { cache.live = (cache.live || 0) + 1; return null; } cache.bakes = (cache.bakes || 0) + 1; cache.map.set(i, chunk); }
       else { cache.map.delete(i); cache.map.set(i, chunk); }
       list.push(chunk);
     }
     while (cache.map.size > 8) { const [k, old] = cache.map.entries().next().value; old.canvas.width = old.canvas.height = 1; cache.map.delete(k); }
-    for (const chunk of list) g.drawImage(chunk.canvas, chunk.index * SHADE_CHUNK - camera, 0);
     cache.used = (cache.used || 0) + 1;
-    return true;
+    return list;
   }
   shadeChunkValid(chunk) { for (const [o, destroyed, top, bottom] of chunk.owners) if (!!o.destroyed !== destroyed || o.topShape !== top || o.bottomShape !== bottom) return false; return true; }
   bakeShadeChunk(e, index, H, s, t) {

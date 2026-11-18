@@ -1,6 +1,6 @@
-import {drawPickup} from './pickup-art.mjs?v=finish-1';
-import {SPARK_TIERS,sparkArtScale} from './spark-size.mjs?v=finish-1';
-import {makeWispSprite} from './companion-art.mjs?v=finish-1';
+import {drawPickup} from './pickup-art.mjs?v=fast-5';
+import {SPARK_TIERS,sparkArtScale} from './spark-size.mjs?v=fast-5';
+import {makeWispSprite} from './companion-art.mjs?v=fast-5';
 
 const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d');
 const button=document.querySelector('#motion'),raster=240/390;

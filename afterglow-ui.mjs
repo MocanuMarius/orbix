@@ -1,4 +1,4 @@
-import {uiIcon} from './ui-icons.mjs?v=finish-1';
+import {uiIcon} from './ui-icons.mjs?v=fast-5';
 
 // The case and latch identify savings even when the icon is only 16 pixels wide.
 export const formatCondensedGlow = value => String(Math.max(0, Math.floor(Number(value) || 0)));

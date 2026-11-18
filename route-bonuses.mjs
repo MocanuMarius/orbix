@@ -1,5 +1,5 @@
-import {getLifeCapacity} from './vitality.mjs?v=finish-1';
-import {getCardModifiers,isCardRun} from './skill-cards.mjs?v=finish-1';
+import {getLifeCapacity} from './vitality.mjs?v=fast-5';
+import {getCardModifiers,isCardRun} from './skill-cards.mjs?v=fast-5';
 
 // Optional objectives pay at once on the result screen (no Inscription, no choice step). `reward` below is the generic line for places with
 // no run (glossary); stop pages, the pause note and the receipt use objectiveRewardLine(run, id), which is exactly what is paid.

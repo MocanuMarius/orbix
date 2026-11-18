@@ -1,4 +1,4 @@
-const release = 'finish-1';
+const release = 'fast-5';
 const button = document.querySelector('#launch'), status = document.querySelector('#status');
 const root = new URL('./', location.href), target = new URL('index.html', root);
 const query = new URLSearchParams(location.search);
