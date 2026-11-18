@@ -991,5 +991,50 @@
     "line": [
       "black-hole"
     ]
+  },
+  "skim-line": {
+    "file": "skim-line.svg",
+    "rarity": "common",
+    "family": "Starter",
+    "idea": "A gold band hugs the terrain where a Skim counts",
+    "line": [
+      "skim-line"
+    ]
+  },
+  "pulse-reader": {
+    "file": "pulse-reader.svg",
+    "rarity": "common",
+    "family": "Starter",
+    "idea": "A ring tightens round the wisp before a Pulse lands",
+    "line": [
+      "pulse-reader"
+    ]
+  },
+  "courier-cord": {
+    "file": "courier-cord.svg",
+    "rarity": "common",
+    "family": "Starter",
+    "idea": "A bright cord from Collector to the wisp",
+    "line": [
+      "courier-cord"
+    ]
+  },
+  "meter-mark": {
+    "file": "meter-mark.svg",
+    "rarity": "common",
+    "family": "Starter",
+    "idea": "A gold notch beside a nearly full Spark Meter",
+    "line": [
+      "meter-mark"
+    ]
+  },
+  "finish-flag": {
+    "file": "finish-flag.svg",
+    "rarity": "common",
+    "family": "Starter",
+    "idea": "A flag and a bar filling toward the finish",
+    "line": [
+      "finish-flag"
+    ]
   }
 }

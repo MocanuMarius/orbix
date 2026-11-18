@@ -10,6 +10,7 @@ import {drawGuardianPresence} from './guardian-presence.mjs?v=guide-clarity-1';
 import { drawGuardianWarnings } from './guardian-art.mjs?v=guide-clarity-1';
 import { drawShutters } from './shutter-cone.mjs?v=guide-clarity-1';
 import {drawProximityMeter} from './proximity-meter.mjs?v=guide-clarity-1';
+import {drawStarterCues} from './starter-cues.mjs?v=guide-clarity-1';
 import {drawFourthBeat} from './fourth-beat-art.mjs?v=guide-clarity-1';
 import {drawCollectorField} from './collector-field-art.mjs?v=guide-clarity-1';
 import {drawObjectiveMarks} from './flight-objectives.mjs?v=guide-clarity-1';
@@ -1636,6 +1637,7 @@ export class WispFlightView {
     }
     c.globalAlpha = 1;
     if(!rehearsing)drawLiftGuide(c,e,{scale:s,playerY:yOf(e)});
+    if(!rehearsing)drawStarterCues(c,e,{scale:s,distance,playerY:yOf(e)});
     if (e.flash > 0) { c.globalAlpha = Math.min(.2, e.flash * 1.3); c.fillStyle = '#dbc2a1'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1; }
     if(e.completing){c.save();c.globalCompositeOperation='screen';const p=e.completionProgress||0;c.globalAlpha=.11*p*p*(3-2*p)+Math.sin(Math.PI*p)*.02;c.fillStyle='#efd4a0';c.fillRect(0,0,this.buffer.width,this.buffer.height);c.restore();}
     // Composite the closest opaque plane once, after every world light/wash

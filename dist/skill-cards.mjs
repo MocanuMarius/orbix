@@ -1456,6 +1456,7 @@ export function getCardModifiers(run) {
     const factor = boost[index]?.multiplier || 1;
     if (d.kind === "luminance") m.cardLuminancePercent += cardAmount(source) * factor;
     if (d.kind === "proximity") m.cardProximityUnlocked = true;
+    if (d.kind === "skim-line") { m.cardProximityUnlocked = true; m.cardSkimLine = true; }
     // One source adds 50% of normal reach; a boosted source counts as `factor` sources.
     if (d.kind === "proximity-range") m.cardProximitySources += factor;
     if (d.kind === "rhythm") m.cardRhythm = true;

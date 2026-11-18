@@ -224,7 +224,7 @@ test('new Common never changes the established seeded starter pool',()=>{
 });
 
 test('every declarative catalog rule executes with its exact approved event and conditions',()=>{
-  assert.equal(Object.values(SKILL_CARDS).filter(def=>!def.unreleased&&!def.engine&&def.kind!=='black-hole').length,86);
+  assert.equal(Object.values(SKILL_CARDS).filter(def=>!def.unreleased&&!def.engine&&def.kind!=='black-hole').length,90);
   const payer={
     'body-spark':'body-spark','wave-crossing':'harvest-common','flash-pickup':'flash-handling',
     'downbeat-lift':'downbeat','collector-delivery':'courier-tip','rhythm-phrase':'toll-bell',

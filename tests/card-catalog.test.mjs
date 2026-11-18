@@ -57,14 +57,14 @@ test('all 86 literal definitions have supported rules, unique IDs, honest art fa
   ]), physicalKinds = new Set(['dream', 'luminance', 'proximity-range', 'capacity', 'packing', 'echo', 'chameleon', 'field', 'guide',
     'rhythm', 'rapid-lift', 'camp-extra', 'camp-grow', 'cache-handling', 'refrain', 'watchlight', 'wave-loom', 'spillway',
     'last-light', 'proximity', 'springboard', 'heart-stitch', 'devourer', 'use-doubler', 'ember-feeder', 'twin-orbit', 'twin-wick', 'collector-range']);
-  // 86 since Wave Loom came back as an unreleased engine card (v1.0-engine Phase 2).
-  assert.equal(defs.length, 86);
-  assert.equal(new Set(CARD_CATALOG_IDS.filter(id => !CARD_CATALOG[id].unreleased && !CARD_CATALOG[id].engine && CARD_CATALOG[id].kind !== 'black-hole')).size, 86);
+  // 86 since Wave Loom came back; +5 starter Commons (Skim Line, Pulse Reader, Courier Cord, Meter Mark, Finish Flag) on 2026-11-18.
+  assert.equal(defs.length, 90);
+  assert.equal(new Set(CARD_CATALOG_IDS.filter(id => !CARD_CATALOG[id].unreleased && !CARD_CATALOG[id].engine && CARD_CATALOG[id].kind !== 'black-hole')).size, 90);
   assert.deepEqual(defs.reduce((totals, def) => (totals[def.rarity]++, totals), { common: 0, rare: 0, legendary: 0 }),
-    { common: 48, rare: 24, legendary: 14 });
+    { common: 52, rare: 24, legendary: 14 });
   for (const [index, def] of defs.entries()) {
     assert.deepEqual(SKILL_CARDS[def.id], def);
-    assert.equal(CARD_CATALOG_IDS[index], def.id);
+    assert.equal(CARD_CATALOG_IDS.filter(id => !CARD_CATALOG[id].unreleased && !CARD_CATALOG[id].engine && CARD_CATALOG[id].kind !== 'black-hole')[index], def.id);
     assert.ok(Object.isFrozen(def));
     assert.ok(def.name && typeof def.copyable === 'boolean' && Number.isFinite(def.amount));
     assert.ok(Number.isInteger(def.maxRank) && def.maxRank > 0);
@@ -86,7 +86,8 @@ test('all 86 literal definitions have supported rules, unique IDs, honest art fa
       assert.ok(target, `${def.id}: evolution target exists`);
       assert.ok(['common', 'rare', 'legendary'].indexOf(target.rarity) > ['common', 'rare', 'legendary'].indexOf(def.rarity));
     }
-    if (index >= 16) assert.equal(def.excludeStarter, true);
+    // 20 since the four ordinary starter cards (2026-11-18) sit after Lift Guide.
+    if (index >= 20) assert.equal(def.excludeStarter, true);
   }
 });
 

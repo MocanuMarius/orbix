@@ -194,6 +194,11 @@ const CARD_NOTES = Object.freeze({
   'fast-spool': 'Touching a natural passage Spark while a Collector reels shortens one active reel by up to 3 seconds. The longest active reel is chosen. Each successful action spends one of this card’s three uses. Copies spend this card’s uses too. No use is spent when there is no remaining reel time.',
   rhythm: 'All 3 Lifts must succeed and be evenly spaced. You perform them yourself. Extra Rhythm cards still send one Pulse.',
   'camp-kit': 'Keep in your Deck when arriving at Rest to choose 2 different actions. No active slot is needed. Spend the use only after the second action succeeds. Extra Second Ember cards do not add a third action or spend another use.',
+  'skim-line': 'Turns Proximity on. A thin gold band hugs the terrain near your wisp, where a Skim counts: flying within Proximity reach of terrain. It brightens while you are inside it. When Proximity fills (a Skim), +1 Spark. Needs no other card. Extra copies keep one band and each pays.',
+  'pulse-reader': 'A soft ring on your wisp tightens just before a Pulse front reaches a Spark you have not collected. That crossing adds 1 Spark. It does not send Pulses itself; Rhythm, Flares or card Pulses do.',
+  'courier-cord': 'Collector’s cord glows brighter while it carries a pickup and flashes once at the drop-off. Each Delivery adds 1 Spark. Needs Collector.',
+  'meter-mark': 'A gold notch at the top of the Spark Meter glows when the Meter is nearly full. Each natural Overfill keeps 1 spilled Spark as a Stored Spark. A Boost does not multiply Stored Sparks.',
+  'finish-flag': 'A thin gold bar along the bottom edge fills toward the finish. Each Finish adds 2 Stored Sparks. A Boost does not multiply Stored Sparks.',
   'lift-guide': 'The amber chevron uses your current fall and Lift impulse. It opens when a Lift can rise back to its starting height, as from level flight. It does not judge terrain; choose when to tap. A Lift tapped while the chevron is open is on the cue: +1 Spark. Extra copies keep one chevron.',
 });
 

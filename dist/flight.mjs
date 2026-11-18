@@ -14,6 +14,7 @@ import { drawGuardianWarnings } from './guardian-art.mjs?v=guide-clarity-1';
 import { drawShutters, resizeShutters } from './shutter-cone.mjs?v=guide-clarity-1';
 import { inLanternRoom, installPassageLanterns, lanternField } from './lantern-layout.mjs?v=guide-clarity-1';
 import {drawProximityMeter} from './proximity-meter.mjs?v=guide-clarity-1';
+import {drawStarterCues} from './starter-cues.mjs?v=guide-clarity-1';
 import {drawFourthBeat} from './fourth-beat-art.mjs?v=guide-clarity-1';
 import {drawCollectorField} from './collector-field-art.mjs?v=guide-clarity-1';
 import {activateFieldImpulse,fieldImpulseSpeed,fieldImpulseGravity,fieldImpulseVelocity,fieldImpulseStrength} from './collector-impulse.mjs?v=guide-clarity-1';
@@ -2867,7 +2868,7 @@ export class WispFlight {
       drawCapture(c,effect,this.captureTime,this.player.x,this.renderPlayerY,this.renderDistance,1,this.reducedMotion,FALLBACK_WISP_RADIUS*WISP_BODY_SCALE);
     }
     drawBlackHoles(c,this);
-    if(!light.rehearsing)drawLiftGuide(c,this,{playerY:this.renderPlayerY});
+    if(!light.rehearsing){drawLiftGuide(c,this,{playerY:this.renderPlayerY});drawStarterCues(c,this,{playerY:this.renderPlayerY});}
     c.restore();
     if (this.flash > 0) { c.fillStyle = `rgba(255,196,149,${this.flash * .36})`; c.fillRect(0, 0, W, H); }
     // Keep the nearest plane in front of the complete world, including Flare,

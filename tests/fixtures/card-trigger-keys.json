@@ -121,5 +121,10 @@
  "tributary": "collect",
  "tithe": "pack",
  "chameleon-two": "next",
- "whetstone": "engine-skim"
+ "whetstone": "engine-skim",
+ "skim-line": "engine-skim",
+ "pulse-reader": "wave",
+ "courier-cord": "delivery",
+ "meter-mark": "overfill",
+ "finish-flag": "clear"
 }
