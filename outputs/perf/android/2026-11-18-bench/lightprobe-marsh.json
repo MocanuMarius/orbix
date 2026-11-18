@@ -1,0 +1,391 @@
+{
+ "day": "2026-11-18",
+ "scenario": "marsh-late-mid",
+ "rounds": 4,
+ "seconds": 30,
+ "conds": [
+  "base",
+  "q:skip=light",
+  "q:skip=glfog",
+  "q:skip=fogdraw"
+ ],
+ "runs": {
+  "base": [
+   {
+    "frames": 925,
+    "avgFps": 30.8,
+    "low1Fps": 11.32,
+    "p50Ms": 33.3,
+    "p95Ms": 66.7,
+    "over33": 292,
+    "over50": 84,
+    "longestMs": 100,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 53.5,
+     "cpuMax": 73,
+     "gpuUtilAvg": 26.9,
+     "gpuClockAvg": 864.6,
+     "gpuClockMin": 330,
+     "gpuTempMax": 56
+    },
+    "round": 0,
+    "cond": "base"
+   },
+   {
+    "frames": 1113,
+    "avgFps": 37.02,
+    "low1Fps": 13.33,
+    "p50Ms": 33.2,
+    "p95Ms": 50,
+    "over33": 220,
+    "over50": 25,
+    "longestMs": 133,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 41.9,
+     "cpuMax": 54.3,
+     "gpuUtilAvg": 29.5,
+     "gpuClockAvg": 424.3,
+     "gpuClockMin": 210,
+     "gpuTempMax": 51
+    },
+    "round": 1,
+    "cond": "base"
+   }
+  ],
+  "q:skip=light": [
+   {
+    "frames": 1265,
+    "avgFps": 42.1,
+    "low1Fps": 10.68,
+    "p50Ms": 16.7,
+    "p95Ms": 50,
+    "over33": 167,
+    "over50": 39,
+    "longestMs": 183,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 44.7,
+     "cpuMax": 70.9,
+     "gpuUtilAvg": 24.2,
+     "gpuClockAvg": 752.1,
+     "gpuClockMin": 210,
+     "gpuTempMax": 57
+    },
+    "round": 0,
+    "cond": "q:skip=light"
+   },
+   {
+    "frames": 1126,
+    "avgFps": 37.49,
+    "low1Fps": 10.14,
+    "p50Ms": 16.7,
+    "p95Ms": 50,
+    "over33": 231,
+    "over50": 56,
+    "longestMs": 150,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 74.3,
+     "cpuMax": 95,
+     "gpuUtilAvg": 27.7,
+     "gpuClockAvg": 900.9,
+     "gpuClockMin": 315,
+     "gpuTempMax": 55
+    },
+    "round": 1,
+    "cond": "q:skip=light"
+   }
+  ],
+  "q:skip=glfog": [
+   {
+    "frames": 1152,
+    "avgFps": 38.34,
+    "low1Fps": 10.75,
+    "p50Ms": 16.7,
+    "p95Ms": 50,
+    "over33": 197,
+    "over50": 52,
+    "longestMs": 133,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 46.9,
+     "cpuMax": 87.1,
+     "gpuUtilAvg": 18.3,
+     "gpuClockAvg": 1136,
+     "gpuClockMin": 270,
+     "gpuTempMax": 57
+    },
+    "round": 0,
+    "cond": "q:skip=glfog"
+   },
+   {
+    "frames": 1259,
+    "avgFps": 41.9,
+    "low1Fps": 14.71,
+    "p50Ms": 16.7,
+    "p95Ms": 50,
+    "over33": 177,
+    "over50": 30,
+    "longestMs": 83,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 50.2,
+     "cpuMax": 70.2,
+     "gpuUtilAvg": 26.2,
+     "gpuClockAvg": 731.8,
+     "gpuClockMin": 345,
+     "gpuTempMax": 56
+    },
+    "round": 1,
+    "cond": "q:skip=glfog"
+   }
+  ],
+  "q:skip=fogdraw": [
+   {
+    "frames": 1059,
+    "avgFps": 35.26,
+    "low1Fps": 11.38,
+    "p50Ms": 16.8,
+    "p95Ms": 50.1,
+    "over33": 248,
+    "over50": 62,
+    "longestMs": 133,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 51,
+     "cpuMax": 74.8,
+     "gpuUtilAvg": 25.7,
+     "gpuClockAvg": 1069,
+     "gpuClockMin": 360,
+     "gpuTempMax": 47
+    },
+    "round": 0,
+    "cond": "q:skip=fogdraw"
+   },
+   {
+    "frames": 1145,
+    "avgFps": 38.15,
+    "low1Fps": 13.58,
+    "p50Ms": 16.7,
+    "p95Ms": 50,
+    "over33": 255,
+    "over50": 37,
+    "longestMs": 84,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 44.5,
+     "cpuMax": 72.1,
+     "gpuUtilAvg": 28.9,
+     "gpuClockAvg": 415.7,
+     "gpuClockMin": 240,
+     "gpuTempMax": 51
+    },
+    "round": 1,
+    "cond": "q:skip=fogdraw"
+   }
+  ]
+ },
+ "order": [
+  [
+   "base",
+   "q:skip=light",
+   "q:skip=glfog",
+   "q:skip=fogdraw"
+  ],
+  [
+   "q:skip=light",
+   "base",
+   "q:skip=fogdraw",
+   "q:skip=glfog"
+  ]
+ ],
+ "pre": [
+  {
+   "quiet": {
+    "quiet": true,
+    "waitedS": 66,
+    "cpu": 7,
+    "cpuOther": 3.7,
+    "cpuEmulator": 3.3,
+    "gpu": {
+     "util": 0,
+     "clockMHz": 210,
+     "tempC": 43,
+     "powerW": 25.96,
+     "pstate": "P8"
+    },
+    "loopMs": 30,
+    "samples": [
+     {
+      "total": 12.1,
+      "emu": 1.3,
+      "other": 10.8,
+      "gpuUtil": 3
+     },
+     {
+      "total": 5.7,
+      "emu": 1.3,
+      "other": 4.4,
+      "gpuUtil": 1
+     },
+     {
+      "total": 8.4,
+      "emu": 0.4,
+      "other": 8,
+      "gpuUtil": 1
+     },
+     {
+      "total": 7,
+      "emu": 3.3,
+      "other": 3.7,
+      "gpuUtil": 0
+     }
+    ]
+   },
+   "health": {
+    "problems": [],
+    "fixed": [],
+    "bootComplete": true,
+    "focus": "mCurrentFocus=Window{61d2a7 u0 com.android.chrome/org.chromium.chrome.browser.ChromeTabbedActivity}",
+    "userRotation": "1",
+    "batterySaver": "0",
+    "animationScales": [
+     "1.0",
+     "1.0",
+     "null"
+    ],
+    "thermalStatus": "0",
+    "window": {
+     "foregroundTitle": "Claude",
+     "noWindowFlag": true,
+     "gpu": "host",
+     "window": false
+    },
+    "ok": true
+   }
+  },
+  {
+   "quiet": {
+    "quiet": false,
+    "waitedS": 304,
+    "cpu": 82.1,
+    "cpuOther": 71.4,
+    "cpuEmulator": 10.7,
+    "gpu": {
+     "util": 27,
+     "clockMHz": 405,
+     "tempC": 49,
+     "powerW": 32.98,
+     "pstate": "P8"
+    },
+    "loopMs": 40.9,
+    "samples": [
+     {
+      "total": 41.7,
+      "emu": 12.7,
+      "other": 29,
+      "gpuUtil": 4
+     },
+     {
+      "total": 70.5,
+      "emu": 12.5,
+      "other": 58,
+      "gpuUtil": 22
+     },
+     {
+      "total": 80.6,
+      "emu": 11.7,
+      "other": 68.9,
+      "gpuUtil": 25
+     },
+     {
+      "total": 82.1,
+      "emu": 10.7,
+      "other": 71.4,
+      "gpuUtil": 27
+     }
+    ]
+   },
+   "health": {
+    "problems": [],
+    "fixed": [],
+    "bootComplete": true,
+    "focus": "mCurrentFocus=Window{61d2a7 u0 com.android.chrome/org.chromium.chrome.browser.ChromeTabbedActivity}",
+    "userRotation": "1",
+    "batterySaver": "0",
+    "animationScales": [
+     "1.0",
+     "1.0",
+     "null"
+    ],
+    "thermalStatus": "0",
+    "window": {
+     "foregroundTitle": "Claude",
+     "noWindowFlag": true,
+     "gpu": "host",
+     "window": false
+    },
+    "ok": true
+   }
+  }
+ ],
+ "discardedRuns": []
+}

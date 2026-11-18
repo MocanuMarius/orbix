@@ -1,0 +1,926 @@
+{
+ "day": "2026-11-18",
+ "scenario": "marsh-late-mid",
+ "rounds": 4,
+ "seconds": 30,
+ "conds": [
+  "base",
+  "q:glshade=0+glbitmap=0",
+  "q:glbitmap=0",
+  "q:skip=light"
+ ],
+ "runs": {
+  "base": [
+   {
+    "frames": 1147,
+    "avgFps": 38.19,
+    "low1Fps": 11.8,
+    "p50Ms": 16.7,
+    "p95Ms": 50,
+    "over33": 216,
+    "over50": 25,
+    "longestMs": 200,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 53.4,
+     "cpuMax": 68.5,
+     "gpuUtilAvg": 24.4,
+     "gpuClockAvg": 685.7,
+     "gpuClockMin": 210,
+     "gpuTempMax": 57
+    },
+    "round": 0,
+    "cond": "base"
+   },
+   {
+    "frames": 1488,
+    "avgFps": 49.55,
+    "low1Fps": 15.25,
+    "p50Ms": 16.7,
+    "p95Ms": 33.4,
+    "over33": 94,
+    "over50": 8,
+    "longestMs": 133,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 30,
+     "cpuMax": 33.6,
+     "gpuUtilAvg": 34.3,
+     "gpuClockAvg": 500.8,
+     "gpuClockMin": 300,
+     "gpuTempMax": 53
+    },
+    "round": 1,
+    "cond": "base"
+   },
+   {
+    "frames": 1015,
+    "avgFps": 33.78,
+    "low1Fps": 3.38,
+    "p50Ms": 16.7,
+    "p95Ms": 50.1,
+    "over33": 202,
+    "over50": 58,
+    "longestMs": 467,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 50.6,
+     "cpuMax": 100,
+     "gpuUtilAvg": 25.7,
+     "gpuClockAvg": 710,
+     "gpuClockMin": 210,
+     "gpuTempMax": 55
+    },
+    "round": 2,
+    "cond": "base"
+   },
+   {
+    "frames": 1202,
+    "avgFps": 40.04,
+    "low1Fps": 12.58,
+    "p50Ms": 16.7,
+    "p95Ms": 50,
+    "over33": 208,
+    "over50": 33,
+    "longestMs": 133,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 38.7,
+     "cpuMax": 47.6,
+     "gpuUtilAvg": 33.9,
+     "gpuClockAvg": 533.6,
+     "gpuClockMin": 420,
+     "gpuTempMax": 52
+    },
+    "round": 3,
+    "cond": "base"
+   }
+  ],
+  "q:glshade=0+glbitmap=0": [
+   {
+    "frames": 1069,
+    "avgFps": 35.51,
+    "low1Fps": 13.76,
+    "p50Ms": 33.3,
+    "p95Ms": 49.9,
+    "over33": 220,
+    "over50": 16,
+    "longestMs": 100,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 54.5,
+     "cpuMax": 70.5,
+     "gpuUtilAvg": 33.1,
+     "gpuClockAvg": 447.9,
+     "gpuClockMin": 210,
+     "gpuTempMax": 51
+    },
+    "round": 0,
+    "cond": "q:glshade=0+glbitmap=0"
+   },
+   {
+    "frames": 1241,
+    "avgFps": 41.34,
+    "low1Fps": 17.72,
+    "p50Ms": 16.7,
+    "p95Ms": 33.4,
+    "over33": 145,
+    "over50": 6,
+    "longestMs": 83,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 34.1,
+     "cpuMax": 49.7,
+     "gpuUtilAvg": 30.8,
+     "gpuClockAvg": 612.9,
+     "gpuClockMin": 210,
+     "gpuTempMax": 54
+    },
+    "round": 1,
+    "cond": "q:glshade=0+glbitmap=0"
+   },
+   {
+    "frames": 1113,
+    "avgFps": 37.02,
+    "low1Fps": 12.63,
+    "p50Ms": 16.8,
+    "p95Ms": 50,
+    "over33": 211,
+    "over50": 46,
+    "longestMs": 100,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 42.1,
+     "cpuMax": 78.2,
+     "gpuUtilAvg": 29.1,
+     "gpuClockAvg": 733.9,
+     "gpuClockMin": 210,
+     "gpuTempMax": 55
+    },
+    "round": 2,
+    "cond": "q:glshade=0+glbitmap=0"
+   },
+   {
+    "frames": 1048,
+    "avgFps": 34.88,
+    "low1Fps": 12.94,
+    "p50Ms": 33.3,
+    "p95Ms": 50,
+    "over33": 247,
+    "over50": 43,
+    "longestMs": 133,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 47.6,
+     "cpuMax": 69.3,
+     "gpuUtilAvg": 28,
+     "gpuClockAvg": 778.9,
+     "gpuClockMin": 315,
+     "gpuTempMax": 53
+    },
+    "round": 3,
+    "cond": "q:glshade=0+glbitmap=0"
+   }
+  ],
+  "q:glbitmap=0": [
+   {
+    "frames": 1233,
+    "avgFps": 41.05,
+    "low1Fps": 14.17,
+    "p50Ms": 16.7,
+    "p95Ms": 33.4,
+    "over33": 149,
+    "over50": 12,
+    "longestMs": 117,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 48.2,
+     "cpuMax": 59.7,
+     "gpuUtilAvg": 25.4,
+     "gpuClockAvg": 724.3,
+     "gpuClockMin": 390,
+     "gpuTempMax": 46
+    },
+    "round": 0,
+    "cond": "q:glbitmap=0"
+   },
+   {
+    "frames": 1373,
+    "avgFps": 45.74,
+    "low1Fps": 15.55,
+    "p50Ms": 16.7,
+    "p95Ms": 33.4,
+    "over33": 123,
+    "over50": 7,
+    "longestMs": 133,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 32.2,
+     "cpuMax": 37.2,
+     "gpuUtilAvg": 32.1,
+     "gpuClockAvg": 458.6,
+     "gpuClockMin": 270,
+     "gpuTempMax": 54
+    },
+    "round": 1,
+    "cond": "q:glbitmap=0"
+   },
+   {
+    "frames": 1213,
+    "avgFps": 40.41,
+    "low1Fps": 12.78,
+    "p50Ms": 16.7,
+    "p95Ms": 50,
+    "over33": 192,
+    "over50": 32,
+    "longestMs": 117,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 33.5,
+     "cpuMax": 41.6,
+     "gpuUtilAvg": 31.9,
+     "gpuClockAvg": 797.1,
+     "gpuClockMin": 225,
+     "gpuTempMax": 56
+    },
+    "round": 2,
+    "cond": "q:glbitmap=0"
+   },
+   {
+    "frames": 1083,
+    "avgFps": 36.04,
+    "low1Fps": 9.56,
+    "p50Ms": 16.8,
+    "p95Ms": 50.1,
+    "over33": 242,
+    "over50": 62,
+    "longestMs": 150,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 44.4,
+     "cpuMax": 59.9,
+     "gpuUtilAvg": 30.7,
+     "gpuClockAvg": 562,
+     "gpuClockMin": 225,
+     "gpuTempMax": 55
+    },
+    "round": 3,
+    "cond": "q:glbitmap=0"
+   }
+  ],
+  "q:skip=light": [
+   {
+    "frames": 1489,
+    "avgFps": 49.58,
+    "low1Fps": 18.36,
+    "p50Ms": 16.7,
+    "p95Ms": 33.4,
+    "over33": 82,
+    "over50": 6,
+    "longestMs": 100,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 41.7,
+     "cpuMax": 61,
+     "gpuUtilAvg": 26.5,
+     "gpuClockAvg": 841.1,
+     "gpuClockMin": 300,
+     "gpuTempMax": 51
+    },
+    "round": 0,
+    "cond": "q:skip=light"
+   },
+   {
+    "frames": 1745,
+    "avgFps": 58.13,
+    "low1Fps": 26.3,
+    "p50Ms": 16.7,
+    "p95Ms": 16.8,
+    "over33": 14,
+    "over50": 2,
+    "longestMs": 67,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 30,
+     "cpuMax": 32.6,
+     "gpuUtilAvg": 34.6,
+     "gpuClockAvg": 532.5,
+     "gpuClockMin": 270,
+     "gpuTempMax": 53
+    },
+    "round": 1,
+    "cond": "q:skip=light"
+   },
+   {
+    "frames": 1442,
+    "avgFps": 47.99,
+    "low1Fps": 14.99,
+    "p50Ms": 16.7,
+    "p95Ms": 33.4,
+    "over33": 120,
+    "over50": 14,
+    "longestMs": 117,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 35.6,
+     "cpuMax": 40.7,
+     "gpuUtilAvg": 26.9,
+     "gpuClockAvg": 1134.6,
+     "gpuClockMin": 765,
+     "gpuTempMax": 48
+    },
+    "round": 2,
+    "cond": "q:skip=light"
+   },
+   {
+    "frames": 1434,
+    "avgFps": 47.69,
+    "low1Fps": 16.66,
+    "p50Ms": 16.7,
+    "p95Ms": 33.4,
+    "over33": 93,
+    "over50": 16,
+    "longestMs": 83,
+    "vis": "visible",
+    "vp": "870x280",
+    "dpr": 2.625,
+    "canvases": [
+     "1740x560"
+    ],
+    "crashes": 3,
+    "crashesDuring": 0,
+    "host": {
+     "cpuAvg": 38,
+     "cpuMax": 48.2,
+     "gpuUtilAvg": 28.9,
+     "gpuClockAvg": 739.3,
+     "gpuClockMin": 285,
+     "gpuTempMax": 55
+    },
+    "round": 3,
+    "cond": "q:skip=light"
+   }
+  ]
+ },
+ "order": [
+  [
+   "base",
+   "q:glshade=0+glbitmap=0",
+   "q:glbitmap=0",
+   "q:skip=light"
+  ],
+  [
+   "q:glshade=0+glbitmap=0",
+   "base",
+   "q:skip=light",
+   "q:glbitmap=0"
+  ],
+  [
+   "base",
+   "q:glshade=0+glbitmap=0",
+   "q:glbitmap=0",
+   "q:skip=light"
+  ],
+  [
+   "q:glshade=0+glbitmap=0",
+   "base",
+   "q:skip=light",
+   "q:glbitmap=0"
+  ]
+ ],
+ "pre": [
+  {
+   "quiet": {
+    "quiet": false,
+    "waitedS": 300,
+    "cpu": 29.6,
+    "cpuOther": 27.9,
+    "cpuEmulator": 1.7,
+    "gpu": {
+     "util": 3,
+     "clockMHz": 210,
+     "tempC": 50,
+     "powerW": 30.72,
+     "pstate": "P8"
+    },
+    "loopMs": 37.1,
+    "samples": [
+     {
+      "total": 44.4,
+      "emu": 1.2,
+      "other": 43.2,
+      "gpuUtil": 2
+     },
+     {
+      "total": 48.1,
+      "emu": 0.9,
+      "other": 47.2,
+      "gpuUtil": 2
+     },
+     {
+      "total": 49.3,
+      "emu": 1.3,
+      "other": 48,
+      "gpuUtil": 2
+     },
+     {
+      "total": 29.6,
+      "emu": 1.7,
+      "other": 27.9,
+      "gpuUtil": 3
+     }
+    ]
+   },
+   "health": {
+    "problems": [],
+    "fixed": [],
+    "bootComplete": true,
+    "focus": "mCurrentFocus=Window{b347784 u0 com.android.chrome/org.chromium.chrome.browser.ChromeTabbedActivity}",
+    "userRotation": "1",
+    "batterySaver": "0",
+    "animationScales": [
+     "1.0",
+     "1.0",
+     "null"
+    ],
+    "thermalStatus": "0",
+    "window": {
+     "foregroundTitle": "F:\\Android\\sdk\\emulator\\qemu\\windows-x86_64\\qemu-system-x86_64-headless.exe",
+     "noWindowFlag": true,
+     "gpu": "host",
+     "window": false
+    },
+    "ok": true
+   }
+  },
+  {
+   "quiet": {
+    "quiet": true,
+    "waitedS": 70,
+    "cpu": 14.9,
+    "cpuOther": 2.2,
+    "cpuEmulator": 12.6,
+    "gpu": {
+     "util": 6,
+     "clockMHz": 210,
+     "tempC": 50,
+     "powerW": 30.67,
+     "pstate": "P8"
+    },
+    "loopMs": 30.9,
+    "samples": [
+     {
+      "total": 21.8,
+      "emu": 12.8,
+      "other": 9,
+      "gpuUtil": 3
+     },
+     {
+      "total": 24,
+      "emu": 13,
+      "other": 11.1,
+      "gpuUtil": 6
+     },
+     {
+      "total": 23.3,
+      "emu": 13,
+      "other": 10.3,
+      "gpuUtil": 3
+     },
+     {
+      "total": 14.9,
+      "emu": 12.6,
+      "other": 2.2,
+      "gpuUtil": 6
+     }
+    ]
+   },
+   "health": {
+    "problems": [],
+    "fixed": [],
+    "bootComplete": true,
+    "focus": "mCurrentFocus=Window{b347784 u0 com.android.chrome/org.chromium.chrome.browser.ChromeTabbedActivity}",
+    "userRotation": "1",
+    "batterySaver": "0",
+    "animationScales": [
+     "1.0",
+     "1.0",
+     "null"
+    ],
+    "thermalStatus": "0",
+    "window": {
+     "foregroundTitle": "F:\\Android\\sdk\\emulator\\qemu\\windows-x86_64\\qemu-system-x86_64-headless.exe",
+     "noWindowFlag": true,
+     "gpu": "host",
+     "window": false
+    },
+    "ok": true
+   }
+  },
+  {
+   "quiet": {
+    "quiet": true,
+    "waitedS": 179,
+    "cpu": 15.5,
+    "cpuOther": 2.8,
+    "cpuEmulator": 12.7,
+    "gpu": {
+     "util": 10,
+     "clockMHz": 210,
+     "tempC": 48,
+     "powerW": 28.17,
+     "pstate": "P8"
+    },
+    "loopMs": 31.5,
+    "samples": [
+     {
+      "total": 21.4,
+      "emu": 13.8,
+      "other": 7.6,
+      "gpuUtil": 1
+     },
+     {
+      "total": 26.1,
+      "emu": 13,
+      "other": 13.1,
+      "gpuUtil": 8
+     },
+     {
+      "total": 22.7,
+      "emu": 13.9,
+      "other": 8.7,
+      "gpuUtil": 8
+     },
+     {
+      "total": 15.5,
+      "emu": 12.7,
+      "other": 2.8,
+      "gpuUtil": 10
+     }
+    ]
+   },
+   "health": {
+    "problems": [],
+    "fixed": [],
+    "bootComplete": true,
+    "focus": "mCurrentFocus=Window{b347784 u0 com.android.chrome/org.chromium.chrome.browser.ChromeTabbedActivity}",
+    "userRotation": "1",
+    "batterySaver": "0",
+    "animationScales": [
+     "1.0",
+     "1.0",
+     "null"
+    ],
+    "thermalStatus": "0",
+    "window": {
+     "foregroundTitle": "Claude",
+     "noWindowFlag": true,
+     "gpu": "host",
+     "window": false
+    },
+    "ok": true
+   }
+  },
+  {
+   "quiet": {
+    "quiet": true,
+    "waitedS": 95,
+    "cpu": 16.3,
+    "cpuOther": 3.8,
+    "cpuEmulator": 12.5,
+    "gpu": {
+     "util": 0,
+     "clockMHz": 1710,
+     "tempC": 49,
+     "powerW": 92.93,
+     "pstate": "P0"
+    },
+    "loopMs": 31.2,
+    "samples": [
+     {
+      "total": 17.9,
+      "emu": 12.6,
+      "other": 5.3,
+      "gpuUtil": 11
+     },
+     {
+      "total": 21.6,
+      "emu": 12.5,
+      "other": 9.1,
+      "gpuUtil": 13
+     },
+     {
+      "total": 17.7,
+      "emu": 12.5,
+      "other": 5.2,
+      "gpuUtil": 11
+     },
+     {
+      "total": 16.3,
+      "emu": 12.5,
+      "other": 3.8,
+      "gpuUtil": 0
+     }
+    ]
+   },
+   "health": {
+    "problems": [],
+    "fixed": [],
+    "bootComplete": true,
+    "focus": "mCurrentFocus=Window{b347784 u0 com.android.chrome/org.chromium.chrome.browser.ChromeTabbedActivity}",
+    "userRotation": "1",
+    "batterySaver": "0",
+    "animationScales": [
+     "1.0",
+     "1.0",
+     "null"
+    ],
+    "thermalStatus": "0",
+    "window": {
+     "foregroundTitle": "Claude",
+     "noWindowFlag": true,
+     "gpu": "host",
+     "window": false
+    },
+    "ok": true
+   }
+  }
+ ],
+ "discardedRuns": [],
+ "analysis": {
+  "base": {
+   "cond": "base",
+   "fps": {
+    "n": 4,
+    "median": 39.11,
+    "min": 33.78,
+    "max": 49.55,
+    "spreadPct": 40.3
+   },
+   "low1Fps": {
+    "n": 4,
+    "median": 12.19,
+    "min": 3.38,
+    "max": 15.25,
+    "spreadPct": 97.4
+   },
+   "p95Ms": {
+    "n": 4,
+    "median": 50,
+    "min": 33.4,
+    "max": 50.1,
+    "spreadPct": 33.4
+   },
+   "over33": {
+    "n": 4,
+    "median": 205,
+    "min": 94,
+    "max": 216,
+    "spreadPct": 59.5
+   }
+  },
+  "q:glshade=0+glbitmap=0": {
+   "cond": "q:glshade=0+glbitmap=0",
+   "fps": {
+    "n": 4,
+    "median": 36.27,
+    "min": 34.88,
+    "max": 41.34,
+    "spreadPct": 17.8
+   },
+   "low1Fps": {
+    "n": 4,
+    "median": 13.35,
+    "min": 12.63,
+    "max": 17.72,
+    "spreadPct": 38.1
+   },
+   "p95Ms": {
+    "n": 4,
+    "median": 49.95,
+    "min": 33.4,
+    "max": 50,
+    "spreadPct": 33.2
+   },
+   "over33": {
+    "n": 4,
+    "median": 215.5,
+    "min": 145,
+    "max": 247,
+    "spreadPct": 47.3
+   },
+   "vsBase": {
+    "pairedDiffs": [
+     -2.7,
+     -8.2,
+     3.2,
+     -5.2
+    ],
+    "medianPairedDiff": -3.92,
+    "medianDiff": -2.84,
+    "pctDiff": -7.3,
+    "baseRange": 15.8,
+    "condRange": 6.5,
+    "signAgree": "3/4",
+    "verdict": "noise"
+   }
+  },
+  "q:glbitmap=0": {
+   "cond": "q:glbitmap=0",
+   "fps": {
+    "n": 4,
+    "median": 40.73,
+    "min": 36.04,
+    "max": 45.74,
+    "spreadPct": 23.8
+   },
+   "low1Fps": {
+    "n": 4,
+    "median": 13.47,
+    "min": 9.56,
+    "max": 15.55,
+    "spreadPct": 44.5
+   },
+   "p95Ms": {
+    "n": 4,
+    "median": 41.7,
+    "min": 33.4,
+    "max": 50.1,
+    "spreadPct": 40
+   },
+   "over33": {
+    "n": 4,
+    "median": 170.5,
+    "min": 123,
+    "max": 242,
+    "spreadPct": 69.8
+   },
+   "vsBase": {
+    "pairedDiffs": [
+     2.9,
+     -3.8,
+     6.6,
+     -4
+    ],
+    "medianPairedDiff": -0.47,
+    "medianDiff": 1.62,
+    "pctDiff": 4.1,
+    "baseRange": 15.8,
+    "condRange": 9.7,
+    "signAgree": "2/4",
+    "verdict": "noise"
+   }
+  },
+  "q:skip=light": {
+   "cond": "q:skip=light",
+   "fps": {
+    "n": 4,
+    "median": 48.78,
+    "min": 47.69,
+    "max": 58.13,
+    "spreadPct": 21.4
+   },
+   "low1Fps": {
+    "n": 4,
+    "median": 17.51,
+    "min": 14.99,
+    "max": 26.3,
+    "spreadPct": 64.6
+   },
+   "p95Ms": {
+    "n": 4,
+    "median": 33.4,
+    "min": 16.8,
+    "max": 33.4,
+    "spreadPct": 49.7
+   },
+   "over33": {
+    "n": 4,
+    "median": 87.5,
+    "min": 14,
+    "max": 120,
+    "spreadPct": 121.1
+   },
+   "vsBase": {
+    "pairedDiffs": [
+     11.4,
+     8.6,
+     14.2,
+     7.6
+    ],
+    "medianPairedDiff": 9.99,
+    "medianDiff": 9.67,
+    "pctDiff": 24.7,
+    "baseRange": 15.8,
+    "condRange": 10.4,
+    "signAgree": "4/4",
+    "verdict": "REAL gain"
+   }
+  }
+ }
+}

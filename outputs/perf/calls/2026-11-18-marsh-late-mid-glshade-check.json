@@ -1,0 +1,1833 @@
+{
+ "day": "2026-11-18",
+ "scenario": "marsh-late-mid",
+ "frames": 30,
+ "wait": 12,
+ "flags": [
+  "glshade"
+ ],
+ "seek": null,
+ "query": "",
+ "counts": {
+  "on": [
+   {
+    "frames": 30,
+    "ms": 1407,
+    "perFrame": {
+     "draw": 242.2,
+     "state": 109.6,
+     "path": 721.3,
+     "set": 182.9
+    },
+    "ops": {
+     "rect": 378.7,
+     "lineTo": 296.7,
+     "fillRect": 146.1,
+     "drawImage": 78.4,
+     "globalAlpha": 77.9,
+     "fillStyle": 63.4,
+     "save": 36.7,
+     "restore": 36.7,
+     "translate": 23.2,
+     "globalCompositeOperation": 15.2,
+     "beginPath": 14.8,
+     "moveTo": 12.8,
+     "closePath": 12.8,
+     "imageSmoothingEnabled": 10.2,
+     "fill": 8.2,
+     "strokeStyle": 7.5,
+     "lineWidth": 7.5,
+     "scale": 7,
+     "stroke": 5.5,
+     "setTransform": 5,
+     "ellipse": 3,
+     "clearRect": 3,
+     "arc": 2.5,
+     "lineCap": 1.2,
+     "clip": 1,
+     "putImageData": 1
+    },
+    "callers": [
+     {
+      "caller": "hardContactClearance (terrain-foreground.mjs:43) < drawTerrainForeground (terrain-foreground.mjs:158)",
+      "all": 355.3,
+      "draw": 0,
+      "state": 0,
+      "path": 355.3,
+      "set": 0,
+      "ops": {
+       "rect": 355.3
+      }
+     },
+     {
+      "caller": "PolygonPath.emit (rect-raster.mjs:124) < drawTerrainForeground (terrain-foreground.mjs:138)",
+      "all": 193.7,
+      "draw": 0,
+      "state": 0,
+      "path": 193.7,
+      "set": 0,
+      "ops": {
+       "moveTo": 5.7,
+       "lineTo": 182.4,
+       "closePath": 5.7
+      }
+     },
+     {
+      "caller": "WispFlightView.drawSky (wisp-renderer.mjs:434) < WispFlightView.render (wisp-renderer.mjs:1563)",
+      "all": 58,
+      "draw": 58,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "fillRect": 58
+      }
+     },
+     {
+      "caller": "drawNearLandscapePlates (habitat-compositions.mjs:237) < drawNearLandscape (authored-environment.mjs:132)",
+      "all": 33,
+      "draw": 11,
+      "state": 22,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "save": 11,
+       "translate": 11,
+       "drawImage": 11
+      }
+     },
+     {
+      "caller": "drawWispWake (wisp-wake.mjs:101) < WispFlightView.render (wisp-renderer.mjs:1616)",
+      "all": 31,
+      "draw": 0,
+      "state": 0,
+      "path": 0,
+      "set": 31,
+      "ops": {
+       "globalAlpha": 15.5,
+       "fillStyle": 15.5
+      }
+     },
+     {
+      "caller": "WispFlightView.drawSky (wisp-renderer.mjs:450) < WispFlightView.render (wisp-renderer.mjs:1563)",
+      "all": 26,
+      "draw": 13,
+      "state": 0,
+      "path": 0,
+      "set": 13,
+      "ops": {
+       "fillStyle": 13,
+       "fillRect": 13
+      }
+     },
+     {
+      "caller": "box (habitat-wildlife.mjs:41) < drawHabitatAnimal (habitat-wildlife.mjs:51)",
+      "all": 24,
+      "draw": 12,
+      "state": 0,
+      "path": 0,
+      "set": 12,
+      "ops": {
+       "fillStyle": 12,
+       "fillRect": 12
+      }
+     },
+     {
+      "caller": "hardContactClearance (terrain-foreground.mjs:42) < drawTerrainForeground (terrain-foreground.mjs:158)",
+      "all": 23.4,
+      "draw": 0,
+      "state": 0,
+      "path": 23.4,
+      "set": 0,
+      "ops": {
+       "rect": 23.4
+      }
+     },
+     {
+      "caller": "drawAuthoredBackdrop (authored-environment.mjs:92) < drawHabitatBackdrop (terrain-ecology.mjs:23)",
+      "all": 22.4,
+      "draw": 22.4,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "drawImage": 22.4
+      }
+     },
+     {
+      "caller": "Object.flush (level-scenery-two.mjs:481) < groundMaterial (level-scenery-two.mjs:925)",
+      "all": 21.3,
+      "draw": 20.9,
+      "state": 0,
+      "path": 0,
+      "set": 0.4,
+      "ops": {
+       "fillStyle": 0.4,
+       "fillRect": 20.9
+      }
+     },
+     {
+      "caller": "drawWispWake (wisp-wake.mjs:104) < WispFlightView.render (wisp-renderer.mjs:1616)",
+      "all": 15.5,
+      "draw": 15.5,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "fillRect": 15.5
+      }
+     },
+     {
+      "caller": "wisp-renderer.mjs:245) < Array.forEach (<anonymous>)",
+      "all": 14.9,
+      "draw": 0,
+      "state": 0,
+      "path": 14.9,
+      "set": 0,
+      "ops": {
+       "moveTo": 3,
+       "lineTo": 11.9
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:95) < drawLanes (fluid-capture.mjs:160)",
+      "all": 14.5,
+      "draw": 0,
+      "state": 0,
+      "path": 14.5,
+      "set": 0,
+      "ops": {
+       "moveTo": 0.5,
+       "lineTo": 14
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:99) < drawLanes (fluid-capture.mjs:160)",
+      "all": 14.5,
+      "draw": 0,
+      "state": 0,
+      "path": 14.5,
+      "set": 0,
+      "ops": {
+       "lineTo": 14.5
+      }
+     },
+     {
+      "caller": "drawHabitatAnimal (habitat-wildlife.mjs:38) < drawNearLandscapePlates (habitat-compositions.mjs:238)",
+      "all": 12,
+      "draw": 0,
+      "state": 9,
+      "path": 0,
+      "set": 3,
+      "ops": {
+       "save": 3,
+       "globalAlpha": 3,
+       "translate": 3,
+       "scale": 3
+      }
+     },
+     {
+      "caller": "drawHabitatAnimal (habitat-wildlife.mjs:49) < drawNearLandscapePlates (habitat-compositions.mjs:238)",
+      "all": 12,
+      "draw": 3,
+      "state": 0,
+      "path": 6,
+      "set": 3,
+      "ops": {
+       "beginPath": 3,
+       "ellipse": 3,
+       "stroke": 3,
+       "globalAlpha": 3
+      }
+     },
+     {
+      "caller": "box (habitat-wildlife.mjs:41) < drawHabitatAnimal (habitat-wildlife.mjs:52)",
+      "all": 12,
+      "draw": 6,
+      "state": 0,
+      "path": 0,
+      "set": 6,
+      "ops": {
+       "fillStyle": 6,
+       "fillRect": 6
+      }
+     },
+     {
+      "caller": "drawNearLandscapePlates (habitat-compositions.mjs:239) < drawNearLandscape (authored-environment.mjs:132)",
+      "all": 11,
+      "draw": 0,
+      "state": 11,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "restore": 11
+      }
+     },
+     {
+      "caller": "pickup-handling-cue.mjs:46) < Array.forEach (<anonymous>)",
+      "all": 9.9,
+      "draw": 0,
+      "state": 0,
+      "path": 9.9,
+      "set": 0,
+      "ops": {
+       "moveTo": 2.5,
+       "lineTo": 7.4
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:95) < drawLanes (fluid-capture.mjs:172)",
+      "all": 9.7,
+      "draw": 0,
+      "state": 0,
+      "path": 9.7,
+      "set": 0,
+      "ops": {
+       "moveTo": 0.3,
+       "lineTo": 9.3
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:99) < drawLanes (fluid-capture.mjs:172)",
+      "all": 9.7,
+      "draw": 0,
+      "state": 0,
+      "path": 9.7,
+      "set": 0,
+      "ops": {
+       "lineTo": 9.7
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:95) < drawLanes (fluid-capture.mjs:185)",
+      "all": 9.7,
+      "draw": 0,
+      "state": 0,
+      "path": 9.7,
+      "set": 0,
+      "ops": {
+       "moveTo": 0.3,
+       "lineTo": 9.3
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:99) < drawLanes (fluid-capture.mjs:185)",
+      "all": 9.7,
+      "draw": 0,
+      "state": 0,
+      "path": 9.7,
+      "set": 0,
+      "ops": {
+       "lineTo": 9.7
+      }
+     },
+     {
+      "caller": "WispFlightView.drawSceneryGrowth (wisp-renderer.mjs:301) < WispFlightView.render (wisp-renderer.mjs:1576)",
+      "all": 6.2,
+      "draw": 6.2,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "drawImage": 6.2
+      }
+     },
+     {
+      "caller": "WispFlightView.drawTerrain (wisp-renderer.mjs:776) < WispFlightView.render (wisp-renderer.mjs:1577)",
+      "all": 6.2,
+      "draw": 6.2,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "drawImage": 6.2
+      }
+     },
+     {
+      "caller": "drawHabitatAnimal (habitat-wildlife.mjs:45) < drawNearLandscapePlates (habitat-compositions.mjs:238)",
+      "all": 6,
+      "draw": 0,
+      "state": 0,
+      "path": 0,
+      "set": 6,
+      "ops": {
+       "strokeStyle": 3,
+       "lineWidth": 3
+      }
+     },
+     {
+      "caller": "WispFlightView.drawMist (wisp-renderer.mjs:632) < WispFlightView.render (wisp-renderer.mjs:1603)",
+      "all": 6,
+      "draw": 0,
+      "state": 0,
+      "path": 0,
+      "set": 6,
+      "ops": {
+       "globalAlpha": 3,
+       "fillStyle": 3
+      }
+     },
+     {
+      "caller": "WispFlightView.glow (wisp-renderer.mjs:1288) < WispFlightView.drawFleet (wisp-renderer.mjs:1421)",
+      "all": 6,
+      "draw": 0,
+      "state": 2,
+      "path": 0,
+      "set": 4,
+      "ops": {
+       "save": 2,
+       "globalCompositeOperation": 2,
+       "globalAlpha": 2
+      }
+     },
+     {
+      "caller": "drawTerrainForeground (terrain-foreground.mjs:162) < WispFlightView.render (wisp-renderer.mjs:1662)",
+      "all": 6,
+      "draw": 1,
+      "state": 2,
+      "path": 0,
+      "set": 3,
+      "ops": {
+       "save": 1,
+       "globalAlpha": 1,
+       "globalCompositeOperation": 1,
+       "imageSmoothingEnabled": 1,
+       "drawImage": 1,
+       "restore": 1
+      }
+     },
+     {
+      "caller": "drawTerrainForeground (terrain-foreground.mjs:147) < WispFlightView.render (wisp-renderer.mjs:1662)",
+      "all": 5.3,
+      "draw": 5.3,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "drawImage": 5.3
+      }
+     }
+    ]
+   },
+   {
+    "frames": 30,
+    "ms": 1298,
+    "perFrame": {
+     "draw": 312.9,
+     "state": 112.4,
+     "path": 688.8,
+     "set": 198.7
+    },
+    "ops": {
+     "rect": 462.9,
+     "fillRect": 222.8,
+     "lineTo": 192.2,
+     "fillStyle": 78.2,
+     "globalAlpha": 77.7,
+     "drawImage": 75.6,
+     "save": 36.7,
+     "restore": 36.7,
+     "translate": 24.3,
+     "globalCompositeOperation": 15,
+     "beginPath": 11.5,
+     "imageSmoothingEnabled": 11.2,
+     "moveTo": 11,
+     "scale": 8.5,
+     "strokeStyle": 8.3,
+     "lineWidth": 8.3,
+     "closePath": 8,
+     "stroke": 6.3,
+     "setTransform": 5,
+     "fill": 4.2,
+     "ellipse": 3.3,
+     "clearRect": 3,
+     "putImageData": 1,
+     "clip": 1
+    },
+    "callers": [
+     {
+      "caller": "hardContactClearance (terrain-foreground.mjs:43) < drawTerrainForeground (terrain-foreground.mjs:158)",
+      "all": 448.2,
+      "draw": 0,
+      "state": 0,
+      "path": 448.2,
+      "set": 0,
+      "ops": {
+       "rect": 448.2
+      }
+     },
+     {
+      "caller": "PolygonPath.emit (rect-raster.mjs:124) < drawTerrainForeground (terrain-foreground.mjs:138)",
+      "all": 189.5,
+      "draw": 0,
+      "state": 0,
+      "path": 189.5,
+      "set": 0,
+      "ops": {
+       "moveTo": 4.8,
+       "lineTo": 179.8,
+       "closePath": 4.8
+      }
+     },
+     {
+      "caller": "Object.pixelLine [as line] (wisp-renderer.mjs:219) < line (biome-art.mjs:58)",
+      "all": 82.7,
+      "draw": 82.7,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "fillRect": 82.7
+      }
+     },
+     {
+      "caller": "WispFlightView.drawSky (wisp-renderer.mjs:434) < WispFlightView.render (wisp-renderer.mjs:1563)",
+      "all": 58,
+      "draw": 58,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "fillRect": 58
+      }
+     },
+     {
+      "caller": "drawNearLandscapePlates (habitat-compositions.mjs:237) < drawNearLandscape (authored-environment.mjs:132)",
+      "all": 30.6,
+      "draw": 10.2,
+      "state": 20.4,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "save": 10.2,
+       "translate": 10.2,
+       "drawImage": 10.2
+      }
+     },
+     {
+      "caller": "drawWispWake (wisp-wake.mjs:101) < WispFlightView.render (wisp-renderer.mjs:1616)",
+      "all": 30.5,
+      "draw": 0,
+      "state": 0,
+      "path": 0,
+      "set": 30.5,
+      "ops": {
+       "globalAlpha": 15.2,
+       "fillStyle": 15.2
+      }
+     },
+     {
+      "caller": "box (habitat-wildlife.mjs:41) < drawHabitatAnimal (habitat-wildlife.mjs:51)",
+      "all": 26.4,
+      "draw": 13.2,
+      "state": 0,
+      "path": 0,
+      "set": 13.2,
+      "ops": {
+       "fillStyle": 13.2,
+       "fillRect": 13.2
+      }
+     },
+     {
+      "caller": "WispFlightView.drawSky (wisp-renderer.mjs:450) < WispFlightView.render (wisp-renderer.mjs:1563)",
+      "all": 26,
+      "draw": 13,
+      "state": 0,
+      "path": 0,
+      "set": 13,
+      "ops": {
+       "fillStyle": 13,
+       "fillRect": 13
+      }
+     },
+     {
+      "caller": "drawAuthoredBackdrop (authored-environment.mjs:92) < drawHabitatBackdrop (terrain-ecology.mjs:23)",
+      "all": 23,
+      "draw": 23,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "drawImage": 23
+      }
+     },
+     {
+      "caller": "drawWispWake (wisp-wake.mjs:104) < WispFlightView.render (wisp-renderer.mjs:1616)",
+      "all": 15.2,
+      "draw": 15.2,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "fillRect": 15.2
+      }
+     },
+     {
+      "caller": "hardContactClearance (terrain-foreground.mjs:42) < drawTerrainForeground (terrain-foreground.mjs:158)",
+      "all": 14.7,
+      "draw": 0,
+      "state": 0,
+      "path": 14.7,
+      "set": 0,
+      "ops": {
+       "rect": 14.7
+      }
+     },
+     {
+      "caller": "drawHabitatAnimal (habitat-wildlife.mjs:38) < drawNearLandscapePlates (habitat-compositions.mjs:238)",
+      "all": 13.2,
+      "draw": 0,
+      "state": 9.9,
+      "path": 0,
+      "set": 3.3,
+      "ops": {
+       "save": 3.3,
+       "globalAlpha": 3.3,
+       "translate": 3.3,
+       "scale": 3.3
+      }
+     },
+     {
+      "caller": "drawHabitatAnimal (habitat-wildlife.mjs:49) < drawNearLandscapePlates (habitat-compositions.mjs:238)",
+      "all": 13.2,
+      "draw": 3.3,
+      "state": 0,
+      "path": 6.6,
+      "set": 3.3,
+      "ops": {
+       "beginPath": 3.3,
+       "ellipse": 3.3,
+       "stroke": 3.3,
+       "globalAlpha": 3.3
+      }
+     },
+     {
+      "caller": "box (habitat-wildlife.mjs:41) < drawHabitatAnimal (habitat-wildlife.mjs:52)",
+      "all": 13.2,
+      "draw": 6.6,
+      "state": 0,
+      "path": 0,
+      "set": 6.6,
+      "ops": {
+       "fillStyle": 6.6,
+       "fillRect": 6.6
+      }
+     },
+     {
+      "caller": "flushRun (wisp-renderer.mjs:217) < Object.pixelLine [as line] (wisp-renderer.mjs:224)",
+      "all": 13,
+      "draw": 13,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "fillRect": 13
+      }
+     },
+     {
+      "caller": "wisp-renderer.mjs:245) < Array.forEach (<anonymous>)",
+      "all": 12.5,
+      "draw": 0,
+      "state": 0,
+      "path": 12.5,
+      "set": 0,
+      "ops": {
+       "moveTo": 3.2,
+       "lineTo": 9.3
+      }
+     },
+     {
+      "caller": "line (biome-dynamics.mjs:261) < drawActor (biome-dynamics.mjs:341)",
+      "all": 12,
+      "draw": 2,
+      "state": 0,
+      "path": 6,
+      "set": 4,
+      "ops": {
+       "strokeStyle": 2,
+       "lineWidth": 2,
+       "beginPath": 2,
+       "moveTo": 2,
+       "lineTo": 2,
+       "stroke": 2
+      }
+     },
+     {
+      "caller": "drawNearLandscapePlates (habitat-compositions.mjs:239) < drawNearLandscape (authored-environment.mjs:132)",
+      "all": 10.2,
+      "draw": 0,
+      "state": 10.2,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "restore": 10.2
+      }
+     },
+     {
+      "caller": "Object.pixelLine [as line] (wisp-renderer.mjs:210) < line (biome-art.mjs:58)",
+      "all": 9.3,
+      "draw": 0,
+      "state": 0,
+      "path": 0,
+      "set": 9.3,
+      "ops": {
+       "fillStyle": 9.3
+      }
+     },
+     {
+      "caller": "box (biome-dynamics.mjs:260) < drawActor (biome-dynamics.mjs:344)",
+      "all": 8,
+      "draw": 4,
+      "state": 0,
+      "path": 0,
+      "set": 4,
+      "ops": {
+       "fillStyle": 4,
+       "fillRect": 4
+      }
+     },
+     {
+      "caller": "drawHabitatAnimal (habitat-wildlife.mjs:45) < drawNearLandscapePlates (habitat-compositions.mjs:238)",
+      "all": 6.6,
+      "draw": 0,
+      "state": 0,
+      "path": 0,
+      "set": 6.6,
+      "ops": {
+       "strokeStyle": 3.3,
+       "lineWidth": 3.3
+      }
+     },
+     {
+      "caller": "line (biome-dynamics.mjs:261) < drawActor (biome-dynamics.mjs:333)",
+      "all": 6,
+      "draw": 1,
+      "state": 0,
+      "path": 3,
+      "set": 2,
+      "ops": {
+       "strokeStyle": 1,
+       "lineWidth": 1,
+       "beginPath": 1,
+       "moveTo": 1,
+       "lineTo": 1,
+       "stroke": 1
+      }
+     },
+     {
+      "caller": "WispFlightView.drawMist (wisp-renderer.mjs:632) < WispFlightView.render (wisp-renderer.mjs:1603)",
+      "all": 6,
+      "draw": 0,
+      "state": 0,
+      "path": 0,
+      "set": 6,
+      "ops": {
+       "globalAlpha": 3,
+       "fillStyle": 3
+      }
+     },
+     {
+      "caller": "WispFlightView.glow (wisp-renderer.mjs:1288) < WispFlightView.drawFleet (wisp-renderer.mjs:1421)",
+      "all": 6,
+      "draw": 0,
+      "state": 2,
+      "path": 0,
+      "set": 4,
+      "ops": {
+       "save": 2,
+       "globalCompositeOperation": 2,
+       "globalAlpha": 2
+      }
+     },
+     {
+      "caller": "drawTerrainForeground (terrain-foreground.mjs:162) < WispFlightView.render (wisp-renderer.mjs:1662)",
+      "all": 6,
+      "draw": 1,
+      "state": 2,
+      "path": 0,
+      "set": 3,
+      "ops": {
+       "save": 1,
+       "globalAlpha": 1,
+       "globalCompositeOperation": 1,
+       "imageSmoothingEnabled": 1,
+       "drawImage": 1,
+       "restore": 1
+      }
+     },
+     {
+      "caller": "drawPickup (pickup-art.mjs:546) < WispFlightView.drawPacket (wisp-renderer.mjs:945)",
+      "all": 5.9,
+      "draw": 0,
+      "state": 0,
+      "path": 0,
+      "set": 5.9,
+      "ops": {
+       "globalAlpha": 3,
+       "imageSmoothingEnabled": 3
+      }
+     },
+     {
+      "caller": "flushRun (wisp-renderer.mjs:217) < Object.pixelLine [as line] (wisp-renderer.mjs:230)",
+      "all": 5.8,
+      "draw": 5.8,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "fillRect": 5.8
+      }
+     },
+     {
+      "caller": "drawTerrainForeground (terrain-foreground.mjs:147) < WispFlightView.render (wisp-renderer.mjs:1662)",
+      "all": 5.6,
+      "draw": 5.6,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "drawImage": 5.6
+      }
+     },
+     {
+      "caller": "WispFlightView.drawSceneryGrowth (wisp-renderer.mjs:301) < WispFlightView.render (wisp-renderer.mjs:1576)",
+      "all": 5,
+      "draw": 5,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "drawImage": 5
+      }
+     },
+     {
+      "caller": "WispFlightView.drawTerrain (wisp-renderer.mjs:776) < WispFlightView.render (wisp-renderer.mjs:1577)",
+      "all": 5,
+      "draw": 5,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "drawImage": 5
+      }
+     }
+    ]
+   }
+  ],
+  "glshade=0": [
+   {
+    "frames": 30,
+    "ms": 1753,
+    "perFrame": {
+     "draw": 223.2,
+     "state": 115.8,
+     "path": 1324.6,
+     "set": 209.2
+    },
+    "ops": {
+     "lineTo": 817,
+     "rect": 430.2,
+     "fillRect": 113.8,
+     "globalAlpha": 90.2,
+     "drawImage": 81.2,
+     "fillStyle": 71.4,
+     "save": 39.1,
+     "restore": 39.1,
+     "moveTo": 26.6,
+     "beginPath": 24.8,
+     "translate": 21.8,
+     "closePath": 21.6,
+     "globalCompositeOperation": 16,
+     "fill": 15.5,
+     "imageSmoothingEnabled": 10.3,
+     "lineWidth": 10.2,
+     "strokeStyle": 9.8,
+     "stroke": 8.2,
+     "scale": 7,
+     "setTransform": 5.4,
+     "clearRect": 3.5,
+     "transform": 2.3,
+     "ellipse": 2.2,
+     "arc": 2.1,
+     "lineCap": 1.1,
+     "putImageData": 1,
+     "clip": 1,
+     "lineJoin": 0.2,
+     "rotate": 0
+    },
+    "callers": [
+     {
+      "caller": "hardContactClearance (terrain-foreground.mjs:43) < drawTerrainForeground (terrain-foreground.mjs:158)",
+      "all": 403.2,
+      "draw": 0,
+      "state": 0,
+      "path": 403.2,
+      "set": 0,
+      "ops": {
+       "rect": 403.2
+      }
+     },
+     {
+      "caller": "PolygonPath.emit (rect-raster.mjs:124) < drawTerrainForeground (terrain-foreground.mjs:138)",
+      "all": 184.3,
+      "draw": 0,
+      "state": 0,
+      "path": 184.3,
+      "set": 0,
+      "ops": {
+       "moveTo": 5.8,
+       "lineTo": 172.7,
+       "closePath": 5.8
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:95) < drawLanes (fluid-capture.mjs:160)",
+      "all": 69.6,
+      "draw": 0,
+      "state": 0,
+      "path": 69.6,
+      "set": 0,
+      "ops": {
+       "moveTo": 2.4,
+       "lineTo": 67.2
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:99) < drawLanes (fluid-capture.mjs:160)",
+      "all": 69.6,
+      "draw": 0,
+      "state": 0,
+      "path": 69.6,
+      "set": 0,
+      "ops": {
+       "lineTo": 69.6
+      }
+     },
+     {
+      "caller": "WispFlightView.bakeShadeChunk (wisp-renderer.mjs:1197) < WispFlightView.shadeChunkList (wisp-renderer.mjs:1158)",
+      "all": 65.1,
+      "draw": 0,
+      "state": 0,
+      "path": 65.1,
+      "set": 0,
+      "ops": {
+       "lineTo": 65.1
+      }
+     },
+     {
+      "caller": "WispFlightView.drawSky (wisp-renderer.mjs:434) < WispFlightView.render (wisp-renderer.mjs:1563)",
+      "all": 56.1,
+      "draw": 56.1,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "fillRect": 56.1
+      }
+     },
+     {
+      "caller": "drawShellPuff (capture-art.mjs:116) < drawCapture (capture-art.mjs:159)",
+      "all": 46.8,
+      "draw": 0,
+      "state": 0,
+      "path": 46.8,
+      "set": 0,
+      "ops": {
+       "moveTo": 1.3,
+       "lineTo": 45.5
+      }
+     },
+     {
+      "caller": "drawShellPuff (capture-art.mjs:122) < drawCapture (capture-art.mjs:159)",
+      "all": 46.8,
+      "draw": 0,
+      "state": 0,
+      "path": 46.8,
+      "set": 0,
+      "ops": {
+       "moveTo": 1.3,
+       "lineTo": 45.5
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:95) < drawLanes (fluid-capture.mjs:172)",
+      "all": 46.4,
+      "draw": 0,
+      "state": 0,
+      "path": 46.4,
+      "set": 0,
+      "ops": {
+       "moveTo": 1.6,
+       "lineTo": 44.8
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:99) < drawLanes (fluid-capture.mjs:172)",
+      "all": 46.4,
+      "draw": 0,
+      "state": 0,
+      "path": 46.4,
+      "set": 0,
+      "ops": {
+       "lineTo": 46.4
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:95) < drawLanes (fluid-capture.mjs:185)",
+      "all": 46.4,
+      "draw": 0,
+      "state": 0,
+      "path": 46.4,
+      "set": 0,
+      "ops": {
+       "moveTo": 1.6,
+       "lineTo": 44.8
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:99) < drawLanes (fluid-capture.mjs:185)",
+      "all": 46.4,
+      "draw": 0,
+      "state": 0,
+      "path": 46.4,
+      "set": 0,
+      "ops": {
+       "lineTo": 46.4
+      }
+     },
+     {
+      "caller": "drawNearLandscapePlates (habitat-compositions.mjs:237) < drawNearLandscape (authored-environment.mjs:132)",
+      "all": 31.7,
+      "draw": 10.6,
+      "state": 21.1,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "save": 10.6,
+       "translate": 10.6,
+       "drawImage": 10.6
+      }
+     },
+     {
+      "caller": "drawWispWake (wisp-wake.mjs:101) < WispFlightView.render (wisp-renderer.mjs:1616)",
+      "all": 31.1,
+      "draw": 0,
+      "state": 0,
+      "path": 0,
+      "set": 31.1,
+      "ops": {
+       "globalAlpha": 15.6,
+       "fillStyle": 15.6
+      }
+     },
+     {
+      "caller": "hardContactClearance (terrain-foreground.mjs:42) < drawTerrainForeground (terrain-foreground.mjs:158)",
+      "all": 27.1,
+      "draw": 0,
+      "state": 0,
+      "path": 27.1,
+      "set": 0,
+      "ops": {
+       "rect": 27.1
+      }
+     },
+     {
+      "caller": "WispFlightView.drawSky (wisp-renderer.mjs:450) < WispFlightView.render (wisp-renderer.mjs:1563)",
+      "all": 25.1,
+      "draw": 12.6,
+      "state": 0,
+      "path": 0,
+      "set": 12.6,
+      "ops": {
+       "fillStyle": 12.6,
+       "fillRect": 12.6
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:95) < drawBackfold (fluid-capture.mjs:115)",
+      "all": 23.2,
+      "draw": 0,
+      "state": 0,
+      "path": 23.2,
+      "set": 0,
+      "ops": {
+       "moveTo": 0.8,
+       "lineTo": 22.4
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:99) < drawBackfold (fluid-capture.mjs:115)",
+      "all": 23.2,
+      "draw": 0,
+      "state": 0,
+      "path": 23.2,
+      "set": 0,
+      "ops": {
+       "lineTo": 23.2
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:95) < drawBackfold (fluid-capture.mjs:117)",
+      "all": 23.2,
+      "draw": 0,
+      "state": 0,
+      "path": 23.2,
+      "set": 0,
+      "ops": {
+       "moveTo": 0.8,
+       "lineTo": 22.4
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:99) < drawBackfold (fluid-capture.mjs:117)",
+      "all": 23.2,
+      "draw": 0,
+      "state": 0,
+      "path": 23.2,
+      "set": 0,
+      "ops": {
+       "lineTo": 23.2
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:95) < drawFluidCapture (fluid-capture.mjs:208)",
+      "all": 23.2,
+      "draw": 0,
+      "state": 0,
+      "path": 23.2,
+      "set": 0,
+      "ops": {
+       "moveTo": 0.8,
+       "lineTo": 22.4
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:99) < drawFluidCapture (fluid-capture.mjs:208)",
+      "all": 23.2,
+      "draw": 0,
+      "state": 0,
+      "path": 23.2,
+      "set": 0,
+      "ops": {
+       "lineTo": 23.2
+      }
+     },
+     {
+      "caller": "drawAuthoredBackdrop (authored-environment.mjs:92) < drawHabitatBackdrop (terrain-ecology.mjs:23)",
+      "all": 22.9,
+      "draw": 22.9,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "drawImage": 22.9
+      }
+     },
+     {
+      "caller": "box (habitat-wildlife.mjs:41) < drawHabitatAnimal (habitat-wildlife.mjs:51)",
+      "all": 17.3,
+      "draw": 8.7,
+      "state": 0,
+      "path": 0,
+      "set": 8.7,
+      "ops": {
+       "fillStyle": 8.7,
+       "fillRect": 8.7
+      }
+     },
+     {
+      "caller": "drawWispWake (wisp-wake.mjs:104) < WispFlightView.render (wisp-renderer.mjs:1616)",
+      "all": 15.6,
+      "draw": 15.6,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "fillRect": 15.6
+      }
+     },
+     {
+      "caller": "line (biome-dynamics.mjs:261) < drawActor (biome-dynamics.mjs:341)",
+      "all": 11.6,
+      "draw": 1.9,
+      "state": 0,
+      "path": 5.8,
+      "set": 3.9,
+      "ops": {
+       "strokeStyle": 1.9,
+       "lineWidth": 1.9,
+       "beginPath": 1.9,
+       "moveTo": 1.9,
+       "lineTo": 1.9,
+       "stroke": 1.9
+      }
+     },
+     {
+      "caller": "wisp-renderer.mjs:245) < Array.forEach (<anonymous>)",
+      "all": 11.6,
+      "draw": 0,
+      "state": 0,
+      "path": 11.6,
+      "set": 0,
+      "ops": {
+       "moveTo": 2.9,
+       "lineTo": 8.7
+      }
+     },
+     {
+      "caller": "PolygonPath.emit (rect-raster.mjs:124) < WispFlightView.bakeShadeChunk (wisp-renderer.mjs:1186)",
+      "all": 10.8,
+      "draw": 0,
+      "state": 0,
+      "path": 10.8,
+      "set": 0,
+      "ops": {
+       "moveTo": 0.4,
+       "lineTo": 10.1,
+       "closePath": 0.4
+      }
+     },
+     {
+      "caller": "drawNearLandscapePlates (habitat-compositions.mjs:239) < drawNearLandscape (authored-environment.mjs:132)",
+      "all": 10.6,
+      "draw": 0,
+      "state": 10.6,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "restore": 10.6
+      }
+     },
+     {
+      "caller": "drawHabitatAnimal (habitat-wildlife.mjs:38) < drawNearLandscapePlates (habitat-compositions.mjs:238)",
+      "all": 8.7,
+      "draw": 0,
+      "state": 6.5,
+      "path": 0,
+      "set": 2.2,
+      "ops": {
+       "save": 2.2,
+       "globalAlpha": 2.2,
+       "translate": 2.2,
+       "scale": 2.2
+      }
+     }
+    ]
+   },
+   {
+    "frames": 30,
+    "ms": 1924,
+    "perFrame": {
+     "draw": 272.8,
+     "state": 129.4,
+     "path": 1316.7,
+     "set": 218.2
+    },
+    "ops": {
+     "lineTo": 783,
+     "rect": 463.9,
+     "fillRect": 160.8,
+     "globalAlpha": 93.2,
+     "drawImage": 85.8,
+     "fillStyle": 77.9,
+     "save": 42.2,
+     "restore": 42.2,
+     "translate": 27,
+     "moveTo": 24.2,
+     "beginPath": 22.4,
+     "closePath": 19.1,
+     "globalCompositeOperation": 16.9,
+     "fill": 13.8,
+     "imageSmoothingEnabled": 11.2,
+     "lineWidth": 9.4,
+     "strokeStyle": 9.3,
+     "scale": 8.5,
+     "stroke": 7.4,
+     "setTransform": 6,
+     "clearRect": 4,
+     "ellipse": 3.5,
+     "transform": 2.5,
+     "clip": 1,
+     "putImageData": 1,
+     "arc": 0.6,
+     "lineCap": 0.1,
+     "lineJoin": 0.1,
+     "rotate": 0.1
+    },
+    "callers": [
+     {
+      "caller": "hardContactClearance (terrain-foreground.mjs:43) < drawTerrainForeground (terrain-foreground.mjs:158)",
+      "all": 435.9,
+      "draw": 0,
+      "state": 0,
+      "path": 435.9,
+      "set": 0,
+      "ops": {
+       "rect": 435.9
+      }
+     },
+     {
+      "caller": "PolygonPath.emit (rect-raster.mjs:124) < drawTerrainForeground (terrain-foreground.mjs:138)",
+      "all": 186.6,
+      "draw": 0,
+      "state": 0,
+      "path": 186.6,
+      "set": 0,
+      "ops": {
+       "moveTo": 4.9,
+       "lineTo": 176.9,
+       "closePath": 4.9
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:95) < drawLanes (fluid-capture.mjs:160)",
+      "all": 72.5,
+      "draw": 0,
+      "state": 0,
+      "path": 72.5,
+      "set": 0,
+      "ops": {
+       "moveTo": 2.5,
+       "lineTo": 70
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:99) < drawLanes (fluid-capture.mjs:160)",
+      "all": 72.5,
+      "draw": 0,
+      "state": 0,
+      "path": 72.5,
+      "set": 0,
+      "ops": {
+       "lineTo": 72.5
+      }
+     },
+     {
+      "caller": "WispFlightView.drawSky (wisp-renderer.mjs:434) < WispFlightView.render (wisp-renderer.mjs:1563)",
+      "all": 58,
+      "draw": 58,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "fillRect": 58
+      }
+     },
+     {
+      "caller": "drawShellPuff (capture-art.mjs:116) < drawCapture (capture-art.mjs:159)",
+      "all": 50.4,
+      "draw": 0,
+      "state": 0,
+      "path": 50.4,
+      "set": 0,
+      "ops": {
+       "moveTo": 1.4,
+       "lineTo": 49
+      }
+     },
+     {
+      "caller": "drawShellPuff (capture-art.mjs:122) < drawCapture (capture-art.mjs:159)",
+      "all": 50.4,
+      "draw": 0,
+      "state": 0,
+      "path": 50.4,
+      "set": 0,
+      "ops": {
+       "moveTo": 1.4,
+       "lineTo": 49
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:95) < drawLanes (fluid-capture.mjs:172)",
+      "all": 48.3,
+      "draw": 0,
+      "state": 0,
+      "path": 48.3,
+      "set": 0,
+      "ops": {
+       "moveTo": 1.7,
+       "lineTo": 46.7
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:99) < drawLanes (fluid-capture.mjs:172)",
+      "all": 48.3,
+      "draw": 0,
+      "state": 0,
+      "path": 48.3,
+      "set": 0,
+      "ops": {
+       "lineTo": 48.3
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:95) < drawLanes (fluid-capture.mjs:185)",
+      "all": 48.3,
+      "draw": 0,
+      "state": 0,
+      "path": 48.3,
+      "set": 0,
+      "ops": {
+       "moveTo": 1.7,
+       "lineTo": 46.7
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:99) < drawLanes (fluid-capture.mjs:185)",
+      "all": 48.3,
+      "draw": 0,
+      "state": 0,
+      "path": 48.3,
+      "set": 0,
+      "ops": {
+       "lineTo": 48.3
+      }
+     },
+     {
+      "caller": "drawNearLandscapePlates (habitat-compositions.mjs:237) < drawNearLandscape (authored-environment.mjs:132)",
+      "all": 34.9,
+      "draw": 11.6,
+      "state": 23.3,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "save": 11.6,
+       "translate": 11.6,
+       "drawImage": 11.6
+      }
+     },
+     {
+      "caller": "drawWispWake (wisp-wake.mjs:101) < WispFlightView.render (wisp-renderer.mjs:1616)",
+      "all": 30.3,
+      "draw": 0,
+      "state": 0,
+      "path": 0,
+      "set": 30.3,
+      "ops": {
+       "globalAlpha": 15.2,
+       "fillStyle": 15.2
+      }
+     },
+     {
+      "caller": "hardContactClearance (terrain-foreground.mjs:42) < drawTerrainForeground (terrain-foreground.mjs:158)",
+      "all": 28,
+      "draw": 0,
+      "state": 0,
+      "path": 28,
+      "set": 0,
+      "ops": {
+       "rect": 28
+      }
+     },
+     {
+      "caller": "box (habitat-wildlife.mjs:41) < drawHabitatAnimal (habitat-wildlife.mjs:51)",
+      "all": 27.7,
+      "draw": 13.9,
+      "state": 0,
+      "path": 0,
+      "set": 13.9,
+      "ops": {
+       "fillStyle": 13.9,
+       "fillRect": 13.9
+      }
+     },
+     {
+      "caller": "WispFlightView.drawSky (wisp-renderer.mjs:450) < WispFlightView.render (wisp-renderer.mjs:1563)",
+      "all": 26,
+      "draw": 13,
+      "state": 0,
+      "path": 0,
+      "set": 13,
+      "ops": {
+       "fillStyle": 13,
+       "fillRect": 13
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:95) < drawBackfold (fluid-capture.mjs:115)",
+      "all": 24.2,
+      "draw": 0,
+      "state": 0,
+      "path": 24.2,
+      "set": 0,
+      "ops": {
+       "moveTo": 0.8,
+       "lineTo": 23.3
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:99) < drawBackfold (fluid-capture.mjs:115)",
+      "all": 24.2,
+      "draw": 0,
+      "state": 0,
+      "path": 24.2,
+      "set": 0,
+      "ops": {
+       "lineTo": 24.2
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:95) < drawBackfold (fluid-capture.mjs:117)",
+      "all": 24.2,
+      "draw": 0,
+      "state": 0,
+      "path": 24.2,
+      "set": 0,
+      "ops": {
+       "moveTo": 0.8,
+       "lineTo": 23.3
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:99) < drawBackfold (fluid-capture.mjs:117)",
+      "all": 24.2,
+      "draw": 0,
+      "state": 0,
+      "path": 24.2,
+      "set": 0,
+      "ops": {
+       "lineTo": 24.2
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:95) < drawFluidCapture (fluid-capture.mjs:208)",
+      "all": 24.2,
+      "draw": 0,
+      "state": 0,
+      "path": 24.2,
+      "set": 0,
+      "ops": {
+       "moveTo": 0.8,
+       "lineTo": 23.3
+      }
+     },
+     {
+      "caller": "strip (fluid-capture.mjs:99) < drawFluidCapture (fluid-capture.mjs:208)",
+      "all": 24.2,
+      "draw": 0,
+      "state": 0,
+      "path": 24.2,
+      "set": 0,
+      "ops": {
+       "lineTo": 24.2
+      }
+     },
+     {
+      "caller": "Object.flush (level-scenery-two.mjs:481) < groundMaterial (level-scenery-two.mjs:925)",
+      "all": 23.5,
+      "draw": 23.1,
+      "state": 0,
+      "path": 0,
+      "set": 0.5,
+      "ops": {
+       "fillStyle": 0.5,
+       "fillRect": 23.1
+      }
+     },
+     {
+      "caller": "drawAuthoredBackdrop (authored-environment.mjs:92) < drawHabitatBackdrop (terrain-ecology.mjs:23)",
+      "all": 23.2,
+      "draw": 23.2,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "drawImage": 23.2
+      }
+     },
+     {
+      "caller": "drawWispWake (wisp-wake.mjs:104) < WispFlightView.render (wisp-renderer.mjs:1616)",
+      "all": 15.2,
+      "draw": 15.2,
+      "state": 0,
+      "path": 0,
+      "set": 0,
+      "ops": {
+       "fillRect": 15.2
+      }
+     },
+     {
+      "caller": "wisp-renderer.mjs:245) < Array.forEach (<anonymous>)",
+      "all": 14.9,
+      "draw": 0,
+      "state": 0,
+      "path": 14.9,
+      "set": 0,
+      "ops": {
+       "moveTo": 3,
+       "lineTo": 11.9
+      }
+     },
+     {
+      "caller": "drawHabitatAnimal (habitat-wildlife.mjs:38) < drawNearLandscapePlates (habitat-compositions.mjs:238)",
+      "all": 13.9,
+      "draw": 0,
+      "state": 10.4,
+      "path": 0,
+      "set": 3.5,
+      "ops": {
+       "save": 3.5,
+       "globalAlpha": 3.5,
+       "translate": 3.5,
+       "scale": 3.5
+      }
+     },
+     {
+      "caller": "drawHabitatAnimal (habitat-wildlife.mjs:49) < drawNearLandscapePlates (habitat-compositions.mjs:238)",
+      "all": 13.9,
+      "draw": 3.5,
+      "state": 0,
+      "path": 6.9,
+      "set": 3.5,
+      "ops": {
+       "beginPath": 3.5,
+       "ellipse": 3.5,
+       "stroke": 3.5,
+       "globalAlpha": 3.5
+      }
+     },
+     {
+      "caller": "box (habitat-wildlife.mjs:41) < drawHabitatAnimal (habitat-wildlife.mjs:52)",
+      "all": 13.9,
+      "draw": 6.9,
+      "state": 0,
+      "path": 0,
+      "set": 6.9,
+      "ops": {
+       "fillStyle": 6.9,
+       "fillRect": 6.9
+      }
+     },
+     {
+      "caller": "line (biome-dynamics.mjs:261) < drawActor (biome-dynamics.mjs:341)",
+      "all": 12,
+      "draw": 2,
+      "state": 0,
+      "path": 6,
+      "set": 4,
+      "ops": {
+       "strokeStyle": 2,
+       "lineWidth": 2,
+       "beginPath": 2,
+       "moveTo": 2,
+       "lineTo": 2,
+       "stroke": 2
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "compare": [
+  {
+   "time": 19.92,
+   "distance": 4131,
+   "w": 720,
+   "h": 240,
+   "pixels": 0,
+   "max": 0,
+   "hist": {},
+   "box": null,
+   "holesOnScreen": []
+  },
+  {
+   "time": 20.4,
+   "distance": 4205,
+   "w": 720,
+   "h": 240,
+   "pixels": 0,
+   "max": 0,
+   "hist": {},
+   "box": null,
+   "holesOnScreen": []
+  },
+  {
+   "time": 20.9,
+   "distance": 4282,
+   "w": 720,
+   "h": 240,
+   "pixels": 0,
+   "max": 0,
+   "hist": {},
+   "box": null,
+   "holesOnScreen": [
+    740
+   ]
+  },
+  {
+   "time": 21.38,
+   "distance": 4357,
+   "w": 720,
+   "h": 240,
+   "pixels": 0,
+   "max": 0,
+   "hist": {},
+   "box": null,
+   "holesOnScreen": [
+    698
+   ]
+  },
+  {
+   "time": 22.1,
+   "distance": 4467,
+   "w": 720,
+   "h": 240,
+   "pixels": 0,
+   "max": 0,
+   "hist": {},
+   "box": null,
+   "holesOnScreen": [
+    637
+   ]
+  },
+  {
+   "time": 22.6,
+   "distance": 4544,
+   "w": 720,
+   "h": 240,
+   "pixels": 0,
+   "max": 0,
+   "hist": {},
+   "box": null,
+   "holesOnScreen": [
+    594
+   ]
+  },
+  {
+   "time": 23.08,
+   "distance": 4618,
+   "w": 720,
+   "h": 240,
+   "pixels": 0,
+   "max": 0,
+   "hist": {},
+   "box": null,
+   "holesOnScreen": [
+    552
+   ]
+  },
+  {
+   "time": 23.58,
+   "distance": 4695,
+   "w": 720,
+   "h": 240,
+   "pixels": 0,
+   "max": 0,
+   "hist": {},
+   "box": null,
+   "holesOnScreen": [
+    510
+   ]
+  },
+  {
+   "time": 24.28,
+   "distance": 4803,
+   "w": 720,
+   "h": 240,
+   "pixels": 0,
+   "max": 0,
+   "hist": {},
+   "box": null,
+   "holesOnScreen": [
+    449
+   ]
+  },
+  {
+   "time": 24.77,
+   "distance": 4878,
+   "w": 720,
+   "h": 240,
+   "pixels": 0,
+   "max": 0,
+   "hist": {},
+   "box": null,
+   "holesOnScreen": [
+    408
+   ]
+  },
+  {
+   "time": 25.25,
+   "distance": 4952,
+   "w": 720,
+   "h": 240,
+   "pixels": 0,
+   "max": 0,
+   "hist": {},
+   "box": null,
+   "holesOnScreen": [
+    366
+   ]
+  },
+  {
+   "time": 25.73,
+   "distance": 5026,
+   "w": 720,
+   "h": 240,
+   "pixels": 0,
+   "max": 0,
+   "hist": {},
+   "box": null,
+   "holesOnScreen": [
+    324
+   ]
+  },
+  {
+   "time": 26.42,
+   "distance": 5132,
+   "w": 720,
+   "h": 240,
+   "pixels": 0,
+   "max": 0,
+   "hist": {},
+   "box": null,
+   "holesOnScreen": [
+    265
+   ]
+  },
+  {
+   "time": 26.9,
+   "distance": 5206,
+   "w": 720,
+   "h": 240,
+   "pixels": 0,
+   "max": 0,
+   "hist": {},
+   "box": null,
+   "holesOnScreen": [
+    224
+   ]
+  },
+  {
+   "time": 27.38,
+   "distance": 5281,
+   "w": 720,
+   "h": 240,
+   "pixels": 0,
+   "max": 0,
+   "hist": {},
+   "box": null,
+   "holesOnScreen": [
+    183
+   ]
+  },
+  {
+   "time": 27.8,
+   "distance": 5345,
+   "w": 720,
+   "h": 240,
+   "pixels": 0,
+   "max": 0,
+   "hist": {},
+   "box": null,
+   "holesOnScreen": [
+    146
+   ]
+  }
+ ],
+ "errors": [],
+ "seeks": [],
+ "timing": {
+  "departReadyMs": 2540
+ },
+ "buffer": "720x240"
+}

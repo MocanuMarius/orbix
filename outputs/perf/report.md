@@ -226,3 +226,29 @@ Pixels: shade chunks and the disc sprites are identical (0 differing pixels on s
 Where the frame goes now (bisect with `?skip=`, emulator): lighting is the biggest group in every scenario (marsh +11 FPS when skipped, pinewood +9, Guardian +14). In pinewood about half of that was building the solid shade, which is now chunked. Then ecology (pinewood +9: stones, authored plants), edges (+6), foreground (+4.6). GPU main thread: `DoEndRasterCHROMIUM::Flush` 475 ms/s, `DoRaster` 315 ms/s (down from 512). The cost is now per canvas raster flush and cross-context work, not draw count: more fillRects batch well in Ganesh, while every extra canvas written per frame costs a flush.
 
 Guardian: basalt-guardian runs at 27-36 FPS on the emulator in hardware mode, with the switches on and with them off. The hang is the shader-compile stall on the first heavy flights after a Chrome start: 3 GPU-process crashes during warm-up, after which the GPU stays in use.
+
+---
+
+# Lighting pass cost, 18 November (night)
+
+Goal: shrink the +9..+14 FPS that `?skip=light` gains. Files: `dist/light-gpu.mjs`, `dist/wisp-renderer.mjs`. Raw data: `outputs/perf/android/2026-11-18-bench/{lightprobe-marsh,lightfix-marsh}.json`, logs `work/perf-light-{probe,fix}-log.txt`.
+
+**Probe (marsh late mid, emulator, new diagnostic switches).** `?skip=glfog` does all CPU light setup and the shade canvas but no GL draw and no composite; `?skip=fogdraw` does the GL draw but not the `drawImage` of the GL canvas into the 2D buffer; `?skip=shadeup` leaves out the per-frame shade upload. Two rounds (the session was noisy, host CPU 82% at round 2, so it was stopped): base 30.8 / 37.0, fogdraw 35.3 / 38.2, glfog 38.3 / 41.9, light 42.1 / 37.5 (round 2 under host load). So the cost is spread over three parts of similar size: CPU setup plus building the full-size solid-shade canvas every frame, the GL work (including a 720x240 2D-canvas-to-texture upload of that shade every frame, 656 KB), and the GL-to-2D composite.
+
+**Change kept: GPU solid shade from the baked course chunks (default on, `?glshade=0` turns it off).** The shade chunks (256 px wide, already baked once per course chunk for the 2D path) are uploaded once each into a WebGL texture array (8 layers, LRU) and placed by the fog shader by camera offset. While the fog is fully on (`fogAlpha` 1) and every visible chunk is baked, the per-frame shade canvas (clear + 3-4 drawImage) and its per-frame texture upload disappear. Moving or Spacetime obstacles, the finish fade and the 2D fallback keep the old path. Also: one warm-up draw per GL program at creation.
+
+**A/B (fresh headless emulator, marsh late mid, 4 rounds, order rotated):**
+| condition | per round (FPS) | median |
+| --- | --- | --- |
+| old (`glshade=0&glbitmap=0`) | 35.5, 41.3, 37.0, 34.9 | 36.3 |
+| GPU shade (`glbitmap=0`, the new default) | 41.1, 45.7, 40.4, 36.0 | 40.7 |
+| GPU shade + bitmap hand-over | 38.2, 49.6, 33.8, 40.0 | 39.1 |
+| `skip=light` | 49.6, 58.1, 48.0, 47.7 | 48.8 |
+
+GPU shade vs old, paired: +5.5, +4.4, +3.4, +1.2 FPS (4 of 4 rounds, median +3.9, about +10%). The condition ranges are 6.5-9.7 FPS, so by the strict rule (half the larger range, 4.9) it is borderline, but the sign held in every round. It recovers about a third of the lighting cost; `skip=light` is still about +8-10 FPS above the new default.
+
+**Tried and left off:** OffscreenCanvas + `transferToImageBitmap` for the fog frame (`?glbitmap=1`): paired -2.9, +3.8, -6.6, +4.0, no gain. **Not done:** making the WebGL canvas the visible one (idea 1). Every post-fog draw (wake, Wayfinder, warnings, fleet, main wisp, Black Holes, pickup labels, foreground, meters) is in the same 2D buffer, so it would need a second full-size overlay canvas written every frame plus a 2D-to-GL upload of the scene: two cross-context transfers instead of one, the pattern that lost FPS in every earlier experiment. A half-resolution light field (idea 2b) was not tried: the shade and the reveal bands have hard pixel edges inside the fog, and earlier DPR/lowres tests showed pixel count is not the limit.
+
+**Checks.** Same-moment pixel compare, desktop, 16 marsh frames with Pulse rings (shade active), `glshade` on vs off: 0 differing pixels (max delta 0). `gl-diff.mjs` (GL vs Canvas 2D lighting, stress/marsh/coral/frost): max delta 1-4/255, as before. Renderer tests: same 43 pass / 1 fail as a clean HEAD copy (`pixel-renderer.test.mjs` fails on an unrelated `getModifiers` import). `heavy.mjs --check` fails its stored baseline both for this tree and for HEAD run right after it (stress 4x p95 58.4 ms here vs 87.6 ms for HEAD; avg 27.5 vs 22.6 FPS), so the baseline is stale, not a regression. Screenshot: `outputs/perf/heavy/2026-11-18-lightfix-marsh-marsh.png` (normal lit marsh frame, Pulse rings, rock shade correct). Guardian warm-up: the emulator still logged 3 GPU-process crashes in the first warm-ups after a Chrome start, so the crash is not our light programs (it happened with `gl=0` too); the warm-up draw does not prevent it.
+
+**What remains the limit.** The rest of the lighting cost is the WebGL context itself on the emulator: the GL draw and the GL-to-2D composite each cost a context switch and a cross-context sync in the GPU process (whose main thread is at about 98%), independent of pixel count. Removing it means not using a second context at all: either the whole flight renderer in WebGL (one context, no transfers), or doing the darkness in Canvas 2D with far fewer operations than the old 2D path. Confirm on a real Pixel 10 first; the emulator's GLES translator likely overstates context switches.
