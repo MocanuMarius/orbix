@@ -1,10 +1,10 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=starter-1";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=fixes-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=starter-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=starter-1';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=starter-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=fixes-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=fixes-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=fixes-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -464,7 +464,7 @@ export function describeSkillCard(card) {
       effect = "Gain 2 flight Sparks when a paid manual Lift succeeds while descending, at least 0.75 seconds after the previous successful Lift. The first, free and Dream Lifts do not count.";
       break;
     case "ring-spring":
-      effect = "Each passage Spark overfill shortens Collector’s current recovery by 1 second, including recovery after a save. Requires missing recovery.";
+      effect = `Each passage Spark overfill banks ${amount} second${amount === 1 ? "" : "s"} that come off the next Collector recovery (never below 0.5 s). The banked seconds show on the card until used.`;
       break;
     case "watchlight":
       effect = "Once per flight, Collector at full charge beside your wisp blocks a fatal impact. Bounce clear and send one Pulse, then recover for 4 normal cycles. All Watchlights share the save.";
@@ -898,14 +898,14 @@ export const CARD_ROW_EVENTS = Object.freeze({
 /** collectorFloor: seconds added by a Boost never bring Collector recovery or reel time below this. */
 export const CARD_ROW_LIMITS = Object.freeze({ slots: 5, passes: 2, repeats: 3, slotVisits: 10, traceSteps: 40, collectorFloor: 0.5 });
 /** Every reward kind a chain can pay, in the order a Boost strengthens them. */
-export const CARD_REWARD_KINDS = Object.freeze(["sparks", "stored", "futureCapacity", "cruisingSpeed", "reelSeconds", "recoverySeconds", "nextReelSeconds"]);
+export const CARD_REWARD_KINDS = Object.freeze(["sparks", "stored", "futureCapacity", "cruisingSpeed", "reelSeconds", "recoverySeconds", "nextReelSeconds", "nextRecoverySeconds"]);
 /** What a Boost strengthens: Sparks and Collector time. Never Stored Sparks or permanent gains. */
-export const CARD_BOOSTED_REWARDS = Object.freeze(["sparks", "reelSeconds", "recoverySeconds", "nextReelSeconds"]);
+export const CARD_BOOSTED_REWARDS = Object.freeze(["sparks", "reelSeconds", "recoverySeconds", "nextReelSeconds", "nextRecoverySeconds"]);
 /** Stored Sparks, permanent max Sparks and speed percentage points are whole units. */
 const WHOLE_REWARDS = new Set(["stored", "futureCapacity", "cruisingSpeed"]);
 const STEP_REWARD_FIELD = Object.freeze({ sparks: "amount", stored: "stored", futureCapacity: "futureCapacity",
-  cruisingSpeed: "cruisingSpeed", reelSeconds: "reelSeconds", recoverySeconds: "recoverySeconds", nextReelSeconds: "nextReelSeconds" });
-const zeroRewards = () => ({ sparks: 0, stored: 0, futureCapacity: 0, cruisingSpeed: 0, recoverySeconds: 0, reelSeconds: 0, nextReelSeconds: 0 });
+  cruisingSpeed: "cruisingSpeed", reelSeconds: "reelSeconds", recoverySeconds: "recoverySeconds", nextReelSeconds: "nextReelSeconds", nextRecoverySeconds: "nextRecoverySeconds" });
+const zeroRewards = () => ({ sparks: 0, stored: 0, futureCapacity: 0, cruisingSpeed: 0, recoverySeconds: 0, reelSeconds: 0, nextReelSeconds: 0, nextRecoverySeconds: 0 });
 /** Split `total` in proportion to `weights`. Fractional rewards split exactly; whole
  * rewards split into whole units by largest remainder (ties go to the leftmost). */
 function apportion(weights, total, whole) {
@@ -930,7 +930,7 @@ export function getCardRowRule(def, card) {
     harvest: { event: CARD_ROW_EVENTS.wave, operation: "add-sparks", amount, storedFirstCrossing: def?.stored || 0 },
     "flash-handling": { event: CARD_ROW_EVENTS.flash, operation: "add-sparks", amount: amount || 6 },
     downbeat: { event: CARD_ROW_EVENTS.lift, operation: "add-sparks", amount },
-    "ring-spring": { event: CARD_ROW_EVENTS.overfill, operation: "shorten-recovery", amount },
+    "ring-spring": { event: CARD_ROW_EVENTS.overfill, operation: "bank-recovery", amount },
     prism: { event: "*", operation: "multiply", amount },
     crescendo: { event: "*", operation: "multiply", amount },
   };
@@ -965,7 +965,7 @@ function inscriptionHearsEvent(runtime, kind) {
   });
 }
 export function matchesRowCondition(when = {}, event, pass, slot, lastOccupied) {
-  if (when.pickupKind !== undefined && event.pickupKind !== when.pickupKind) return false;
+  if (when.pickupKind !== undefined && event.pickupKind !== when.pickupKind && !when.halfPickupKinds?.includes(event.pickupKind)) return false;
   if (when.meterAtMost !== undefined && !(Number.isFinite(event.meterFraction) && event.meterFraction <= when.meterAtMost + 1e-9)) return false;
   if (when.firstCrossing !== undefined && !!event.firstCrossing !== when.firstCrossing) return false;
   if (when.direction !== undefined && event.direction !== when.direction) return false;
@@ -1026,6 +1026,7 @@ function baseRewards(def, card, rule, event) {
   if (rule.operation === "shorten-recovery") base.recoverySeconds = amount;
   if (rule.operation === "shorten-reel") base.reelSeconds = amount;
   if (rule.operation === "bank-reel") base.nextReelSeconds = amount;
+  if (rule.operation === "bank-recovery") base.nextRecoverySeconds = amount;
   return base;
 }
 /** The numeric chain is the same for flight and preview. Units here are printed Sparks.
@@ -1086,7 +1087,7 @@ export function resolveCardRow(runtime, event = {}) {
     availableReel: Math.max(0,Number(event.availableReel)||0),
     availableRecovery: Math.max(0,Number(event.availableRecovery)||0), carriedStored: integer(event.carriedStored),
     cruisingSpeedRoom:event.cruisingSpeedRoom==null?6:cleanCardCruisingSpeed(event.cruisingSpeedRoom) }, passes: 0, slotVisits: 0, sparks: 0, stored: 0,
-    futureCapacity: 0, tallyCapacity: 0, cruisingSpeed: 0, recoverySeconds: 0, reelSeconds: 0, nextReelSeconds: 0, executions: 0, payerActions: 0, steps: [], charges: {}, cards: [], sparksExact: 0, sparksUnboosted: 0, firings: [] };
+    futureCapacity: 0, tallyCapacity: 0, cruisingSpeed: 0, recoverySeconds: 0, reelSeconds: 0, nextReelSeconds: 0, nextRecoverySeconds: 0, executions: 0, payerActions: 0, steps: [], charges: {}, cards: [], sparksExact: 0, sparksUnboosted: 0, firings: [] };
   if (!runtime || !rowEventKinds.has(kind) || event.eligible === false) {
     receipt.charges = getCardCharges(runtime);return freezeReceipt(receipt);
   }
@@ -1161,7 +1162,7 @@ export function resolveCardRow(runtime, event = {}) {
         copiedBy: copy ? ownDef.kind : null, operation: "skip", before: subtotal, after: subtotal,
         amount: 0, stored: 0, recoverySeconds: 0, recoveryBefore: recoveryLeft(), recoveryAfter: recoveryLeft(),
         futureCapacity: 0, futureCapacityBefore: futureSubtotal, futureCapacityAfter: futureSubtotal, cruisingSpeed: 0,
-        reelSeconds: 0, nextReelSeconds: 0, reelBefore: reelLeft(), reelAfter: reelLeft(),
+        reelSeconds: 0, nextReelSeconds: 0, nextRecoverySeconds: 0, reelBefore: reelLeft(), reelAfter: reelLeft(),
         chargesBefore: Number.isFinite(source?.charges)?source.charges:null,
         chargesAfter: Number.isFinite(source?.charges)?source.charges:null,
         success: false, skipReason: null };
@@ -1203,7 +1204,9 @@ export function resolveCardRow(runtime, event = {}) {
       const operation = rule.operation;
       // Mirror: the card fired only because its left neighbour did (the strip flashes the Mirror's bar).
       if (mirrored && !(rule.event === kind || rule.alsoEvents?.includes(kind) || wildcard || alsoHeard)) step.mirrored = true;
-      const amount = Math.max(0,positionAmount(rule,topology,slot,Number(pass === 2 && rule.replayAmount !== undefined ? rule.replayAmount : rule.amount) || 0));
+      let amount = Math.max(0,positionAmount(rule,topology,slot,Number(pass === 2 && rule.replayAmount !== undefined ? rule.replayAmount : rule.amount) || 0));
+      // Crate Lining: a Cluster delivery pays half of its Cache amount (rounded up).
+      if (rule.when?.halfPickupKinds?.includes(event.pickupKind) && event.pickupKind !== rule.when.pickupKind) amount = Math.ceil(amount / 2 - 1e-9);
       const payout = operation === "add-last-payout" ? lastPayout : amount;
       if ((operation === "add-sparks" || operation === "add-last-payout") && payout > 0 && payers >= (Number(rule.minimumEarlierPayers)||0)) {
         step.operation = operation;succeed();
@@ -1267,6 +1270,11 @@ export function resolveCardRow(runtime, event = {}) {
         step.operation = operation;
         if (amount > 0) { succeed();pay("nextReelSeconds", amount); }
         else step.skipReason = "no-reel-credit";
+      } else if (operation === "bank-recovery") {
+        // Ring Spring: the seconds are banked on the flight and taken off the NEXT Collector recovery (no active recovery needed).
+        step.operation = operation;
+        if (amount > 0) { succeed();pay("nextRecoverySeconds", amount); }
+        else step.skipReason = "no-recovery-credit";
       } else if (operation === "shorten-recovery") {
         step.operation = operation;
         const seconds = Math.min(amount, budget("recoverySeconds"));

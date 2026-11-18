@@ -1,85 +1,85 @@
-import {prepareEnvironmentArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=starter-1';
-import {castTerrainLight,releaseTerrainLight} from './terrain-light.mjs?v=starter-1';
-import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=starter-1';
-import {drawCourseArt} from './authored-environment.mjs?v=starter-1';
-import {drawTerrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=starter-1';
-import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=starter-1';
-import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=starter-1';
-import {canShowFlightHint} from './flight-hint-safety.mjs?v=starter-1';
-import {updateGlideRegeneration} from './glide-regeneration.mjs?v=starter-1';
-import {applyDirectPickupCards,updatePrismWick} from './card-standalone.mjs?v=starter-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=starter-1';
-import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=starter-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=starter-1';
-import { drawShutters, resizeShutters } from './shutter-cone.mjs?v=starter-1';
-import { inLanternRoom, installPassageLanterns, lanternField } from './lantern-layout.mjs?v=starter-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=starter-1';
-import {drawStarterCues} from './starter-cues.mjs?v=starter-1';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=starter-1';
-import {drawCollectorField} from './collector-field-art.mjs?v=starter-1';
-import {activateFieldImpulse,fieldImpulseSpeed,fieldImpulseGravity,fieldImpulseVelocity,fieldImpulseStrength} from './collector-impulse.mjs?v=starter-1';
-import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=starter-1';
-import {FlightProjection,LiftGuide,drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=starter-1';
-import {drawGlowSense} from './glow-sense.mjs?v=starter-1';
-import {formatGlow} from './vitality.mjs?v=starter-1';
-import {installRiskChains} from './risk-chains.mjs?v=starter-1';
-import {installSparkField} from './spark-fields.mjs?v=starter-1';
-import {drawFallWarning} from './fall-chain-art.mjs?v=starter-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=starter-1';
-import {BIOME_COURSES} from './biome-courses.mjs?v=starter-1';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=starter-1';
-import {condenseGlow,packExitReserve} from './condensed-glow.mjs?v=starter-1';
-import {chainView,collectReceiptFires,appendFires,emptyMarks} from './chain-strip.mjs?v=starter-1';
-import {syncFlightEngine,raiseFlightEngine,stepFlightEngine,stepFlightInscriptions,noteFlightFlash,packFlightEngine} from './card-engine-flight.mjs?v=starter-1';
-import {ensureGlowBudget,shapeExpeditionSupply,trimSurplusFuel} from './glow-budget.mjs?v=starter-1';
-import {balanceSparkSupply} from './spark-supply.mjs?v=starter-1';
-import {installDuskSparks} from './dusk-sparks.mjs?v=starter-1';
-import {EdgingPulse} from './edging-pulse.mjs?v=starter-1';
-import {SpacetimeTerrain} from './spacetime.mjs?v=starter-1';
-import {isVowBodyPickup} from './contextual-events.mjs?v=starter-1';
-import {FlightBoon} from './flight-boons.mjs?v=starter-1';
-import {BlackHoles} from './black-holes.mjs?v=starter-1';
-import {createFlightFX} from './reactive-fx.mjs?v=starter-1';
-import {musicReactivity} from './music.mjs?v=starter-1';
-import {liftGuideAudioPhase} from './lift-guide-audio.mjs?v=starter-1';
-import {LuminanceWaves,revealLuminanceWaves} from './luminance-waves.mjs?v=starter-1';
-import {CardRhythm} from './card-rhythm.mjs?v=starter-1';
-import {CARD_UNIT,CARD_ROW_EVENTS,createCardExecution,resolveCardRow,hasCardRowEvent,getCardCharges,getCardTallies,getCardPackingBonus,getEffectiveCardSources,getCardBoostFactors} from './skill-cards.mjs?v=starter-1';
-import {drawWispBody,makeWispSprite,makeCompanionSprite,WISP_ART} from './companion-art.mjs?v=starter-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=starter-1';
-import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=starter-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=starter-1';
-import {WispWake,drawWispWake} from './wisp-wake.mjs?v=starter-1';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=starter-1';
-import {captureMassDuration} from './tidal-light.mjs?v=starter-1';
-import {readCaptureStyle} from './capture-styles.mjs?v=starter-1';
+import {prepareEnvironmentArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=fixes-1';
+import {castTerrainLight,releaseTerrainLight} from './terrain-light.mjs?v=fixes-1';
+import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=fixes-1';
+import {drawCourseArt} from './authored-environment.mjs?v=fixes-1';
+import {drawTerrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=fixes-1';
+import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=fixes-1';
+import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=fixes-1';
+import {canShowFlightHint} from './flight-hint-safety.mjs?v=fixes-1';
+import {updateGlideRegeneration} from './glide-regeneration.mjs?v=fixes-1';
+import {applyDirectPickupCards,updatePrismWick} from './card-standalone.mjs?v=fixes-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=fixes-1';
+import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=fixes-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=fixes-1';
+import { drawShutters, resizeShutters } from './shutter-cone.mjs?v=fixes-1';
+import { inLanternRoom, installPassageLanterns, lanternField } from './lantern-layout.mjs?v=fixes-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=fixes-1';
+import {drawStarterCues} from './starter-cues.mjs?v=fixes-1';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=fixes-1';
+import {drawCollectorField} from './collector-field-art.mjs?v=fixes-1';
+import {activateFieldImpulse,fieldImpulseSpeed,fieldImpulseGravity,fieldImpulseVelocity,fieldImpulseStrength} from './collector-impulse.mjs?v=fixes-1';
+import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=fixes-1';
+import {FlightProjection,LiftGuide,drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=fixes-1';
+import {drawGlowSense} from './glow-sense.mjs?v=fixes-1';
+import {formatGlow} from './vitality.mjs?v=fixes-1';
+import {installRiskChains} from './risk-chains.mjs?v=fixes-1';
+import {installSparkField} from './spark-fields.mjs?v=fixes-1';
+import {drawFallWarning} from './fall-chain-art.mjs?v=fixes-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=fixes-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=fixes-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=fixes-1';
+import {condenseGlow,packExitReserve} from './condensed-glow.mjs?v=fixes-1';
+import {chainView,collectReceiptFires,appendFires,emptyMarks} from './chain-strip.mjs?v=fixes-1';
+import {syncFlightEngine,raiseFlightEngine,stepFlightEngine,stepFlightInscriptions,noteFlightFlash,packFlightEngine} from './card-engine-flight.mjs?v=fixes-1';
+import {ensureGlowBudget,shapeExpeditionSupply,trimSurplusFuel} from './glow-budget.mjs?v=fixes-1';
+import {balanceSparkSupply} from './spark-supply.mjs?v=fixes-1';
+import {installDuskSparks} from './dusk-sparks.mjs?v=fixes-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=fixes-1';
+import {SpacetimeTerrain} from './spacetime.mjs?v=fixes-1';
+import {isVowBodyPickup} from './contextual-events.mjs?v=fixes-1';
+import {FlightBoon} from './flight-boons.mjs?v=fixes-1';
+import {BlackHoles} from './black-holes.mjs?v=fixes-1';
+import {createFlightFX} from './reactive-fx.mjs?v=fixes-1';
+import {musicReactivity} from './music.mjs?v=fixes-1';
+import {liftGuideAudioPhase} from './lift-guide-audio.mjs?v=fixes-1';
+import {LuminanceWaves,revealLuminanceWaves} from './luminance-waves.mjs?v=fixes-1';
+import {CardRhythm} from './card-rhythm.mjs?v=fixes-1';
+import {CARD_UNIT,CARD_ROW_EVENTS,createCardExecution,resolveCardRow,hasCardRowEvent,getCardCharges,getCardTallies,getCardPackingBonus,getEffectiveCardSources,getCardBoostFactors} from './skill-cards.mjs?v=fixes-1';
+import {drawWispBody,makeWispSprite,makeCompanionSprite,WISP_ART} from './companion-art.mjs?v=fixes-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=fixes-1';
+import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=fixes-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=fixes-1';
+import {WispWake,drawWispWake} from './wisp-wake.mjs?v=fixes-1';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=fixes-1';
+import {captureMassDuration} from './tidal-light.mjs?v=fixes-1';
+import {readCaptureStyle} from './capture-styles.mjs?v=fixes-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { glowPoints, FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=starter-1';
-import { flightEndDistance } from './flight-end.mjs?v=starter-1';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=starter-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=starter-1';
-import { getAscentInfo } from './ascent.mjs?v=starter-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=starter-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=starter-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=starter-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=starter-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=starter-1';
-import { buildLandformCourse, landformFlashSites } from './course-landforms.mjs?v=starter-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration, FLASH_LUMINANCE_BONUS } from './pickups.mjs?v=starter-1';
-import { createFlashTether, stepFlashTether, drawFlashTether, flashLightGlow, FLASH_PULSE_INTERVAL } from './flash-tether.mjs?v=starter-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=starter-1';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=starter-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=starter-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=starter-1';
-import { installEncounterFamily } from './encounter-families.mjs?v=starter-1';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=starter-1';
-import { ArtifactEffects } from './artifact-effects.mjs?v=starter-1';
-import {ActivationEvents} from './activation-events.mjs?v=starter-1';
-import {fatalFlightPosition,drawLastGlimmer} from './last-glimmer.mjs?v=starter-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery,companionTerrainLight } from './light-field.mjs?v=starter-1';
+import { glowPoints, FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=fixes-1';
+import { flightEndDistance } from './flight-end.mjs?v=fixes-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=fixes-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=fixes-1';
+import { getAscentInfo } from './ascent.mjs?v=fixes-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=fixes-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=fixes-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=fixes-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=fixes-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=fixes-1';
+import { buildLandformCourse, landformFlashSites } from './course-landforms.mjs?v=fixes-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration, FLASH_LUMINANCE_BONUS } from './pickups.mjs?v=fixes-1';
+import { createFlashTether, stepFlashTether, drawFlashTether, flashLightGlow, FLASH_PULSE_INTERVAL } from './flash-tether.mjs?v=fixes-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=fixes-1';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=fixes-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=fixes-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=fixes-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=fixes-1';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=fixes-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=fixes-1';
+import {ActivationEvents} from './activation-events.mjs?v=fixes-1';
+import {fatalFlightPosition,drawLastGlimmer} from './last-glimmer.mjs?v=fixes-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery,companionTerrainLight } from './light-field.mjs?v=fixes-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint, tuneTutorialGuardian, configureTutorialScene } from './tutorial.mjs?v=starter-1';
-export { FLAME_TUNING } from './vitality.mjs?v=starter-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint, tuneTutorialGuardian, configureTutorialScene } from './tutorial.mjs?v=fixes-1';
+export { FLAME_TUNING } from './vitality.mjs?v=fixes-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const FALLBACK_WISP_RADIUS = WISP_ART.worldRadius/.85;
@@ -91,7 +91,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=starter-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=fixes-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -860,7 +860,7 @@ export class WispFlight {
     this.cardExecution=(this.mod.cardExecution?.cards?.some(Boolean)||this.mod.cardExecution?.inscriptions?.some(Boolean))?createCardExecution(this.mod.cardExecution):null;
     this.cardChargeLedger={...getCardCharges(this.cardExecution)};
     this.cardExecutions=0;
-    this.cardRowTrace=null;this.cardRowSequence=0;this.cardFires=emptyMarks();this.cardFireSeq=0;this.cardFireListener=null;this.cardChain=chainView(this.cardExecution);this.cardReelCredit=0;this.cardWatchlightUsed=false;this.cardLastAcceptedLift=null;
+    this.cardRowTrace=null;this.cardRowSequence=0;this.cardFires=emptyMarks();this.cardFireSeq=0;this.cardFireListener=null;this.cardChain=chainView(this.cardExecution);this.cardReelCredit=0;this.cardRecoveryCredit=0;this.cardWatchlightUsed=false;this.cardLastAcceptedLift=null;
     // Engine cards (card-engine-flight.mjs): built only when the Chain holds one.
     this.cardEngine=null;this.cardEngineStored=0;this.cardEngineFlash=null;this.cardEngineLastFiring=null;this.cardPack=null;this.cardEngineLuminance=0;syncFlightEngine(this);
     this.flightBoon = new FlightBoon(this, this.mod.flightBoon);
@@ -1066,7 +1066,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=starter-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=fixes-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -1482,7 +1482,24 @@ export class WispFlight {
       const credit = this.cardReelCredit; this.cardReelCredit = 0;
       collector.shortenReel(Math.min(credit, Math.max(0, collector.activeReelSeconds() - 0.5)));
     }
+    // Ring Spring: seconds banked by an Overfill come off the recovery this reel starts (never below the 0.5 s Collector floor), then are spent.
+    if (this.cardRecoveryCredit > 0 && collector.cooldown > 0.5) {
+      const cut = Math.min(this.cardRecoveryCredit, collector.cooldown - 0.5);
+      collector.cooldown -= cut; this.cardRecoveryCredit = Math.max(0, this.cardRecoveryCredit - cut);
+      if (this.cardRecoveryCredit < 1e-6) this.cardRecoveryCredit = 0;
+      this.syncRingSpringBank();
+    }
     return this.resolveCardRowEvent(CARD_ROW_EVENTS.attach, {pickupKind:pickupKind(packet)},collector);
+  }
+
+  /** The banked Ring Spring seconds are shown on the first Ring Spring card (a transient field, never saved). */
+  syncRingSpringBank() {
+    let shown = false;
+    for (const card of this.cardExecution?.cards || []) {
+      if (!card) continue;
+      if (!/^ring-spring/.test(card.cardId || '')) { delete card.banked; continue; }
+      if (!shown && this.cardRecoveryCredit > 0) { card.banked = Math.round(this.cardRecoveryCredit * 10) / 10; shown = true; } else delete card.banked;
+    }
   }
 
   /** Second Wind (batch 3): a Save, with the card mounted, opens a 5 s window on this flight. */
@@ -1546,6 +1563,8 @@ export class WispFlight {
     if(receipt.reelSeconds>0)w.shortenReel(receipt.reelSeconds);
     // Haul Winch: seconds banked by a Delivery come off the NEXT reel (see onCollectorAttach).
     if(receipt.nextReelSeconds>0)this.cardReelCredit=(this.cardReelCredit||0)+receipt.nextReelSeconds;
+    // Ring Spring: seconds banked by an Overfill come off the NEXT Collector recovery (see onCollectorAttach).
+    if(receipt.nextRecoverySeconds>0){this.cardRecoveryCredit=(this.cardRecoveryCredit||0)+receipt.nextRecoverySeconds;this.syncRingSpringBank();}
     if(kind===CARD_ROW_EVENTS.body)this.cardExecutions+=receipt.executions;
     if(this.cardEngine&&!engine){
       // Engine cards hear the Chain's Sparks on a Trigger from flying (whole Chain); Long Fuse repeats this firing.

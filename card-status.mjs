@@ -1,9 +1,9 @@
 /** Configuration hints only. Every numeric verdict comes from a read-only row quote. */
-import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=starter-1';
-import { rowSnapshot, slotInscriptionList } from './inscriptions.mjs?v=starter-1';
-import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=starter-1';
-import { normalizeCompanionFleet } from './companion-abilities.mjs?v=starter-1';
-import { skillProgress } from './skill-increments.mjs?v=starter-1';
+import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=fixes-1';
+import { rowSnapshot, slotInscriptionList } from './inscriptions.mjs?v=fixes-1';
+import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=fixes-1';
+import { normalizeCompanionFleet } from './companion-abilities.mjs?v=fixes-1';
+import { skillProgress } from './skill-increments.mjs?v=fixes-1';
 
 /** Labels are plain instructions (docs/card-teaching-plan.md §3); `code` is stable for code. */
 const ready = reason => ({ state: 'ready', symbol: '✓', label: 'Ready', code: 'ready', reason, fix: 'Keep this order to use it when its Trigger happens.' });
@@ -62,7 +62,7 @@ export function getCardRowTriggerIssue(rule, context) {
     return blocked('Needs Watchlight or Last Orbit', 'Its Trigger is Save, or the recovery after a save. This build cannot make a save.', 'Put Watchlight in your chain, or learn the Collector Last Orbit skill.', 'needs-save');
   if (rule?.event === CARD_ROW_EVENTS.delivery && !context.collector)
     return blocked('Needs Collector', 'Its Trigger is Delivery: Collector bringing you a pickup.', 'Choose Collector as your companion.', 'needs-collector');
-  if (rule?.event === CARD_ROW_EVENTS.delivery && rule.when?.pickupKind === 'cache' && !context.cache)
+  if (rule?.event === CARD_ROW_EVENTS.delivery && rule.when?.pickupKind === 'cache' && !rule.when.halfPickupKinds && !context.cache)
     return blocked('Needs Cache Handling', 'Collector cannot bring you a Cache in this build. Touching one yourself is a different Trigger (Collect).', 'Put Cache Handling in your chain, or learn the Collector Cache Handling skill.', 'needs-cache');
   if (['shorten-recovery', 'shorten-reel'].includes(rule?.operation) && !context.collector)
     return blocked('Needs Collector', 'This card makes Collector ready sooner, so it needs Collector.', 'Choose Collector as your companion.', 'needs-collector');

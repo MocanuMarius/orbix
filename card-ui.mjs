@@ -1,16 +1,16 @@
-import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=starter-1";
-import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=starter-1";
-import { uiIcon } from "./ui-icons.mjs?v=starter-1";
-import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=starter-1";
-import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=starter-1";
-import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=starter-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=starter-1";
-import { activeFlightPact } from './flight-pacts.mjs?v=starter-1';
-import { cardArt } from "./card-art.mjs?v=starter-1";
-import { cardTileLine } from "./card-tile-lines.mjs?v=starter-1";
-import { slotInscriptionId } from "./inscriptions.mjs?v=starter-1";
-import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=starter-1";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=starter-1';
+import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=fixes-1";
+import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=fixes-1";
+import { uiIcon } from "./ui-icons.mjs?v=fixes-1";
+import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=fixes-1";
+import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=fixes-1";
+import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=fixes-1";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=fixes-1";
+import { activeFlightPact } from './flight-pacts.mjs?v=fixes-1';
+import { cardArt } from "./card-art.mjs?v=fixes-1";
+import { cardTileLine } from "./card-tile-lines.mjs?v=fixes-1";
+import { slotInscriptionId } from "./inscriptions.mjs?v=fixes-1";
+import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=fixes-1";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=fixes-1';
 import {
   getMountedCards,
   getOwnedCards,
@@ -26,13 +26,13 @@ import {
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
-} from "./model.mjs?v=starter-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=starter-1";
-import { choiceScene } from "./choice-art.mjs?v=starter-1";
-import { livesMarkup } from "./lives.mjs?v=starter-1";
-import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=starter-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=starter-1";
-import {canDreamAt, dreamConfig} from './dream.mjs?v=starter-1';
+} from "./model.mjs?v=fixes-1";
+import { resourceSymbol } from "./game-symbols.mjs?v=fixes-1";
+import { choiceScene } from "./choice-art.mjs?v=fixes-1";
+import { livesMarkup } from "./lives.mjs?v=fixes-1";
+import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=fixes-1";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=fixes-1";
+import {canDreamAt, dreamConfig} from './dream.mjs?v=fixes-1';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -46,7 +46,7 @@ import {
   SKILL_CARDS,
   cardTallyLine,
   cardAmount,
-} from "./skill-cards.mjs?v=starter-1";
+} from "./skill-cards.mjs?v=fixes-1";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -95,7 +95,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=starter-1";
+export { cardArt } from "./card-art.mjs?v=fixes-1";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
@@ -187,6 +187,7 @@ export function cardGrowthBadge(card) {
   if (def.kind === 'wind-feather') return { text: `+${n}%`, label: `Now +${n}% flight speed from this card` };
   if (def.kind === 'growth-ring') return { text: `+${n}`, label: `Now +${n} max Sparks from this card` };
   if (def.kind === 'camp-grow') { const v = cardAmount(card); return { text: `+${v}`, label: `Grows +${v} max Sparks at Rest` }; }
+  if (def.kind === 'ring-spring' && Number(card.banked) > 0) { const b = Number(card.banked); return { text: `${b} s`, label: `${b} seconds banked: they come off the next Collector recovery` }; }
   if (isDevourCard(card)) { const t = devourTally(card); return { text: `+${t.growth}`, label: `Now +${t.growth} max Sparks from this card` }; }
   return null;
 }
@@ -469,5 +470,5 @@ export function cardVictoryRecap(run) {
   const permanent=gain>0||explanation?`<div class="card-future-capacity-receipt" role="status">${gain>0?`<strong>+${gain} maximum ${gain===1?'Spark':'Sparks'} permanently this expedition</strong><p>Your next expedition starts full at ${30+(run.cardFutureCapacity||0)+legacy} maximum Sparks, before its starting card.</p>`:''}${explanation}</div>`:'';
   const maps=[...new Set([...(run.mapHistory||[]).map(entry=>entry.mapName),run.mapName].filter(Boolean))];
   const chain=run.mountedCards?.some(Boolean)?getMountedCards(run):(run.winningHand||[]);
-  return `<section class="card-victory-recap"><header class="card-heading"><div><small>THREE GUARDIANS · RUN COMPLETE${flightPackingReceipt(run, reward)}</small><h1>The light returns</h1>${maps.length?`<p class="card-recap-maps">${maps.map(esc).join(' · ')}</p>`:''}</div></header>${permanent}<div class="card-winning-hand"><div><h2>Your Chain</h2><ol class="card-recap-row">${chain.map((card, slot) => card ? recapTile(run, card, slot) : '').join('')}</ol></div>${trophy ? `<aside><h2>Final trophy</h2><ol class="card-recap-row">${recapTile(run, trophy, null)}</ol></aside>` : ''}</div><p class="card-footnote">Ascension ${run.difficulty} conquered. Cards and Stored Sparks belong to this completed run.</p><footer class="card-dialog-actions"><button class="secondary" data-action="artifacts">Relic almanac</button><button class="primary" data-action="exit-menu">Main menu</button></footer></section>`;
+  return `<section class="card-victory-recap"><header class="card-heading"><div><small>THREE GUARDIANS · RUN COMPLETE${flightPackingReceipt(run, reward)}</small><h1>The light returns</h1>${maps.length?`<p class="card-recap-maps">${maps.map(esc).join(' · ')}</p>`:''}</div></header>${permanent}<div class="card-winning-hand"><div><h2>Your Chain</h2><ol class="card-recap-row">${chain.map((card, slot) => card ? recapTile(run, card, slot) : '').join('')}</ol></div>${trophy ? `<aside><h2>Trophy: ${esc(cardName(trophy))}</h2><ol class="card-recap-row">${recapTile(run, trophy, null)}</ol></aside>` : ''}</div><p class="card-footnote">Ascension ${run.difficulty} conquered. Cards and Stored Sparks belong to this completed run.</p><footer class="card-dialog-actions"><button class="secondary" data-action="artifacts">Relic almanac</button><button class="primary" data-action="exit-menu">Main menu</button></footer></section>`;
 }

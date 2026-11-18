@@ -5,7 +5,7 @@
 // full rules, which the "?" help window shows (card-ui.mjs › cardHelpDescription). Numbers the player tracks during a
 // run (uses left, a growth or tally counter) stay on the face as badges, not here.
 // The internal trigger keys (card-rule-bands.mjs › CARD_TRIGGERS) are untouched; this is a wording layer on top of them.
-import {getCardRuleBands, getCardTrigger} from './card-rule-bands.mjs?v=starter-1';
+import {getCardRuleBands, getCardTrigger} from './card-rule-bands.mjs?v=fixes-1';
 
 /** Words for Triggers that the display layer (card-trigger-labels.mjs) leaves without a chip, as [word, glossary key]. */
 const EXTRA_WORDS = Object.freeze({
@@ -41,7 +41,7 @@ const LINES = Object.freeze({
   'prism-lens': 'Cards before ×1.25', 'prism-lens-ii': 'Cards before ×3', crescendo: 'Cards before ×2',
   refrain: 'Encore: fires again',
   downbeat: '{fx} while falling', 'downbeat-iii': '{fx} while falling',
-  'ring-spring': 'Collector ready 1 s sooner', 'ring-spring-ii': 'Collector ready 2 s sooner',
+  'ring-spring': 'Next ready 1 s sooner', 'ring-spring-ii': 'Next ready 2 s sooner',
   watchlight: 'Collector blocks a crash',
   'echo-ii': 'Repeats next twice', 'echo-iii': 'Repeats next 3 times',
   'dusk-wick': '{fx} from Dusk', 'dusk-wick-ii': '{fx} from Dusk', 'dusk-wick-iii': '{fx} from Dusk',
@@ -59,7 +59,7 @@ const LINES = Object.freeze({
   'home-beacon': '+3 Stored per heart left', 'last-light': 'Last heart: rewards ×2', 'flash-bank': '{fx} when low',
   'return-spring': 'Reels in 0.5 s sooner',
   'haul-winch': 'Cluster: reel 3 s sooner',
-  'crate-lining': '{fx} from a Cache',
+  'crate-lining': '{fx} Cache, half Cluster',
   'glass-spool': 'Collector 0.5 s sooner', 'flash-thread': 'Collector 3 s sooner',
   spillway: '2nd Overfill: a Pulse', 'spillway-ii': 'Each Overfill: a Pulse',
   'kindling-bead': '{fx} after a + card', 'kindling-bead-ii': '{fx} after a + card', 'kindling-bead-iii': '{fx} after a + card',
