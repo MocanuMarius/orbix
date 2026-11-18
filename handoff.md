@@ -46,7 +46,6 @@ Everything here is decided. Work through section 9 in order without asking the o
 
 ## 4. Current state (18 November 2026, 21:50 local, UTC+2)
 
-- **Live: `cord-2`** (original Collector cord restored, old study pages pruned as `prune-2` just before it). If `work/cord-2-run.log` does not end with `live` and `verified` lines, the last verified release is `prune-2` or `cord-1`: release the current `main` again under a new label. `main` is pushed.
 - **Live: `overfill-1`, verified** (Topped Up, Pressure Valve, Floodgate), on top of `cord-2`. No worker is running. Weekly usage reached 94% at 23:25 local on 18 November: work stopped here by the owner's rule; resume after the weekly reset (23 November 20:00 UTC) or when the owner says so.
 - The working tree otherwise holds only untracked local files (owner's art and studies under `dist/assets/previews/`, `dist/collector-motion-studies.*`, `dist/travel-guide-studies*`, `outputs/`, a stray file named `nul`). Leave them.
 - Tests: the full suite (`npm test`, about 3 minutes, about 1,300 tests) has about 67 long-standing failures, all from retired systems or stale expectations (old flight API in `tests/flight.test.mjs`, `tests/model.test.mjs` fails to import, First Ripple cue, "capped receipts", Rhythm fog, Wave Loom swipe, three in `tests/onboarding.test.mjs`). Never expect a clean run: compare a touched test file against a clean copy (`git archive HEAD dist tests package.json | tar -x -C <temp dir>` and run it there). The release tool runs its own 50 focused tests and they must pass.
