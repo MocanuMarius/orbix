@@ -8,6 +8,7 @@ import {getInscription, getPermanentInscription, slotInscriptionId, slotInscript
 import {inscriptionGlyph, inscriptionTag} from './inscription-ui.mjs?v=guide-clarity-1';
 import {cardTermTextMarkup} from './card-terms.mjs?v=guide-clarity-1';
 import {cardArt} from './card-art.mjs?v=guide-clarity-1';
+import {inscriptionEffect} from './inscription-on-card.mjs?v=guide-clarity-1';
 import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=guide-clarity-1';
 import {resolveChain, triggersFor, triggerName, num, chipOf} from './ui/chain-model.mjs?v=guide-clarity-1';
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
@@ -42,6 +43,8 @@ export function writePreview(run, slot, id) {
   const replaces = here && here !== id ? here : null;
   const out = {id, slot, replaces, same: here === id, needsCard: ins.kind === 'card' && !card, change: null, line: ins.text};
   if (out.needsCard) { out.line = 'Needs a card here'; return out; }
+  const eff = card ? inscriptionEffect(ins, card) : null;
+  if (eff && !eff.works) { out.noEffect = true; out.line = `${ins.name}: ${eff.text}`; }
   if (!card || ins.kind !== 'card') return out;
   const before = slotInscriptionList(run, row) || row.map(() => null), after = before.map((x, i) => i === slot ? {id} : x);
   const kinds = [...new Set([...triggersFor(row, before), ...triggersFor(row, after)].map(t => t.kind))];
@@ -49,7 +52,9 @@ export function writePreview(run, slot, id) {
     const b = plateFor(row, kind, before, slot), a = plateFor(row, kind, after, slot);
     if (a !== b && a) { out.change = {trigger: triggerName(kind), before: b, after: a}; break; }
   }
+  if (out.noEffect) return out;
   if (out.change) out.line = out.change.before ? `${out.change.before} → ${out.change.after} on ${out.change.trigger}` : `Now fires on ${out.change.trigger}: ${out.change.after}`;
+  else out.line = `${ins.name}: ${eff.text}`;
   return out;
 }
 
@@ -78,7 +83,7 @@ function slotCard(run, n, picked, chosen, action) {
   let ins;
   if (pv) {
     const old = pv.replaces ? getInscription(pv.replaces) : null;
-    ins = `${brandLine(nu, ' iw-brand-new')}${old ? `<s class="iw-old" aria-label="Replaces ${esc(old.name)}"><span>Replaces ${esc(old.name)}</span></s>` : ''}<b class="iw-result${pv.needsCard ? ' iw-warn' : ''}">${esc(pv.same ? 'Already written here' : pv.line)}</b>`;
+    ins = `${brandLine(nu, ' iw-brand-new')}${old ? `<s class="iw-old" aria-label="Replaces ${esc(old.name)}"><span>Replaces ${esc(old.name)}</span></s>` : ''}<b class="iw-result${pv.needsCard || pv.noEffect ? ' iw-warn' : ''}">${esc(pv.same ? 'Already written here' : pv.line)}</b>`;
   } else if (cur) ins = brandLine(cur);
   else ins = '<span class="iw-none">No Inscription</span>';
   const spoken = `Slot ${n + 1}, ${card ? name : 'empty'}${plate ? `, ${plate}` : ''}. ${pv ? `${nu.name} here: ${pv.line}${pv.replaces ? `, replaces ${getInscription(pv.replaces).name}` : ''}` : cur ? `Written: ${cur.name}` : 'No Inscription'}`;

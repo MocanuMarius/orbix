@@ -45,6 +45,7 @@ import {
   isInventoryOnlyCard,
   SKILL_CARDS,
   cardTallyLine,
+  cardAmount,
 } from "./skill-cards.mjs?v=guide-clarity-1";
 
 const esc = (v) =>
@@ -177,11 +178,23 @@ export function getCardFaceAvailability(run, card, status = null) {
 }
 /** The Trigger badge (read first, top left of the picture), the rarity gems (bottom right; 1, 2 or 3, no words)
  * and, for Black Hole, its running total. Same on every face: Deck, Chain, rewards, Forge, Workshop, drafts. */
+/** The current bonus of a growth card, shown like the uses badge ("4/4") on the picture: Wind Feather +3%, Growth Ring +3, Growth Seed +8,
+ * a Devourer its grown amount. '' for every other card. JOB I, 2026-11-18. */
+export function cardGrowthBadge(card) {
+  const def = SKILL_CARDS[card?.cardId || card?.id];
+  if (!def) return null;
+  const n = Math.max(0, Math.floor(Number(card.tally) || 0));
+  if (def.kind === 'wind-feather') return { text: `+${n}%`, label: `Now +${n}% flight speed from this card` };
+  if (def.kind === 'growth-ring') return { text: `+${n}`, label: `Now +${n} max Sparks from this card` };
+  if (def.kind === 'camp-grow') { const v = cardAmount(card); return { text: `+${v}`, label: `Grows +${v} max Sparks at Rest` }; }
+  if (isDevourCard(card)) { const t = devourTally(card); return { text: `+${t.growth}`, label: `Now +${t.growth} max Sparks from this card` }; }
+  return null;
+}
 function faceBadges(card, compact) {
   const def = SKILL_CARDS[card.cardId || card.id] || {};
   const chip = getCardTrigger(card, def);
   const tally = isDevourCard(card) ? devourTally(card) : null, dreamTally = def.kind === 'dream';
-  return `${compact ? `<span class="card-tbadge-row">${chipBadge(chip, { cls: 'card-tbadge' })}</span>` : ''}${rarityPips(rarity(card))}${cardTallyLine(card) ? `<span class="card-bh-tally"><b>${cardTallyLine(card)}</b></span>` : ''}${tally && tally.eaten ? `<span class="card-bh-tally"><b>Devoured ${tally.eaten}</b> · ${dreamTally ? `Dream ${8 + tally.growth} s` : `+${tally.growth}${compact ? '' : ' max Sparks'}`}</span>` : ''}`;
+  return `${compact ? `<span class="card-tbadge-row">${chipBadge(chip, { cls: 'card-tbadge' })}</span>` : ''}${rarityPips(rarity(card))}${cardTallyLine(card) && !cardGrowthBadge(card) ? `<span class="card-bh-tally"><b>${cardTallyLine(card)}</b></span>` : ''}${tally && tally.eaten ? `<span class="card-bh-tally"><b>Devoured ${tally.eaten}</b> · ${dreamTally ? `Dream ${8 + tally.growth} s` : `+${tally.growth}${compact ? '' : ' max Sparks'}`}</span>` : ''}`;
 }
 export function cardFace(card, { compact = false, fitted = false, slot = null, selected = false, status = null, sightWarning = '', availability = null } = {}) {
   if (!card) return `<article class="skill-card empty-card"><div class="card-empty-art">+</div><h3>Empty slot${slot === null ? '' : ` ${slot + 1}`}</h3></article>`;
@@ -195,8 +208,9 @@ export function cardFace(card, { compact = false, fitted = false, slot = null, s
   const usesLabel = `${amount(card.charges)} of ${amount(maximum)} uses remaining`;
   const bands = [], verbose = false; // a face is always two short lines (card-face-lines.mjs), so no density variants
   const dense = status && verbose;
-  const badge = finite ? compact ? `<span class="card-use-counter" role="img" aria-label="${usesLabel}">${uses}</span>` : `<button type="button" class="card-use-counter" data-card-term="uses" aria-haspopup="dialog" aria-label="${usesLabel}: help">${uses}</button>` : '';
-  return `<article class="skill-card card-${rarity(card)} card-effect-${effectState} ${compact ? 'compact-card card-thumbnail' : 'card-readable'} ${fitted ? 'card-fitted' : ''} ${finite ? 'card-has-uses' : ''} ${status ? 'card-has-status' : ''} ${dense || fitted && status ? 'card-status-dense' : ''} ${verbose ? 'card-rules-dense' : ''} ${bands.length >= 4 ? 'card-rules-long' : ''} ${selected ? 'card-selected' : ''}" data-card-effect-state="${effectState}" data-card-instance="${esc(card.instanceId || '')}" data-card-help="${esc(card.cardId || card.id)}" data-card-rank="${card.rank || 1}"${Number.isFinite(card.charges) ? ` data-card-charges="${card.charges}"` : ''} data-card-name="${esc(cardName(card))}" data-card-description="${esc(cardHelpDescription(card))}" aria-label="${esc(cardName(card))}, ${esc(rarity(card))}${status ? `, ${esc(cardStatusText(status))}` : ''}${effectReason && effectReason !== status?.reason ? `, ${esc(effectReason)}` : ''}"><header class="card-face-heading"><h3>${esc(cardName(card))}</h3>${compact ? '' : `<button type="button" class="card-help" data-card-term-trigger="${esc(card.cardId || card.id)}" data-card-terms="${cardTerms(card).join(' ')}" aria-haspopup="dialog" aria-label="Help with ${esc(cardName(card))}">?</button>`}</header><div class="card-illustration">${cardArt(card, { compact })}${rarityInlay(card)}${faceBadges(card, compact)}${compact ? '' : badge}${sightWarning ? `<span class="card-sight-warning" role="img" title="${esc(sightWarning)}" aria-label="${esc(sightWarning)}">${effectState === 'partial' ? '≈' : '×'} <small>${effectState === 'partial' ? 'Light blocked' : 'Sight blocked'}</small></span>` : ''}</div>${compact ? '' : `<div class="card-rule-band" role="group" aria-label="Rules for ${esc(cardName(card))}">${cardMechanicMarkup(card,{fitted})}</div>`}${cardStatusMarkup(status, {compact, slot})}${compact ? badge : ''}</article>`;
+  const growth = finite ? null : cardGrowthBadge(card);
+  const badge = growth ? `<span class="card-use-counter card-growth-badge" role="img" aria-label="${esc(growth.label)}">${esc(growth.text)}</span>` : finite ? compact ? `<span class="card-use-counter" role="img" aria-label="${usesLabel}">${uses}</span>` : `<button type="button" class="card-use-counter" data-card-term="uses" aria-haspopup="dialog" aria-label="${usesLabel}: help">${uses}</button>` : '';
+  return `<article class="skill-card card-${rarity(card)} card-effect-${effectState} ${compact ? 'compact-card card-thumbnail' : 'card-readable'} ${fitted ? 'card-fitted' : ''} ${finite || growth ? 'card-has-uses' : ''} ${status ? 'card-has-status' : ''} ${dense || fitted && status ? 'card-status-dense' : ''} ${verbose ? 'card-rules-dense' : ''} ${bands.length >= 4 ? 'card-rules-long' : ''} ${selected ? 'card-selected' : ''}" data-card-effect-state="${effectState}" data-card-instance="${esc(card.instanceId || '')}" data-card-help="${esc(card.cardId || card.id)}" data-card-rank="${card.rank || 1}"${Number.isFinite(card.charges) ? ` data-card-charges="${card.charges}"` : ''} data-card-name="${esc(cardName(card))}" data-card-description="${esc(cardHelpDescription(card))}" aria-label="${esc(cardName(card))}, ${esc(rarity(card))}${status ? `, ${esc(cardStatusText(status))}` : ''}${effectReason && effectReason !== status?.reason ? `, ${esc(effectReason)}` : ''}"><header class="card-face-heading"><h3>${esc(cardName(card))}</h3>${compact ? '' : `<button type="button" class="card-help" data-card-term-trigger="${esc(card.cardId || card.id)}" data-card-terms="${cardTerms(card).join(' ')}" aria-haspopup="dialog" aria-label="Help with ${esc(cardName(card))}">?</button>`}</header><div class="card-illustration">${cardArt(card, { compact })}${rarityInlay(card)}${faceBadges(card, compact)}${compact ? '' : badge}${sightWarning ? `<span class="card-sight-warning" role="img" title="${esc(sightWarning)}" aria-label="${esc(sightWarning)}">${effectState === 'partial' ? '≈' : '×'} <small>${effectState === 'partial' ? 'Light blocked' : 'Sight blocked'}</small></span>` : ''}</div>${compact ? '' : `<div class="card-rule-band" role="group" aria-label="Rules for ${esc(cardName(card))}">${cardMechanicMarkup(card,{fitted})}</div>`}${cardStatusMarkup(status, {compact, slot})}${compact ? badge : ''}</article>`;
 }
 export function starterCardsMarkup(run, gifts, existing) {
   const guide=describeSkillCard(makeSkillCard('lift-guide','included-starter-guide'));

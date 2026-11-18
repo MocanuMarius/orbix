@@ -14,7 +14,7 @@ export const CARD_TILE_LINES = Object.freeze({
   'harvest-home': 'Collect cards, +2 each',
   'wave-loom': 'A light Pulse per Turn',
   'climb': 'Lifts 2 and 3 free', 'watchlight': 'Collector saves you', 'springboard': 'Collect: free bounce',
-  'lift-guide': 'On the beat: +1 Spark', 'skim-line': 'Skim: +1 Spark', 'pulse-reader': 'Pulse: +1 Spark', 'courier-cord': 'Delivery: +1 Spark', 'meter-mark': 'Overfill: keeps 1 Stored', 'finish-flag': 'Finish: +2 Stored', 'cache-handling': 'Fetches Caches: +12', 'second-sun': '×2 before, ×3 Encore',
+  'lift-guide': 'On the beat: +1 Spark', 'wind-feather': '+1% speed per Finish', 'growth-ring': '+1 max Spark/Finish', 'skim-line': 'Skim: +1 Spark', 'pulse-reader': 'Pulse: +1 Spark', 'courier-cord': 'Delivery: +1 Spark', 'meter-mark': 'Keeps 1 Stored', 'finish-flag': 'Finish: +2 Stored', 'cache-handling': 'Fetches Caches: +12', 'second-sun': '×2 before, ×3 Encore',
   'twin-wick': '2 Collectors a flight', 'harvest-legendary': '+2 Sparks, +1 Stored',
   'nest-egg': '+1 Stored per 10', 'flash-handling': '+6; fetches Flare',
   'dream': 'Devour: longer Dream', 'spillway': '2nd Overfill: a Pulse', 'mirror-grain': 'Adds last + again',
@@ -46,7 +46,7 @@ export const CARD_TILE_LINES = Object.freeze({
 /** The line a Deck tile shows: the tile form when the card has one, else its real effect line. */
 export function cardTileLine(card) {
   const id = card?.cardId || card?.id;
-  if (cardTallyLine(card)) return cardTallyLine(card);
+  if (cardTallyLine(card) && !['wind-feather', 'growth-ring'].includes(SKILL_CARDS[id]?.kind)) return cardTallyLine(card); // their value is the badge on the picture
   if (CARD_TILE_LINES[id]) return CARD_TILE_LINES[id];
   const def = SKILL_CARDS[id];
   const effect = def ? getCardRuleBands(card, def).find(band => band.type === 'effect')?.text : '';
