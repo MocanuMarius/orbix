@@ -1,2 +1,2 @@
-import {branchTreeMarkup} from './skill-tree.mjs?v=gpu-2';
+import {branchTreeMarkup} from './skill-tree.mjs?v=fast-1';
 export function mainWispTreeMarkup(options){return branchTreeMarkup({...options,branch:'main'});}

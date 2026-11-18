@@ -1,8 +1,8 @@
 /** Try row is a quote of the equipped row, never a flight or a reward settlement. */
-import {CARD_ROW_EVENTS, SKILL_CARDS, describeSkillCard, previewCardRowEvent, hasCardRowEvent, cleanCardCruisingSpeed} from './skill-cards.mjs?v=gpu-2';
-import {rowSnapshot} from './inscriptions.mjs?v=gpu-2';
-import {getCardRowCards, getCardRowSource, describeCardRowScenario} from './card-row-help.mjs?v=gpu-2';
-import {getCardRowTriggerContext, getCardRowTriggerIssue} from './card-status.mjs?v=gpu-2';
+import {CARD_ROW_EVENTS, SKILL_CARDS, describeSkillCard, previewCardRowEvent, hasCardRowEvent, cleanCardCruisingSpeed} from './skill-cards.mjs?v=fast-1';
+import {rowSnapshot} from './inscriptions.mjs?v=fast-1';
+import {getCardRowCards, getCardRowSource, describeCardRowScenario} from './card-row-help.mjs?v=fast-1';
+import {getCardRowTriggerContext, getCardRowTriggerIssue} from './card-status.mjs?v=fast-1';
 
 const n = value => Number((Number(value) || 0).toFixed(3));
 const count = value => Math.max(0, Math.floor(Number(value) || 0));

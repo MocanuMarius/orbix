@@ -1,5 +1,5 @@
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=gpu-2';
-import {pickupKind,pickupShellRadius,isFuelPickup} from './pickups.mjs?v=gpu-2';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=fast-1';
+import {pickupKind,pickupShellRadius,isFuelPickup} from './pickups.mjs?v=fast-1';
 
 export const LUMINANCE_WAVE_TUNING=Object.freeze({speed:640,interval:1,maximumWaves:48,maximumSources:16});
 const finite=(value,fallback)=>Number.isFinite(Number(value))?Number(value):fallback;

@@ -1,48 +1,48 @@
-import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=gpu-2';
-import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=gpu-2';
-import {drawTerrainBoundary,terrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=gpu-2';
-import {spacetimeBaseShape,drawSpacetimeTerrain} from './spacetime.mjs?v=gpu-2';
-import {paintContactEdge,isContactEdgeStyle,contactEdgeInk} from './contact-edge-art.mjs?v=gpu-2';
-import {ContactEdgeRaster} from './contact-edge-raster.mjs?v=gpu-2';
-import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=gpu-2';
-import {drawAtlasFlight} from './atlas-flight.mjs?v=gpu-2';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=gpu-2';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=gpu-2';
-import { drawShutters } from './shutter-cone.mjs?v=gpu-2';
-import {drawProximityMeter} from './proximity-meter.mjs?v=gpu-2';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=gpu-2';
-import {drawCollectorField} from './collector-field-art.mjs?v=gpu-2';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=gpu-2';
-import {drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=gpu-2';
-import {revealLuminanceWaves} from './luminance-waves.mjs?v=gpu-2';
-import {drawGlowSense} from './glow-sense.mjs?v=gpu-2';
-import {drawLastGlimmer} from './last-glimmer.mjs?v=gpu-2';
-import {formatGlow} from './vitality.mjs?v=gpu-2';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=gpu-2';
-import {biomePalette,hasBiomeBackground,biomeBackgroundPlacement,drawBiomeBackgroundStrip} from './biome-art.mjs?v=gpu-2';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=gpu-2';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=gpu-2';
-import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=gpu-2';
-import { createScenePropArt } from './scene-prop-art.mjs?v=gpu-2';
-import { drawBoss } from './boss.mjs?v=gpu-2';
-import {drawFlashTether} from './flash-tether.mjs?v=gpu-2';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=gpu-2';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=gpu-2';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=gpu-2';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=gpu-2';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery,companionTerrainLight } from './light-field.mjs?v=gpu-2';
-import {drawExitLandmark} from './exit-landmark.mjs?v=gpu-2';
-import {drawBlackHoles} from './black-hole-art.mjs?v=gpu-2';
-import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=gpu-2';
-import {drawShellArcs} from './shell-arcs.mjs?v=gpu-2';
-import {drawWispWake} from './wisp-wake.mjs?v=gpu-2';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=gpu-2';
-import {drawFallWarning} from './fall-chain-art.mjs?v=gpu-2';
-import {castTerrainLight,castTerrainLightGPU,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=gpu-2';
-import {LightFogGPU} from './light-gpu.mjs?v=gpu-2';
-import {lanternField} from './lantern-layout.mjs?v=gpu-2';
+import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=fast-1';
+import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=fast-1';
+import {drawTerrainBoundary,terrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=fast-1';
+import {spacetimeBaseShape,drawSpacetimeTerrain} from './spacetime.mjs?v=fast-1';
+import {paintContactEdge,isContactEdgeStyle,contactEdgeInk} from './contact-edge-art.mjs?v=fast-1';
+import {ContactEdgeRaster} from './contact-edge-raster.mjs?v=fast-1';
+import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=fast-1';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=fast-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=fast-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=fast-1';
+import { drawShutters } from './shutter-cone.mjs?v=fast-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=fast-1';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=fast-1';
+import {drawCollectorField} from './collector-field-art.mjs?v=fast-1';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=fast-1';
+import {drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=fast-1';
+import {revealLuminanceWaves} from './luminance-waves.mjs?v=fast-1';
+import {drawGlowSense} from './glow-sense.mjs?v=fast-1';
+import {drawLastGlimmer} from './last-glimmer.mjs?v=fast-1';
+import {formatGlow} from './vitality.mjs?v=fast-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=fast-1';
+import {biomePalette,hasBiomeBackground,biomeBackgroundPlacement,drawBiomeBackgroundStrip} from './biome-art.mjs?v=fast-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=fast-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=fast-1';
+import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=fast-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=fast-1';
+import { drawBoss } from './boss.mjs?v=fast-1';
+import {drawFlashTether} from './flash-tether.mjs?v=fast-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=fast-1';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=fast-1';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=fast-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=fast-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery,companionTerrainLight } from './light-field.mjs?v=fast-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=fast-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=fast-1';
+import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=fast-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=fast-1';
+import {drawWispWake} from './wisp-wake.mjs?v=fast-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=fast-1';
+import {drawFallWarning} from './fall-chain-art.mjs?v=fast-1';
+import {castTerrainLight,castTerrainLightGPU,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=fast-1';
+import {LightFogGPU} from './light-gpu.mjs?v=fast-1';
+import {lanternField} from './lantern-layout.mjs?v=fast-1';
 // v1.2-level ground, boulders and growth (all twelve biomes). On by default; null with ?scenery=1 or {scenery:1}.
-import {createLevelSceneryTwo} from './level-scenery-two.mjs?v=gpu-2';
+import {createLevelSceneryTwo} from './level-scenery-two.mjs?v=fast-1';
 
 const TAU = Math.PI * 2;
 const LOW_RES_OUTPUT = (() => { try { return new URLSearchParams(globalThis.location?.search || '').get('lowres') === '1'; } catch { return false; } })();
@@ -169,15 +169,17 @@ const GLYPHS = {
 };
 
 function pixelText(c, value, x, y, ink) {
-  // One path per label: glyph pixels never overlap, so a single fill paints exactly what one
-  // fillRect per pixel painted, as one GPU raster operation instead of dozens.
-  c.fillStyle = ink; c.beginPath();
+  // Adjacent lit pixels of a glyph row are one rectangle (they never overlap: same pixels).
+  c.fillStyle = ink;
   for (const letter of String(value)) {
     const rows = GLYPHS[letter];
-    if (rows) for (let yy = 0; yy < 5; yy++) for (let xx = 0; xx < 3; xx++) if (rows[yy][xx] === '1') c.rect(Math.round(x + xx), Math.round(y + yy), 1, 1);
+    if (rows) for (let yy = 0; yy < 5; yy++) for (let xx = 0; xx < 3; xx++) if (rows[yy][xx] === '1' && (xx === 0 || rows[yy][xx - 1] !== '1')) {
+      let w = 1; while (xx + w < 3 && rows[yy][xx + w] === '1') w++;
+      if (Number.isInteger(x)) c.fillRect(Math.round(x + xx), Math.round(y + yy), w, 1);
+      else for (let k = 0; k < w; k++) c.fillRect(Math.round(x + xx + k), Math.round(y + yy), 1, 1);
+    }
     x += 4;
   }
-  c.fill();
 }
 
 function pixelLine(c, x0, y0, x1, y1, ink, size = 1) {
@@ -186,23 +188,34 @@ function pixelLine(c, x0, y0, x1, y1, ink, size = 1) {
   const dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
   let error = dx + dy;
   c.fillStyle = ink;
+  // Consecutive steps along one row (or one column) are drawn as one rectangle. With 1-pixel
+  // steps nothing overlaps, so each pixel is still painted exactly once; wider steps overlap and
+  // are merged only for an opaque source-over paint, where a second paint changes nothing.
+  // Same pixels, a fraction of the fillRect calls (each one is a GPU raster operation).
+  const merge = size === 1 || (c.globalAlpha >= 1 && c.globalCompositeOperation === 'source-over' && typeof ink === 'string' && /^#[0-9a-f]{6}$/i.test(ink));
+  let rx = x0, ry = y0, rw = 0, rh = 0; // current run: rw steps along x or rh steps along y
+  const flushRun = () => { c.fillRect(rw ? Math.min(rx, rx + (rw - 1) * sx) : rx, rh ? Math.min(ry, ry + (rh - 1) * sy) : ry, rw ? rw + size - 1 : size, rh ? rh + size - 1 : size); };
   for (let guard = 0; guard < 4096; guard++) {
-    c.fillRect(x0, y0, size, size);
+    if (!merge) c.fillRect(x0, y0, size, size);
+    else if (!rw && !rh) { rx = x0; ry = y0; rw = 1; }
+    else if (rh === 0 && y0 === ry && x0 === rx + rw * sx) rw++;
+    else if (rw === 1 && rh === 0 && x0 === rx && y0 === ry + sy) { rw = 0; rh = 2; }
+    else if (rw === 0 && x0 === rx && y0 === ry + rh * sy) rh++;
+    else { flushRun(); rx = x0; ry = y0; rw = 1; rh = 0; }
     if (x0 === x1 && y0 === y1) break;
     const next = error * 2;
     if (next >= dy) { error += dy; x0 += sx; }
     if (next <= dx) { error += dx; y0 += sy; }
   }
+  if (merge && (rw || rh)) flushRun();
 }
 
 function pixelDisc(c, x, y, radius, ink) {
-  // Rows never overlap: one path and one fill (identical pixels, one raster operation).
-  c.fillStyle = ink; c.beginPath();
+  c.fillStyle = ink;
   for (let row = -radius; row <= radius; row++) {
     const half = Math.floor(Math.sqrt(Math.max(0, radius * radius - row * row)));
-    c.rect(Math.round(x - half), Math.round(y + row), half * 2 + 1, 1);
+    c.fillRect(Math.round(x - half), Math.round(y + row), half * 2 + 1, 1);
   }
-  c.fill();
 }
 
 function path(c, points, offsetX = 0, offsetY = 0, scale = 1) {
@@ -380,9 +393,8 @@ export class WispFlightView {
       for (let i = 0; i < 54; i++) levels[e.reducedMotion ? 5 : Math.floor((Math.sin(t * .7 + i) + 1) * 2)].push(i);
       for (let k = 0; k < levels.length; k++) {
         const list = levels[k]; if (!list.length) continue;
-        c.globalAlpha = .20 + (k === 5 ? .10 : k * .08); c.beginPath();
-        for (const i of list) { const x = stars.x[i], y = stars.y[i]; c.rect(x, y, 1, 1); if (i % 17 === 0) c.rect(x - 1, y + 1, 3, 1); }
-        c.fill();
+        c.globalAlpha = .20 + (k === 5 ? .10 : k * .08);
+        for (const i of list) { const x = stars.x[i], y = stars.y[i]; c.fillRect(x, y, 1, 1); if (i % 17 === 0) c.fillRect(x - 1, y + 1, 3, 1); }
       }
     } else for (let i = 0; i < 54; i++) {
       const x = Math.floor(hash(i, 4, 12) * W), y = Math.floor(hash(i, 7, 15) * H * .65);
@@ -557,13 +569,11 @@ export class WispFlightView {
     for (let layer = 0; layer < layers; layer++) {
       const y = Math.round(H * (start + layer * spacing));
       const shift = (distance * (.012 + layer * .007) + (e.reducedMotion ? 0 : t * 1.4)) % 80;
-      c.globalAlpha = .055 + layer * .012; c.fillStyle = palette.mist; c.beginPath();
-      // The 15 strips of a layer never overlap (rows differ, patches 80 px apart): one fill.
+      c.globalAlpha = .055 + layer * .012; c.fillStyle = palette.mist;
       for (let patch = -1; patch < 4; patch++) {
         const x = Math.round(patch * 80 - shift);
-        c.rect(x, y, 61, 1); c.rect(x + 7, y + 1, 46, 2); c.rect(x + 18, y + 3, 28, 1);
+        c.fillRect(x, y, 61, 1); c.fillRect(x + 7, y + 1, 46, 2); c.fillRect(x + 18, y + 3, 28, 1);
       }
-      c.fill();
     }
     c.globalAlpha = 1;
   }
