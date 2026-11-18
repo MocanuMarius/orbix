@@ -36,7 +36,7 @@ test('retired cards never appear in starter choices or any offer pool over many 
 
 test('Wave Loom came back as an engine card: old copies (no edition) are still paid out on load, new copies stay', () => {
   assert.equal(SKILL_CARDS['wave-loom'].retiredBefore, 2);
-  assert.ok(!LIVE_CARDS.some(def => def.id === 'wave-loom'), 'unreleased: still never offered');
+  assert.ok(LIVE_CARDS.some(def => def.id === 'wave-loom'), 'released 2026-11-18: offered again');
   const state = M.newState(), run = state.run = M.createRun(state.profile, 'loom-save', 1, { cards: true });
   run.mountedCards = [{ instanceId: 'loom:old', cardId: 'wave-loom', rank: 1 }, makeSkillCard('wave-loom', 'loom:new'), null];
   run.reserveCards = [];

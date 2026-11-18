@@ -101,6 +101,7 @@ export const CARD_ART_FILES = Object.freeze({
   'twin-wick': 'assets/cards/art/twin-wick.svg',
   'use-doubler': 'assets/cards/art/use-doubler.svg',
   'watchlight': 'assets/cards/art/watchlight.svg',
+  'wave-loom': 'assets/cards/art/wave-loom.svg',
   'wayfarers-purse': 'assets/cards/art/wayfarers-purse.svg',
   'wick-doubler': 'assets/cards/art/wick-doubler.svg',
   'wind-feather': 'assets/cards/art/wind-feather.svg',

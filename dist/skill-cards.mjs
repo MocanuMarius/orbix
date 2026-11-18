@@ -765,6 +765,8 @@ export function drawSkillCard(run, source, node = run.current, rarity = null) {
     if (earned && !isUnofferedCard(earned.cardId)) return {
       instanceId: earned.instanceId, cardId: earned.cardId, rank: earned.rank || 1,
       ...(Number.isFinite(earned.charges) ? { charges: earned.charges } : {}),
+      // An edition-stamped card (Wave Loom) keeps its stamp, or a replayed receipt would read as the retired old copy.
+      ...(Number.isFinite(earned.edition) ? { edition: earned.edition } : {}),
     };
   }
   const roll = draw()*100, weights=CARD_DROP_WEIGHTS[node?.boss?'boss':node?.elite?'elite':'normal'],

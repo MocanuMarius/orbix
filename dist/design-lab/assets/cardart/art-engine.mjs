@@ -158,6 +158,21 @@ P['momentum'] = () => { const g = legend({glowAt: [24, 24], bands: [[19, 'N'], [
   keyline(g);
   return g; };
 
+// Wave Loom (L): a small loom whose pale Pulse wave is woven across the warp threads, one new row every Turn.
+P['wave-loom'] = () => { const g = legend({glowAt: [24, 24], bands: [[19, 'N'], [15, 'T'], [12, 'C']], ground: 41});
+  [[7, 8], [7, 37]].forEach(([x, y]) => { rect(g, x - 1, y - 1, 36, 6, 'O'); rect(g, x, y, 34, 4, 'B'); rect(g, x, y, 34, 1, 'P'); rect(g, x, y + 3, 34, 1, 'L'); });
+  for (let x = 10; x <= 38; x += 4) { rect(g, x, 12, 1, 25, 'C'); px(g, x, 12, 'c'); }
+  for (let x = 9; x <= 39; x++) {
+    const y = 24 + Math.round(7 * Math.sin((x - 9) / 4.6));
+    const over = Math.floor((x - 10) / 2) % 2 === 0;
+    [-1, 0, 1].forEach(d => px(g, x, y + d, d === 0 ? 'W' : 'G'));
+    px(g, x, y + 2, 'O');
+    if (!over && (x - 10) % 4 <= 1) { px(g, x, y, 'C'); px(g, x, y - 1, 'C'); px(g, x, y + 1, 'C'); }
+  }
+  sparkAt(g, 7, 20, 14); sparkAt(g, 7, 36, 33);
+  keyline(g);
+  return g; };
+
 // ─ Pack ─
 // Full Satchel (C): at journey's end the meter empties into the jar, and three more Sparks drop in.
 P['full-satchel'] = () => { const g = common({gy: 41, tufts: [24, 44]});
@@ -211,6 +226,7 @@ export const ENGINE_META = {
   'full-satchel': {family: 'Pack', idea: 'Meter empties into jar; three more Sparks drop'},
   'last-round': {family: 'Pack', idea: 'Meter empties into jar; jar sends a last Pulse'},
   'harvest-home': {family: 'Pack', idea: 'Meter empties into jar; Sparks fly in from everywhere'},
+  'wave-loom': {family: 'Engine · governor', idea: 'Small loom weaves a pale Pulse wave across its threads'},
   'black-hole': {family: 'Black Hole', idea: 'Dark disc, bright rim, pulls the next card in'},
 };
 // Cards named in docs/engine-cards.md that are not in dist/card-catalog.mjs yet (drawn under the implied id).

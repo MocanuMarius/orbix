@@ -122,7 +122,7 @@ test('the forged card is hidden until paid, seeded so reload or Back cannot rero
     assert.equal(quote.card.name, `Surprise ${rarity[0].toUpperCase()}${rarity.slice(1)} card`);
     const text = JSON.stringify(quote), next = drawForgeCard(run, rarity, quote.forged);
     assert.ok(!text.includes(`"${next.cardId}"`), 'no part of the quote names the card');
-    for (const markup of [cardForgeMarkup(run, quote), cardWorkshopMarkup(run)]) {
+    for (const markup of [cardForgeMarkup(run, quote), cardWorkshopMarkup(run, {view: 'forge'})]) {
       assert.doesNotMatch(markup, new RegExp(SKILL_CARDS[next.cardId].name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?! card)'));
       assert.match(markup, /Surprise/);
     }
@@ -176,7 +176,7 @@ test('Forge uses no Rest action and the Workshop shows the next price of each ra
   const actions = structuredClone(run.cardRest?.actions || []);
   forge(state, 'common', 15);
   assert.deepEqual(run.cardRest?.actions || [], actions);
-  const html = cardWorkshopMarkup(run);
-  for (const text of ['Surprise Common card', 'Forge · 23', 'Surprise Rare card', 'Forge · 40', 'Surprise Legendary card', 'Forge · 150', 'Revealed after you pay'])
+  const html = cardWorkshopMarkup(run, {view: 'forge'});
+  for (const text of ['Surprise Common card', 'Forge','23', 'Surprise Rare card', '40', 'Surprise Legendary card', '150', 'Revealed after you pay'])
     assert.ok(html.includes(text), text);
 });

@@ -113,7 +113,7 @@
   "return-spring": {
     "file": "return-spring.svg",
     "rarity": "common",
-    "family": "Latch",
+    "family": "Always on",
     "idea": "Collector hooks a Spark; coiled spring snaps back",
     "line": [
       "return-spring"
@@ -122,7 +122,7 @@
   "haul-winch": {
     "file": "haul-winch.svg",
     "rarity": "common",
-    "family": "Latch",
+    "family": "Delivery",
     "idea": "Cranked winch reels a hooked Cluster in fast",
     "line": [
       "haul-winch"
@@ -351,7 +351,7 @@
   "lift-guide": {
     "file": "lift-guide.svg",
     "rarity": "common",
-    "family": "Always on",
+    "family": "Rhythm",
     "idea": "Gold arrow marks where the wisp should Lift",
     "line": [
       "lift-guide"
@@ -819,18 +819,16 @@
     "idea": "Pulse ring strikes small bell; bell drops Spark",
     "line": [
       "spark-chime"
-    ],
-    "unreleased": true
+    ]
   },
   "ember-bell": {
     "file": "ember-bell.svg",
     "rarity": "common",
-    "family": "A card gives Sparks",
+    "family": "Overfill",
     "idea": "Spark comes in; glowing ember bell rings Pulse",
     "line": [
       "ember-bell"
-    ],
-    "unreleased": true
+    ]
   },
   "afterglow": {
     "file": "afterglow.svg",
@@ -839,8 +837,7 @@
     "idea": "Spent Flash bolt fades, leaving two Sparks behind",
     "line": [
       "afterglow"
-    ],
-    "unreleased": true
+    ]
   },
   "flash-tinder": {
     "file": "flash-tinder.svg",
@@ -849,8 +846,7 @@
     "idea": "Wisp takes a Spark; a short Flash bursts",
     "line": [
       "flash-tinder"
-    ],
-    "unreleased": true
+    ]
   },
   "homing-thread": {
     "file": "homing-thread.svg",
@@ -859,10 +855,7 @@
     "idea": "Collector delivers; gold thread loops it back out",
     "line": [
       "homing-thread"
-    ],
-    "unreleased": true,
-    "name": "Homing Thread",
-    "notInCatalog": true
+    ]
   },
   "overflow-bell": {
     "file": "overflow-bell.svg",
@@ -871,8 +864,7 @@
     "idea": "Spill strikes a bell ringing Pulse; jar keeps two",
     "line": [
       "overflow-bell"
-    ],
-    "unreleased": true
+    ]
   },
   "slow-wick": {
     "file": "slow-wick.svg",
@@ -881,8 +873,7 @@
     "idea": "Fat fuse wick burns slowly down time marks",
     "line": [
       "slow-wick"
-    ],
-    "unreleased": true
+    ]
   },
   "metronome": {
     "file": "metronome.svg",
@@ -891,8 +882,7 @@
     "idea": "Metronome with Timer dial fires the next card",
     "line": [
       "metronome"
-    ],
-    "unreleased": true
+    ]
   },
   "long-fuse": {
     "file": "long-fuse.svg",
@@ -901,18 +891,16 @@
     "idea": "Long coiled fuse burns toward a hollow copy",
     "line": [
       "long-fuse"
-    ],
-    "unreleased": true
+    ]
   },
   "heartbeat": {
     "file": "heartbeat.svg",
     "rarity": "legendary",
-    "family": "Always on",
+    "family": "timers",
     "idea": "Heart with pulse line; dial at half time",
     "line": [
       "heartbeat"
-    ],
-    "unreleased": true
+    ]
   },
   "first-catch": {
     "file": "first-catch.svg",
@@ -921,8 +909,7 @@
     "idea": "Wisp catches the first Spark, sends a ring",
     "line": [
       "first-catch"
-    ],
-    "unreleased": true
+    ]
   },
   "close-call": {
     "file": "close-call.svg",
@@ -931,8 +918,7 @@
     "idea": "Wisp grazes a rock tip; ring and Spark",
     "line": [
       "close-call"
-    ],
-    "unreleased": true
+    ]
   },
   "low-ember": {
     "file": "low-ember.svg",
@@ -941,30 +927,25 @@
     "idea": "Last ember in meter; wisp Lifts, sends Pulse",
     "line": [
       "low-ember"
-    ],
-    "unreleased": true
+    ]
   },
   "third-beat": {
     "file": "third-beat.svg",
     "rarity": "rare",
-    "family": "Always on",
+    "family": "engine-turn",
     "idea": "Turn track: two beats, the third counts twice",
     "line": [
       "third-beat"
-    ],
-    "unreleased": true
+    ]
   },
   "momentum": {
     "file": "momentum.svg",
     "rarity": "legendary",
-    "family": "Always on",
+    "family": "engine-turn",
     "idea": "Flywheel spun up to speed, its light brightening",
     "line": [
       "momentum"
-    ],
-    "unreleased": true,
-    "name": "Momentum",
-    "notInCatalog": true
+    ]
   },
   "full-satchel": {
     "file": "full-satchel.svg",
@@ -973,8 +954,7 @@
     "idea": "Meter empties into jar; three more Sparks drop",
     "line": [
       "full-satchel"
-    ],
-    "unreleased": true
+    ]
   },
   "last-round": {
     "file": "last-round.svg",
@@ -983,8 +963,7 @@
     "idea": "Meter empties into jar; jar sends a last Pulse",
     "line": [
       "last-round"
-    ],
-    "unreleased": true
+    ]
   },
   "harvest-home": {
     "file": "harvest-home.svg",
@@ -993,8 +972,16 @@
     "idea": "Meter empties into jar; Sparks fly in from everywhere",
     "line": [
       "harvest-home"
-    ],
-    "unreleased": true
+    ]
+  },
+  "wave-loom": {
+    "file": "wave-loom.svg",
+    "rarity": "legendary",
+    "family": "engine-turn",
+    "idea": "Small loom weaves a pale Pulse wave across its threads",
+    "line": [
+      "wave-loom"
+    ]
   },
   "black-hole": {
     "file": "black-hole.svg",
@@ -1003,7 +990,6 @@
     "idea": "Dark disc, bright rim, pulls the next card in",
     "line": [
       "black-hole"
-    ],
-    "unreleased": true
+    ]
   }
 }

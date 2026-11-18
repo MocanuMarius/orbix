@@ -121,20 +121,21 @@ export function pauseContextLine(run){
  * @param {boolean} o.showHelp    add a Help plaque (Field Guide) for Home, where there is no pause menu. It sits in
  *                                Gameplay (at most three rows there) so the page still fits 667x300.
  */
-export function settingsMarkup({music={level:3},fx={level:3},lessons=true,speed=null,installLabel='Install game',version='',showHelp=false}={}){
+export function settingsMarkup({music={level:3},fx={level:3},lessons=true,speed=null,installLabel='Install game',version='',showHelp=false,showFullscreen=false}={}){
  const row=(name,control)=>`<div class="wb-set-row"><span class="wb-set-label">${esc(name)}</span>${control}</div>`;
  const lessonsToggle=`<button type="button" class="wb-sign wb-sign-standard wb-toggle" data-action="skip-tutorial" aria-pressed="${!!lessons}"><i class="wb-sign-art" aria-hidden="true">${icon('info')}</i><span class="wb-sign-text"><b>Lessons ${lessons?'On':'Off'}</b></span></button>`;
  const selected=speed?.options?.find(option=>option.value===speed.selected)||speed?.options?.[0];
  const speedControl=speed?.options?.length?`<label class="wb-sign wb-sign-standard wb-select"><span class="wb-sign-text"><b>Speed</b><small>${esc(selected?.label||'')}${speed.note?` · ${esc(speed.note)}`:''}</small></span><select id="cruising-speed" data-cruising-speed aria-label="Cruising speed">${speed.options.map(option=>`<option value="${esc(option.value)}"${option.value===speed.selected?' selected':''}>${esc(option.label)}</option>`).join('')}</select></label>`:'';
  const install=`<button type="button" class="wb-sign wb-sign-standard install-control" data-action="install-game"><span class="wb-sign-text"><b data-install-label>${esc(installLabel)}</b><small>Play offline</small></span></button>`;
- const updates=`<button type="button" class="wb-sign wb-sign-standard build-refresh" data-action="refresh-build"><span class="wb-sign-text"><b>Updates</b><small data-build-label aria-live="polite">Version ${esc(version)}</small></span></button>`;
+ const fullscreen=showFullscreen?`<button type="button" class="wb-sign wb-sign-standard fullscreen-control" data-action="settings-fullscreen"><span class="wb-sign-text"><b>Fullscreen</b><small>Hide browser bars</small></span></button>`:'';
+ const updates=`<button type="button" class="wb-sign wb-sign-standard build-refresh" data-action="update-now"><span class="wb-sign-text"><b data-update-title>Update now</b><small data-build-label aria-live="polite">Version ${esc(version)}</small></span></button>`;
  const credits=`<a class="wb-sign wb-sign-standard" href="nature-credits.html" target="_blank" rel="noopener"><span class="wb-sign-text"><b>Credits</b><small>Art & music</small></span></a>`;
  const help=showHelp?waystoneSign('standard','Help',{action:'field-guide',sub:'Guide & glossary'}):'';
  const page=`<header class="wb-head">${titleMarkup('Settings')}</header>
 <div class="settings-body wb-set-grid">
 <section aria-labelledby="wb-set-sound"><h3 class="wb-set-group" id="wb-set-sound">Sound</h3>${row('Music',levelControlMarkup('music',music?.level,{last:music?.last,beat:true}))}${row('FX',levelControlMarkup('fx',fx?.level,{last:fx?.last}))}</section>
 <section aria-labelledby="wb-set-gameplay"><h3 class="wb-set-group" id="wb-set-gameplay">Gameplay</h3>${lessonsToggle}${speedControl}${help}</section>
-<section aria-labelledby="wb-set-app"><h3 class="wb-set-group" id="wb-set-app">App</h3>${install}${updates}${credits}</section>
+<section aria-labelledby="wb-set-app"><h3 class="wb-set-group" id="wb-set-app">App</h3>${install}${fullscreen}${updates}${credits}</section>
 </div>
 <footer class="wb-set-foot">${waystoneSign('quiet','Back',{action:'settings-back'})}${waystoneSign('quiet','Advanced',{action:'settings-advanced'})}</footer>`;
  return atlasScreen({cls:'wb-settings',label:'Settings',dialog:false,page});

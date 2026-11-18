@@ -292,11 +292,11 @@ export function enginePlate(row, slot) {
   if (spec.governor === 'wave-loom') return {long: 'A light Pulse each Turn', short: 'Light Pulse'};
   if (spec.family === 'pack') {
     if (spec.does?.includes('gain')) return {long: `${sparks} at Pack`, short: `+${num(amount)} at Pack`};
-    if (spec.does?.includes('fire-collect')) return {long: 'Fires Collect cards', short: 'Fires Collect'};
-    return {long: 'One last Turn', short: 'Last Turn'};
+    if (spec.does?.includes('fire-collect')) return {long: 'Fires Collect, Cluster and Dusk cards', short: 'Fires Collect'};
+    return {long: 'Fires the last Trigger again', short: 'Last Trigger again'};
   }
   const d = spec.does || [];
-  if (d.includes('homing')) return {long: 'Collector fetches again', short: 'Fetches again'};
+  if (d.includes('homing')) return {long: 'Collector fetches again, 2× reach', short: 'Fetches again'};
   if (d.includes('flash')) return {long: 'Starts a Flare (Pulse every 2 s, very high Luminance)', short: 'A Flare'};
   if (d.includes('gain') && d.includes('pulse')) return {long: `Sends a Pulse, +${num(amount)}`, short: `Pulse, +${num(amount)}`};
   if (d.includes('gain')) return {long: `${sparks} each Turn`, short: `+${num(amount)} a Turn`};

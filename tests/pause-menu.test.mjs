@@ -68,7 +68,7 @@ test('run status tab shows only real values', () => {
 
 test('settings: three groups, real actions, Speed only when offered, Help only when asked', () => {
   const html=settingsMarkup({music:{level:2},fx:{level:0,last:3},lessons:true,speed:null,installLabel:'Install game',version:'v-1'});
-  assert.deepEqual(actions(html),['skip-tutorial','install-game','refresh-build','settings-back','settings-advanced']);
+  assert.deepEqual(actions(html),['skip-tutorial','install-game','update-now','settings-back','settings-advanced']);
   assert.deepEqual([...html.matchAll(/<h3 class="wb-set-group"[^>]*>([^<]+)/g)].map(m=>m[1]),['Sound','Gameplay','App']);
   assert.match(html,/data-action="skip-tutorial" aria-pressed="true"/);assert.match(html,/Lessons On/);
   assert.match(html,/Version v-1/);assert.match(html,/class="settings-body wb-set-grid"/);

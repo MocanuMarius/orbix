@@ -96,3 +96,7 @@ html[data-reduced-motion=true] body[data-screen=home] #app .menu-art-home :is(.w
  html body[data-screen=home] #app .menu-art-home.wb-ground{--pw:calc(100% - 16px)}
  html body[data-screen=home] #app .menu-art-home .home-tabs{display:none}
 }
+
+/* "Update available": shown under the version line only when a newer release is published (app.mjs checkHomeUpdate). Small, secondary. */
+html body[data-screen=home] #app .menu-art-home .front-update:not([hidden]){display:block;flex:none;margin:2px auto 0;min-height:32px;padding:2px 12px;font:400 11px/12px var(--pixel,monospace);letter-spacing:.5px;color:#fff1c5;background:#536430;border:2px solid #2a2118;border-radius:0;box-shadow:none;cursor:pointer;touch-action:manipulation}
+html body[data-screen=home] #app .menu-art-home .front-update[hidden]{display:none}

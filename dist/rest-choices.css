@@ -352,3 +352,37 @@ html body .card-workshop .card-workshop-offer>strong{grid-area:name;min-width:0}
 html body .card-workshop .card-workshop-offer>b{grid-area:price;white-space:nowrap}
 html body .card-workshop .card-workshop-offer>span{grid-area:detail}
 html body .card-workshop .card-workshop-offer>small{grid-area:note}
+
+/* Workshop (18 Nov 2026): three large tiles (Improve, Refill, Forge); a tile swaps the same screen for its offers (event-pick look).
+   Nothing scrolls at 890x400; the offers grid is the one pinned scroll area, used only when the deck is long. */
+html body .card-workshop.wk:not(#k):not(#j){gap:6px}
+html body .card-workshop.wk .wk-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;flex:1 1 auto;min-height:0;align-content:center}
+html body .card-workshop.wk button.wk-tile:not(.skill-card *):not(#k):not(#j){display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;width:100%;height:auto;min-height:150px!important;max-height:250px;padding:8px 6px!important;border-image-source:url('assets/ui/waystone/plaque-leather.svg')!important;background:#5a4632 padding-box!important;color:#f6ebcc!important;text-align:center;text-transform:none;letter-spacing:0!important;text-shadow:1px 2px #2a1d12!important;white-space:normal;font:400 13px/15px var(--pixel,monospace)!important}
+html body .card-workshop.wk .wk-tile .wk-name{font:400 22px/24px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#fff1c5}
+html body .card-workshop.wk .wk-tile .wk-line{font:400 13px/16px var(--pixel,monospace);color:#e2d0a6}
+html body .card-workshop.wk .wk-tile .wk-price{display:inline-flex;align-items:center;gap:4px;font:400 18px/20px var(--pixel,monospace);color:#e6c77c}
+html body .card-workshop.wk .wk-tile .wk-price b,html body .card-workshop.wk .wk-cost b{font-weight:400}
+html body .card-workshop.wk .wk-why{display:block;font:400 12px/14px var(--pixel,monospace);color:#7a2f2a;font-style:normal}
+html body .card-workshop.wk button.wk-off.wk-off:not(.skill-card *):not(#k):not(#j){border-image-source:url('assets/ui/waystone/plaque-slip.svg')!important;background:#e4d09b padding-box!important;color:#3b2d20!important;text-shadow:none!important}
+html body .card-workshop.wk .wk-off :is(.wk-name,.wk-line,.wk-price,b,small,i){color:#5a4632!important}html body .card-workshop.wk .wk-off .wk-why{color:#7a2f2a!important}
+html body .card-workshop.wk .wk-ico{display:block;width:44px;height:44px}
+html body .card-workshop.wk .wk-picks{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;align-content:start;flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;padding:3px 3px 6px}
+html body .card-workshop.wk button.wk-pick:not(.skill-card *):not(#k):not(#j){display:grid;justify-items:center;align-content:start;gap:1px;width:100%;min-width:0;height:auto;min-height:98px!important;padding:4px 3px!important;border-image-source:url('assets/ui/waystone/plaque-leather.svg')!important;background:#5a4632 padding-box!important;color:#f6ebcc!important;text-align:center;text-transform:none;letter-spacing:0!important;text-shadow:1px 2px #2a1d12!important;white-space:normal;font:400 11px/13px var(--pixel,monospace)!important}
+html body .card-workshop.wk .wk-pick .wk-art{display:block;width:34px;height:34px}
+html body .card-workshop.wk .wk-pick .wk-art svg{display:block;width:100%;height:100%}
+html body .card-workshop.wk .wk-pick b{font:400 12px/13px var(--pixel,monospace);color:#fff1c5;overflow-wrap:anywhere}
+html body .card-workshop.wk .wk-pick small{font:400 11px/13px var(--pixel,monospace);color:#e2d0a6}
+html body .card-workshop.wk .wk-cost{display:inline-flex;align-items:center;gap:3px;font:400 12px/14px var(--pixel,monospace);font-style:normal;color:#e6c77c}
+html body .card-workshop.wk .wk-pick .wk-why{font:400 10px/12px var(--pixel,monospace)}
+html body .card-workshop.wk .card-workshop-empty{grid-column:1/-1;margin:8px 0;font:400 14px/17px var(--pixel,monospace);color:#5a4632}
+@media(max-height:340px){
+ html body .card-workshop.wk .wk-tiles{gap:8px}
+ html body .card-workshop.wk button.wk-tile:not(.skill-card *):not(#k):not(#j){min-height:0!important;gap:3px;padding:4px!important}
+ html body .card-workshop.wk .wk-ico{width:32px;height:32px}html body .card-workshop.wk .wk-ico svg{width:32px;height:32px}
+ html body .card-workshop.wk .wk-tile .wk-name{font-size:18px;line-height:20px}html body .card-workshop.wk .wk-tile .wk-line{font-size:12px;line-height:14px}
+ html body .card-workshop.wk .wk-tile .wk-price{font-size:16px}
+ html body .card-workshop.wk .wk-picks{gap:4px}
+ html body .card-workshop.wk button.wk-pick:not(.skill-card *):not(#k):not(#j){min-height:76px!important;padding:2px!important}
+ html body .card-workshop.wk .wk-pick .wk-art{width:26px;height:26px}
+ html body .card-workshop.wk .wk-pick small{font-size:10px;line-height:11px}
+}

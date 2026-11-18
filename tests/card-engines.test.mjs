@@ -40,8 +40,8 @@ const flightWith = (ids, extra = {}) => {
 
 // ── catalog ─────────────────────────────────────────────────────────────────────────────────────────────────────
 test('the engine cards are in the catalog, unreleased, readable and drawn with existing art', () => {
-  // 2026-11-18: 13 engine, Pack and Black Hole cards were released (tests/engine-real-flight.test.mjs); these are still held.
-  assert.deepEqual(UNRELEASED, ['wave-loom', 'homing-thread', 'close-call', 'low-ember', 'momentum', 'last-round', 'harvest-home', 'chameleon-two', 'whetstone']);
+  // 2026-11-18: 13 engine, Pack and Black Hole cards were released, then the seven held ones after the owner's fixes (tests/engine-real-flight.test.mjs).
+  assert.deepEqual(UNRELEASED, ['chameleon-two', 'whetstone']);
   for (const id of ['spark-chime', 'ember-bell', 'flash-tinder', 'overflow-bell', 'afterglow', 'slow-wick', 'metronome', 'long-fuse', 'heartbeat', 'first-catch', 'third-beat', 'full-satchel', 'black-hole'])
     assert.ok(LIVE_CARDS.includes(SKILL_CARDS[id]), `${id}: released`);
   for (const id of UNRELEASED) {
@@ -145,11 +145,11 @@ test('Boosts multiply each card-made gain to their left, rounded up; Stored Spar
   }
   assert.equal(engineBoostAt(row(['spark-chime', 'closing-chord', 'body-spark']), 0).multiplier, 1, 'Closing Chord only as the last card');
   // Overflow Bell keeps 2 of a spill; a Crescendo to its right doubles the gain that spills, but Stored Sparks come only from the printed
-  // gain: Close Call's 1 fits the meter, so the Boost's extra Spark is all that spills and nothing is kept.
+  // gain: Close Call's 3 asks for more than the meter holds, so the printed 2 that spills is kept; the Boost's extra Sparks are not.
   const {engine, host, at} = rig(['close-call', 'metronome', 'body-spark', 'overflow-bell', 'crescendo'], {start: 9, max: 10});
   at('skim', 0);
-  assert.equal(hits(engine, 'gain')[0].amount, 2, 'Close Call +1 doubled');
-  assert.ok(hits(engine, 'keep').every(k => k.amount <= 2)); assert.equal(host.storedTotal, 0, 'nothing kept: the spilled Spark was made by the Boost (2 asked, 1 fitted)');
+  assert.equal(hits(engine, 'gain')[0].amount, 6, 'Close Call +3 doubled');
+  assert.ok(hits(engine, 'keep').every(k => k.amount <= 2)); assert.equal(host.storedTotal, 2, 'kept 2 of the printed spill (3 asked, 1 fitted); the Boost made the rest');
 });
 
 test('the two worked engines reproduce the demo’s numbers', () => {
@@ -188,12 +188,12 @@ test('Slow Wick waits 3 s, Heartbeat halves every Timer, and a burning Wick igno
 test('Metronome fires the next card every 3 s, stops when it cannot act and is re-armed by the next event', () => {
   assert.equal(SKILL_CARDS.metronome.engine.wait, 3); assert.equal(SKILL_CARDS.metronome.amount, 3);
   assert.match(describeSkillCard(makeSkillCard('metronome', 'm')).effect, /Every 3 s/);
-  const {engine, host, at} = rig(MILL, {start: 0, max: 7});
+  const {engine, host, at} = rig(MILL, {start: 0, max: 9});
   at('skim', 0);
-  assert.equal(host.meter, 1);
+  assert.equal(host.meter, 3, 'Close Call: +3');
   engine.advance(2.99); assert.equal(engine.turns, 0, 'nothing before 3 s');
   engine.advance(9);
-  assert.equal(engine.turns, 3); assert.equal(host.meter, 7);
+  assert.equal(engine.turns, 3); assert.equal(host.meter, 9);
   engine.advance(12);
   assert.ok(hits(engine, 'metronome-stops').length === 1, 'meter full: it stops');
   assert.equal(engine.timers.length, 0);
@@ -225,27 +225,27 @@ test('Homing Thread: a Delivery sends a Collector with charge for the nearest Sp
   assert.equal(w.homingFetch, null, 'no charge: not asked');
 });
 
-test('Momentum: after 5 Turns in a row, +20% Luminance until the engine stops', () => {
-  assert.equal(SKILL_CARDS.momentum.rarity, 'legendary'); assert.equal(SKILL_CARDS.momentum.amount, 20);
+test('Momentum: after 5 Turns in a row, +40% Luminance until the engine stops', () => {
+  assert.equal(SKILL_CARDS.momentum.rarity, 'legendary'); assert.equal(SKILL_CARDS.momentum.amount, 40);
   const lum = [];
   const runtime = createCardExecution(row([...CHIME, 'momentum'])), host = createMeterHost({start: 0, max: 7});
   host.runtime = runtime; host.setLuminance = p => lum.push(p);
   const engine = new CardEngine(runtime, host);
   playerEvent(engine, host, 'collect', {}, 0);
   engine.advance(12); assert.equal(engine.turns, 4); assert.deepEqual(lum, [], 'not before the fifth Turn');
-  engine.advance(15); assert.equal(engine.turns, 5); assert.deepEqual(lum, [20]); assert.equal(engine.state.momentum, 20);
+  engine.advance(15); assert.equal(engine.turns, 5); assert.deepEqual(lum, [40]); assert.equal(engine.state.momentum, 40);
   engine.advance(40);
   assert.ok(engine.stops >= 1, 'the meter filled and the engine stopped');
-  assert.deepEqual(lum, [20, 0], 'the light goes back when the engine stops'); assert.equal(engine.state.streak, 0);
+  assert.deepEqual(lum, [40, 0], 'the light goes back when the engine stops'); assert.equal(engine.state.streak, 0);
   // In flight it adds to the Chain's Luminance in getLightState.
   const e = flightWith(['first-catch']); const before = e.getLightState().radius;
-  e.cardEngineLuminance = 20; const after = e.getLightState().radius;
+  e.cardEngineLuminance = 40; const after = e.getLightState().radius;
   assert.ok(after > before * 1.15, `${before} -> ${after}`);
 });
 
 test('Wave Loom is back as an engine card: one real light Pulse each Turn', () => {
   const def = SKILL_CARDS['wave-loom'];
-  assert.equal(def.unreleased, true); assert.equal(def.retired, undefined); assert.equal(def.engine.governor, 'wave-loom');
+  assert.equal(def.unreleased, undefined); assert.equal(def.retired, undefined); assert.equal(def.engine.governor, 'wave-loom');
   assert.equal(makeSkillCard('wave-loom', 'w').edition, 2);
   const pulses = [];
   const runtime = createCardExecution(row([...CHIME, 'wave-loom'])), host = createMeterHost({start: 0, max: Infinity});
@@ -280,15 +280,18 @@ test('an engine stops when the meter is full and no card hears the Overfill', ()
   assert.equal(wick.engine.lastStop.reason, 'meter-full'); assert.equal(wick.engine.timers.length, 0);
 });
 
-test('starters: First Catch once per flight, Low Ember under a quarter once per 6 s, Close Call on a skim', () => {
+test('starters: First Catch once per flight, Low Ember under half once per 6 s, Close Call on a skim', () => {
   const first = rig(['first-catch', 'spark-chime']); first.at('collect', 0); first.at('collect', 1);
   assert.equal(first.host.meter, 1);
   const low = rig(['low-ember', 'spark-chime']);
-  low.engine.raise('lift', {meterFraction: .3}, 0); low.engine.raise('lift', {meterFraction: .2}, 1);
+  low.engine.raise('lift', {meterFraction: .6}, 0); low.engine.raise('lift', {meterFraction: .2}, 1);
   low.engine.raise('lift', {meterFraction: .2}, 6.5); low.engine.raise('lift', {meterFraction: .2}, 7.1);
   assert.equal(low.host.meter, 2, 'fired at 1 s and 7.1 s only');
   const close = rig(['close-call', 'spark-chime']); close.engine.raise('skim', {}, 0);
-  assert.equal(close.host.meter, 2);
+  assert.equal(close.host.meter, 4, '+3 and a Pulse that Spark Chime hears');
+  const edge = rig(['low-ember', 'spark-chime']);
+  edge.engine.raise('lift', {meterFraction: .49}, 0); edge.engine.raise('lift', {meterFraction: .5}, 7); edge.engine.raise('lift', {meterFraction: .51}, 14);
+  assert.equal(edge.host.meter, 1, 'under half fires; half and above do not');
 });
 
 test('Flare Tinder starts a 1 s Flare; its end is heard by Afterglow to the right', () => {
@@ -368,10 +371,18 @@ test('Pack: Full Satchel adds before packing; Echo repeats it; a Boost strengthe
   assert.equal(previewPack(row(['full-satchel', 'crescendo'])).sparks, 6);
   assert.equal(previewPack(row(['full-satchel', 'refrain'])).sparks, 6, 'a Refrain plays the Pack line once more');
   assert.equal(previewPack(row(['full-satchel']), {start: 9, max: 10}).sparks, 1, 'the meter cap applies');
-  const last = previewPack(row(['last-round', 'spark-chime', 'metronome']));
-  assert.equal(last.sparks, 1); assert.equal(last.turns, 1, 'one last Turn; the Metronome cannot wait');
-  assert.ok(last.log.some(entry => entry.k === 'no-time'));
-  assert.equal(previewPack(row(['harvest-home', 'body-spark', 'dusk-wick', 'prism-lens'])).sparks, 3, 'every Collect card once, a plain Spark (2.5 rounds up)');
+  const last = rig(['body-spark', 'last-round'], {start: 0, max: 10});
+  last.at('collect', 0); assert.equal(last.host.meter, 2);
+  last.engine.raise('pack', {}, 5);
+  assert.equal(last.host.meter, 4, 'Last Round fires the last Trigger card (Body Spark +2) once more'); assert.equal(last.engine.pack.turns, 1);
+  assert.equal(previewPack(row(['last-round', 'spark-chime'])).sparks, 0, 'nothing answered yet: nothing to repeat');
+  const echoed = rig(['body-spark', 'echo', 'last-round'], {start: 0, max: 20});
+  echoed.at('collect', 0); echoed.engine.raise('pack', {}, 5);
+  assert.equal(echoed.host.meter, 2 + 2 * 2, 'Echo repeats Last Round: two more firings of +2');
+  assert.equal(previewPack(row(['harvest-home', 'body-spark'])).sparks, 2, 'a plain Collect card fires once, no bonus');
+  assert.equal(previewPack(row(['harvest-home', 'dusk-wick'])).sparks, 22, 'a Dusk card fires as if its condition were met (+20) and Harvest Home adds +2');
+  assert.equal(previewPack(row(['harvest-home', 'cluster-heart'])).sparks, 8, 'a Cluster card fires (+6) and Harvest Home adds +2');
+  assert.equal(previewPack(row(['harvest-home', 'body-spark', 'dusk-wick', 'prism-lens'])).sparks, 31, 'Boosts to the right multiply each firing, rounded up: 3 + 25 + 3');
   assert.equal(previewPack(row(['body-spark', 'spark-chime'])).sparks, 0, 'no Pack card: nothing');
 });
 
@@ -493,4 +504,22 @@ test('Always round up (owner, 2026-11-17): an engine gain of +1 under Prism Lens
   assert.ok(hits(exact.engine, 'gain').every(g => g.amount === 2), 'x2 on +1 is exactly 2');
   const none = rig(['crescendo', ...CHIME]); none.at('collect', 0); none.engine.advance(6.01);
   assert.ok(hits(none.engine, 'gain').every(g => g.amount === 1), 'a Boost to the left of the card changes nothing');
+});
+
+test('Homing Thread searches twice as far as the Collector normally reaches, and only when asked', async () => {
+  const {WispCompanion} = await import('../dist/wisp.mjs');
+  const make = (ahead, asked) => {
+    const e = {player: {x: 110, y: 310}, height: 620, time: 0, distance: 0, previousDistance: 0, baseSpeed: 154, mod: {wispCooldown: 1.2, collectorFetchMass: 3},
+      wispBoost: 0, companions: ['collector'], reducedMotion: false, hasCompanion: r => r === 'collector', layout: {embers: []}, deliveries: [], collect() {}};
+    const w = new WispCompanion(e.player, 0); e.collectors = [w];
+    const reach = w.currentRange(e), packet = {kind: 'light', x: 110 + reach * ahead, y: 310};
+    e.layout.embers = [packet];
+    for (let i = 0; i < 3; i++) { e.time += 1 / 60; w.update(e, 1 / 60); }
+    if (asked) w.homingFetch = e.time;
+    for (let i = 0; i < 6; i++) { e.time += 1 / 60; w.update(e, 1 / 60); }
+    return !!w.target || w.phase === 'outbound';
+  };
+  assert.equal(make(1.6, false), false, 'a Spark far ahead is the player’s to take');
+  assert.equal(make(1.6, true), true, 'asked: it takes a Spark at 1.6 times the normal reach');
+  assert.equal(make(2.6, true), false, 'beyond twice the reach: nothing');
 });

@@ -56,9 +56,16 @@ test('refill is restricted to real live or completed Rest and stops when choosin
 });
 
 test('Workshop compares named choices and confirmation shows exact before and after',()=>{
-  const {run}=camp(),html=cardWorkshopMarkup(run),quote=M.getCardRefillPreview(run,'pocket');
-  for(const text of ['Improve / Evolve','Refill','Forge','Pocket Sparks','Uses 1 → 6','Refill · 13','data-action="card-workshop-improve"','data-action="card-workshop-refill"','data-action="card-workshop-forge"'])assert.ok(html.includes(text),text);
-  assert.match(cardRefillMarkup(run,quote),/Wallet 100 → 87/);
+  const {run}=camp(),hub=cardWorkshopMarkup(run),quote=M.getCardRefillPreview(run,'pocket');
+  for(const text of ['Improve','Refill','Forge','data-service="improve"','data-service="refill"','data-service="forge"','Rank up a card or evolve it','A surprise new card'])assert.ok(hub.includes(text),text);
+  assert.equal((hub.match(/class="wk-tile[ "]/g)||[]).length,3,'three large tiles');assert.doesNotMatch(hub,/data-tap-pick/);for(const html of [hub,cardWorkshopMarkup(run,{view:'refill'}),cardWorkshopMarkup(run,{view:'forge'})])assert.doesNotMatch(html.replace(/<[^>]*>/g,' '),/-\d|wallet|reserve/i,'visible text');
+  const poor=structuredClone(run);poor.condensedGlow=5;const poorHub=cardWorkshopMarkup(poor);assert.match(poorHub,/Needs 8 more/);assert.equal((poorHub.match(/ disabled aria-disabled/g)||[]).length,3,'disabled tiles stay visible with their reason');
+  const refill=cardWorkshopMarkup(run,{view:'refill'}),improve=cardWorkshopMarkup(run,{view:'improve'}),forge=cardWorkshopMarkup(run,{view:'forge'});
+  for(const text of ['Pocket Sparks','Uses 1 → 6','Refill','data-action="card-workshop-refill"','data-tap-pick','data-action="card-workshop-hub"'])assert.ok(refill.includes(text),text);
+  for(const text of ['data-action="card-workshop-improve"','Improve','data-tap-pick'])assert.ok(improve.includes(text),text);
+  for(const text of ['data-action="card-workshop-forge"','Surprise Rare card','Revealed after you pay'])assert.ok(forge.includes(text),text);
+  assert.ok(refill.includes('wk-cost">Refill')&&refill.includes('<b>13</b>'),'price shown on the tile');
+  assert.match(cardRefillMarkup(run,quote),/Costs 13 Stored Sparks/);
   const offers=['rare','legendary'].map(rarity=>M.getCardForgePreview(run,rarity));
   const restored=reload({ ...M.newState(),run }).run;
   assert.deepEqual(['rare','legendary'].map(rarity=>M.getCardForgePreview(restored,rarity).card),offers.map(preview=>preview.card));

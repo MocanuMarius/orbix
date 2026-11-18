@@ -1,0 +1,7 @@
+/* No tint after a tap (see touch-clean.mjs). Loaded last. */
+html,*,::before,::after{-webkit-tap-highlight-color:transparent}
+/* A tap focuses a control but must not draw a ring or fill; keyboard focus (:focus-visible) keeps its outline. */
+:focus:not(:focus-visible){outline:none}
+@media (hover:none),(pointer:coarse){
+  button:active:not(:disabled),[role=button]:active,a:active,summary:active,[data-action]:active{filter:none;transition:none}
+}

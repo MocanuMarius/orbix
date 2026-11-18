@@ -122,16 +122,78 @@ test('runaway guard: the strongest released Chains stay under 20 times a typical
   }
 });
 
-test('released: every card has a picture and a tile line of 22 characters at most; the held cards are still hidden', () => {
-  const released = ['metronome', 'heartbeat', 'slow-wick', 'spark-chime', 'ember-bell', 'long-fuse', 'first-catch', 'overflow-bell', 'flash-tinder', 'afterglow', 'third-beat', 'black-hole', 'full-satchel'];
+test('Close Call: a skim sends a Pulse and +3 Sparks, and Echo or a Boost repeats the +3', () => {
+  const a = flights(['edge-reach', 'close-call', 'spark-chime']);
+  assert.ok(perFlight(a, 'hit', x => x.slot === 1 && x.type === 'skim') >= 2, 'it fires on skims in a flight');
+  const own = entries(a, 'gain', x => x.slot === 1);
+  assert.ok(own.length >= 2 && own.every(x => x.amount === 3), 'each skim pays +3');
+  assert.ok(entries(a, 'gain', x => x.slot === 2).every(x => x.amount === 1), 'its Pulse is heard by Spark Chime');
+  const boosted = flights(['edge-reach', 'close-call', 'crescendo']);
+  assert.ok(entries(boosted, 'gain', x => x.slot === 1).every(x => x.amount === 6), 'a Boost doubles it');
+  const echoed = flights(['edge-reach', 'echo', 'close-call']);
+  assert.ok(entries(echoed, 'hit', x => x.slot === 2).every(x => x.times === 2), 'Echo fires it twice');
+});
+
+test('Low Ember: a Lift while the meter is under half sends a Pulse, once per 6 s', () => {
+  const a = flights(['low-ember', 'spark-chime']);
+  assert.ok(perFlight(a, 'hit', x => x.slot === 0) >= 1.5, `fires ${perFlight(a, 'hit', x => x.slot === 0)} times a flight (was 0.6 under a quarter)`);
+  for (const f of a) { const t = logOf(f).filter(x => x.k === 'hit' && x.slot === 0).map(x => x.t); for (let i = 1; i < t.length; i++) assert.ok(t[i] - t[i - 1] >= 6 - EPS); }
+  const echoed = flights(['echo', 'low-ember', 'spark-chime']);
+  assert.ok(entries(echoed, 'hit', x => x.slot === 1).every(x => x.times === 2));
+});
+
+test('Momentum: +40% Luminance after 5 Turns in a row, only while the engine keeps turning', () => {
+  const a = flights(['metronome', 'body-spark', 'momentum']);
+  const starts = entries(a, 'momentum');
+  assert.ok(starts.length >= a.length && starts.every(x => x.amount === 40), 'starts in every flight, at +40%');
+  const heart = flights(['heartbeat', 'metronome', 'body-spark', 'momentum']);
+  assert.ok(perFlight(heart, 'momentum') > perFlight(a, 'momentum'), 'a faster engine reaches it more often');
+  for (const f of a) { const ce = f.log.engine.cardEngine; assert.ok(!ce.warned); assert.ok(f.log.engine.cardEngineLuminance === 0 || f.log.engine.cardEngineLuminance === 40 || f.log.engine.cardEngineLuminance === undefined); }
+});
+
+test('Homing Thread: a Delivery sends the Collector for the nearest Spark within twice its reach', () => {
+  const a = flights(['haul-winch', 'homing-thread']);
+  assert.ok(perFlight(a, 'homing') >= 1, `sends the Collector ${perFlight(a, 'homing')} times a flight`);
+  assert.equal(perFlight(a, 'halt'), 0);
+  assert.equal(SKILL_CARDS['homing-thread'].engine.does[0], 'homing');
+});
+
+test('Last Round: at Pack the Chain’s last Trigger card fires once more into the meter; Echo repeats it; no loop', () => {
+  const a = flights(['body-spark', 'last-round']).filter(f => f.record.success);
+  assert.ok(a.length >= 3);
+  assert.ok(a.every(f => f.log.engine.cardPack.asked === 2 && f.log.engine.cardPack.turns === 1), 'one more Body Spark: +2, one Turn');
+  const e = flights(['body-spark', 'echo', 'last-round']).filter(f => f.record.success);
+  assert.ok(e.every(f => f.log.engine.cardPack.asked === 4 && f.log.engine.cardPack.turns === 2), 'Echo: twice');
+  const boosted = flights(['body-spark', 'last-round', 'crescendo']).filter(f => f.record.success);
+  assert.ok(boosted.every(f => f.log.engine.cardPack.asked === 4), 'a Boost doubles the repeat');
+  for (const f of [...a, ...e]) assert.ok(!f.log.engine.cardEngine.warned);
+});
+
+test('Harvest Home: at Pack every Collect card fires, Cluster and Dusk cards too (+2 each from Harvest Home)', () => {
+  const a = flights(['harvest-home', 'body-spark', 'dusk-wick']).filter(f => f.record.success);
+  assert.ok(a.length >= 3);
+  assert.ok(a.every(f => f.log.engine.cardPack.asked === 2 + 20 + 2), 'Body Spark 2, Dusk Wick 20 + 2 (Cluster Heart: unit test in card-engines)');
+  assert.ok(a.some(f => f.log.engine.cardPack.sparks > 0));
+  const plain = flights(['harvest-home', 'body-spark']).filter(f => f.record.success);
+  assert.ok(plain.every(f => f.log.engine.cardPack.asked === 2), 'a plain Collect card pays as before');
+  const boosted = flights(['harvest-home', 'body-spark', 'prism-lens']).filter(f => f.record.success);
+  assert.ok(boosted.every(f => f.log.engine.cardPack.asked === 3), 'a Boost applies to the firing, rounded up');
+});
+
+test('Wave Loom: a light Pulse each Turn, Pulse cards hear it, and its picture exists', () => {
+  const a = flights(['metronome', 'body-spark', 'wave-loom']);
+  assert.ok(perFlight(a, 'world-pulse') >= 8, 'a Pulse per Turn');
+  assert.equal(perFlight(a, 'world-pulse-refused'), 0);
+  const heard = flights(['metronome', 'body-spark', 'wave-loom', 'harvest-rare']);
+  assert.ok(heard.every(f => !f.log.engine.cardEngine.warned));
+});
+
+test('released: every card has a picture and a tile line of 22 characters at most', () => {
+  const released = ['metronome', 'heartbeat', 'slow-wick', 'spark-chime', 'ember-bell', 'long-fuse', 'first-catch', 'overflow-bell', 'flash-tinder', 'afterglow', 'third-beat', 'black-hole', 'full-satchel', 'wave-loom', 'momentum', 'low-ember', 'close-call', 'homing-thread', 'last-round', 'harvest-home'];
   for (const id of released) {
     assert.ok(LIVE_CARDS.includes(SKILL_CARDS[id]), `${id} is live`);
     assert.ok(CARD_ART_FILES[id] && existsSync(new URL('../dist/' + CARD_ART_FILES[id], import.meta.url)), `${id}: picture`);
     assert.ok(CARD_TILE_LINES[id] && CARD_TILE_LINES[id].length <= 22, `${id}: "${CARD_TILE_LINES[id]}"`);
   }
-  // Held, with the measurement: Wave Loom has no picture; Momentum is a Legendary worth less than the live Common Lantern Lens (+20% always);
-  // Low Ember fired 0.6 times a flight; Close Call 0.8; Homing Thread sent the Collector 1.5 times a flight and added no Delivery in 18 flights;
-  // Last Round pays at most +1 (it needs a Pulse card to its right); Harvest Home paid +1.4 to +3.7 for a Legendary.
-  for (const id of ['wave-loom', 'momentum', 'low-ember', 'close-call', 'homing-thread', 'last-round', 'harvest-home']) assert.equal(SKILL_CARDS[id].unreleased, true, `${id} stays hidden`);
-  assert.ok(!CARD_ART_FILES['wave-loom'], 'Wave Loom still has no picture, so it stays hidden');
+  // The seven cards held on 2026-11-18 were released the same day with the owner's fixes (see the tests above).
 });

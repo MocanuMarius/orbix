@@ -5,7 +5,7 @@
 export const DISPLAY_GROUPS = Object.freeze([
   // [group, label, kind, representative internal id (its icon and glossary link), plain meaning, how often]
   ['collect', 'Collect', 'trigger', 'collect', 'You touch a Spark with your wisp, or you or Collector pick up a Flare.', 'often'],
-  ['lift', 'Lift', 'trigger', 'falling-lift', 'You Lift while falling, on the beat, or with your meter under a quarter.', 'often'],
+  ['lift', 'Lift', 'trigger', 'falling-lift', 'You Lift while falling, on the beat, or with your meter under half.', 'often'],
   ['pulse', 'Pulse', 'trigger', 'wave', 'A Pulse crosses a Spark you have not taken, or a card to its left sends a Pulse.', 'often'],
   ['delivery', 'Delivery', 'trigger', 'delivery', 'Collector brings you a pickup, or grabs a Spark.', 'a few times'],
   ['overfill', 'Overfill', 'trigger', 'overfill', 'A Spark brings more than your meter holds.', 'a few times'],

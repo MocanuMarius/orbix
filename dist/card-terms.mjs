@@ -55,7 +55,7 @@ export const CARD_TERMS = Object.freeze({
   collect: ['Collect', 'Trigger: your wisp touches a Spark, Cluster, Cache or Dusk Spark.'],
   delivery: ['Delivery', 'Trigger: Collector brings you a pickup. Some cards fire when your Collector grabs a Spark.'],
   overfill: ['Overfill', 'Trigger: a Spark brings more than your meter can hold.'],
-  'falling-lift': ['Lift', 'Trigger: some cards need a Lift while falling, or a Lift on the beat (Rhythm) or on the cue (Lift Guide), or a Lift with your meter under a quarter.'],
+  'falling-lift': ['Lift', 'Trigger: some cards need a Lift while falling, or a Lift on the beat (Rhythm) or on the cue (Lift Guide), or a Lift with your meter under half.'],
   save: ['Save', 'Trigger: Watchlight or Last Orbit stops a fatal crash.'],
   clear: ['Finish', 'Trigger: you clear a flight, or you pack your spare Sparks at the end of it.'],
   engine: ['Engine', 'A chain that keeps itself going: one card’s event fires a card to its right, and a Timer sends it back to Slot 1.'],
