@@ -1,4 +1,4 @@
-import {LIGHT_EXTENT,lightAttenuation} from './light-attenuation.mjs?v=gpu-1';
+import {LIGHT_EXTENT,lightAttenuation} from './light-attenuation.mjs?v=gpu-2';
 
 // Rendering only: rock consumes 4.5 units of Luminance reach for each unit
 // travelled. Gameplay visibility, encounters and collection use their own law.
@@ -22,15 +22,23 @@ const inside=(points,x,y)=>{let hit=false;for(let i=0,j=points.length-1;i<points
 const GRID=32,ROW=8,edgeIndexes=new WeakMap();let stampSerial=0;
 function edgeIndex(points){
  let ix=edgeIndexes.get(points);if(ix)return ix;
- const n=points.length,cells=new Map(),rows=new Map();
+ const n=points.length,rows=new Map();
+ for(let i=0,j=n-1;i<n;j=i++){
+  const a=points[j],b=points[i];
+  const r0=Math.floor(Math.min(a[1],b[1])/ROW),r1=Math.floor(Math.max(a[1],b[1])/ROW);
+  for(let r=r0;r<=r1;r++){let list=rows.get(r);if(!list)rows.set(r,list=[]);list.push(i);}
+ }
+ ix={n,cells:null,rows,stamp:new Uint32Array(n),points};edgeIndexes.set(points,ix);return ix;
+}
+// The cell grid is built on first use (only long polygons hit by short rays need it).
+function edgeCells(ix){
+ if(ix.cells)return ix.cells;const points=ix.points,n=ix.n,cells=ix.cells=new Map();
  for(let i=0,j=n-1;i<n;j=i++){
   const a=points[j],b=points[i],pad=1e-3+1e-6*(Math.abs(b[0]-a[0])+Math.abs(b[1]-a[1]));
   const x0=Math.floor((Math.min(a[0],b[0])-pad)/GRID),x1=Math.floor((Math.max(a[0],b[0])+pad)/GRID),y0=Math.floor((Math.min(a[1],b[1])-pad)/GRID),y1=Math.floor((Math.max(a[1],b[1])+pad)/GRID);
   for(let cy=y0;cy<=y1;cy++)for(let cx=x0;cx<=x1;cx++){const k=cx*100003+cy;let list=cells.get(k);if(!list)cells.set(k,list=[]);list.push(i);}
-  const r0=Math.floor(Math.min(a[1],b[1])/ROW),r1=Math.floor(Math.max(a[1],b[1])/ROW);
-  for(let r=r0;r<=r1;r++){let list=rows.get(r);if(!list)rows.set(r,list=[]);list.push(i);}
  }
- ix={n,cells,rows,stamp:new Uint32Array(n)};edgeIndexes.set(points,ix);return ix;
+ return cells;
 }
 function insideIndexed(points,ix,x,y){
  const list=ix.rows.get(Math.floor(y/ROW));if(!list)return false;let hit=false;
@@ -39,11 +47,11 @@ function insideIndexed(points,ix,x,y){
 }
 // Edge indices near the segment (x,y)+(dx,dy)*[0,reach]: grid cells along it, widened by one cell.
 function edgesNear(ix,x,y,dx,dy,reach,out){
- out.length=0;const stamp=ix.stamp,mark=++stampSerial>>>0||(stamp.fill(0),stampSerial=1);
+ out.length=0;const cells=edgeCells(ix),stamp=ix.stamp,mark=++stampSerial>>>0||(stamp.fill(0),stampSerial=1);
  const steps=Math.ceil(reach/(GRID*.5))+1;let lastKey=NaN;
  for(let s=0;s<=steps;s++){
   const t=Math.min(reach,s*GRID*.5),cx=Math.floor((x+dx*t)/GRID),cy=Math.floor((y+dy*t)/GRID),key=cx*100003+cy;if(key===lastKey)continue;lastKey=key;
-  for(let oy=-1;oy<=1;oy++)for(let ox=-1;ox<=1;ox++){const list=ix.cells.get((cx+ox)*100003+cy+oy);if(!list)continue;
+  for(let oy=-1;oy<=1;oy++)for(let ox=-1;ox<=1;ox++){const list=cells.get((cx+ox)*100003+cy+oy);if(!list)continue;
    for(let q=0;q<list.length;q++){const i=list[q];if(stamp[i]!==mark){stamp[i]=mark;out.push(i);}}}
  }
  return out;
@@ -61,9 +69,19 @@ export function solidRayIntervals(polygons,x,y,dx,dy,reach,boxes=null){
   const cuts=[0,reach];
   if(boxes){
    const b=boxes[p];if(b.maxX<sx0||b.minX>sx1||b.maxY<sy0||b.minY>sy1)continue;
-   const ix=edgeIndex(points),n=points.length,list=edgesNear(ix,x,y,dx,dy,reach,nearEdges);
-   for(let q=0;q<list.length;q++){
-    const i=list[q],a=points[i===0?n-1:i-1],c=points[i],ex=c[0]-a[0],ey=c[1]-a[1],den=cross(dx,dy,ex,ey);
+   const ix=edgeIndex(points),n=points.length;
+   // The grid walk visits about 9 cells per half cell of ray: only cheaper than the
+   // plain edge loop for short rays on long polygons. Both find the same cuts.
+   if(n>(Math.ceil(reach/(GRID*.5))+1)*24){
+    const list=edgesNear(ix,x,y,dx,dy,reach,nearEdges);
+    for(let q=0;q<list.length;q++){
+     const i=list[q],a=points[i===0?n-1:i-1],c=points[i],ex=c[0]-a[0],ey=c[1]-a[1],den=cross(dx,dy,ex,ey);
+     if(Math.abs(den)<EPS)continue;
+     const ox=a[0]-x,oy=a[1]-y,t=cross(ox,oy,ex,ey)/den,u=cross(ox,oy,dx,dy)/den;
+     if(t>0&&t<reach&&u>=-EPS&&u<=1+EPS)cuts.push(t);
+    }
+   }else for(let i=0,j=n-1;i<n;j=i++){
+    const a=points[j],c=points[i],ex=c[0]-a[0],ey=c[1]-a[1],den=cross(dx,dy,ex,ey);
     if(Math.abs(den)<EPS)continue;
     const ox=a[0]-x,oy=a[1]-y,t=cross(ox,oy,ex,ey)/den,u=cross(ox,oy,dx,dy)/den;
     if(t>0&&t<reach&&u>=-EPS&&u<=1+EPS)cuts.push(t);

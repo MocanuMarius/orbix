@@ -1,5 +1,5 @@
-import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=gpu-1';
-import {isCardRun} from './skill-cards.mjs?v=gpu-1';
+import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=gpu-2';
+import {isCardRun} from './skill-cards.mjs?v=gpu-2';
 
 // Every event is ONE screen with a choice of two outcomes that happen at once: Stored Sparks, a heart, Sparks, a card (the normal claim
 // path), one card's uses refilled, or one card improved. The two events that are not immediate on purpose keep their own shape:
