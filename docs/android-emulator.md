@@ -47,3 +47,17 @@ The home screen is light, so both modes hit vsync (60). The modes will differ un
 
 ## Uninstall
 Stop the emulator (`adb emu kill`), then delete `F:\Android`. Nothing else was changed (no registry, no environment variables, no features).
+
+## Notes from the 2026-11-18 realism check
+- Software GPU modes (`swiftshader_indirect`, `swangle_indirect`) crash qemu (access violation 0xc0000005) when the game renders heavy frames (stress scene, WebGL lighting). With `?gl=0` one flight ran at 1.9 FPS. Use host mode for all game measurements.
+- The emulator sometimes returns to portrait; run `adb shell settings put system user_rotation 1` and `adb shell cmd window user-rotation lock 1` again (the scripts do it via `ensureLandscape`).
+- `chrome://gpu` cannot be opened over CDP; read `SystemInfo.getInfo` from the browser target instead (`realism.mjs gpuinfo`).
+- Normal-play benchmark: `node scripts/perf/android/play.mjs --label play-normal` (12 flights, about 35 min, trusted departure tap over CDP). Draw-call counts: `realism.mjs counts`; traces: `realism.mjs trace --what normal|stress [--light 1]`; restart in a GPU mode: `emu.mjs host|swiftshader_indirect`.
+- Never run two of these scripts at once: they share port 4186 and the foreground tab.
+
+## Notes from the 2026-11-18 realism check
+- Software GPU modes (`swiftshader_indirect`, `swangle_indirect`) crash qemu (access violation 0xc0000005) when the game renders heavy frames (stress scene, WebGL lighting). With `?gl=0` one flight ran at 1.9 FPS. Use host mode for all game measurements.
+- The emulator sometimes returns to portrait; run `adb shell settings put system user_rotation 1` and `adb shell cmd window user-rotation lock 1` again (the scripts do it via `ensureLandscape`).
+- `chrome://gpu` cannot be opened over CDP; read `SystemInfo.getInfo` from the browser target instead (`realism.mjs gpuinfo`).
+- Normal-play benchmark: `node scripts/perf/android/play.mjs --label play-normal` (12 flights, about 35 min, trusted departure tap over CDP). Draw-call counts: `realism.mjs counts`; traces: `realism.mjs trace --what normal|stress [--light 1]`; restart in a GPU mode: `emu.mjs host|swiftshader_indirect`.
+- Never run two of these scripts at once: they share port 4186 and the foreground tab.

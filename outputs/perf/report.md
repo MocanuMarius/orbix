@@ -61,3 +61,55 @@ light masks 64% · terrain/scenery 11% · native canvas 8% · sprites 4% · fina
 
 ## Emulator finding
 In host-GPU mode the GPU process main thread is ~95% busy executing Canvas 2D raster commands while the page main thread is ~57% idle: the emulator is raster-bound. A low-resolution output canvas (`?lowres=1`) gave nothing there. Reaching 60 FPS needs the whole frame on WebGL (static layers as textures, batched sprites), not more CPU work.
+
+## Emulator: normal play and realism check
+2026-11-18. Pixel 10 AVD (Android 16, Chrome 133, DPR 2.625, page 870x280 CSS px), host-GPU mode (RTX 3080 behind the emulator's GLES translator, no ANGLE). Raw data: `outputs/perf/android/2026-11-18-{play-normal,counts-host,stress-host-gl,stress-host-gl0,trace-host-*,gpuinfo-host,play-swiftshader,desktop-compare}/`. Scripts: `scripts/perf/android/{play,realism,cdp,serve,emu,fillrect-callers}.mjs`.
+
+### Q1 Normal play
+40 s of each flight (first 4 s skipped), `?autopilot=1`; the departure gate is passed with a trusted tap (CDP `Input.dispatchTouchEvent`). Builds: starter = Pocket Sparks; mid = Echo, Spillway (Pulse), Cache Handling, Pocket Sparks, Twin Orbit with twin Collectors.
+
+| Biome | Row | Chain | avg FPS | 1% low | p95 ms | >33 ms | >50 ms | longest ms |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| pinewood | early | starter | 25.0 | 7.6 | 66.7 | 515 | 157 | 250 |
+| pinewood | early | mid | 24.6 | 5.4 | 66.7 | 527 | 168 | 467 |
+| pinewood | late | starter | 21.6 | 5.7 | 66.8 | 565 | 222 | 217 |
+| pinewood | late | mid | 20.8 | 7.1 | 83.3 | 569 | 275 | 183 |
+| marsh | early | starter | 31.0 | 10.0 | 50.1 | 409 | 78 | 167 |
+| marsh | early | mid | 30.6 | 9.6 | 66.6 | 413 | 98 | 150 |
+| marsh | late | starter | 28.2 | 7.1 | 66.6 | 451 | 130 | 300 |
+| marsh | late | mid | 27.6 | 7.2 | 66.7 | 460 | 129 | 200 |
+| coral | early | starter | 32.9 | 10.9 | 50.0 | 365 | 59 | 150 |
+| coral | early | mid | 31.6 | 9.8 | 50.1 | 409 | 95 | 167 |
+| coral | late | starter | 25.7 | 7.1 | 66.7 | 502 | 162 | 183 |
+| coral | late | mid | 24.9 | 6.1 | 66.7 | 502 | 177 | 217 |
+
+Normal play does NOT hold 60 on the emulator: 21-33 FPS (about 1000 frames per flight), only slightly better than the stress scene (18.6). Pinewood, the lightest biome, is the slowest. Chain size barely matters (mid costs 0.4-1 FPS); row matters more (late costs 3-6 FPS).
+
+### Q2 Is the emulator's GPU cost real?
+- (a) Software GL. `-gpu swiftshader_indirect` and `-gpu swangle_indirect`: qemu-system-x86_64 crashed (Windows Application Error 0xc0000005) several times while the game rendered (stress scene, a flight with WebGL lighting). With `?gl=0` one flight survived: pinewood early starter 1.9 FPS (p95 533 ms, longest 13.7 s), then qemu crashed again. No stress or second-flight numbers exist in software mode. Host mode was restored afterwards.
+- (b) Host mode stress scene: WebGL lighting 18.3 FPS (1% low 9.5, >50 ms 456); `gl=0` Canvas 2D lighting 13.7 FPS (1% low 6.3, >50 ms 521).
+- (c) Traces, 6 s, light categories so the trace does not distort the frame rate. Normal flight (marsh late mid) 23 FPS: GPU process CrGpuMain 98% busy, renderer main 44%, renderer Compositor 31%, CompositorGpuThread 25%, Viz 16%. Stress peak 16.7 FPS: GPU main 98%, renderer main 37%. Heavy trace with skia categories (the trace itself drops FPS to 2-5, so use only the shape): normal flight, GPU main about 1020 ms/s, `RasterDecoderImpl::DoRasterCHROMIUM` 897, of which `skgpu::ganesh::Device::drawRect` 770 (`SurfaceDrawContext::drawRect` 482, `addDrawOp` 201); stress: DoRaster 552, drawRect 349, DoEndRaster 253 (GrDrawingManager::flush 177). Canvas 2D raster is essentially the whole GPU-process cost; compositing and GL lighting are small.
+- (d) `chrome://gpu` cannot be opened over CDP (`Page.navigate` gives ERR_FAILED, an intent does not resolve), so the same data came from CDP `SystemInfo.getInfo`: renderer "Android Emulator OpenGL ES Translator (NVIDIA GeForce RTX 3080/PCIe/SSE2)", `gl=egl-gles2,angle=none`, GL ES 3.1; `2d_canvas: enabled`, `canvas_oop_rasterization: enabled_on`, `rasterization: enabled`, `gpu_compositing: enabled`, `webgl/webgl2: enabled`, `vulkan: disabled_off`, `skia_graphite: disabled_off`, `multiple_raster_threads: disabled_off`. Nothing is software only: Canvas 2D is hardware accelerated with out-of-process raster (Ganesh on GLES), going through the emulator's GLES-to-host translation (every GL command serialised to the host).
+- (e) Desktop Chrome (headless, same server, 915x412, DPR 2.625, touch, no CPU throttle, WebGL lighting), `heavy.mjs --throttle=1 --scenarios=stress`: 92.2 FPS avg, 1% low 52.8, p95 12.6 ms. GPU-process busy % not collected (heavy.mjs takes no trace). About 5x the emulator.
+- Judgement: partly an artefact. The code path is real Chrome Android Canvas 2D (OOP raster, Ganesh/GLES), but it runs through a command-serialising GLES translator, so absolute FPS and the GPU-process saturation are probably overstated; the work itself (thousands of tiny `fillRect` ops, see Q3) is real and costly on any phone GPU.
+
+### Q3 What the GPU process executes
+300 frames, injected prototype wrappers, no game edits. The main canvas buffer is 720x232.
+
+| Per frame (avg) | normal flight (marsh late mid, 25 FPS) | stress peak (18 FPS) |
+| --- | --- | --- |
+| fillRect | 3583 | 500 |
+| drawImage | 73 | 105 |
+| fill / stroke | 23 / 6 | 58 / 89 |
+| putImageData | 0 | 1 (167 kpx) |
+| getImageData | 0 | 0 |
+| drawImage source area | 5.0 Mpx (8.4 Mpx dest) | 6.4 Mpx (10.7 Mpx dest) |
+| WebGL | 2 texSubImage2D (34 kpx), 4 drawArrays | 5 texSubImage2D (337 kpx), 5 drawArrays |
+| readbacks | none | none |
+
+Receiving canvases: nearly everything lands on the 720x232 main canvas (3253 of the fillRects; 313 more on 28x28 sprite-bake canvases). drawImage sources into it: 512x320 (11 per frame, 1.84 Mpx, the largest), 720x232 (3-7), 512x160 (5.6), 208x256 (10), 96x256 (10), 768x390 (1-1.7), plus full-width 874/913x232 strips. Callers of the fillRect flood in the normal flight (stack sampling, `fillrect-callers.mjs`): `pixelLine` (wisp-renderer.mjs:190) from `drawTerrainBoundary` (terrain-boundary.mjs:130) about 1040 per frame and from `paintContactEdge` (contact-edge-art.mjs:40) about 1000 per frame, i.e. 1-pixel rects drawing terrain edge lines; pickup-art sprite emit 695 (plus `cachedSprite` 249 per frame, suggesting a sprite cache that keeps re-baking); level-scenery-two `flush` about 240; contact edge about 200 more; black-hole accretion disk about 225 (this marsh course has one).
+
+Biggest item: about 2000 one-pixel `fillRect` calls per frame from the terrain boundary lines, each a separate Skia drawRect op (drawRect is 770 of about 1020 GPU ms/s). It dwarfs the stress scene's 500, which is why normal play is barely faster than the "stress" scene. Large texture uploads, readbacks and putImageData are not a problem.
+
+### Not measured / caveats
+Software GPU modes beyond one flight (qemu crashes). The `chrome://gpu` page itself (SystemInfo used instead). Desktop GPU-process busy %. `gl=0` in normal play on host. Rotation sometimes flips back to portrait on the emulator; `cdp.mjs ensureLandscape` fixes it before each flight. `heavy.mjs --label x` needs `--label=x`: my first desktop run saved to `outputs/perf/heavy/2026-11-18-true.json` (moved to `outputs/perf/android/2026-11-18-desktop-compare/`; it may have replaced an earlier file of that name).

@@ -1,69 +1,46 @@
-// Ordinary play benchmark on the Android emulator, hands-off: a fresh real run with the dev autopilot (?autopilot=1:
-// dist/flight-autopilot.mjs flies, invulnerable) through N flights; the page records FPS per flight
-// (window.__autopilotFlights) and an in-page driver clicks through the menus between flights.
-//   node scripts/perf/android/play.mjs --label before --flights 3 [--root dist] [--query gl=0] [--desktop --throttle 4]
-// --desktop runs the same driver in local headless Chrome (phone emulation, CPU throttle) instead of the emulator.
-// Saves outputs/perf/android/<date>-<label>-play/result.json (+ screenshots on the emulator).
+// Ordinary-play benchmark on the Android emulator, hands-off. Replaces the earlier menu-driving version.
+// Each flight is a disposable real flight (?mock=boundary, see serve.mjs) flown by the dev autopilot (?autopilot=1). The
+// "Tap to depart" gate is passed with a TRUSTED touch sent over CDP (Input.dispatchTouchEvent). The page's requestAnimationFrame
+// gaps are sampled for --seconds after departure (default 40 s, first 4 s skipped).
+//   node scripts/perf/android/play.mjs --label play [--seconds 40] [--matrix full|quick] [--query gl=0] [--only pinewood-early-mid]
+// Saves outputs/perf/android/<date>-<label>/play.json
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import {execFileSync} from 'node:child_process';
-import {startServer,launch,emulatePhone,delay,until} from '../lib.mjs';
-import {listTargets,evaluate,ensureForward} from './connect.mjs';
-
+import {session, delay, wake, ensureLandscape} from './cdp.mjs';
+import {startServer} from './serve.mjs';
+import {pathToFileURL} from 'node:url';
 const argv=process.argv.slice(2),A={};for(let i=0;i<argv.length;i++){const m=argv[i].match(/^--([^=]+)(?:=(.*))?$/);if(!m)continue;A[m[1]]=m[2]??(argv[i+1]&&!argv[i+1].startsWith('--')?argv[++i]:true);}
-const label=A.label||'play',flights=Number(A.flights||3),port=Number(A.port||4183),day=new Date().toISOString().slice(0,10);
-const out=path.resolve('outputs/perf/android',`${day}-${label}-play${A.desktop?'-desktop':''}`);await fs.mkdir(out,{recursive:true});
-const log=(...x)=>console.log('[play]',...x);
-
-// In-page driver: clicks through the game between flights (same order as scripts/perf/session.mjs).
-const DRIVER=`(()=>{if(window.__driver)return 'running';window.__driver={steps:0,log:[]};
-const vis=e=>{const r=e.getBoundingClientRect();return r.width>0&&r.height>0&&!e.disabled};
-const all=s=>[...document.querySelectorAll(s)].filter(vis);
-const click=e=>{if(typeof e.click==='function')e.click();else e.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));window.__driver.log.push((e.dataset.action||e.textContent.trim()).slice(0,30));window.__driver.log=window.__driver.log.slice(-30)};
-const order=['new-game','skip-practice','skip-practice-once','practice-skip-to-start','confirm-new-game','keep-flight-reward','confirm-starting-gift','new-gift','confirm-gift','start-run','death-continue','retry','flight-reward-open-pack','flight-reward-continue','pick-reward','card-reward-continue','victory-next','reward-earnings','continue','dream-accept','dream-wake','next-map','launch','node','continue-run','close-power','close-sheet'];
-setInterval(()=>{window.__driver.steps++;
- if(document.querySelector('.stress-host'))return;
- const wake=all('.entry-depart:not([disabled]),[data-action=wake-flight]')[0];if(wake){try{wake.dispatchEvent(new PointerEvent('pointerdown',{pointerId:1,isPrimary:true,button:0,bubbles:true}))}catch{}click(wake);return}
- if(document.body.classList.contains('playing')&&!document.querySelector('dialog[open]'))return;
- const dlg=document.querySelector('dialog[open]');
- if(dlg){const inside=s=>[...dlg.querySelectorAll(s)].filter(vis);for(const x of ['skip-practice-once','practice-skip-to-start','remember-skip-practice','confirm-new-game','confirm-starting-gift','new-gift','confirm-gift','start-run','death-continue','keep-flight-reward','pick-reward','node','launch','flight-reward-continue','card-reward-continue','victory-next','continue','resume','close-sheet']){const e=inside('[data-action="'+x+'"]')[0];if(e){click(e);return}}
-  const w=inside('button').find(e=>/got it|ok|continue|start|begin|next|done|take|claim|keep|collect|close/i.test(e.textContent));if(w){click(w);return}}
- const word=all('button,[role=button]').find(e=>/^(got it|ok|okay|continue|start|begin|understood|next|done|take|claim|keep|collect|onward|depart|tap to depart|open)$/i.test(e.textContent.trim())&&!['menu','settings','new-game'].includes(e.dataset.action));
- for(const a of order){const e=all('[data-action="'+a+'"]')[0];if(e){click(e);return}}
- const next=all('[data-action=preview-node],[data-action=map-node],[data-action=route-node]')[0];if(next){click(next);return}
- if(word){click(word);return}
-},900);return 'started'})()`;
-
-async function runDesktop(){
-  const srv=await startServer(A.root||'dist',0),b=await launch();
-  try{
-    await emulatePhone(b,{throttle:Number(A.throttle||4)});
-    const q=new URLSearchParams({cards:'1',autopilot:'1'});for(const [k,v] of new URLSearchParams(A.query||''))q.set(k,v);
-    await b.send('Page.navigate',{url:`${srv.base}/game.html?${q}`});await delay(4000);
-    await b.ev(DRIVER);
-    const res=await until(async()=>{const n=await b.ev('(window.__autopilotFlights||[]).length');return n>=flights&&b.ev('window.__autopilotFlights');},'flights',flights*240000,3000);
-    await b.shot(path.join(out,'end.png'));return {device:await b.ev('({dpr:devicePixelRatio,viewport:innerWidth+"x"+innerHeight})'),flights:res,log:await b.ev('window.__driver.log')};
-  }finally{await b.close();srv.close();}
+const label=A.label||'play',seconds=Number(A.seconds||40),port=Number(A.port||4186),day=new Date().toISOString().slice(0,10);
+const out=path.resolve('outputs/perf/android',`${day}-${label}`);await fs.mkdir(out,{recursive:true});
+const BIOMES=[['pinewood',1],['marsh',4],['coral',2]];
+const MATRIX=[];for(const [b,c] of BIOMES)for(const row of ['early','late'])for(const chain of ['starter','mid'])MATRIX.push({id:`${b}-${row}-${chain}`,biome:b,course:c,row,chain});
+export const SAMPLER=s=>`new Promise(res=>{const d=[];let l=0,t0=0;(function f(t){if(!t0)t0=t;if(l&&t-t0>4000)d.push(t-l);l=t;if(t-t0<${s*1000+4000})requestAnimationFrame(f);else{
+ const n=d.length,sorted=[...d].sort((a,b)=>a-b),sum=d.reduce((a,b)=>a+b,0),worst=sorted.slice(Math.max(0,n-Math.ceil(n/100))),w=worst.reduce((a,b)=>a+b,0);
+ res({frames:n,avgFps:+(1000*n/sum).toFixed(1),low1Fps:+(1000*worst.length/w).toFixed(1),p50Ms:+sorted[Math.floor(n*.5)].toFixed(1),p95Ms:+sorted[Math.floor(n*.95)].toFixed(1),over33:d.filter(x=>x>33.4).length,over50:d.filter(x=>x>50).length,longestMs:Math.round(sorted[n-1])});}})(performance.now())})`;
+export async function flight(s,{biome,course,row,chain},{query='',seconds=40,sampler=SAMPLER,after}={}){
+  const q=new URLSearchParams({mock:'boundary',cards:'1',autopilot:'1',seed:'perf-play',biome,course:String(course),cardset:chain,r:String(Date.now())});
+  if(row==='late')q.set('late','1');if(chain==='mid')q.set('collector','twin');
+  for(const [k,v] of new URLSearchParams(query))q.set(k,v);
+  await s.goto(`http://10.0.2.2:${port}/game.html?${q}`);await ensureLandscape(s);
+  for(let i=0;i<600;i++){if(await s.ev('!!document.querySelector(".entry-depart:not([disabled])")'))break;await delay(500);}
+  let running=false;
+  for(let i=0;i<8&&!running;i++){await s.tapSel('.entry-depart:not([disabled])');await delay(2500);running=await s.ev('document.body.classList.contains("playing")&&!document.querySelector(".entry-depart")');}
+  if(!running)throw Error('did not depart');
+  const info=await s.ev('({vis:document.visibilityState,vp:innerWidth+"x"+innerHeight,dpr:devicePixelRatio})');
+  const r=await s.ev(sampler(seconds));
+  const extra=after?await after():null;
+  return {...r,vis:info.vis,extra};
 }
-async function runEmulator(){
-  const srv=await startServer(A.root||'dist',port,{noCache:true});
+if(import.meta.url===pathToFileURL(process.argv[1]).href){
+  wake();await delay(1500);
+  const srv=await startServer('dist',port),s=await session();
+  const only=A.only?String(A.only).split(','):null,list=MATRIX.filter(m=>!only||only.includes(m.id)).filter(m=>A.matrix!=='quick'||m.row==='late'||m.biome==='pinewood');
+  const results=[];
   try{
-    ensureForward();
-    const q=new URLSearchParams({cards:'1',autopilot:'1',run:String(Date.now())});for(const [k,v] of new URLSearchParams(A.query||''))q.set(k,v);
-    const url=`http://10.0.2.2:${port}/game.html?${q}`;
-    const targets=await listTargets();const t=targets.find(x=>x.url!=='about:blank')||targets[0];
-    if(t)await evaluate(`(location.href=${JSON.stringify(url)},1)`,t.id).catch(()=>{});
-    if(!t)execFileSync('adb',['shell','am','start','-a','android.intent.action.VIEW','-d',`'${url}'`,'com.android.chrome']);try{execFileSync('adb',['shell','monkey','-p','com.android.chrome','-c','android.intent.category.LAUNCHER','1']);}catch{}
-    const id=await until(async()=>(await listTargets()).find(x=>x.url.includes('autopilot=1'))?.id,'tab',60000,1000);
-    await delay(6000);await evaluate(DRIVER,id);
-    let shots=0;
-    const res=await until(async()=>{const n=await evaluate('(window.__autopilotFlights||[]).length',id);
-      if(n>shots){shots=n;try{await fs.writeFile(path.join(out,`after-flight-${n}.png`),execFileSync('adb',['exec-out','screencap','-p'],{maxBuffer:64<<20}));}catch{}}
-      return n>=flights&&evaluate('window.__autopilotFlights',id);},'flights',flights*300000,4000);
-    return {device:await evaluate('({dpr:devicePixelRatio,viewport:innerWidth+"x"+innerHeight,ua:navigator.userAgent})',id),flights:res,log:await evaluate('window.__driver.log',id)};
-  }finally{srv.close();}
+    for(const m of list){
+      try{const r=await flight(s,m,{query:A.query||'',seconds});results.push({...m,...r});console.log(m.id.padEnd(22),r.avgFps,'fps  1%low',r.low1Fps,' p95',r.p95Ms,'ms  >33',r.over33,' >50',r.over50,' max',r.longestMs);}
+      catch(e){console.log(m.id,'FAILED',e.message);results.push({...m,error:e.message});}
+      await fs.writeFile(path.join(out,'play.json'),JSON.stringify({day,query:A.query||'',seconds,device:await s.ev('({dpr:devicePixelRatio,vp:innerWidth+"x"+innerHeight})'),results},null,1));
+    }
+  }finally{srv.close();s.close();}
 }
-const result=A.desktop?await runDesktop():await runEmulator();
-await fs.writeFile(path.join(out,'result.json'),JSON.stringify({day,label,mode:A.desktop?'desktop':'emulator',query:A.query||'',...result},null,1));
-for(const f of result.flights)log(`${f.level}: ${f.avgFps} fps avg, 1% low ${f.low1Fps}, >33ms ${f.over33}, longest ${f.longestMs} ms (${f.seconds} s)`);
-log('saved',out);
