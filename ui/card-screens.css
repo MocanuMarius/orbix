@@ -671,3 +671,24 @@ html body #dk-root :is(.dk2-inscription,.dk2-note-ins) :is(.card-term,.card-term
 /* Small labels on the parchment use the kit's full ink (the soft ink is under 4.5:1 at 11px on the shaded parchment) */
 #dk-root .dk21-thead,#dk-root.dk.dk21 .dk21-thead,#dk-root .dk2-meter-label,#dk-root .dk2-sort>small{color:var(--ink)!important}
 #dk-root .tb-row.tb-none{opacity:1}
+
+/* Tap to pick (dist/tap-pick.mjs): the selected item rises a few px with an outline, the others dim a little. Same look on every picking screen. */
+[data-tap-pick]{cursor:pointer;transition:transform .12s steps(3,end),filter .12s steps(3,end),opacity .12s steps(3,end)}
+[data-tap-pick].tp-selected,.tp-selected{transform:translateY(-6px);outline:3px solid #f0c86a;outline-offset:2px;z-index:2;position:relative}
+.tp-has-selection>[data-tap-pick]:not(.tp-selected){opacity:.72;filter:saturate(.75) brightness(.92)}
+[data-tap-pick]:focus-visible{outline:3px solid #fffdf1;outline-offset:2px}
+.card-draft-offers[data-tap-pick-group]{padding-top:8px;box-sizing:border-box}
+@media(prefers-reduced-motion:reduce){[data-tap-pick]{transition:none}}
+/* Offered cards share one height whatever their content (a uses badge no longer makes one shorter). */
+html body .card-draft-face>.skill-card.card-readable:not(#k){height:var(--card-height)!important;min-height:var(--card-height)!important;max-height:var(--card-height)!important;width:calc(var(--card-height) * 5 / 7)!important}
+/* Short screens: let the picture give way so both face lines stay whole. */
+html body .card-draft-face .skill-card.card-readable:not(#k){--pic:clamp(34px,round(down,calc(var(--card-height) - 150px),48px),144px)}
+/* Card items: the outline hugs the card, not its wider slot; gold ring with a dark edge reads on paper and on dark. */
+.card-draft-option.tp-selected,.card-pick.tp-selected{outline:none}
+.card-draft-option.tp-selected>.card-draft-face>.skill-card,.card-pick.tp-selected>.skill-card{box-shadow:0 0 0 3px #f0c86a,0 0 0 5px #2a2118}
+/* Starting card pick: no "Choose X" label under each card any more, so the card takes the whole row. */
+html body .card-starter-pair.card-starter-pair:not(#k){grid-template-rows:minmax(0,1fr)!important}
+html body .card-starter-pair>.card-pick:not(#k){height:100%;align-self:stretch}
+/* Text tiles (events, chest, Workshop offers): the same rise; a dark ring on the selected tile reads on every paper colour. */
+button[data-tap-pick].tp-selected,.event-pick-card.tp-selected,.treasure-offer.tp-selected{outline:3px solid #f0c86a;box-shadow:0 0 0 5px #2a2118}
+.tp-has-selection>button[data-tap-pick]:not(.tp-selected){opacity:.72}

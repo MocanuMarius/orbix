@@ -1,4 +1,4 @@
-import {drawCollectorGuard} from './collector-guard-art.mjs?v=guide-2';
+import {drawCollectorGuard} from './collector-guard-art.mjs?v=tap-1';
 
 // Reach is carried by the real Collector orbit. Only the discrete Last Orbit
 // defense keeps a body cue; ordinary fetch and Field Impulse never paint a rim.

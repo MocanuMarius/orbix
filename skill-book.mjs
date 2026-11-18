@@ -1,14 +1,14 @@
-import {SKILLS,getRunModifiers} from './model.mjs?v=guide-2';
-import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=guide-2';
-import {formatLuminance} from './luminance-units.mjs?v=guide-2';
-import {WISP_ART} from './companion-art.mjs?v=guide-2';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=guide-2';
-import {getCompanionAbility} from './companion-abilities.mjs?v=guide-2';
-import {skillIcon} from './upgrade-icons.mjs?v=guide-2';
-import {resourceSymbol} from './game-symbols.mjs?v=guide-2';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=guide-2';
-import {skillBookChapter} from './skill-chapters.mjs?v=guide-2';
-export {skillBookChapter} from './skill-chapters.mjs?v=guide-2';
+import {SKILLS,getRunModifiers} from './model.mjs?v=tap-1';
+import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=tap-1';
+import {formatLuminance} from './luminance-units.mjs?v=tap-1';
+import {WISP_ART} from './companion-art.mjs?v=tap-1';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=tap-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=tap-1';
+import {skillIcon} from './upgrade-icons.mjs?v=tap-1';
+import {resourceSymbol} from './game-symbols.mjs?v=tap-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=tap-1';
+import {skillBookChapter} from './skill-chapters.mjs?v=tap-1';
+export {skillBookChapter} from './skill-chapters.mjs?v=tap-1';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],

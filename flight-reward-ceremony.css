@@ -97,7 +97,7 @@ html body .flight-reward-ceremony button.flight-reward-pack:active .flight-rewar
 .flight-reward-opening .pack-flap-right{animation:flight-reward-flap-right .36s steps(6,end) both;transform-box:fill-box;transform-origin:right center}
 /* Keep the game's own readable card faces and draft sizing. */
 .flight-reward-ceremony .flight-reward-fan.card-draft-offers{height:100%;width:min(100%,780px);min-height:0;gap:20px;align-items:stretch}
-.flight-reward-ceremony .flight-reward-stage[data-stage=cards]{display:grid;grid-template-rows:16px minmax(0,1fr);gap:4px}
+.flight-reward-ceremony .flight-reward-stage[data-stage=cards]{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:16px minmax(0,1fr);gap:4px}
 .flight-reward-choice-note{margin:0;min-width:0;font:12px/1.2 var(--pixel,monospace);color:var(--wb-context,#6b5335);text-align:center}
 .flight-reward-ceremony .flight-reward-fan .card-draft-option{min-width:0;min-height:0}
 .flight-reward-revealing .flight-reward-fan .card-draft-option{animation:flight-reward-card-fan .55s cubic-bezier(.2,.8,.2,1) both;transform-origin:center bottom;--fan-x:0px;--fan-angle:0deg}
@@ -156,16 +156,19 @@ html body .flight-reward-ceremony button.flight-reward-receipt-continue:focus-vi
 html body .flight-reward-ceremony button.flight-reward-receipt-continue:active{transform:translateY(2px);filter:brightness(.95)}
 @media(hover:hover){html body .flight-reward-ceremony button.flight-reward-receipt-continue:hover{filter:brightness(1.12)}}
 
-/* At short landscape heights, the draft uses its header for navigation so the
-   three real portrait cards keep a readable rules area and a separate pick. */
+/* Choose 1 card (tap-to-pick): Stored Sparks, Deck and Menu share the top bar at every landscape height; the freed height goes to the cards. */
+html body .flight-reward-ceremony.card-reward-screen[data-stage=cards]{grid-template-rows:50px minmax(0,1fr)}
+.flight-reward-ceremony[data-stage=cards] .flight-reward-heading{padding-right:64px;gap:10px}
+.flight-reward-ceremony[data-stage=cards] .flight-reward-heading>div:first-child{flex:1 1 auto}
+.flight-reward-header-actions{flex:none;display:flex;gap:8px;min-height:44px}
+.flight-reward-header-actions>button{min-width:76px!important;width:auto}
 @media(max-height:360px) and (orientation:landscape){
  html body .flight-reward-ceremony.card-reward-screen[data-stage=cards]{grid-template-rows:44px minmax(0,1fr)}
- .flight-reward-ceremony[data-stage=cards] .flight-reward-wallet{display:none}
- .flight-reward-ceremony[data-stage=cards] .flight-reward-heading{padding-right:264px}
- .flight-reward-ceremony[data-stage=cards] .flight-reward-actions{position:absolute;right:64px;top:0;height:44px;min-height:44px;z-index:2}
- .flight-reward-ceremony[data-stage=cards] .flight-reward-actions>button{width:88px}
+ .flight-reward-ceremony[data-stage=cards] .flight-reward-heading h1{font-size:20px}
+ .flight-reward-ceremony[data-stage=cards] .flight-reward-heading small{display:none}
+ .flight-reward-header-actions>button{min-width:64px!important;padding-inline:6px!important}
 }
-html body .flight-reward-ceremony .card-draft-face .card-rule-band{min-height:0!important;max-height:100%;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain;touch-action:pan-y;scrollbar-width:thin;scrollbar-color:#6b5335 #e2cf9f}
+html body .flight-reward-ceremony .card-draft-face .card-rule-band{min-height:0!important;max-height:100%;overflow:hidden!important}
 html body .flight-reward-ceremony .card-draft-face .card-rule-band:focus-visible{outline:2px solid #536430;outline-offset:-2px}
 
 /* Inspecting a source leaves the two receipt columns in place. */

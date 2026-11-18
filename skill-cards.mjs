@@ -1,10 +1,10 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=guide-2";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=tap-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=guide-2';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=guide-2';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=guide-2';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=tap-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=tap-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=tap-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -372,7 +372,7 @@ export function describeSkillCard(card) {
       break;
     case "guide":
       effect =
-        "An amber upward arrow shows when a Lift regains its height. A Lift tapped while the arrow is open is on the beat: +1 Spark, after the Lift's cost. Extra copies keep one arrow.";
+        "An amber upward arrow shows when a Lift regains its height. A Lift tapped while the arrow is open is on the cue: +1 Spark, after the Lift's cost. Extra copies keep one arrow.";
       break;
     case "rhythm":
       effect =
@@ -558,7 +558,7 @@ function effectiveCardSummary(kind, sources, cards) {
     "flash-handling": `Collect a Flare: +${total} Sparks when your wisp or Collector picks up Flare. Collector makes one pickup.`,
     "camp-grow": `Grow adds +${total} max Sparks and refills the meter once. All Growth Seeds share 3 Grows per journey.`,
     harvest: `+${total} Sparks when a Pulse crosses an uncollected fuel pickup already in the passage${matching.some((entry) => entry.def.stored) ? `; +${matching.reduce((sum, entry) => sum + (entry.def.stored || 0), 0)} Stored Sparks at the first crossing per Pulse` : ""}.`,
-    guide: "Lift on the beat, while the amber arrow is open: +1 Spark.",
+    guide: "Lift on the cue, while the amber arrow is open: +1 Spark.",
     rhythm: "3 successful Lifts at an even pace send one Pulse, even with extra copies.",
     "rapid-lift": matching.some(entry => entry.def.rapidRank === 2)
       ? "Climb: within 1 second, the second and third successful manual Lifts are free. The third sends one shared light pulse; extra cards keep one trio."

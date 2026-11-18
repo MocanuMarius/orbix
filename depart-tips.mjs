@@ -21,14 +21,14 @@
 //   devour                      a Devour card is in the Chain (card-black-hole.mjs isDevourCard)
 //   rest-ahead / scribe-ahead   a stop right after this flight is a Rest / a Scribe stop
 //   can-add-slot                the Chain has fewer than five slots
-import {pendingOathId, getOath, oathShort} from './oaths.mjs?v=guide-2';
-import {CARD_CATALOG} from './card-catalog.mjs?v=guide-2';
-import {getBiome} from './biomes.mjs?v=guide-2';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=guide-2';
-import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=guide-2';
-import {onboardingFlightPlan} from './onboarding.mjs?v=guide-2';
-import {isDevourCard} from './card-black-hole.mjs?v=guide-2';
-import {getInscription} from './inscriptions.mjs?v=guide-2';
+import {pendingOathId, getOath, oathShort} from './oaths.mjs?v=tap-1';
+import {CARD_CATALOG} from './card-catalog.mjs?v=tap-1';
+import {getBiome} from './biomes.mjs?v=tap-1';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=tap-1';
+import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=tap-1';
+import {onboardingFlightPlan} from './onboarding.mjs?v=tap-1';
+import {isDevourCard} from './card-black-hole.mjs?v=tap-1';
+import {getInscription} from './inscriptions.mjs?v=tap-1';
 
 export const TIPS = Object.freeze([
  // ── General: fine in any run ──────────────────────────────────────────────────────────────
@@ -45,7 +45,7 @@ export const TIPS = Object.freeze([
  // ── Card-specific: only when that card is equipped ────────────────────────────────────────
  {id:'rhythm-glide',context:'card:rhythm',icon:'beat',headline:'Lift, rise, then glide',text:'In still air, glide back to takeoff height between Lifts. Rhythm needs even gaps.'},
  {id:'rhythm-three',context:'card:rhythm',icon:'beat',headline:'Three even Lifts, one Pulse',text:'Three successful, evenly spaced Lifts send one Pulse. Choose a pace the passage allows.'},
- {id:'lift-guide-chevron',context:'card:lift-guide',icon:'note',headline:'Follow the amber chevron',text:'Lift while the chevron is open: Lift Guide adds 1 Spark.'},
+ {id:'lift-guide-chevron',context:'card:lift-guide',icon:'note',headline:'Follow the amber chevron',text:'Lift on the cue, while the chevron is open: Lift Guide adds 1 Spark.'},
  {id:'harvest-pulse',context:'card:harvest-common|harvest-rare|harvest-legendary',icon:'pulse',headline:'Harvest the Pulse',text:'Resonant Harvest pays when a Pulse crosses an uncollected Spark. The Spark stays.'},
  {id:'echo-copy',context:'card:echo|echo-ii|echo-iii',icon:'chain',headline:'Echo copies the next card',text:'Echo repeats the card directly to its right, and spends that card’s uses.'},
  {id:'chameleon-borrow',context:'card:chameleon',icon:'chain',headline:'Chameleon borrows the next card',text:'It acts as the card to its right and shares that card’s uses.'},

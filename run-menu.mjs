@@ -1,11 +1,11 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=guide-2';
-import {resourceSymbol} from './game-symbols.mjs?v=guide-2';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=guide-2';
-import {livesMarkup} from './lives.mjs?v=guide-2';
-import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=guide-2';
-import { companionArtSvg } from './companion-art.mjs?v=guide-2';
-import { GAME_VERSION } from './build-version.mjs?v=guide-2';
-import { menuIcon } from './menu-icons.mjs?v=guide-2';
+import {menuWorldMarkup} from './menu-world.mjs?v=tap-1';
+import {resourceSymbol} from './game-symbols.mjs?v=tap-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=tap-1';
+import {livesMarkup} from './lives.mjs?v=tap-1';
+import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=tap-1';
+import { companionArtSvg } from './companion-art.mjs?v=tap-1';
+import { GAME_VERSION } from './build-version.mjs?v=tap-1';
+import { menuIcon } from './menu-icons.mjs?v=tap-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
