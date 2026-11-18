@@ -1,0 +1,369 @@
+diff --git a/dist/card-catalog.mjs b/dist/card-catalog.mjs
+index 52d40b5e..f4556e80 100644
+--- a/dist/card-catalog.mjs
++++ b/dist/card-catalog.mjs
+@@ -21,20 +21,20 @@ const cards = [
+     ruleBands: [{ type: 'condition', text: 'Repeat', trigger: 'next' }, { type: 'effect', text: 'Acts as the next card' }] },
+   { id: 'field-impulse', name: 'Field Impulse', rarity: 'common', kind: 'field', retired: true, amount: 0, copyable: true, maxRank: 1, artFamily: 'field-impulse', help: 'Each Field Impulse in your chain, or copy of one, adds up to 0.8 s at full Collector charge. One swipe spends the charge once.', trigger: 'always-on',
+     ruleBands: [{ type: 'condition', text: 'Passive · Collector home, ¼ charge', trigger: 'always-on', detail: 'Collector home, ¼ charge' }, { type: 'effect', text: 'Swipe: float, dive or speed up, 0.8 s' }] },
+-  { id: 'lift-guide', name: 'Lift Guide', rarity: 'common', kind: 'guide', amount: 1, copyable: true, maxRank: 1, starterOnly: true, artFamily: 'lift-guide', help: 'Always shows the amber arrow. A Lift tapped while the arrow is open adds 1 Spark.', row: { event: 'guide-lift', operation: 'add-sparks', amount: 1 }, trigger: 'rhythm',
+-    ruleBands: [{ type: 'condition', text: 'Lift on the cue', trigger: 'rhythm' }, { type: 'effect', text: '+{amountSparks}' }, { type: 'note', text: 'Shows the arrow' }] },
+-  { id: 'skim-line', name: 'Skim Line', rarity: 'common', kind: 'skim-line', amount: 1, copyable: true, maxRank: 1, starterOnly: true, excludeStarter: true, artFamily: 'skim-line', trigger: 'engine-skim',
+-    engine: { family: 'starter', hears: ['skim'], does: ['gain'] },
+-    help: 'Turns Proximity on. A gold band hugs the terrain where a Skim counts and brightens while you are inside it. Hold the band until Proximity fills: +1 Spark.',
+-    ruleBands: [{ type: 'condition', text: 'Skim', trigger: 'engine-skim' }, { type: 'effect', text: '+{amountSparks}' }, { type: 'note', text: 'Shows the band' }] },
+-  { id: 'pulse-reader', name: 'Pulse Reader', rarity: 'common', kind: 'pulse-reader', amount: 1, copyable: true, maxRank: 1, starterOnly: true, excludeStarter: true, artFamily: 'pulse-reader', help: 'While mounted it sends its own Pulse every 8 seconds. A soft ring on your wisp tightens just before a Pulse reaches a Spark you have not collected, and that crossing adds 1 Spark. Its own Pulse reaches only cards to its right, so it never fires Pulse Reader itself.', row: { event: 'wave-crossing', operation: 'add-sparks', amount: 1 }, trigger: 'wave',
+-    ruleBands: [{ type: 'condition', text: 'Pulse', trigger: 'wave' }, { type: 'effect', text: '+{amountSparks}' }, { type: 'note', text: 'Pulse every 8 s' }] },
+-  { id: 'courier-cord', name: 'Courier Cord', rarity: 'common', kind: 'courier-cord', amount: 1, copyable: true, maxRank: 1, starterOnly: true, excludeStarter: true, artFamily: 'courier-cord', help: 'Collector’s cord glows brighter and flashes once at each drop-off. Each Delivery adds 1 Spark.', row: { event: 'collector-delivery', operation: 'add-sparks', amount: 1 }, trigger: 'delivery',
+-    ruleBands: [{ type: 'condition', text: 'Delivery', trigger: 'delivery' }, { type: 'effect', text: '+{amountSparks}' }, { type: 'note', text: 'Lights the cord' }] },
+-  { id: 'meter-mark', name: 'Meter Mark', rarity: 'common', kind: 'meter-mark', amount: 1, copyable: true, maxRank: 1, starterOnly: true, excludeStarter: true, artFamily: 'meter-mark', help: 'A gold notch at the top of the Spark Meter glows when it is nearly full. Each Overfill keeps 1 spilled Spark as a Stored Spark. A Boost does not multiply Stored Sparks.', row: { event: 'natural-overfill', operation: 'add-stored', amount: 1 }, trigger: 'overfill',
+-    ruleBands: [{ type: 'condition', text: 'Overfill', trigger: 'overfill' }, { type: 'effect', text: 'Keeps 1 Stored' }, { type: 'note', text: 'Marks the Meter' }] },
+-  { id: 'finish-flag', name: 'Finish Flag', rarity: 'common', kind: 'finish-flag', amount: 2, copyable: true, maxRank: 1, starterOnly: true, excludeStarter: true, artFamily: 'finish-flag', help: 'A thin gold bar along the bottom edge fills toward the finish. Each Finish adds 2 Stored Sparks. A Boost does not multiply Stored Sparks.', row: { event: 'flight-clear', operation: 'add-stored', amount: 2 }, trigger: 'clear',
+-    ruleBands: [{ type: 'condition', text: 'Finish', trigger: 'clear' }, { type: 'effect', text: '+2 Stored' }, { type: 'note', text: 'Shows the finish' }] },
++  { id: 'lift-guide', name: 'Lift Guide', rarity: 'common', kind: 'guide', amount: 1, copyable: true, maxRank: 1, starterOnly: true, artFamily: 'lift-guide', help: 'Always shows the amber arrow. A Lift tapped while the arrow is open is a coin toss: 50% of the time it adds 1 Spark.', row: { event: 'guide-lift', operation: 'add-sparks', amount: 1 }, trigger: 'rhythm',
++    ruleBands: [{ type: 'condition', text: 'Lift on the cue', trigger: 'rhythm' }, { type: 'effect', text: '50%: +{amountSparks}' }, { type: 'note', text: 'Shows the arrow' }] },
++  { id: 'skim-line', name: 'Skim Line', rarity: 'common', kind: 'skim-line', amount: 6, copyable: true, maxRank: 1, starterOnly: true, excludeStarter: true, artFamily: 'skim-line', trigger: 'engine-skim',
++    engine: { family: 'starter', hears: ['skim'], does: ['gain', 'bank'], bank: 5 },
++    help: 'Turns Proximity on. A gold band hugs the terrain where a Skim counts and brightens while you are inside it. Hold the band until Proximity fills: +6 Sparks and +5 Stored Sparks. A Boost does not multiply Stored Sparks.',
++    ruleBands: [{ type: 'condition', text: 'Skim', trigger: 'engine-skim' }, { type: 'effect', text: '+5 Stored, +6 Sparks' }, { type: 'note', text: 'Shows the band' }] },
++  { id: 'pulse-reader', name: 'Pulse Reader', rarity: 'common', kind: 'pulse-reader', amount: 1, copyable: true, maxRank: 1, starterOnly: true, excludeStarter: true, artFamily: 'pulse-reader', help: 'While mounted it sends its own Pulse every 8 seconds. A soft ring on your wisp tightens just before a Pulse reaches a Spark you have not collected, and every 2nd such crossing adds 1 Spark (the count is kept on the card). Its own Pulse reaches only cards to its right, so it never fires Pulse Reader itself.', row: { event: 'wave-crossing', operation: 'add-sparks', amount: 1, everyNth: 2 }, tallied: true, trigger: 'wave',
++    ruleBands: [{ type: 'condition', text: 'Pulse', trigger: 'wave' }, { type: 'effect', text: 'Every 2nd: +{amountSparks}' }, { type: 'note', text: 'Pulse every 8 s' }] },
++  { id: 'courier-cord', name: 'Courier Cord', rarity: 'common', kind: 'courier-cord', amount: 4, copyable: true, maxRank: 1, starterOnly: true, excludeStarter: true, artFamily: 'courier-cord', help: 'Collector’s cord glows brighter and flashes once at each drop-off. Each Delivery adds 2 Stored Sparks. A Boost does not multiply Stored Sparks.', row: { event: 'collector-delivery', operation: 'add-stored', amount: 2 }, trigger: 'delivery',
++    ruleBands: [{ type: 'condition', text: 'Delivery', trigger: 'delivery' }, { type: 'effect', text: '+4 Stored, +4 Sparks' }, { type: 'note', text: 'Lights the cord' }] },
++  { id: 'meter-mark', name: 'Meter Mark', rarity: 'common', kind: 'meter-mark', amount: 1, copyable: true, maxRank: 1, starterOnly: true, excludeStarter: true, artFamily: 'meter-mark', help: 'A gold notch at the top of the Spark Meter glows when it is nearly full. Every 3rd Overfill keeps 1 spilled Spark as a Stored Spark (the count is kept on the card). A Boost does not multiply Stored Sparks.', row: { event: 'natural-overfill', operation: 'add-stored', amount: 1, everyNth: 3 }, tallied: true, trigger: 'overfill',
++    ruleBands: [{ type: 'condition', text: 'Overfill', trigger: 'overfill' }, { type: 'effect', text: 'Every 3rd: +1 Stored' }, { type: 'note', text: 'Marks the Meter' }] },
++  { id: 'finish-flag', name: 'Finish Flag', rarity: 'common', kind: 'finish-flag', amount: 10, copyable: true, maxRank: 1, starterOnly: true, excludeStarter: true, artFamily: 'finish-flag', help: 'A thin gold bar along the bottom edge fills toward the finish. Each Finish adds 10 Stored Sparks. A Boost does not multiply Stored Sparks.', row: { event: 'flight-clear', operation: 'add-stored', amount: 10 }, trigger: 'clear',
++    ruleBands: [{ type: 'condition', text: 'Finish', trigger: 'clear' }, { type: 'effect', text: '+10 Stored' }, { type: 'note', text: 'Shows the finish' }] },
+   { id: 'rhythm', name: 'Rhythm', rarity: 'rare', kind: 'rhythm', amount: 0, copyable: false, maxRank: 1, artFamily: 'rhythm', trigger: 'always-on',
+     ruleBands: [{ type: 'condition', text: 'Passive', trigger: 'always-on' }, { type: 'effect', text: '3 even Lifts send out a Pulse' }] },
+   { id: 'harvest-common', name: 'Resonant Harvest', rarity: 'common', kind: 'harvest', amount: 1, copyable: true, maxRank: 3, evolvesTo: 'harvest-rare', artFamily: 'harvest-common', trigger: 'wave',
+diff --git a/dist/card-engine.mjs b/dist/card-engine.mjs
+index 7720e67d..7915be9a 100644
+--- a/dist/card-engine.mjs
++++ b/dist/card-engine.mjs
+@@ -256,6 +256,10 @@ export class CardEngine {
+           if (keep > 0) { this.host.store?.(keep, j); this.stored += keep; if (this.inPack) this.pack.stored += keep; this.record({ k: 'keep', slot: j, amount: keep }); }
+         }
+         this.sendPulse(j, mask);
++      } else if (what === 'bank') {
++        // Skim Line: its amount goes straight to Stored Sparks (never multiplied by Boosts or Inscriptions).
++        const n = Math.max(0, Number(spec.bank) || cardAmount(card));
++        if (n > 0) { this.host.store?.(n, j); this.stored += n; if (this.inPack) this.pack.stored += n; this.record({ k: 'keep', slot: j, amount: n }); }
+       } else if (what === 'keep') {
+         // Spill Jar: half of the spill (rounded up) becomes Stored Sparks. A collected pickup's own spill already packs.
+         if (ev?.type === 'overfill' && !ev.natural) {
+diff --git a/dist/card-face-lines.mjs b/dist/card-face-lines.mjs
+index 805cdb29..ba49e874 100644
+--- a/dist/card-face-lines.mjs
++++ b/dist/card-face-lines.mjs
+@@ -30,8 +30,8 @@ export function faceTrigger(card = {}, definition = {}) {
+ // Line 2 by card id. `{fx}` is the card's own effect text (its number comes from the card, so ranks and tiers stay right).
+ const LINES = Object.freeze({
+   'field-impulse': 'Swipe to float or dive',
+-  'lift-guide': '{fx} on the cue',
+-  'skim-line': '+1 Spark', 'pulse-reader': '+1 Spark', 'courier-cord': '+1 Spark', 'meter-mark': 'keeps 1 Stored', 'finish-flag': '+2 Stored',
++  'lift-guide': '{fx} on cue',
++  'skim-line': '+5 Stored, +6 Sparks', 'pulse-reader': 'every 2nd: +1 Spark', 'courier-cord': '+4 Stored, +4 Sparks', 'meter-mark': 'every 3rd: +1 Stored', 'finish-flag': '+10 Stored',
+   rhythm: '3 even Lifts: a Pulse',
+   'harvest-legendary': '+2 Sparks, +1 Stored',
+   'camp-kit': '2 Rest actions',
+diff --git a/dist/card-terms.mjs b/dist/card-terms.mjs
+index ead1bf80..b71483bc 100644
+--- a/dist/card-terms.mjs
++++ b/dist/card-terms.mjs
+@@ -197,12 +197,12 @@ const CARD_NOTES = Object.freeze({
+   'fast-spool': 'Touching a natural passage Spark while a Collector reels shortens one active reel by up to 3 seconds. The longest active reel is chosen. Each successful action spends one of this card’s three uses. Copies spend this card’s uses too. No use is spent when there is no remaining reel time.',
+   rhythm: 'All 3 Lifts must succeed and be evenly spaced. You perform them yourself. Extra Rhythm cards still send one Pulse.',
+   'camp-kit': 'Keep in your Deck when arriving at Rest to choose 2 different actions. No active slot is needed. Spend the use only after the second action succeeds. Extra Second Ember cards do not add a third action or spend another use.',
+-  'skim-line': 'Turns Proximity on for the flight: that is part of the card, so flying close to terrain now builds the Proximity meter. A thin gold band hugs the terrain near your wisp, where a Skim counts: flying within Proximity reach of terrain. It brightens while you are inside it. When Proximity fills (a Skim), +1 Spark. Needs no other card. Extra copies keep one band and each pays.',
+-  'pulse-reader': 'While mounted it sends its own Pulse every 8 seconds, and a soft ring on your wisp tightens just before any Pulse front reaches a Spark you have not collected. That crossing adds 1 Spark. Its own Pulse reaches only cards to its right and never fires Pulse Reader itself.',
+-  'courier-cord': 'Collector’s cord glows brighter while it carries a pickup and flashes once at the drop-off. Each Delivery adds 1 Spark. Needs Collector.',
+-  'meter-mark': 'A gold notch at the top of the Spark Meter glows when the Meter is nearly full. Each natural Overfill keeps 1 spilled Spark as a Stored Spark. A Boost does not multiply Stored Sparks.',
+-  'finish-flag': 'A thin gold bar along the bottom edge fills toward the finish. Each Finish adds 2 Stored Sparks. A Boost does not multiply Stored Sparks.',
+-  'lift-guide': 'The amber chevron uses your current fall and Lift impulse. It opens when a Lift can rise back to its starting height, as from level flight. It does not judge terrain; choose when to tap. A Lift tapped while the chevron is open is on the cue: +1 Spark. Extra copies keep one chevron.',
++  'skim-line': 'Turns Proximity on for the flight: that is part of the card, so flying close to terrain now builds the Proximity meter. A thin gold band hugs the terrain near your wisp, where a Skim counts: flying within Proximity reach of terrain. It brightens while you are inside it. When Proximity fills (a Skim), +6 Sparks and +5 Stored Sparks. Needs no other card. Extra copies keep one band and each pays.',
++  'pulse-reader': 'While mounted it sends its own Pulse every 8 seconds, and a soft ring on your wisp tightens just before any Pulse front reaches a Spark you have not collected. Every 2nd such crossing adds 1 Spark (the count is kept on the card). Its own Pulse reaches only cards to its right and never fires Pulse Reader itself.',
++  'courier-cord': 'Collector’s cord glows brighter while it carries a pickup and flashes once at the drop-off. Each Delivery adds 4 Sparks to the Meter and 4 Stored Sparks. A Boost does not multiply Stored Sparks. Needs Collector.',
++  'meter-mark': 'A gold notch at the top of the Spark Meter glows when the Meter is nearly full. Every 3rd natural Overfill keeps 1 spilled Spark as a Stored Spark (the count is kept on the card). A Boost does not multiply Stored Sparks.',
++  'finish-flag': 'A thin gold bar along the bottom edge fills toward the finish. Each Finish adds 10 Stored Sparks. A Boost does not multiply Stored Sparks.',
++  'lift-guide': 'The amber chevron uses your current fall and Lift impulse. It opens when a Lift can rise back to its starting height, as from level flight. It does not judge terrain; choose when to tap. A Lift tapped while the chevron is open is on the cue: a coin toss, 50% of the time +1 Spark. Extra copies keep one chevron.',
+ });
+ 
+ // Explanatory pictures are captures of the running game, never replacement art.
+diff --git a/dist/card-tile-lines.mjs b/dist/card-tile-lines.mjs
+index 2ede5e74..89fbb98f 100644
+--- a/dist/card-tile-lines.mjs
++++ b/dist/card-tile-lines.mjs
+@@ -14,7 +14,7 @@ export const CARD_TILE_LINES = Object.freeze({
+   'harvest-home': 'Collect cards, +2 each',
+   'wave-loom': 'A light Pulse per Turn',
+   'climb': 'Lifts 2 and 3 free', 'watchlight': 'Collector saves you', 'second-look': 'Re-roll a reward card', 'springboard': 'Collect: free bounce',
+-  'lift-guide': 'On the beat: +1 Spark', 'wind-feather': '+1% speed per Finish', 'growth-ring': '+1 max Spark/Finish', 'skim-line': 'Skim: +1 Spark', 'pulse-reader': 'Pulse: +1 Spark', 'courier-cord': 'Delivery: +1 Spark', 'meter-mark': 'Keeps 1 Stored', 'finish-flag': 'Finish: +2 Stored', 'cache-handling': 'Fetches Caches: +12', 'second-sun': '×2 before, ×3 Encore',
++  'lift-guide': '50%: +1 Spark on cue', 'wind-feather': '+1% speed per Finish', 'growth-ring': '+1 max Spark/Finish', 'skim-line': '+5 Stored +6 Sp', 'pulse-reader': 'Every 2nd: +1 Spark', 'courier-cord': '+4 Stored +4 Sp', 'meter-mark': 'Every 3rd: +1 Stored', 'finish-flag': 'Finish: +10 Stored', 'cache-handling': 'Fetches Caches: +12', 'second-sun': '×2 before, ×3 Encore',
+   'twin-wick': '2 Collectors a flight', 'harvest-legendary': '+2 Sparks, +1 Stored',
+   'nest-egg': '+1 Stored per 10', 'flash-handling': '+6; fetches Flare',
+   'dream': 'Devour: longer Dream', 'spillway': '2nd Overfill: a Pulse', 'mirror-grain': 'Adds last + again',
+diff --git a/dist/card-ui.mjs b/dist/card-ui.mjs
+index cc3ea23e..3f1af967 100644
+--- a/dist/card-ui.mjs
++++ b/dist/card-ui.mjs
+@@ -189,6 +189,8 @@ export function cardGrowthBadge(card) {
+   const n = Math.max(0, Math.floor(Number(card.tally) || 0));
+   if (def.kind === 'wind-feather') return { text: `+${n}%`, label: `Now +${n}% flight speed from this card` };
+   if (def.kind === 'growth-ring') return { text: `+${n}`, label: `Now +${n} max Sparks from this card` };
++  if (def.kind === 'meter-mark') return { text: `${n % 3}/3`, label: `${n % 3} of 3 Overfills counted: every 3rd keeps 1 Stored Spark` };
++  if (def.kind === 'pulse-reader') return { text: `${n % 2}/2`, label: `${n % 2} of 2 crossings counted: every 2nd adds 1 Spark` };
+   if (def.kind === 'camp-grow') { const v = cardAmount(card); return { text: `+${v}`, label: `Grows +${v} max Sparks at Rest` }; }
+   if (def.kind === 'ring-spring' && Number(card.banked) > 0) { const b = Number(card.banked); return { text: `${b} s`, label: `${b} seconds banked: they come off the next Collector recovery` }; }
+   if (def.kind === 'pressure-valve' && Number(card.armed) > 0) return { text: 'Free', label: 'Armed: your next Lift is free' };
+diff --git a/dist/flight.mjs b/dist/flight.mjs
+index 1fdc53d7..63d53242 100644
+--- a/dist/flight.mjs
++++ b/dist/flight.mjs
+@@ -1372,7 +1372,8 @@ export class WispFlight {
+       this.resolveCardRowEvent(CARD_ROW_EVENTS.lift,cardLiftContext);
+       this.undertowCollect(cardLiftContext);
+     }else this.resolveCardRowEvent(CARD_ROW_EVENTS.plainLift,cardLiftContext);
+-    if(guideBeat)this.resolveCardRowEvent(CARD_ROW_EVENTS.guideLift,cardLiftContext);
++    // Lift Guide is a coin toss: an on-cue Lift pays with 50% chance, drawn from the flight's own seeded stream (replays are identical).
++    if(guideBeat&&(this.guideCoin??=seededRandom(`${this.seed}:guide-coin`))()<.5)this.resolveCardRowEvent(CARD_ROW_EVENTS.guideLift,cardLiftContext);
+     this.lastFlapTime = this.time;
+     this.liftGuide?.clear();
+     this.cardRhythm?.lift(this.time,cardLiftContext);
+diff --git a/dist/skill-cards.mjs b/dist/skill-cards.mjs
+index 9c95c141..e96ca8da 100644
+--- a/dist/skill-cards.mjs
++++ b/dist/skill-cards.mjs
+@@ -1058,6 +1058,7 @@ function baseRewards(def, card, rule, event) {
+   const amount = Math.max(0, Number(rule.amount) || 0);
+   if (rule.operation === "add-sparks") base.sparks = amount;
+   if (rule.storedFirstCrossing) base.stored = Math.max(0, Number(rule.storedFirstCrossing) || 0);
++  if (rule.alsoStored) base.stored = Math.max(0, Number(rule.alsoStored) || 0);
+   if (rule.operation === "add-stored") base.stored = amount;
+   if (rule.operation === "add-stored-per-heart") base.stored = amount * integer(event.heartsLeft);
+   if (rule.operation === "add-stored-per-fired") base.stored = amount * (event.firedInstanceIds || []).filter(id => id !== card?.instanceId).length;
+@@ -1250,6 +1251,8 @@ export function resolveCardRow(runtime, event = {}) {
+       let amount = Math.max(0,positionAmount(rule,topology,slot,Number(pass === 2 && rule.replayAmount !== undefined ? rule.replayAmount : rule.amount) || 0));
+       // Crate Lining: a Cluster delivery pays half of its Cache amount (rounded up).
+       if (rule.when?.halfPickupKinds?.includes(event.pickupKind) && event.pickupKind !== rule.when.pickupKind) amount = Math.ceil(amount / 2 - 1e-9);
++      // Every Nth (Meter Mark, Pulse Reader): the card counts its own triggers in `tally` (kept on the card) and pays only on every Nth.
++      if (rule.everyNth) { source.tally = integer(source.tally) + 1; if (source.tally % rule.everyNth !== 0) amount = 0; }
+       const payout = operation === "add-last-payout" ? lastPayout : amount;
+       if ((operation === "add-sparks" || operation === "add-last-payout") && payout > 0 && payers >= (Number(rule.minimumEarlierPayers)||0)) {
+         step.operation = operation;succeed();
+@@ -1259,8 +1262,8 @@ export function resolveCardRow(runtime, event = {}) {
+         if (extra > 0) pay("sparks", extra);
+         const lodes = lodestoneSlots(runtime, creditSlot);
+         if (lodes.length) step.lodestoneSlots = lodes;
+-        if (pass === 1 && repeatIndex === 0 && event.firstCrossing && rule.storedFirstCrossing) {
+-          const stored = Math.max(0,Number(rule.storedFirstCrossing)||0);
++        if (pass === 1 && repeatIndex === 0 && ((event.firstCrossing && rule.storedFirstCrossing) || rule.alsoStored)) {
++          const stored = Math.max(0,Number(rule.alsoStored || rule.storedFirstCrossing)||0);
+           if (stored > 0) pay("stored", stored);
+         }
+       } else if (operation === "multiply" || operation === "multiply-future-capacity") {
+@@ -1427,6 +1430,8 @@ export function cardTallyLine(card) {
+   if (def.kind === 'growth-ring') return `+1 max Spark · now +${n}`;
+   if (def.kind === 'wind-feather') return n >= WIND_FEATHER_MAX ? `+${WIND_FEATHER_MAX}% speed (max)` : `+1% speed · now +${n}%`;
+   if (def.kind === 'tithe') return `Tithes ${n} · +${n} max Sparks`;
++  if (def.kind === 'meter-mark') return `Overfills ${n} · next pays in ${3 - n % 3}`;
++  if (def.kind === 'pulse-reader') return `Crossings ${n} · next pays in ${2 - n % 2}`;
+   if (def.kind === 'tributary') return `Collects ${n} · Delivery in ${3 - n % 3}`;
+   return '';
+ }
+diff --git a/scripts/balance/card-works-audit.mjs b/scripts/balance/card-works-audit.mjs
+index 145cde35..6954fc5f 100644
+--- a/scripts/balance/card-works-audit.mjs
++++ b/scripts/balance/card-works-audit.mjs
+@@ -36,6 +36,7 @@ export function setupFor(def) {
+ 
+ function solverCheck(setup) {
+   const cards = setup.row.map((id, i) => makeSkillCard(id, `a${i}`));
++  for (const c of cards) { const n = SKILL_CARDS[c.cardId]?.row?.everyNth; if (n) c.tally = n - 1; } // an every-Nth card is about to pay
+   const receipt = resolveCardRow(createCardExecution({ cards }), setup.event);
+   const mine = receipt.cards[setup.slot], step = receipt.steps.find(s => s.slot === setup.slot && s.success);
+   if (!step) return { ok: false, why: `never fires in the solver (${receipt.steps.filter(s => s.slot === setup.slot).map(s => s.skipReason).join(',')})` };
+diff --git a/tests/card-catalog.test.mjs b/tests/card-catalog.test.mjs
+index 482283b2..9f7f240c 100644
+--- a/tests/card-catalog.test.mjs
++++ b/tests/card-catalog.test.mjs
+@@ -101,6 +101,7 @@ test('every numeric catalog rule produces its declared effect on a matching exec
+   for (const def of Object.values(CARD_CATALOG)) {
+     const card = makeSkillCard(def.id, `row:${def.id}`), rule = getCardRowRule(def, card);
+     if (!rule || def.tallyEvent) continue; // counting cards pay from their own count: tests/cards-batch-2.test.mjs
++    if (rule.everyNth) continue; // every-Nth cards pay from their own count: tests/starter-cards.test.mjs
+     const kind = rule.event === '*' ? 'body-spark' : rule.event,
+       event = { kind, firstCrossing: rule.when?.firstCrossing ?? true,
+         pickupKind: rule.when?.pickupKind || 'light', meterFraction: 0.1,
+diff --git a/tests/card-face-lines.test.mjs b/tests/card-face-lines.test.mjs
+index e40b3c12..227ca370 100644
+--- a/tests/card-face-lines.test.mjs
++++ b/tests/card-face-lines.test.mjs
+@@ -36,7 +36,7 @@ test('the trigger appears once, as a linked word, and Start, Rest and Lift Guide
+   assert.equal(faceEffect(makeSkillCard('growth-seed', 'x'), SKILL_CARDS['growth-seed']), '+5 max Sparks');
+   const guide = makeSkillCard('lift-guide', 'x');
+   assert.equal(faceTrigger(guide, SKILL_CARDS['lift-guide']).word, 'Lift');
+-  assert.equal(faceEffect(guide, SKILL_CARDS['lift-guide']), '+1 Spark on the cue');
++  assert.equal(faceEffect(guide, SKILL_CARDS['lift-guide']), '50%: +1 Spark on cue');
+   // Caps and limits live only in the help window's data.
+   const seed = cardFace(describeSkillCard(makeSkillCard('growth-seed', 'x')));
+   assert.match(seed, /data-card-description="[^"]*3 Grows per journey/);
+diff --git a/tests/finish-trio.test.mjs b/tests/finish-trio.test.mjs
+index fed5d1ad..b9825adf 100644
+--- a/tests/finish-trio.test.mjs
++++ b/tests/finish-trio.test.mjs
+@@ -73,7 +73,7 @@ test('Curtain Call: the Slot 1 card fires its normal Sparks three times at Finis
+   assert.equal(run(['curtain-call', 'body-spark'], {}).r.sparks, 0, 'Curtain Call is Slot 1');
+   for (const first of ['deep-vessel', 'growth-ring', 'growth-seed', 'finish-flag', 'home-beacon', 'wind-feather']) assert.equal(run([first, 'curtain-call'], {}).r.sparks, 0, `${first}: nothing to fire`);
+   // Stored payouts and growth on the Slot 1 card still pay once.
+-  const flag = run(['finish-flag', 'curtain-call'], {}); assert.equal(flag.r.stored, 2);
++  const flag = run(['finish-flag', 'curtain-call'], {}); assert.equal(flag.r.stored, 4);
+   assert.equal(run(['growth-ring', 'curtain-call'], {}).cards[0].tally, 1);
+   // Inscriptions add nothing: Gilded/Twin Mark/Kindled on either slot, and no use is spent.
+   for (const ins of ['gilded', 'twin-mark', 'kindled', 'brimful', 'mirror', 'resonant']) {
+diff --git a/tests/inscription-on-card.test.mjs b/tests/inscription-on-card.test.mjs
+index 1cbc97e3..5e8eb24e 100644
+--- a/tests/inscription-on-card.test.mjs
++++ b/tests/inscription-on-card.test.mjs
+@@ -31,7 +31,7 @@ test('Wind Feather and Growth Ring grow once per Finish whatever the slot Inscri
+ });
+ 
+ test('Stored Sparks payouts are paid once: Twin Mark and "also fires" Inscriptions add none (Home Beacon, Finish Flag, Meter Mark)', () => {
+-  for (const [card, kind, stored] of [['home-beacon', CARD_ROW_EVENTS.clear, 6], ['finish-flag', CARD_ROW_EVENTS.clear, 2], ['meter-mark', CARD_ROW_EVENTS.overfill, 1]]) {
++  for (const [card, kind, stored] of [['home-beacon', CARD_ROW_EVENTS.clear, 6], ['finish-flag', CARD_ROW_EVENTS.clear, 4]]) {
+     const base = fire([card], [null], kind).receipt.stored;
+     assert.ok(base > 0, `${card} pays`);
+     for (const ins of ['twin-mark', 'kindled', 'resonant', 'courier', 'wellspring', 'flare', 'gilded', 'brimful']) assert.equal(fire([card], [ins], kind).receipt.stored, base, `${card} + ${ins}`);
+diff --git a/tests/starter-cards.test.mjs b/tests/starter-cards.test.mjs
+index 5e366507..db6e043b 100644
+--- a/tests/starter-cards.test.mjs
++++ b/tests/starter-cards.test.mjs
+@@ -10,11 +10,11 @@ import { drawPulseRing, drawCourierFlash } from '../dist/starter-cues.mjs';
+ import { glowGaugeMarkup } from '../dist/glow-ui.mjs';
+ 
+ const fire = (ids, inscriptions, kind, extra = {}) => {
+-  const cards = ids.map((id, i) => id ? makeSkillCard(id, `s${i}`) : null);
++  const cards = ids.map((id, i) => { if (!id) return null; const c = makeSkillCard(id, `s${i}`), n = SKILL_CARDS[id].row?.everyNth; if (n) c.tally = n - 1; return c; }); // an every-Nth card is primed to pay on this firing
+   return resolveCardRow(createCardExecution(inscriptions ? { cards, inscriptions: inscriptions.map(id => id ? { id } : null) } : { cards }), { kind, meterFraction: .5, heartsLeft: 2, firstCrossing: true, ...extra });
+ };
+ const E = CARD_ROW_EVENTS;
+-const CARDS = [['pulse-reader', 'Pulse', '+1 Spark', E.wave], ['courier-cord', 'Delivery', '+1 Spark', E.delivery], ['meter-mark', 'Overfill', 'keeps 1 Stored', E.overfill], ['finish-flag', 'Finish', '+2 Stored', E.clear]];
++const CARDS = [['pulse-reader', 'Pulse', 'every 2nd: +1 Spark', E.wave], ['courier-cord', 'Delivery', '+2 Stored', E.delivery], ['meter-mark', 'Overfill', 'every 3rd: +1 Stored', E.overfill], ['finish-flag', 'Finish', '+4 Stored', E.clear]];
+ 
+ test('faces: Trigger word and one short effect line; common, copyable, starter-only', () => {
+   for (const [id, word, line] of CARDS) {
+@@ -25,47 +25,51 @@ test('faces: Trigger word and one short effect line; common, copyable, starter-o
+   }
+ });
+ 
+-test('Pulse Reader and Courier Cord: +1 Spark on their Trigger only; Echo twice; a Boost rounds up; Twin Mark, Gilded', () => {
+-  for (const [id, , , kind] of [CARDS[0], CARDS[1]]) {
++test('Pulse Reader: +1 Spark on every 2nd crossing only (primed here); Echo and Twin Mark count twice so pay once; a Boost rounds up; Gilded', () => {
++  for (const [id, , , kind] of [CARDS[0]]) {
+     assert.equal(fire([id], null, kind).sparks, 1, id);
+     assert.equal(fire([id], null, E.body).sparks, 0, `${id} ignores a Collect`);
+-    assert.equal(fire(['echo', id], null, kind).sparks, 2);
++    assert.equal(fire(['echo', id], null, kind).sparks, 1, 'two counts, one payout');
++    assert.equal(fire([id], null, kind, {}).sparks, 1);
+     assert.equal(fire([id, 'prism-lens'], null, kind).sparks, 2, 'x1.25 rounds up');
+     assert.equal(fire([id, 'crescendo'], null, kind).sparks, 2);
+     assert.equal(fire([id], ['gilded'], kind).sparks, 3);
+-    assert.equal(fire([id], ['twin-mark'], kind).sparks, 2);
++    assert.equal(fire([id], ['twin-mark'], kind).sparks, 1);
+     assert.ok(fire(['echo', id, 'glide-prism'], ['gilded'], kind).sparks < 20, 'bounded');
+   }
+ });
+ 
+-test('Meter Mark and Finish Flag pay Stored Sparks once; Boosts and Inscriptions never multiply them; Echo repeats', () => {
+-  for (const [id, , , kind, stored] of [[...CARDS[2], 1], [...CARDS[3], 2]]) {
++test('Meter Mark, Courier Cord and Finish Flag pay Stored Sparks once; Boosts and Inscriptions never multiply them; Echo repeats (Meter Mark counts twice, pays once)', () => {
++  for (const [id, , , kind, stored] of [[...CARDS[2], 1], [...CARDS[1], 2], [...CARDS[3], 4]]) {
+     assert.equal(fire([id], null, kind).stored, stored); assert.equal(fire([id], null, kind).sparks, 0);
+     assert.equal(fire([id, 'crescendo'], null, kind).stored, stored, 'a Boost never multiplies Stored Sparks');
+     assert.equal(fire([id, 'prism-lens'], null, kind).stored, stored);
+     for (const ins of ['gilded', 'twin-mark', 'kindled', 'resonant', 'brimful']) assert.equal(fire([id], [ins], kind).stored, stored, ins);
+-    assert.equal(fire(['echo', id], null, kind).stored, 2 * stored, 'Echo is a card, and repeats it');
++    assert.equal(fire(['echo', id], null, kind).stored, id === 'meter-mark' ? stored : 2 * stored, 'Echo is a card, and repeats it');
+     assert.equal(fire([id], null, E.lift).stored, 0);
+   }
+ });
+ 
+-test('real flights: Pulse Reader pays per Pulse crossing, Courier Cord per Delivery (and stamps its flash), Meter Mark per Overfill', () => {
++test('real flights: Pulse Reader pays every 2nd Pulse crossing, Courier Cord 2 Stored per Delivery (and stamps its flash), Meter Mark every 3rd Overfill', () => {
+   const a = [0, 1, 2].map(seedIndex => fly({ ids: ['pulse-reader'], seedIndex, flare: true }));
+   const crossings = a.reduce((n, f) => n + (f.log.events['wave-crossing'] || 0), 0), fired = a.reduce((n, f) => n + (f.log.slots[0]?.fired || 0), 0);
+-  assert.ok(crossings >= 2 && fired === crossings, `${fired} of ${crossings}`);
++  const halves = a.reduce((n, f) => n + Math.floor((f.log.events['wave-crossing'] || 0) / 2), 0);
++  assert.ok(crossings >= 2 && fired === halves, `${fired} firings of ${crossings} crossings`);
+   assert.equal(a.reduce((n, f) => n + (f.log.slots[0]?.sparks || 0), 0), fired);
+   const b = [0, 1, 2].map(seedIndex => fly({ ids: ['courier-cord'], seedIndex }));
+   const deliveries = b.reduce((n, f) => n + (f.log.events['collector-delivery'] || 0), 0), paid = b.reduce((n, f) => n + (f.log.slots[0]?.fired || 0), 0);
+   assert.ok(deliveries >= 2 && paid === deliveries, `${paid} of ${deliveries}`);
++  assert.equal(b.reduce((n, f) => n + (f.log.slots[0]?.stored || 0), 0), 2 * deliveries, '2 Stored per Delivery');
+   assert.ok(b.some(f => f.log.engine.courierFlashAt > 0), 'a drop-off stamps the flash');
+   const c = [0, 1, 2].map(seedIndex => fly({ ids: ['meter-mark'], seedIndex }));
+   const overfills = c.reduce((n, f) => n + (f.log.events['natural-overfill'] || 0), 0), kept = c.reduce((n, f) => n + (f.log.slots[0]?.stored || 0), 0);
+-  assert.ok(overfills >= 2 && kept === overfills, `${kept} Stored for ${overfills} Overfills`);
++  const thirds = c.reduce((n, f) => n + Math.floor((f.log.events['natural-overfill'] || 0) / 3), 0);
++  assert.ok(overfills >= 2 && kept === thirds, `${kept} Stored for ${overfills} Overfills`);
+ });
+ 
+-test('Finish Flag: +2 Stored at a real Finish; Echo +4; a Boost adds nothing', () => {
++test('Finish Flag: +4 Stored at a real Finish; Echo +8; a Boost adds nothing', () => {
+   const clear = ids => { const run = makeRun(ids, { seed: 'ff' }), n = M.getChoices(run).find(x => x.type !== 'support'); M.selectNode(run, n.id); M.beginFlightAttempt(run); M.finishFlight(run, { success: true, flame: 60, collected: 3 }); return run.lastFlight.cardClearReceipt.stored; };
+-  assert.equal(clear(['finish-flag']), 2); assert.equal(clear(['echo', 'finish-flag']), 4); assert.equal(clear(['finish-flag', 'crescendo']), 2);
++  assert.equal(clear(['finish-flag']), 4); assert.equal(clear(['echo', 'finish-flag']), 8); assert.equal(clear(['finish-flag', 'crescendo']), 4);
+ });
+ 
+ test('cues are cheap whole-pixel rects, drawn only with the card mounted', () => {
+@@ -87,7 +91,7 @@ test('Pulse Reader alone: it sends its own Pulse every 8 s, is paid by it, and c
+     assert.equal(f.log.pulses, own, 'no other Pulse source, and no Pulse made by a crossing');
+   }
+   const fired = a.reduce((n, f) => n + (f.log.slots[0]?.fired || 0), 0), crossings = a.reduce((n, f) => n + (f.log.events['wave-crossing'] || 0), 0);
+-  assert.ok(fired >= 1 && fired === crossings, `${fired} firings of ${crossings} crossings`);
++  assert.ok(fired >= 1 && fired === a.reduce((n, f) => n + Math.floor((f.log.events['wave-crossing'] || 0) / 2), 0), `${fired} firings of ${crossings} crossings`);
+   assert.equal(a.reduce((n, f) => n + (f.log.slots[0]?.sparks || 0), 0), fired, '+1 Spark per firing');
+   // Cards to its LEFT never hear it; cards to its right do.
+   const right = fly({ ids: ['pulse-reader', 'harvest-common'], seedIndex: 0 }), left = fly({ ids: ['harvest-common', 'pulse-reader'], seedIndex: 0 });
+diff --git a/tests/starter-skim-line.test.mjs b/tests/starter-skim-line.test.mjs
+index 6a9d89bf..88c1579f 100644
+--- a/tests/starter-skim-line.test.mjs
++++ b/tests/starter-skim-line.test.mjs
+@@ -12,29 +12,29 @@ const flights = (ids, opts = {}) => levels.flatMap(l => [0, 1].map(seedIndex =>
+ const logOf = f => f.log.engine.cardEngine?.log || [];
+ const entries = (fl, k, pred = () => true) => fl.flatMap(f => logOf(f).filter(x => x.k === k && pred(x)));
+ 
+-test('Skim Line face: Skim / +1 Spark, common, copyable, turns Proximity on', () => {
++test('Skim Line face: Skim / +3 Stored, common, copyable, turns Proximity on', () => {
+   const def = SKILL_CARDS['skim-line'], card = makeSkillCard('skim-line', 's');
+   assert.equal(def.rarity, 'common'); assert.equal(def.copyable, true); assert.equal(def.starterOnly, true);
+   assert.equal(triggerDisplay(getCardTrigger(def).id).label, 'Skim');
+-  assert.equal(faceEffect(card, def), '+1 Spark');
++  assert.equal(faceEffect(card, def), '+3 Stored');
+   assert.equal(faceTrigger(card, def).word, 'Skim');
+-  assert.match(describeSkillCard(card).effect, /Skim: \+1 Spark/);
++  assert.match(describeSkillCard(card).effect, /Skim: \+3 Stored/);
+   const mod = getCardModifiers({ skillSystem: 'cards-v1', mountedCards: [card], reserveCards: [] });
+   assert.equal(mod.cardSkimLine, true); assert.equal(mod.cardProximityUnlocked, true);
+ });
+ 
+-test('Skim Line in real flights: it fires on skims, pays +1 each; Echo twice; a Boost rounds up; nothing without the card', () => {
++test('Skim Line in real flights: it fires on skims, banks +3 Stored each; Echo twice; a Boost never multiplies it; nothing without the card', () => {
+   const a = flights(['skim-line']);
+   const skims = a.reduce((n, f) => n + (f.log.engine.edgingPulse?.triggerCount || 0), 0);
+-  const gains = entries(a, 'gain', x => x.slot === 0);
++  const gains = entries(a, 'keep', x => x.slot === 0);
+   assert.ok(skims >= 2 && gains.length === skims, `${skims} skims, ${gains.length} gains`);
+-  assert.ok(gains.every(x => x.amount === 1));
++  assert.ok(gains.every(x => x.amount === 3));
+   const echoed = flights(['echo', 'skim-line']);
+   assert.ok(entries(echoed, 'hit', x => x.slot === 1).every(x => x.times === 2), 'Echo fires it twice');
+   const boosted = flights(['skim-line', 'prism-lens']);
+-  assert.ok(entries(boosted, 'gain', x => x.slot === 0).every(x => x.amount === 2), 'x1.25 rounds up to 2');
++  assert.ok(entries(boosted, 'keep', x => x.slot === 0).every(x => x.amount === 3), 'Stored Sparks are never multiplied');
+   const none = flights(['body-spark']);
+-  assert.equal(entries(none, 'gain').length, 0);
++  assert.equal(entries(none, 'keep').length, 0);
+ });
+ 
+ test('Skim Line cue is a few whole-pixel rects and draws only with the card mounted', async () => {
