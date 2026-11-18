@@ -178,6 +178,9 @@ function mountCardDraftCeremony(){
  ceremonyCleanup=()=>{unmountInspector();unmountCeremony();};
 }
 function finishCardDraftIncome(){
+ // Final Guardian that ends the run: the reserved Legendary is taken as the trophy without a pick screen.
+ const trophyDraft=state.run?.cardDraft;
+ if(screen==='card-draft'&&trophyDraft?.trophyOnly&&hasFlightRewardCeremony(state.run)&&trophyDraft.offers?.[0]&&claimDraftedCard(state,trophyDraft.id,trophyDraft.offers[0].instanceId)){state.run.cardReward.uiAcknowledged=true;persist();goToRun();return;}
  if(screen!=='card-draft'||!advanceFlightRewardCeremony(state.run,state.run?.cardDraft?.id,'pack'))return;
  persist();render('card-draft');
 }

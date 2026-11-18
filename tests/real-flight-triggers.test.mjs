@@ -99,15 +99,20 @@ test('Delivery: Courier Tip, Haul Winch (Cluster) and Echo repeating a Delivery 
   assert.equal(slotSum(rev, 0, 'fired'), slotSum(w, 0, 'fired'), 'Echo to the RIGHT of Haul Winch adds nothing');
   note('Repeat + Delivery', 'Echo right of Haul Winch', '-', slotSum(rev, 0, 'fired'), 'same as alone', 'works', 'Order matters: Echo copies the card on its right.');
   const crate = flights({ ids: ['crate-lining', ...set] }, seeds);
-  assert.equal(slotSum(crate, 0, 'fired'), sum(crate, f => f.log.occurred.delivery.cache || 0));
-  note('Delivery', 'Crate Lining (Cache deliveries)', `${sum(crate, f => f.log.occurred.delivery.cache || 0)} Cache deliveries`, slotSum(crate, 0, 'fired'), '-', 'cannot be caused by the pilot', 'Collector never fetched a Cache in 6 flights; unverified in flight.');
+  const crateDeliveries = sum(crate, f => (f.log.occurred.delivery.cache || 0) + (f.log.occurred.delivery.cluster || 0));
+  assert.ok(crateDeliveries >= 1, 'Collector delivers Clusters in real flights');
+  assert.equal(slotSum(crate, 0, 'fired'), crateDeliveries);
+  note('Delivery', 'Crate Lining (Cache + Cluster deliveries)', `${crateDeliveries} deliveries`, slotSum(crate, 0, 'fired'), '8 per Cache, 4 per Cluster', 'works', 'Pays on a Cluster delivery too, at half.');
 });
 
-test('Overfill: Ring Spring shortens a recovering Collector; the Wellspring Inscription fires its card on every Overfill', () => {
-  const a = flights({ ids: ['ring-spring'], hook: e => collectorRecovering(e) });
+test('Overfill: Ring Spring banks seconds for the next Collector recovery; the Wellspring Inscription fires its card on every Overfill', () => {
+  const a = flights({ ids: ['ring-spring'] });
   assert.ok(sum(a, f => f.log.events['natural-overfill'] || 0) >= 5);
-  const fired = slotSum(a, 0, 'fired'); assert.ok(fired >= 1); assert.ok(Math.abs(slotSum(a, 0, 'recovery') - fired) < 1e-6);
-  note('Overfill', 'Ring Spring (Collector made to recover)', `${sum(a, f => f.log.events['natural-overfill'] || 0)} Overfills`, fired, `${slotSum(a, 0, 'recovery')} s`, 'works', 'Pays only while the Collector is recovering.');
+  const fired = slotSum(a, 0, 'fired'); assert.ok(fired >= 1); assert.ok(Math.abs(slotSum(a, 0, 'nextRecovery') - fired) < 1e-6);
+  // The banked seconds really come off a later recovery: what was banked minus what is still waiting at the end of each flight.
+  const spent = sum(a, f => (f.log.slots[0]?.nextRecovery || 0) - (f.log.engine.cardRecoveryCredit || 0));
+  assert.ok(spent >= 1, `banked seconds were taken off a real recovery (${spent} s)`);
+  note('Overfill', 'Ring Spring (no assist)', `${sum(a, f => f.log.events['natural-overfill'] || 0)} Overfills`, fired, `${slotSum(a, 0, 'nextRecovery')} s banked, ${spent} s spent on a recovery`, 'works', 'Banks on every Overfill; the next recovery starts that much shorter.');
   const w = flights({ ids: ['body-spark'], inscriptions: ['wellspring'] });
   const over = sum(w, f => f.log.events['natural-overfill'] || 0), collects = sum(w, f => bodyKinds(f.log.occurred));
   assert.ok(over >= 5); assert.equal(slotSum(w, 0, 'fired'), collects + over);

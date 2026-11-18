@@ -79,3 +79,19 @@ test('cues are cheap whole-pixel rects, drawn only with the card mounted', () =>
     assert.equal(getCardModifiers({ skillSystem: 'cards-v1', mountedCards: [makeSkillCard(id, 'm')], reserveCards: [] })[key], true, key);
   assert.match(glowGaugeMarkup({ flame: 10, skillSystem: 'cards-v1' }), /class="meter-mark"[^>]*hidden/);
 });
+
+test('Pulse Reader alone: it sends its own Pulse every 8 s, is paid by it, and cannot re-trigger itself into a loop (2026-11-18)', () => {
+  const a = [0, 1, 2].map(seedIndex => fly({ ids: ['pulse-reader'], seedIndex })); // no Flare assist: the card is the only Pulse source
+  for (const f of a) {
+    const secs = f.record.time, own = f.log.pulseBySource['card-pulse-reader'] || 0;
+    assert.ok(own >= 1 && own <= Math.floor(secs / 8) + 1, `own Pulses ${own} in ${secs.toFixed(1)} s`);
+    assert.equal(f.log.pulses, own, 'no other Pulse source, and no Pulse made by a crossing');
+  }
+  const fired = a.reduce((n, f) => n + (f.log.slots[0]?.fired || 0), 0), crossings = a.reduce((n, f) => n + (f.log.events['wave-crossing'] || 0), 0);
+  assert.ok(fired >= 1 && fired === crossings, `${fired} firings of ${crossings} crossings`);
+  assert.equal(a.reduce((n, f) => n + (f.log.slots[0]?.sparks || 0), 0), fired, '+1 Spark per firing');
+  // Cards to its LEFT never hear it; cards to its right do.
+  const right = fly({ ids: ['pulse-reader', 'harvest-common'], seedIndex: 0 }), left = fly({ ids: ['harvest-common', 'pulse-reader'], seedIndex: 0 });
+  assert.ok((right.log.slots[1]?.fired || 0) >= 1, 'a Pulse card to its right is fired');
+  assert.equal(left.log.slots[0]?.fired || 0, 0, 'a Pulse card to its left is not');
+});

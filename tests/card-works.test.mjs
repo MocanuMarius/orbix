@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { auditAll } from '../scripts/balance/card-works-audit.mjs';
 
 // Designs that do not work in real flights today, with the owner proposal in outputs/balance/card-works.md (not redesigned here).
-const KNOWN_DESIGN = new Set(['ring-spring', 'ring-spring-ii', 'crate-lining']);
+const KNOWN_DESIGN = new Set([]);
 const KNOWN_UNPROVEN = new Set(['tailwind', 'springboard', 'long-spool', 'cast-line', 'black-hole', 'devourer', 'last-light']);
 const flights = Number(process.env.CARD_WORKS_FLIGHTS || 0);
 

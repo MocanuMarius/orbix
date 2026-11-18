@@ -147,7 +147,7 @@ test('finite multipliers require an earlier payer and successful Flare, Cache an
     assert.equal(row.cards[1].charges,0);assert.equal(receipt.steps.filter(step=>step.sourceCardId===id&&step.success).length,1);
     near(receipt.sparks,SKILL_CARDS[payer].amount*3,'one doubling on the first pass, unmodified payer on replay');
   }
-  for(const [id,kind,pickupKind,expected] of [['crate-lining',CARD_ROW_EVENTS.delivery,'cache',8],]){
+  for(const [id,kind,pickupKind,expected] of [['crate-lining',CARD_ROW_EVENTS.delivery,'cache',8],['crate-lining',CARD_ROW_EVENTS.delivery,'cluster',4],]){
     const row=createCardExecution([makeSkillCard('echo',`copy:${id}`),{...makeSkillCard(id,id),charges:1},makeSkillCard('refrain',`replay:${id}`)]),
       receipt=resolveCardRow(row,{kind,pickupKind});
     near(receipt.sparks,expected);assert.equal(row.cards[1].charges,0);assert.equal(receipt.steps.filter(step=>step.sourceCardId===id&&step.success).length,1);

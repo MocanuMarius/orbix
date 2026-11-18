@@ -74,7 +74,7 @@ const legacy = {
   crescendo: () => [condition('Boost', 'any'), effect('Double every card before it')],
   refrain: () => [condition('Boost', 'any'), effect('Encore: the chain fires once more')],
   downbeat: card => [condition('Lift while falling', 'falling-lift'), effect(`+${card.amount || 2} Sparks`)],
-  'ring-spring': card => [condition('Overfill', 'overfill'), effect(`Collector ready ${card.amount || 1} s sooner`)],
+  'ring-spring': card => [condition('Overfill', 'overfill'), effect(`Next Collector ready ${card.amount || 1} s sooner`)],
   watchlight: () => [condition('Passive · Collector home, full charge', 'always-on'), effect('Collector catches a fatal crash, sends a Pulse'), note('1 per flight · then 4× recovery')],
 };
 

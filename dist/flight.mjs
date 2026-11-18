@@ -860,7 +860,7 @@ export class WispFlight {
     this.cardExecution=(this.mod.cardExecution?.cards?.some(Boolean)||this.mod.cardExecution?.inscriptions?.some(Boolean))?createCardExecution(this.mod.cardExecution):null;
     this.cardChargeLedger={...getCardCharges(this.cardExecution)};
     this.cardExecutions=0;
-    this.cardRowTrace=null;this.cardRowSequence=0;this.cardFires=emptyMarks();this.cardFireSeq=0;this.cardFireListener=null;this.cardChain=chainView(this.cardExecution);this.cardReelCredit=0;this.cardWatchlightUsed=false;this.cardLastAcceptedLift=null;
+    this.cardRowTrace=null;this.cardRowSequence=0;this.cardFires=emptyMarks();this.cardFireSeq=0;this.cardFireListener=null;this.cardChain=chainView(this.cardExecution);this.cardReelCredit=0;this.cardRecoveryCredit=0;this.cardWatchlightUsed=false;this.cardLastAcceptedLift=null;
     // Engine cards (card-engine-flight.mjs): built only when the Chain holds one.
     this.cardEngine=null;this.cardEngineStored=0;this.cardEngineFlash=null;this.cardEngineLastFiring=null;this.cardPack=null;this.cardEngineLuminance=0;syncFlightEngine(this);
     this.flightBoon = new FlightBoon(this, this.mod.flightBoon);
@@ -1482,7 +1482,24 @@ export class WispFlight {
       const credit = this.cardReelCredit; this.cardReelCredit = 0;
       collector.shortenReel(Math.min(credit, Math.max(0, collector.activeReelSeconds() - 0.5)));
     }
+    // Ring Spring: seconds banked by an Overfill come off the recovery this reel starts (never below the 0.5 s Collector floor), then are spent.
+    if (this.cardRecoveryCredit > 0 && collector.cooldown > 0.5) {
+      const cut = Math.min(this.cardRecoveryCredit, collector.cooldown - 0.5);
+      collector.cooldown -= cut; this.cardRecoveryCredit = Math.max(0, this.cardRecoveryCredit - cut);
+      if (this.cardRecoveryCredit < 1e-6) this.cardRecoveryCredit = 0;
+      this.syncRingSpringBank();
+    }
     return this.resolveCardRowEvent(CARD_ROW_EVENTS.attach, {pickupKind:pickupKind(packet)},collector);
+  }
+
+  /** The banked Ring Spring seconds are shown on the first Ring Spring card (a transient field, never saved). */
+  syncRingSpringBank() {
+    let shown = false;
+    for (const card of this.cardExecution?.cards || []) {
+      if (!card) continue;
+      if (!/^ring-spring/.test(card.cardId || '')) { delete card.banked; continue; }
+      if (!shown && this.cardRecoveryCredit > 0) { card.banked = Math.round(this.cardRecoveryCredit * 10) / 10; shown = true; } else delete card.banked;
+    }
   }
 
   /** Second Wind (batch 3): a Save, with the card mounted, opens a 5 s window on this flight. */
@@ -1546,6 +1563,8 @@ export class WispFlight {
     if(receipt.reelSeconds>0)w.shortenReel(receipt.reelSeconds);
     // Haul Winch: seconds banked by a Delivery come off the NEXT reel (see onCollectorAttach).
     if(receipt.nextReelSeconds>0)this.cardReelCredit=(this.cardReelCredit||0)+receipt.nextReelSeconds;
+    // Ring Spring: seconds banked by an Overfill come off the NEXT Collector recovery (see onCollectorAttach).
+    if(receipt.nextRecoverySeconds>0){this.cardRecoveryCredit=(this.cardRecoveryCredit||0)+receipt.nextRecoverySeconds;this.syncRingSpringBank();}
     if(kind===CARD_ROW_EVENTS.body)this.cardExecutions+=receipt.executions;
     if(this.cardEngine&&!engine){
       // Engine cards hear the Chain's Sparks on a Trigger from flying (whole Chain); Long Fuse repeats this firing.

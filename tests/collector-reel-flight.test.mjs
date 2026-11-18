@@ -31,8 +31,8 @@ test('a reel advances in world seconds at .35 world rate identically across 30/6
  assert.deepEqual(snapshots[2],snapshots[0]);
 });
 
-test('real Ring Spring and Fast Spool spends retain cargo position and deliver once at 30/60/120Hz',()=>{
- for(const hz of [30,60,120])for(const [id,seconds] of [['ring-spring',1],['fast-spool',3]]){
+test('real Fast Spool spends retain cargo position and deliver once at 30/60/120Hz',()=>{
+ for(const hz of [30,60,120])for(const [id,seconds] of [['fast-spool',3]]){
   const {e,p}=flight([id]);try{
    const tick=()=>{e.time+=1/hz;e.previousDistance=e.distance;e.distance+=e.baseSpeed/hz;e.wisp.update(e,1/hz);};
    for(let i=0;i<hz/2;i++)tick();
@@ -47,13 +47,13 @@ test('real Ring Spring and Fast Spool spends retain cargo position and deliver o
  }
 });
 
-test('paused equipment changes preserve reel progress and Ring Spring reduces only genuinely missing recovery',()=>{
+test('paused equipment changes preserve reel progress and Ring Spring banks seconds without touching the live recovery',()=>{
  const {e,p}=flight(['ring-spring']);try{
   e.time=1;e.wisp.update(e,1);const fraction=e.wisp.recoveryFraction();
   e.paused=true;const before=snapshot(e);for(let i=0;i<60;i++)e.step(1/60);assert.deepEqual(snapshot(e),before);
   e.applySkillUpgrade({...e.mod,wispCooldown:.8},0);assert.ok(Math.abs(e.wisp.recoveryFraction()-fraction)<1e-9);e.paused=false;
   e.flame=e.maxFlame;const recovery=e.wisp.cooldown;e.collect({kind:'light',x:e.distance+e.player.x,y:e.player.y});
-  assert.equal(e.wisp.cooldown,recovery-1,'a real body overfill shortens the live reel');
+  assert.equal(e.wisp.cooldown,recovery,'a real body overfill banks its seconds and leaves the live recovery alone');assert.equal(e.cardRecoveryCredit,1);
   let deliveryAvailableRecovery=-1;const resolve=e.resolveCardRowEvent.bind(e);
   e.resolveCardRowEvent=(kind,detail)=>{if(p.deliveredByWisp)deliveryAvailableRecovery=e.wisp.cooldown;return resolve(kind,detail);};
   e.wisp.shortenReel(100);e.time+=1/60;e.wisp.update(e,1/60);

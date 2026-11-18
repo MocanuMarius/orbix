@@ -119,8 +119,26 @@ export function stepFlightEngine(e, skimsBefore = null) {
   if (skimsBefore !== null && (e.edgingPulse?.triggerCount || 0) > skimsBefore) e.cardEngine.raise('skim', {}, e.time);
 }
 
+/** Pulse Reader (starter card): while mounted it sends its own real Pulse every 8 s of flight time, however many Readers. The Pulse is tagged just left of
+ * the Reader, so the Reader and the cards to its right hear it cross a Spark (+1 Spark each) and nothing to its left does. Only this timer makes it:
+ * a crossing never makes a Pulse, so the Reader cannot fire itself into a loop. */
+export const PULSE_READER_INTERVAL = 8;
+export function stepPulseReader(e) {
+  const slot = e.cardExecution?.cards?.findIndex(card => card?.cardId === 'pulse-reader') ?? -1;
+  if (slot < 0) { e.pulseReaderAt = undefined; return; }
+  const live2 = e.running && !e.paused && e.alive && !e.finished && !e.destroyed && !e.dying && !e.completing && !e.tutorial && !(e.dream && e.dream.phase !== 'done');
+  if (!live2) return;
+  if (!(e.pulseReaderAt >= 0)) e.pulseReaderAt = e.time + PULSE_READER_INTERVAL;
+  if (e.time + 1e-9 < e.pulseReaderAt) return;
+  e.pulseReaderAt = e.time + PULSE_READER_INTERVAL;
+  const wave = e.radiateLight?.({once: true, reveal: true, source: 'card-pulse-reader', sourceKind: 'card', color: '#d9f0dc'});
+  if (wave && typeof wave === 'object') wave.fromSlot = slot - 1;
+  appendFires(e, [{slot, kind: 'bar'}]);
+}
+
 /** Bell (Inscription): a real light Pulse every 6 s of flight time, however many Bells. Runs only while the world is live. */
 export function stepFlightInscriptions(e) {
+  stepPulseReader(e);
   const ins = e.cardExecution?.inscriptions;
   if (!ins || !ins.some(entry => entry?.id === 'bell')) return;
   const live2 = e.running && !e.paused && e.alive && !e.finished && !e.destroyed && !e.dying && !e.completing && !e.tutorial && !(e.dream && e.dream.phase !== 'done');

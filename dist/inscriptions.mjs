@@ -8,7 +8,7 @@ const def = (id, name, kind, text, extra = {}) => Object.freeze({id, name, kind,
 
 export const INSCRIPTIONS = Object.freeze(Object.fromEntries([
   // Card-modifying
-  def('twin-mark', 'Twin Mark', 'card', 'Fires twice.', {glyph: 'twin'}),
+  def('twin-mark', 'Twin Mark', 'card', 'Fires twice. On a Boost, the Boost applies twice.', {glyph: 'twin'}),
   def('gilded', 'Gilded', 'card', '+2 Sparks each firing.', {glyph: 'gild', bonus: 2}),
   def('resonant', 'Resonant', 'card', 'Also fires on a Pulse.', {glyph: 'wave', also: 'wave-crossing'}),
   def('kindled', 'Kindled', 'card', 'Also fires on a Lift.', {glyph: 'lift', also: 'downbeat-lift'}),

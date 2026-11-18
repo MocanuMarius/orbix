@@ -60,8 +60,8 @@ export function instrument(e, log = {}) {
       let any = false;
       for (const c of rc.cards) {
         if (!c || !(c.fired > 0)) continue; any = true;
-        const s = log.slots[c.slot] ||= { id: c.cardId, fired: 0, events: 0, sparks: 0, stored: 0, recovery: 0, reel: 0, nextReel: 0, byKind: {} };
-        s.fired += c.fired; s.events++; s.sparks += c.effective.sparks; s.stored += c.effective.stored; s.recovery += c.effective.recoverySeconds; s.reel += c.effective.reelSeconds; s.nextReel += c.effective.nextReelSeconds;
+        const s = log.slots[c.slot] ||= { id: c.cardId, fired: 0, events: 0, sparks: 0, stored: 0, recovery: 0, reel: 0, nextReel: 0, nextRecovery: 0, byKind: {} };
+        s.fired += c.fired; s.events++; s.sparks += c.effective.sparks; s.stored += c.effective.stored; s.recovery += c.effective.recoverySeconds; s.reel += c.effective.reelSeconds; s.nextReel += c.effective.nextReelSeconds; s.nextRecovery += c.effective.nextRecoverySeconds;
         s.byKind[kind] = (s.byKind[kind] || 0) + 1;
       }
       if (any) { log.firings.push({ t: +e.time.toFixed(2), kind, sparks: rc.sparks, stored: rc.stored, exec: rc.executions }); log.paid += rc.sparks; }

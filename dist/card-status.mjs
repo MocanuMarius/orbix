@@ -62,7 +62,7 @@ export function getCardRowTriggerIssue(rule, context) {
     return blocked('Needs Watchlight or Last Orbit', 'Its Trigger is Save, or the recovery after a save. This build cannot make a save.', 'Put Watchlight in your chain, or learn the Collector Last Orbit skill.', 'needs-save');
   if (rule?.event === CARD_ROW_EVENTS.delivery && !context.collector)
     return blocked('Needs Collector', 'Its Trigger is Delivery: Collector bringing you a pickup.', 'Choose Collector as your companion.', 'needs-collector');
-  if (rule?.event === CARD_ROW_EVENTS.delivery && rule.when?.pickupKind === 'cache' && !context.cache)
+  if (rule?.event === CARD_ROW_EVENTS.delivery && rule.when?.pickupKind === 'cache' && !rule.when.halfPickupKinds && !context.cache)
     return blocked('Needs Cache Handling', 'Collector cannot bring you a Cache in this build. Touching one yourself is a different Trigger (Collect).', 'Put Cache Handling in your chain, or learn the Collector Cache Handling skill.', 'needs-cache');
   if (['shorten-recovery', 'shorten-reel'].includes(rule?.operation) && !context.collector)
     return blocked('Needs Collector', 'This card makes Collector ready sooner, so it needs Collector.', 'Choose Collector as your companion.', 'needs-collector');

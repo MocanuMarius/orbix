@@ -56,5 +56,12 @@ test('the Chain offers only the Lift choices a mounted card needs, and the net l
   const off = resolveChain(list, LIFT_KIND, null, {liftCue: false, liftFalling: false});
   assert.equal(off.sol.sparks, 0);
   assert.equal(off.lift.net, -3);
-  assert.match(hereLine(off, list[1]), /waits for Lift while falling/i);
+  assert.match(hereLine(off, list[1]), /Lift while falling/i);
+});
+
+test('the Chain tab has no Falling toggle: a simulated Lift always counts as falling and on the cue (2026-11-18)', async () => {
+  const src = await import('node:fs').then(fs => fs.readFileSync(new URL('../dist/ui/deck-screen.mjs', import.meta.url), 'utf8'));
+  assert.ok(!/data-lift-opt|dk24-lopt/.test(src), 'no Lift option buttons');
+  const ctx = resolveChain(row(['lift-guide', 'downbeat']), LIFT_KIND, null, {liftFalling: true, liftCue: true});
+  assert.deepEqual({falling: ctx.lift.falling, cue: ctx.lift.cue}, {falling: true, cue: true});
 });

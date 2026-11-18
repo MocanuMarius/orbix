@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as M from '../dist/model.mjs';
 import {drawSkillCardDraft, makeSkillCard, SKILL_CARDS} from '../dist/skill-cards.mjs';
-import {cardDraftMarkup, cardRewardMarkup} from '../dist/card-ui.mjs';
+import {cardDraftMarkup, cardRewardMarkup, cardVictoryRecap} from '../dist/card-ui.mjs';
 
 function fresh(seed = 'three-card-draft') {
   const state = M.newState(); state.profile.tutorialComplete = true;
@@ -161,4 +161,26 @@ test('a Dream starter gift goes last in the starter Chain, so take-off devours n
   assert.ok(M.chooseStartingGift(state, offer.id));
   assert.equal(rightOfDream(state.run), false);
   assert.deepEqual(state.run.mountedCards.filter(Boolean).map(c => c.cardId).sort(), ['dream', 'lift-guide']);
+});
+
+test('final Guardian that ends the run: the reserved Legendary is the trophy, no pick; an ordinary Guardian keeps its pick (2026-11-18)', () => {
+  const state = fresh('draft-final-trophy'), run = state.run;
+  run.mapIndex = 2;
+  const node = run.map.at(-1).find(node => node.boss);
+  Object.assign(run, {step: node.row, path: [], phase: 'briefing', current: node, mountedCards: [makeSkillCard('growth-ring', 'w-ring'), null, null]});
+  assert.ok(M.beginFlightAttempt(run)); assert.ok(M.markFlightAttemptStarted(run));
+  assert.ok(M.finishFlight(run, {success: true, flame: 30})); M.settleCheckpoint(state);
+  const draft = M.getCardDraft(run);
+  assert.ok(draft.final); assert.equal(draft.trophyOnly, true); assert.equal(run.phase, 'ended');
+  assert.equal(SKILL_CARDS[draft.offers[0].cardId].rarity, 'legendary', 'slot 1 is the reserved Legendary');
+  assert.ok(M.claimDraftedCard(state, draft.id, draft.offers[0].instanceId));
+  run.cardReward.uiAcknowledged = true;
+  assert.equal(run.cardReward.trophy, true);
+  assert.match(cardVictoryRecap(run), new RegExp(`Trophy: ${SKILL_CARDS[draft.offers[0].cardId].name}`));
+  // Not the final Guardian (map 1 boss): the run continues, so the pick stays.
+  const other = fresh('draft-mid-guardian'), r2 = other.run, n2 = r2.map.at(-1).find(node => node.boss);
+  Object.assign(r2, {step: n2.row, path: [], phase: 'briefing', current: n2});
+  assert.ok(M.beginFlightAttempt(r2)); assert.ok(M.markFlightAttemptStarted(r2));
+  assert.ok(M.finishFlight(r2, {success: true, flame: 30})); M.settleCheckpoint(other);
+  assert.equal(M.getCardDraft(r2).trophyOnly, undefined);
 });

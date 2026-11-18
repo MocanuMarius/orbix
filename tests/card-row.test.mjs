@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {CARD_SYSTEM,CARD_UNIT,CARD_ROW_EVENTS,CARD_ECONOMY,SKILL_CARDS,makeSkillCard,getCardModifiers,createCardExecution,resolveCardRow,previewCardRow,getCardStarterOffers,getCardPackingBonus,getMountedCards,cleanCardRun} from '../dist/skill-cards.mjs';
 import {WispFlight} from '../dist/flight.mjs';
+import {cardGrowthBadge} from '../dist/card-ui.mjs';
 import {activationPresentation} from '../dist/activation-feedback.mjs';
 
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
@@ -164,15 +165,22 @@ test('Downbeat uses pre-impulse descent and previous accepted simulation Lift, e
   }finally{e.destroy();}
 });
 
-test('Ring Spring repairs only genuine natural overfill, includes guard and clamps replayed seconds',()=>{
-  const e=flight(['echo','ring-spring','refrain']);
+test('Ring Spring banks seconds on a genuine natural overfill and takes them off the NEXT Collector recovery',()=>{
+  const e=flight(['ring-spring']);
   try{
-    e.wisp.phase='guard-recovery';e.wisp.cooldownMax=40;e.wisp.cooldown=3.5;e.flame=e.maxFlame;
-    e.collect({kind:'light',deliveredByWisp:true});near(e.wisp.cooldown,0);
-    assert.equal(e.cardRowTrace.event.kind,CARD_ROW_EVENTS.overfill);near(e.cardRowTrace.recoverySeconds,3.5);
-    e.wisp.cooldown=10;e.flame=0;e.collect({kind:'light'});near(e.wisp.cooldown,10);
-    e.flame=e.maxFlame;e.collect({kind:'light',generated:true});near(e.wisp.cooldown,10);
-    e.dream={phase:'recording'};e.collect({kind:'light'});near(e.wisp.cooldown,10);
+    // No recovery running: it still banks (the old design never fired), shown on the card as a badge.
+    e.wisp.cooldown=0;e.flame=0;e.collect({kind:'light'});near(e.cardRecoveryCredit,0);
+    e.flame=e.maxFlame;e.collect({kind:'light',generated:true});near(e.cardRecoveryCredit,0);
+    e.dream={phase:'recording'};e.collect({kind:'light'});near(e.cardRecoveryCredit,0);e.dream=null;
+    e.flame=e.maxFlame;e.collect({kind:'light'});
+    assert.equal(e.cardRowTrace.event.kind,CARD_ROW_EVENTS.overfill);near(e.cardRecoveryCredit,1);near(e.cardRowTrace.nextRecoverySeconds,1);
+    assert.equal(e.cardExecution.cards[0].banked,1);
+    assert.equal(cardGrowthBadge(e.cardExecution.cards[0]).text,'1 s');
+    // A recovery that is already running is left alone; the next one starts shorter by the banked second.
+    e.wisp.cooldown=10;e.onCollectorAttach({kind:'light'},e.wisp);near(e.wisp.cooldown,9);near(e.cardRecoveryCredit,0);
+    assert.equal(e.cardExecution.cards[0].banked,undefined);assert.equal(cardGrowthBadge(e.cardExecution.cards[0]),null);
+    // Seconds never take the recovery below the 0.5 s floor; what is left stays banked.
+    e.cardRecoveryCredit=2;e.wisp.cooldown=1;e.onCollectorAttach({kind:'light'},e.wisp);near(e.wisp.cooldown,.5);near(e.cardRecoveryCredit,1.5);
   }finally{e.destroy();}
 });
 

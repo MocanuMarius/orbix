@@ -40,11 +40,12 @@ test('trigger availability respects native abilities, baseline events and Collec
     assert.equal(states(build([id]))[0],'ready',id);
   // Wave Loom is an engine card now (it no longer needs Field Impulse).
   assert.equal(states(build(['wave-loom']))[0],'ready');
-  for(const id of ['toll-bell','pacesetter','mending-moss','crate-lining'])
+  for(const id of ['toll-bell','pacesetter','mending-moss'])
     assert.equal(states(build([id]))[0],'blocked',id);
   assert.equal(states(build(['rhythm','toll-bell']))[1],'ready');
   assert.equal(states(build(['field-impulse','diving-bell']))[1],'ready');
   assert.equal(states(build(['watchlight','mending-moss']))[1],'ready');
+  assert.equal(states(build(['crate-lining']))[0],'ready','Crate Lining also pays on a Cluster delivery, so it needs no Cache Handling');
   assert.equal(states(build(['cache-handling','crate-lining']))[1],'ready');
   const run=build(['slip-feather','mending-moss','crate-lining']);
   run.skills={'collector-field-impulse':1,'collector-last-orbit':1,'collector-fetch-large':1};

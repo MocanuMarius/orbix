@@ -126,9 +126,9 @@ export function getDeckComboLinks(run={}) {
     const trace=previewCardRowEvent(rowSnapshot(run,run.mountedCards),{kind:CARD_ROW_EVENTS.overfill,availableRecovery:10,meterFraction:1});
     const step=trace.steps.find(step=>step.slot===ring.index&&step.success);
     links.push({id:'ring-dawn',name:'Ring Spring → Dawn Loom',sourceSlot:ring.index,targetArtifact:'dawn-loom',
-      sourceText:'Shorten recovery',targetText:'Recovery actually shortened',result:`−${number(step?.recoverySeconds)}s → light ahead`,
-      explanation:'A passage Spark overfills your meter. Ring Spring shortens an active Collector recovery; Dawn Loom reveals the route ahead for 1.5s.',
-      note:'Collector must still be recovering. Dawn Loom allows one flash every 4s. A ready Collector gives no flash.'});
+      sourceText:'Bank recovery seconds',targetText:'Recovery actually shortened',result:`−${number(step?.nextRecoverySeconds)}s → light ahead`,
+      explanation:'A passage Spark overfills your meter. Ring Spring banks seconds that shorten the next Collector recovery; Dawn Loom reveals the route ahead for 1.5s.',
+      note:'The banked seconds come off the next Collector recovery. Dawn Loom allows one flash every 4s. A ready Collector gives no flash.'});
   }
   return links;
 }

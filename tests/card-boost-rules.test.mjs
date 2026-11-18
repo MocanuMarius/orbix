@@ -57,7 +57,7 @@ test('Crescendo doubles whenever something is to its left, with no earlier-card 
   assert.equal(quote(['body-spark','crescendo'],body).sparks,4);
   const lone=quote(['crescendo','body-spark'],body);
   assert.equal(lone.sparks,2);assert.equal(lone.steps[0].skipReason,'empty-subtotal');
-  assert.equal(quote(['ring-spring','crescendo'],{kind:CARD_ROW_EVENTS.overfill,availableRecovery:10}).recoverySeconds,2);
+  assert.equal(quote(['ring-spring','crescendo'],{kind:CARD_ROW_EVENTS.overfill,availableRecovery:10}).nextRecoverySeconds,2);
   for(const ids of [['body-spark','crescendo'],['crescendo','body-spark'],['dusk-wick','cluster-heart','crescendo']])
     for(const step of quote(ids,body).steps)assert.notEqual(step.skipReason,'needs-two-earlier-payers');
   assert.equal(getEquippedCardStatuses(run(['body-spark','crescendo']))[1].state,'ready');
@@ -114,7 +114,7 @@ test('a save made before the ladder keeps every card instance once, with its new
 // Point 3 revised 2026-11-17: Boosts multiply Sparks and Collector time, never Stored Sparks or permanent gains.
 test('a Boost strengthens Sparks and Collector time to its left, never Stored Sparks or permanent gains',()=>{
   assert.equal(quote(['body-spark','prism-lens-ii'],body).sparks,6,'Sparks');
-  assert.equal(quote(['ring-spring','crescendo'],{kind:CARD_ROW_EVENTS.overfill,availableRecovery:10}).recoverySeconds,2,'recovery seconds');
+  assert.equal(quote(['ring-spring','crescendo'],{kind:CARD_ROW_EVENTS.overfill,availableRecovery:10}).nextRecoverySeconds,2,'banked recovery seconds');
   assert.equal(quote(['return-spring','prism-lens-ii'],{kind:CARD_ROW_EVENTS.attach,availableReel:5,availableRecovery:5}).reelSeconds,1.5,'reel seconds on Latch');
   const wave=quote(['harvest-legendary','crescendo'],{kind:CARD_ROW_EVENTS.wave,firstCrossing:true});
   assert.deepEqual([wave.sparks,wave.stored],[4,1],'Sparks doubled, the Stored Spark paid at base');
@@ -151,11 +151,12 @@ test('several Boosts multiply together, and Echo or Encore firings are boosted a
 
 test('Boosted seconds never bring Collector below half a second; unboosted savings keep their rule',()=>{
   assert.equal(CARD_ROW_LIMITS.collectorFloor,.5);
-  const overfill=availableRecovery=>quote(['ring-spring','crescendo'],{kind:CARD_ROW_EVENTS.overfill,availableRecovery});
-  near(overfill(10).recoverySeconds,2);
-  near(overfill(2.2).recoverySeconds,1.7);near(overfill(2.2).steps.at(-1).recoveryAfter,.5);
-  near(overfill(1.5).recoverySeconds,1);assert.equal(overfill(1.5).steps[1].skipReason,'boost-capped');
-  near(quote(['ring-spring'],{kind:CARD_ROW_EVENTS.overfill,availableRecovery:.75}).recoverySeconds,.75,'a lone card may still finish recovery');
+  // Counterweight (0.75 s on a falling Lift) is the live-recovery saver here; Ring Spring banks its seconds, and the 0.5 s floor is applied when they are spent (tests/card-row.test.mjs).
+  const overfill=availableRecovery=>quote(['counterweight','crescendo'],{kind:CARD_ROW_EVENTS.lift,availableRecovery});
+  near(overfill(10).recoverySeconds,1.5);
+  near(overfill(1.5).recoverySeconds,1);near(overfill(1.5).steps.at(-1).recoveryAfter,.5);
+  near(overfill(1).recoverySeconds,.75);assert.equal(overfill(1).steps[1].skipReason,'boost-capped');
+  near(quote(['counterweight'],{kind:CARD_ROW_EVENTS.lift,availableRecovery:.5}).recoverySeconds,.5,'a lone card may still finish recovery');
   const latch=(availableReel)=>quote(['return-spring','crescendo'],{kind:CARD_ROW_EVENTS.attach,availableReel,availableRecovery:5});
   near(latch(2).reelSeconds,1);near(latch(.8).reelSeconds,.5);
   near(latch(1.2).reelSeconds,.7);near(latch(1.2).steps.at(-1).reelAfter,.5);

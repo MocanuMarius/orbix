@@ -561,6 +561,8 @@ export function syncCardFlightForEdit(run, engine) {
   if (!pausedCardFlight(run, engine) || run.banked || run.lives <= 0) return false;
   commitCardCharges(run, engine.getCardChargeLedger());
   commitCardTallies(run, getCardTallies(engine.cardExecution));
+  // Ring Spring's banked seconds (a transient field of the paused flight) are shown on the Chain tab card; they are never saved.
+  for (const card of run.mountedCards || []) if (card) { const live = engine.cardExecution?.cards?.find(c => c?.instanceId === card.instanceId); if (live?.banked > 0) card.banked = live.banked; else delete card.banked; }
   run.flame = Math.min(engine.flame, getGlowCapacity(run));
   liveCardEdits.set(run, engine);
   return true;
@@ -1654,6 +1656,8 @@ export function finishFlight(run,result){
  run.flightReward=run.isTutorial&&n.type==='finale'?null:makeFlightReward(run);
  run.victoryPending=Boolean(run.flightReward)&&!run.flightReward.claimed;
  if(n.type==='finale'){run.step=run.map.length;run.bossDefeated=!run.isTutorial&&n.boss===true&&run.mapIndex===2;run.success=run.isTutorial||run.bossDefeated;run.phase=run.success?'ended':'map-clear';}else nextStop(run);
+ // The final Guardian's card is useless when the run ends here: the reserved Legendary becomes the trophy on the victory screen, with no pick (2026-11-18).
+ if(run.cardDraft?.final&&!run.cardDraft.claimed&&run.cardDraft.nodeId===n.id&&run.phase==='ended'&&run.success)run.cardDraft.trophyOnly=true;
  if(!run.flightReward&&!n.boss&&!n.elite){
   if(!run.isTutorial)settleRunRewards(run);
   if(run.phase==='map')run.clearRewardReceipt=flightClearReceipt(run);

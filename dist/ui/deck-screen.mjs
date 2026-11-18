@@ -50,7 +50,7 @@ function deckData(run, view) {
   const raw = [...row.filter(Boolean), ...(run?.reserveCards || [])];
   const byUid = uid => raw.find(c => c?.instanceId === uid) || null;
   const ownedOf = uid => owned.find(c => c.instanceId === uid) || null;
-  const chain = resolveChain(row, view.trigger, slotInscriptionList(run, row), {liftFalling: view.liftFalling, liftCue: view.liftCue});
+  const chain = resolveChain(row, view.trigger, slotInscriptionList(run, row), {liftFalling: true, liftCue: true});
   view.trigger = chain.trigger;
   let statuses = [];
   try {statuses = getEquippedCardStatuses(run);} catch {statuses = [];}
@@ -143,13 +143,7 @@ function stationsHTML(d, view, opts) {
       ${plate}${insMark}${insIdle ? `<i class="dk2-warn dk2-ins-warn" aria-hidden="true">${WARN}</i>` : ''}</div>${notch}${swap}`;
   }).join('');
 }
-/** Lift choices, only the ones a mounted card needs: Falling (Downbeat family) and On the cue (Lift Guide). Shown while Lift is the shown Trigger. */
-function liftOptsHTML(d, view) {
-  const o = d.chain.liftOptions;
-  if (!o || d.chain.trigger !== LIFT_KIND || !(o.falling || o.cue)) return '';
-  const btn = (key, label, short, on) => `<button type="button" class="dk2-btn dk24-lopt${on ? ' dk24-on' : ''}" data-lift-opt="${key}" aria-pressed="${on}" aria-label="Lift ${esc(label.toLowerCase())}: ${on ? 'on' : 'off'}"><i aria-hidden="true"></i><span class="dk24-long">${esc(label)}</span><span class="dk24-short" aria-hidden="true">${esc(short)}</span></button>`;
-  return `<div class="dk24-lopts" role="group" aria-label="Which Lift">${o.falling ? btn('falling', 'Falling', 'Fall', view.liftFalling !== false) : ''}</div>`;
-}
+// Lift simulation (2026-11-18): a simulated Lift always counts as falling and on the Lift Guide cue; there are no toggles.
 function chipsHTML(d, ev = null, view = {}) {
   const {chain} = d, short = shortScreen();
   // An engine that no ordinary Trigger fires: the flying that starts it, as glossary keywords (the first is shown).
@@ -163,7 +157,7 @@ function chipsHTML(d, ev = null, view = {}) {
   }).join('');
   const shown = TRIGGER_BY[chain.trigger];
   const help = shown?.term ? `<button type="button" class="dk2-btn dk23-help" data-card-term="${esc(shown.term)}" aria-haspopup="dialog" aria-label="What is ${esc(shown.name)}?"><b>?</b></button>` : '';
-  return rows + liftOptsHTML(d, view) + help;
+  return rows + help;
 }
 /** "Lift costs 3 Sparks: net +2" for the simulated Lift. */
 const liftNetWords = (lift, gained) => `Lift −${lift.cost} → net ${lift.net > 0 ? '+' : lift.net < 0 ? '−' : ''}${num(Math.abs(lift.net))}`;
@@ -800,8 +794,6 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
     if (t.closest('#dk2-pickcancel')) {cancelPick();return;}
     if (t.closest('#dk2-workshop')) {actions.workshop?.();return;}
     if (t.closest('#dk2-play')) {if (view.placing) cancelPlacing();play();return;}
-    const lopt = t.closest('[data-lift-opt]');
-    if (lopt) {const k = lopt.dataset.liftOpt === 'cue' ? 'liftCue' : 'liftFalling';view[k] = view[k] === false;renderAll();root.querySelector(`[data-lift-opt="${lopt.dataset.liftOpt}"]`)?.focus({preventScroll: true});announce(resultWords());return;}
     const sel = t.closest('.dk22-tsel');
     if (sel) {setTrigger(sel.dataset.trigger);return;}
     if (view.menu && !t.closest('#dk2-filtermenu')) {

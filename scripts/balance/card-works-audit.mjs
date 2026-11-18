@@ -15,7 +15,7 @@ const PAYER = { 'body-spark': 'body-spark', 'wave-crossing': 'harvest-common', '
   'flash-expiry': 'diving-bell', 'rhythm-phrase': 'toll-bell', 'guide-lift': 'lift-guide', '*': 'body-spark' };
 const nums = text => [...String(text).matchAll(/\d+(?:\.\d+)?/g)].map(m => Number(m[0]));
 const KEY = { 'add-sparks': 'sparks', 'add-last-payout': 'sparks', 'add-stored': 'stored', 'carried-interest': 'stored', 'add-stored-per-heart': 'stored', 'add-tally-capacity': 'futureCapacity',
-  'add-cruising-speed': 'cruisingSpeed', 'shorten-recovery': 'recoverySeconds', 'shorten-reel': 'reelSeconds', 'bank-reel': 'nextReelSeconds', 'add-future-capacity': 'futureCapacity' };
+  'add-cruising-speed': 'cruisingSpeed', 'shorten-recovery': 'recoverySeconds', 'shorten-reel': 'reelSeconds', 'bank-reel': 'nextReelSeconds', 'bank-recovery': 'nextRecoverySeconds', 'add-future-capacity': 'futureCapacity' };
 
 /** The chain that gives this card its best chance, and the event that should fire it. */
 export function setupFor(def) {
