@@ -1,5 +1,5 @@
-import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=workshop-1';
-import {isCardRun} from './skill-cards.mjs?v=workshop-1';
+import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=detail-1';
+import {isCardRun} from './skill-cards.mjs?v=detail-1';
 
 // Every event is ONE screen with two outcomes; the player takes ONE of them (pick 1 of 2, 2026-11-18): Stored Sparks, a heart, Sparks, a card (the normal claim
 // path), one card's uses refilled, or one card improved. The two events that are not immediate on purpose keep their own shape:

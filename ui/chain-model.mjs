@@ -7,12 +7,14 @@
 // LEFT did to it (an Echo repeating it). Later Boosts and the Encore keep their own plates. Honesty rule: the
 // plates read left to right (+ adds, × multiplies the running figure, Encore repeats the line, each firing
 // rounded up to whole Sparks) must give the resolver's total; when they do not, plates show plain figures.
-import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=workshop-1';
-import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=workshop-1';
-import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=workshop-1';
+import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=detail-1';
+import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=detail-1';
+import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=detail-1';
 import {DISPLAY_GROUPS, GROUP_TERM} from '../card-trigger-labels.mjs';
-import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=workshop-1';
-import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=workshop-1';
+import {faceTrigger, faceEffect} from '../card-face-lines.mjs?v=detail-1';
+import {getCardRuleBands} from '../card-rule-bands.mjs?v=detail-1';
+import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=detail-1';
+import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=detail-1';
 
 /** The Triggers in the designer's order, with the game's names and glossary keys (card-terms.mjs). */
 export const TRIGGERS = Object.freeze([
@@ -312,7 +314,7 @@ export function hereLine(ctx, c) {
   const slot = ctx.row.indexOf(c);
   if (slot < 0) return 'In your Deck, not in the chain: it does nothing until you put it in a slot.';
   const info = slotInfo(ctx, slot), st = info.step, at = `Slot ${slot + 1}`, on = triggerName(ctx.trigger);
-  if (info.kind === 'passive') return `${at}: always on while it is in your chain. It does not fire.`;
+  if (info.kind === 'passive') return firesWithoutRule(c) ? firesLine(ctx, c, slot) : `${at}: always on while it is in your chain. It does not fire.`;
   if (info.kind === 'waits' && info.cond) {
     const st2 = info.condStep, next = ctx.row[slot + 1];
     const does = st2.operation === 'multiply' ? `multiplies the running total by ×${num(st2.multiplier)}` : st2.copiedBy ? `repeats ${next ? shortName(next) : 'the next card'}`
@@ -329,6 +331,28 @@ export function hereLine(ctx, c) {
   if (info.role === 'repeat') {const src = ctx.row.findIndex(x => x && x.instanceId === st.sourceInstanceId);const name = src >= 0 ? shortName(ctx.row[src]) : 'the next card';return `${at}: repeats ${name}. The extra ${num(st.amount)} shows on ${name}'s plate.`;}
   const by = (info.mods || []).filter(m => m.type === 'repeat').map(m => shortName(ctx.row[m.by]));
   return info.changed ? `${at}: adds ${num(info.base)}, repeated by ${[...new Set(by)].join(' and ')}: ${num(info.eff)}.` : `${at}: adds ${num(info.base)}.`;
+}
+const lower = t => t ? t[0].toLowerCase() + t.slice(1) : t;
+/** True for a card that fires on a Trigger although it has no row rule (the engine / maker cards, Black Hole). */
+export const firesWithoutRule = c => {const def = SKILL_CARDS[c?.cardId];if (!def || isRest(c) || getCardRowRule(def, c) || ['echo', 'chameleon', 'refrain'].includes(def.kind)) return false;const chip = chipOf(c);return !!def.engine || chip.group !== 'passive' && chip.kind !== 'none';};
+/** The true line for a card that fires on its Trigger but has no row rule: when, what, and what in the chain changes it. */
+function firesLine(ctx, c, slot) {
+  const def = SKILL_CARDS[c.cardId], face = faceTrigger(c, def), plate = enginePlate(ctx.row, slot);
+  const what = lower(plate?.long || faceEffect(c, def)) || 'acts';
+  const extra = [], left = ctx.row[slot - 1], right = ctx.row[slot + 1], kindOf = x => SKILL_CARDS[x?.cardId]?.kind;
+  if (['wick', 'fuse', 'metronome'].includes(def.engine?.timer) && ctx.row.some(x => SKILL_CARDS[x?.cardId]?.engine?.timerScale)) extra.push('Heartbeat in your chain halves the wait');
+  if (['echo', 'chameleon'].includes(kindOf(left))) extra.push(`${shortName(left)} to its left repeats it`);
+  if (kindOf(left) === 'keystone' || kindOf(right) === 'keystone') extra.push('Keystone beside it makes it fire twice');
+  if (Number.isFinite(c.charges)) extra.push(`${c.charges} use${c.charges === 1 ? '' : 's'} left`);
+  return `Slot ${slot + 1}: fires on ${face.word}: ${what}.${extra.length ? ` ${extra.join('. ')}.` : ''}`;
+}
+/** The card's full rule in plain words, with the limits the face leaves out. */
+export function fullRuleText(c) {
+  const def = SKILL_CARDS[c?.cardId] || {}, bands = getCardRuleBands(c || {}, def);
+  const when = bands.find(b => b.type === 'condition')?.text, fx = bands.filter(b => b.type === 'effect').map(b => b.text.replace(/\.$/, ''));
+  const notes = bands.filter(b => b.type === 'note' && !/^\d+ (?:shared )?uses?$|^Uses?$/i.test(b.text)).map(b => b.text.replace(/\.$/, '') + '.');
+  const first = `${when ? `${when}: ` : ''}${fx.join('. ')}`;
+  return [first ? first + '.' : '', ...notes].filter(Boolean).join(' ');
 }
 /** The plate as words, for screen readers. */
 export function plateWords(info) {

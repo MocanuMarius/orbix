@@ -1,7 +1,7 @@
 // Writing a chest find (docs/inscriptions.md, "Chest gifts"): the player writes the permanent Inscription on a slot of the Chain on its own screen
 // (run.pendingTemporary, kept under this old name; it only ever holds a permanent chest find). Temporary Inscriptions no longer exist: events,
 // objectives and oaths pay at once (dist/route-bonuses.mjs, dist/event-choices.mjs, dist/oaths.mjs). Pure run helpers, no DOM.
-import {getPermanentInscription, writeInscription, cleanSlotInscriptions, permanentOnSlot, migrateChestGifts} from './inscriptions.mjs?v=workshop-1';
+import {getPermanentInscription, writeInscription, cleanSlotInscriptions, permanentOnSlot, migrateChestGifts} from './inscriptions.mjs?v=detail-1';
 
 const slotsOf = run => cleanSlotInscriptions(run);
 

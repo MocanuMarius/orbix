@@ -5,3 +5,11 @@ html,*,::before,::after{-webkit-tap-highlight-color:transparent}
 @media (hover:none),(pointer:coarse){
   button:active:not(:disabled),[role=button]:active,a:active,summary:active,[data-action]:active{filter:none;transition:none}
 }
+/* Root fix for the blue tint on tapped / long-pressed game UI (18 Nov 2026): Android Chrome paints a blue selection highlight (and
+   callout) on text, pack art and cards after a long press or double tap. Pure CSS on html and *, so elements added later get it too.
+   Real text fields keep normal selection. */
+html,*,::before,::after{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+input,textarea,select,[contenteditable=""],[contenteditable="true"],.selectable{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+::selection{background:transparent;color:inherit}
+input::selection,textarea::selection,.selectable::selection{background:Highlight;color:HighlightText}
+img,svg,canvas{-webkit-user-drag:none}

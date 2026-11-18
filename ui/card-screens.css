@@ -692,3 +692,7 @@ html body .card-starter-pair>.card-pick:not(#k){height:100%;align-self:stretch}
 /* Text tiles (events, chest, Workshop offers): the same rise; a dark ring on the selected tile reads on every paper colour. */
 button[data-tap-pick].tp-selected,.event-pick-card.tp-selected,.treasure-offer.tp-selected{outline:3px solid #f0c86a;box-shadow:0 0 0 5px #2a2118}
 .tp-has-selection>button[data-tap-pick]:not(.tp-selected){opacity:.72}
+/* Opened card = the card's advanced help: full rule, then its state in the Chain (2026-11-18). */
+#dk-root .dk2-rule{margin:0;font:400 14px/18px var(--pixel,monospace);color:var(--ink)}
+html body #dk-root.dk.dk2 .dk2-info .dk2-rule{font-size:14px;line-height:17px}
+@media(max-height:340px){html body #dk-root.dk.dk2 .dk2-info .dk2-rule{font-size:12px;line-height:14px}}

@@ -1,7 +1,7 @@
 // Terrain collides as a union of filled polygons. Its visible contact outline
 // must be that same union, rather than outlining every buried source piece.
-import {isContactEdgeStyle,paintContactEdge} from './contact-edge-art.mjs?v=workshop-1';
-import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=workshop-1';
+import {isContactEdgeStyle,paintContactEdge} from './contact-edge-art.mjs?v=detail-1';
+import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=detail-1';
 const cache=new WeakMap();
 const renderFrames=new WeakMap();
 const EPS=1e-6;
