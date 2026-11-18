@@ -168,15 +168,19 @@ test('loaded hook turns toward the main wisp, stays on its eyelet, and the displ
   }
 });
 
-test('the tow cord is a straight line with fixed ends, so the Collector rides on it (elastic cord v1.1)',()=>{
+test('wind has broad fluid swings with fixed ends, fades at short lengths and becomes still with reduced motion',()=>{
   const sample=(age,quiet=false,reach=70)=>collectorTowPose({kind:'light'},30,50,30+reach,30,1,age,quiet);
-  for(let age=.4;age<7;age+=1/30){
+  let minimum=Infinity,maximum=-Infinity;
+  for(let age=.4;age<7;age+=1/120){
     const tether=sample(age),start=collectorTowPoint(tether,0),end=collectorTowPoint(tether,1),middle=collectorTowPoint(tether,.5);
     assert.deepEqual([start.x,start.y,end.x,end.y],[tether.x,tether.y,tether.hookX,tether.hookY]);
-    assert.ok(Math.abs(middle.x-(tether.x+tether.hookX)/2)<1e-9&&Math.abs(middle.y-(tether.y+tether.hookY)/2)<1e-9,'midpoint on the chord');
+    const dy=middle.y-(tether.y+tether.hookY)/2;minimum=Math.min(minimum,dy);maximum=Math.max(maximum,dy);
+    const next=collectorTowPoint(sample(age+1/120),.5);assert.ok(Math.hypot(next.x-middle.x,next.y-middle.y)<.7,'no frame-to-frame whip');
   }
-  assert.equal(sample(1,true).wind,0);assert.equal(sample(1).sag,0);
-  assert.notEqual(sample(1).phase,collectorTowPose({kind:'light'},30,50,100,30,1,1,false,1).phase,'paired cords keep separate phases');
+  assert.ok(maximum-minimum>17,'wind is visibly broader than the old four-unit sag');
+  assert.deepEqual(collectorTowPoint(sample(1,true),.5),collectorTowPoint(sample(5,true),.5),'reduced motion has a steady curve');
+  assert.ok(sample(1,false,28).wind<sample(1,false,70).wind,'shortening cord tames the swing near contact');
+  assert.notEqual(sample(1).phase,collectorTowPose({kind:'light'},30,50,100,30,1,1,false,1).phase,'paired cords have separate wind phases');
 });
 
 test('mint glow reuses one cheap path, preserves inherited opacity and hides the eyelet and cord outside visibility',()=>{
