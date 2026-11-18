@@ -1,10 +1,11 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=prune-1";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=start-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=prune-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=prune-1';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=prune-1';
+import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=start-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=start-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=start-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=start-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -128,7 +129,7 @@ export function getUseDoublerTarget(cards, slot) {
 export function getEmberFeederTargets(cards, slot) {
   const targets = [];
   for (let index = slot + 1; index < (cards?.length || 0) && targets.length < 2; index++) {
-    if (livePhysicalCard(cards[index])) targets.push({ card: cards[index], slot: index });
+    if (livePhysicalCard(cards[index]) && !SKILL_CARDS[cards[index].cardId]?.permanent) targets.push({ card: cards[index], slot: index });
   }
   return targets.length === 2 ? targets : [];
 }
@@ -337,6 +338,8 @@ export function cleanCardRun(run) {
         offers.length === 3 && new Set(offers.map(card => card.cardId)).size === 3) {
       draft.offers = offers;
       draft.claimed = draft.claimed === true;
+      const rr = draft.reroll;
+      if (rr && !(rr.used === true && offers.some(card => card.instanceId === rr.instanceId) && SKILL_CARDS[rr.fromCardId] && SKILL_CARDS[rr.toCardId])) delete draft.reroll;
     } else delete run.cardDraft;
   }
   settleCardReward(run);
@@ -711,8 +714,20 @@ const starterCommonIds = ['body-spark', 'spark-cache', 'deep-vessel', 'tight-pac
 const starterRareIds = ['rhythm', 'cache-handling', 'flash-handling'];
 /** The six starter cards (2026-11-18): Lift Guide and five like it, each teaching one Trigger. A new run offers 3 of them at random. */
 export const STARTER_CARD_IDS = Object.freeze(['lift-guide', 'skim-line', 'pulse-reader', 'courier-cord', 'meter-mark', 'finish-flag']);
+/** Start bonus offers (version 4 runs): three tiles, each a starter card, an ordinary Inscription or a Wisp stat (start-bonus.mjs). Seeded by the run. */
+function startBonusOffers(run) {
+  const saved = run.startBonusOfferIds, ids = Array.isArray(saved) && saved.length === 3 && new Set(saved).size === 3 && saved.every(isStartBonusId) ? saved : drawStartBonusIds(run.campaignSeed || run.seed);
+  return ids.map(id => {
+    const kind = startBonusKind(id), key = id.slice(kind.length + 1);
+    if (kind === 'inscription') { const ins = getInscription(key); return { id, kind, inscriptionId: key, name: ins.name, description: ins.text, glyph: ins.glyph, family: ins.kind, rarity: 'common', artifactIds: [] }; }
+    if (kind === 'wisp') { const stat = WISP_STATS[key]; return { id, kind, wispId: key, name: stat.name, description: stat.text, chip: stat.chip, rarity: 'common', artifactIds: [] }; }
+    const card = describeSkillCard(makeSkillCard(key, `starter:${key}`)), d = SKILL_CARDS[key];
+    return { id, kind: 'card', cardId: key, name: d.name, description: card.effect, rarity: d.rarity, card, artifactIds: [] };
+  });
+}
 export function getCardStarterOffers(run, { legacy = false } = {}) {
-  const oldPair = legacy || isCardRun(run) && run.cardStarterVersion !== 3,
+  if (!legacy && isCardRun(run) && run.cardStarterVersion === 4 && !run.cardStarterOfferIds) return startBonusOffers(run);
+  const oldPair = legacy || isCardRun(run) && run.cardStarterVersion !== 3 && run.cardStarterVersion !== 4,
     draw = random(`${run.campaignSeed || run.seed}:card-starter:${oldPair ? 'v1' : 'v3'}`),
     shuffle = pool => {
       for (let i = pool.length - 1; i > 0; i--) {
@@ -865,6 +880,30 @@ export function drawSkillCardDraft(run, node = run.current) {
     }
   }
   return offers;
+}
+/** Second Look (owner design 2026-11-18): while one is MOUNTED, a card reward may re-roll one offered card into another of the same rarity.
+ * Several Second Looks do not stack; one in the Deck only does nothing. */
+export const hasSecondLook = run => getMountedCards(run).some(card => card && SKILL_CARDS[card.cardId]?.kind === 'second-look');
+export const canRerollDraft = (run, draft = run?.cardDraft) => !!draft && !draft.claimed && !draft.trophyOnly && !draft.reroll?.used && isCardRun(run) && hasSecondLook(run);
+/** Re-roll one offer of a pending draft. The replacement keeps the offer's instance id, is seeded by the draft id and slot (so it is the same
+ * every time), and is stored in draft.reroll = {used, instanceId, fromCardId, toCardId}; a reload keeps both the used flag and the new card.
+ * Pool: live cards of the same rarity, not starter-only, no name already on the table (so never the old card), the one-Seed rule applies. */
+export function rerollDraftOffer(run, draft, instanceId) {
+  if (!canRerollDraft(run, draft)) return false;
+  const index = draft.offers.findIndex(card => card.instanceId === instanceId);
+  if (index < 0) return false;
+  const old = draft.offers[index], tier = SKILL_CARDS[old.cardId]?.rarity;
+  if (!tier) return false;
+  const names = new Set(draft.offers.map(card => SKILL_CARDS[card.cardId]?.name)),
+    weight = def => (def.dropWeight || 1) * growthSeedDropFactor(run, def),
+    pool = LIVE_CARDS.filter(def => def.rarity === tier && !def.starterOnly && !names.has(def.name) && weight(def) > 0);
+  if (!pool.length) return false;
+  const draw = random(`${run.campaignSeed || run.seed}:${draft.mapIndex}:${draft.nodeId}:reroll:v1:${index}`);
+  let ticket = draw() * pool.reduce((sum, def) => sum + weight(def), 0), picked = pool.at(-1);
+  for (const def of pool) { ticket -= weight(def); if (ticket < 0) { picked = def; break; } }
+  draft.offers[index] = makeSkillCard(picked.id, old.instanceId);
+  draft.reroll = { used: true, instanceId: old.instanceId, fromCardId: old.cardId, toCardId: picked.id };
+  return true;
 }
 /** Flight-local runtime. All executions share the real source card, never recursive modifiers. */
 export function createCardExecution(snapshot) {
@@ -1440,6 +1479,7 @@ export function getCardModifiers(run) {
     cardDownbeat: false,
     cardRingSpring: false,
     cardWatchlight: false,
+    cardSecondLook: false,
     cardLuminancePercent: 0,
     cardWaveLoom: false,
     cardOverfillEvery: 3,
@@ -1479,6 +1519,7 @@ export function getCardModifiers(run) {
     if (d.kind === "downbeat") m.cardDownbeat = true;
     if (d.kind === "ring-spring") m.cardRingSpring = true;
     if (d.kind === "watchlight") m.cardWatchlight = true;
+    if (d.kind === "second-look") m.cardSecondLook = true;
     if (d.kind === "spillway") m.cardOverfillEvery=Math.min(m.cardOverfillEvery,Math.max(1,Number(d.pulseCadence)||3));
     if (d.kind === "body" && !d.charges)
       m.cardBodyBonus += cardAmount(source) * CARD_UNIT;

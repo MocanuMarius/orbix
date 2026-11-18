@@ -87,6 +87,7 @@ export const CARD_ART_FILES = Object.freeze({
   'ring-spring': 'assets/cards/art/ring-spring.svg',
   'ring-spring-ii': 'assets/cards/art/ring-spring-ii.svg',
   'ripple-glass': 'assets/cards/art/ripple-glass.svg',
+  'second-look': 'assets/cards/art/second-look.svg',
   'second-sun': 'assets/cards/art/second-sun.svg',
   'skim-line': 'assets/cards/art/skim-line.svg',
   'slip-feather': 'assets/cards/art/slip-feather.svg',

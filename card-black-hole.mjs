@@ -6,7 +6,7 @@
 // run.cardHistory. Practice and tutorial runs are not card runs, so Black Hole is inert there; it never eats a loaned
 // practice card in any case. Resolved left to right with the Use Doubler at real flight entry (model.mjs ›
 // markFlightAttemptStarted), never by a preview, a Dream rehearsal or a retry of the same attempt.
-import {SKILL_CARDS, CARD_ECONOMY, isCardRun, describeSkillCard, recordCardEvent} from './skill-cards.mjs?v=prune-1';
+import {SKILL_CARDS, CARD_ECONOMY, isCardRun, describeSkillCard, recordCardEvent} from './skill-cards.mjs?v=start-1';
 
 // Devour (docs/card-proposals.md section 11): at real flight entry the card destroys the card to its right and grows by
 // an amount set by the eaten card's rarity. The growth is stored on the devouring instance (eaten, eatenGrowth), counts
@@ -35,7 +35,8 @@ export function previewBlackHoleMeals(cards) {
     const hole = row[slot];
     if (!isBlackHole(hole) || gone.has(slot) || isLoanedPracticeCard(hole)) continue;
     const victim = row[slot + 1], def = SKILL_CARDS[victim?.cardId];
-    if (!victim || !def || gone.has(slot + 1) || isLoanedPracticeCard(victim)) continue;
+    // Permanent cards (Growth Ring, Wind Feather, Deep Vessel: their growth is kept on the card) are never eaten (owner 2026-11-18).
+    if (!victim || !def || def.permanent || gone.has(slot + 1) || isLoanedPracticeCard(victim)) continue;
     const rule = devourRule(hole), stored = Number(hole.eatenGrowth) || 0;
     if (stored >= rule.cap) continue; // a full Dream eats nothing
     const growth = Math.min(rule.growth[def.rarity] || 0, rule.cap - stored);

@@ -7,26 +7,27 @@
 // This module draws and handles everything that does not change the save. Every real change (equip, swap,
 // take out, Melt, Workshop) goes through the `actions` the app passes in, which call the model's own
 // transactions and then reopen the sheet; the view state object survives that reopen.
-import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=prune-1';
-import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=prune-1';
-import {uiIcon} from '../ui-icons.mjs?v=prune-1';
-import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=prune-1';
-import {getEquippedCardStatuses} from '../card-status.mjs?v=prune-1';
-import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=prune-1';
-import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=prune-1';
+import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=start-1';
+import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=start-1';
+import {uiIcon} from '../ui-icons.mjs?v=start-1';
+import {wispChipText} from '../start-bonus.mjs?v=start-1';
+import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=start-1';
+import {getEquippedCardStatuses} from '../card-status.mjs?v=start-1';
+import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=start-1';
+import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=start-1';
 import {LIFT_KIND, resolveChain, slotInfo, hereLine, fullRuleText, plateWords, whenOf, markOf, TRIGGER_BY, triggerName, RARITY_WORD, rarityOf, nameOf, shortName, isRest, num, METER_MAX, START_FLAME,
-  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=prune-1';
-import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips, TIMER_MARK} from './trigger-icons.mjs?v=prune-1';
-import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=prune-1';
+  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=start-1';
+import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips, TIMER_MARK} from './trigger-icons.mjs?v=start-1';
+import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=start-1';
 import {triggerLabel, triggerTermKey} from '../card-trigger-labels.mjs';
-import {CARD_TERMS} from '../card-terms.mjs?v=prune-1';
-import {SKILL_CARDS} from '../skill-cards.mjs?v=prune-1';
-import {isDevourCard} from '../card-black-hole.mjs?v=prune-1';
-import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=prune-1';
-import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=prune-1';
-import {slotInscriptionId, slotInscriptionList, slotEntry} from '../inscriptions.mjs?v=prune-1';
-import {inscriptionEffect} from '../inscription-on-card.mjs?v=prune-1';
-import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=prune-1';
+import {CARD_TERMS} from '../card-terms.mjs?v=start-1';
+import {SKILL_CARDS} from '../skill-cards.mjs?v=start-1';
+import {isDevourCard} from '../card-black-hole.mjs?v=start-1';
+import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=start-1';
+import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=start-1';
+import {slotInscriptionId, slotInscriptionList, slotEntry} from '../inscriptions.mjs?v=start-1';
+import {inscriptionEffect} from '../inscription-on-card.mjs?v=start-1';
+import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=start-1';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const SPARK_SRC = SPARK_ICON_SRC;
@@ -332,6 +333,7 @@ function headHTML(d, view, opts) {
     <button type="button" class="dk2-btn dk2-tab" role="tab" id="dk2-tab-deck" aria-controls="dk2-deckpanel" data-tab="deck" aria-selected="${view.tab === 'deck'}" tabindex="${view.tab === 'deck' ? 0 : -1}"${d.unseen.size ? ' aria-label="Deck, new cards"' : ''}><span>Deck</span>${d.unseen.size ? '<i class="dk2-dot dk2-tabdot" aria-hidden="true"></i>' : ''}</button>
     <button type="button" class="dk2-btn dk2-tab dk-tab-book" role="tab" id="dk2-tab-triggers" aria-controls="dk2-bookpanel" data-tab="triggers" aria-selected="${view.tab === 'triggers'}" tabindex="${view.tab === 'triggers' ? 0 : -1}"><span>Triggers</span></button>
    </div>
+   ${wispChipText(d.run) ? `<span class="dk2-wisp-chip" role="note" aria-label="${esc(wispChipText(d.run))}">${esc(wispChipText(d.run))}</span>` : ''}
    <div class="dk2-context" id="dk2-context"><p class="dk2-note ${placing ? 'dk2-note-mode' : esc(view.noteTone)}" id="dk2-note">${esc(note || (view.tab === 'triggers' ? (rows => `What fires your cards. You have cards for ${rows.filter(r => r.owned).length} of ${rows.length}.`)(triggerBook(d.run)) : opts.loaned ? 'Loaned cards for practice' : opts.paused ? 'Flight paused' : ''))}</p>
     ${filterHTML(d, view)}
     <button type="button" class="wb-sign wb-sign-quiet dk2-cancel" id="dk2-placecancel" ${placing ? `aria-label="Cancel: keep ${esc(nameOf(placing))} where it is"` : 'hidden'}><span class="wb-sign-text"><b>Cancel</b></span></button></div>`;
