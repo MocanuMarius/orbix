@@ -1,16 +1,16 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=scroll-1';
-import {lifeHeartSvg} from './lives.mjs?v=scroll-1';
-import {duskGlyphArt} from './spark-symbol.mjs?v=scroll-1';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=scroll-1';
-import {glowGaugeUnits} from './glow-ui.mjs?v=scroll-1';
-import {getRunModifiers} from './model.mjs?v=scroll-1';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=scroll-1';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=scroll-1';
-import {dreamEye} from './dream.mjs?v=scroll-1';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=scroll-1';
-import {INSCRIPTIONS} from './inscriptions.mjs?v=scroll-1';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=scroll-1';
+import { resourceSymbol } from './game-symbols.mjs?v=update-2';
+import {lifeHeartSvg} from './lives.mjs?v=update-2';
+import {duskGlyphArt} from './spark-symbol.mjs?v=update-2';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=update-2';
+import {glowGaugeUnits} from './glow-ui.mjs?v=update-2';
+import {getRunModifiers} from './model.mjs?v=update-2';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=update-2';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=update-2';
+import {dreamEye} from './dream.mjs?v=update-2';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=update-2';
+import {INSCRIPTIONS} from './inscriptions.mjs?v=update-2';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=update-2';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   inscription: ['Inscription', 'An effect written on a Chain slot, not on a card. It stays on the slot when cards move, swap or leave. Some change the card on that slot; some work on any slot, even an empty one. Get one from the Scribe after an Elite or Guardian. One per slot; writing again replaces it.'],
@@ -55,7 +55,7 @@ export const CARD_TERMS = Object.freeze({
   collect: ['Collect', 'Trigger: your wisp touches a Spark, Cluster, Cache or Dusk Spark.'],
   delivery: ['Delivery', 'Trigger: Collector brings you a pickup. Some cards fire when your Collector grabs a Spark.'],
   overfill: ['Overfill', 'Trigger: a Spark brings more than your meter can hold.'],
-  'falling-lift': ['Lift', 'Trigger: some cards need a Lift while falling, or a Lift on the beat (Rhythm) or on the cue (Lift Guide), or a Lift with your meter under a quarter.'],
+  'falling-lift': ['Lift', 'Trigger: some cards need a Lift while falling, or a Lift on the beat (Rhythm) or on the cue (Lift Guide), or a Lift with your meter under half.'],
   save: ['Save', 'Trigger: Watchlight or Last Orbit stops a fatal crash.'],
   clear: ['Finish', 'Trigger: you clear a flight, or you pack your spare Sparks at the end of it.'],
   engine: ['Engine', 'A chain that keeps itself going: one card’s event fires a card to its right, and a Timer sends it back to Slot 1.'],
@@ -463,7 +463,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=scroll-1').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=update-2').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -474,7 +474,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=scroll-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=update-2').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

@@ -1,11 +1,11 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=scroll-1';
-import {resourceSymbol} from './game-symbols.mjs?v=scroll-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=scroll-1';
-import {livesMarkup} from './lives.mjs?v=scroll-1';
-import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=scroll-1';
-import { companionArtSvg } from './companion-art.mjs?v=scroll-1';
-import { GAME_VERSION } from './build-version.mjs?v=scroll-1';
-import { menuIcon } from './menu-icons.mjs?v=scroll-1';
+import {menuWorldMarkup} from './menu-world.mjs?v=update-2';
+import {resourceSymbol} from './game-symbols.mjs?v=update-2';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=update-2';
+import {livesMarkup} from './lives.mjs?v=update-2';
+import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=update-2';
+import { companionArtSvg } from './companion-art.mjs?v=update-2';
+import { GAME_VERSION } from './build-version.mjs?v=update-2';
+import { menuIcon } from './menu-icons.mjs?v=update-2';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
@@ -125,5 +125,5 @@ export function homeMenuMarkup({ profile = {}, run = null, selectedDifficulty, t
     + homeSign('standard','tutorial','TUTORIAL','Lessons & practice',{cls:'front-tutorial',art:'tutorial'})
     + homeSign('standard','settings','SETTINGS','Sound & options',{cls:'front-settings',art:'tune'});
   // DOM order is focus order: the page's menu first, then the tabs on the painting.
-  return `<section class="menu-art-home wb-ground${active?' has-continue':''}">${menuWorldMarkup()}<div class="wb-shade home-shade" aria-hidden="true"></div><div class="wb-page home-page"><div class="wb-pagelight" aria-hidden="true"></div><header class="wb-head home-head"><div class="wb-title-row"><i class="wb-flourish" aria-hidden="true"></i><h1 class="wb-title">WISPBOUND</h1><i class="wb-flourish wb-flip" aria-hidden="true"></i></div><p class="wb-context home-tagline">A LIGHT IN THE LOST WOODS</p></header><nav class="home-menu" aria-label="Main menu">${menu}</nav><small class="front-version" data-game-version="${esc(GAME_VERSION)}">Version ${esc(GAME_VERSION)}</small></div><div class="home-tabs">${journey}${testStarterMarkup({testOverride})}</div></section>`;
+  return `<section class="menu-art-home wb-ground${active?' has-continue':''}">${menuWorldMarkup()}<div class="wb-shade home-shade" aria-hidden="true"></div><div class="wb-page home-page"><div class="wb-pagelight" aria-hidden="true"></div><header class="wb-head home-head"><div class="wb-title-row"><i class="wb-flourish" aria-hidden="true"></i><h1 class="wb-title">WISPBOUND</h1><i class="wb-flourish wb-flip" aria-hidden="true"></i></div><p class="wb-context home-tagline">A LIGHT IN THE LOST WOODS</p></header><nav class="home-menu" aria-label="Main menu">${menu}</nav><small class="front-version" data-game-version="${esc(GAME_VERSION)}">Version ${esc(GAME_VERSION)}</small><button type="button" class="front-update secondary" data-action="update-now" data-update-title hidden>Update available</button></div><div class="home-tabs">${journey}${testStarterMarkup({testOverride})}</div></section>`;
 }

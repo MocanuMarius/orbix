@@ -7,12 +7,12 @@
 // LEFT did to it (an Echo repeating it). Later Boosts and the Encore keep their own plates. Honesty rule: the
 // plates read left to right (+ adds, × multiplies the running figure, Encore repeats the line, each firing
 // rounded up to whole Sparks) must give the resolver's total; when they do not, plates show plain figures.
-import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=scroll-1';
-import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=scroll-1';
-import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=scroll-1';
+import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=update-2';
+import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=update-2';
+import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=update-2';
 import {DISPLAY_GROUPS, GROUP_TERM} from '../card-trigger-labels.mjs';
-import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=scroll-1';
-import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=scroll-1';
+import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=update-2';
+import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=update-2';
 
 /** The Triggers in the designer's order, with the game's names and glossary keys (card-terms.mjs). */
 export const TRIGGERS = Object.freeze([
@@ -292,11 +292,11 @@ export function enginePlate(row, slot) {
   if (spec.governor === 'wave-loom') return {long: 'A light Pulse each Turn', short: 'Light Pulse'};
   if (spec.family === 'pack') {
     if (spec.does?.includes('gain')) return {long: `${sparks} at Pack`, short: `+${num(amount)} at Pack`};
-    if (spec.does?.includes('fire-collect')) return {long: 'Fires Collect cards', short: 'Fires Collect'};
-    return {long: 'One last Turn', short: 'Last Turn'};
+    if (spec.does?.includes('fire-collect')) return {long: 'Fires Collect, Cluster and Dusk cards', short: 'Fires Collect'};
+    return {long: 'Fires the last Trigger again', short: 'Last Trigger again'};
   }
   const d = spec.does || [];
-  if (d.includes('homing')) return {long: 'Collector fetches again', short: 'Fetches again'};
+  if (d.includes('homing')) return {long: 'Collector fetches again, 2× reach', short: 'Fetches again'};
   if (d.includes('flash')) return {long: 'Starts a Flare (Pulse every 2 s, very high Luminance)', short: 'A Flare'};
   if (d.includes('gain') && d.includes('pulse')) return {long: `Sends a Pulse, +${num(amount)}`, short: `Pulse, +${num(amount)}`};
   if (d.includes('gain')) return {long: `${sparks} each Turn`, short: `+${num(amount)} a Turn`};

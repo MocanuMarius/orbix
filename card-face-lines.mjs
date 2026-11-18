@@ -5,7 +5,7 @@
 // full rules, which the "?" help window shows (card-ui.mjs › cardHelpDescription). Numbers the player tracks during a
 // run (uses left, a growth or tally counter) stay on the face as badges, not here.
 // The internal trigger keys (card-rule-bands.mjs › CARD_TRIGGERS) are untouched; this is a wording layer on top of them.
-import {getCardRuleBands, getCardTrigger} from './card-rule-bands.mjs?v=scroll-1';
+import {getCardRuleBands, getCardTrigger} from './card-rule-bands.mjs?v=update-2';
 
 /** Words for Triggers that the display layer (card-trigger-labels.mjs) leaves without a chip, as [word, glossary key]. */
 const EXTRA_WORDS = Object.freeze({
@@ -73,13 +73,13 @@ const LINES = Object.freeze({
   'long-spool': 'Collector reach +35%', 'cast-line': 'Collector reach +100%',
   dream: 'Practise the first 8 s',
   'double-lift': 'Lift twice in 1 s: 2nd free', climb: '3 Lifts in 1 s: 2nd, 3rd free',
-  'flash-tinder': 'Starts a 1 s Flare', 'homing-thread': 'Fetches the nearest Spark',
+  'flash-tinder': 'Starts a 1 s Flare', 'homing-thread': 'Fetches a Spark, 2× reach',
   'overflow-bell': 'A Pulse; keeps 2 Stored',
   'slow-wick': '3 s later: a Pulse', metronome: 'Every 3 s: fires next', 'long-fuse': '5 s later: fires again',
   heartbeat: 'Timers wait half',
-  'first-catch': '1st of a flight: a Pulse', 'close-call': 'A Pulse, +1 Spark', 'low-ember': 'Low meter: a Pulse',
-  'third-beat': '3rd Turn counts twice', momentum: '5 Turns: +20% Luminance',
-  'full-satchel': '+3 Sparks before packing', 'last-round': 'A Pulse: one more Turn', 'harvest-home': 'Collect cards fire again',
+  'first-catch': '1st of a flight: a Pulse', 'close-call': 'A Pulse, +3 Sparks', 'low-ember': 'Meter under half: a Pulse',
+  'third-beat': '3rd Turn counts twice', momentum: '5 Turns: +40% Luminance',
+  'full-satchel': '+3 Sparks before packing', 'last-round': 'Last Trigger fires again', 'harvest-home': 'Collect cards fire again, +2 each',
   'black-hole': 'Eats next: +max Sparks',
   keystone: 'Neighbours fire twice', vanguard: 'Slot 1: +3, else +1', bookends: 'Ends match: all ×2',
   'empty-chair': '+2 per empty Slot', ladder: '+1 per card to the left', 'twin-flame': 'Exactly 2 before: ×3',

@@ -1,10 +1,10 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=scroll-1";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=update-2";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=scroll-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=scroll-1';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=scroll-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=update-2';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=update-2';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=update-2';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -765,6 +765,8 @@ export function drawSkillCard(run, source, node = run.current, rarity = null) {
     if (earned && !isUnofferedCard(earned.cardId)) return {
       instanceId: earned.instanceId, cardId: earned.cardId, rank: earned.rank || 1,
       ...(Number.isFinite(earned.charges) ? { charges: earned.charges } : {}),
+      // An edition-stamped card (Wave Loom) keeps its stamp, or a replayed receipt would read as the retired old copy.
+      ...(Number.isFinite(earned.edition) ? { edition: earned.edition } : {}),
     };
   }
   const roll = draw()*100, weights=CARD_DROP_WEIGHTS[node?.boss?'boss':node?.elite?'elite':'normal'],

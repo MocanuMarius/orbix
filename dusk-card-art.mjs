@@ -1,4 +1,4 @@
-import {duskGlyphArt} from './spark-symbol.mjs?v=scroll-1';
+import {duskGlyphArt} from './spark-symbol.mjs?v=update-2';
 
 // The established moonlit ruins retain their original pixel density. The
 // native warning crescent replaces the bright fuel at the scene's focal point.

@@ -31,7 +31,7 @@ export const CARD_TRIGGERS = Object.freeze({
   'engine-gain': Object.freeze({id: 'engine-gain', label: 'On gain', event: null, engine: true, meaning: 'A card to its left, or your Collect, gives Sparks.'}),
   'engine-any': Object.freeze({id: 'engine-any', label: 'Any event', event: null, engine: true, meaning: 'Any card event to its left: a Pulse, Sparks given, an Overfill or a Flare.'}),
   'engine-skim': Object.freeze({id: 'engine-skim', label: 'Skim', event: null, engine: true, meaning: 'You fly close to terrain until Proximity fills.'}),
-  'engine-lift': Object.freeze({id: 'engine-lift', label: 'Low Lift', event: null, engine: true, meaning: 'You Lift while your meter is under a quarter.'}),
+  'engine-lift': Object.freeze({id: 'engine-lift', label: 'Low Lift', event: null, engine: true, meaning: 'You Lift while your meter is under half.'}),
   'engine-turn': Object.freeze({id: 'engine-turn', label: 'Each time the engine goes round', event: null, engine: true, meaning: 'An engine in your chain goes round once.'}),
   timers: Object.freeze({id: 'timers', label: 'Timers', event: null, engine: true, meaning: 'It changes every Timer card in your chain.'}),
   pack: Object.freeze({id: 'pack', label: 'Pack', event: null, engine: true, meaning: 'You clear a flight and your spare Sparks are packed.'}),

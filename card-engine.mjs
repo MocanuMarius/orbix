@@ -18,7 +18,7 @@
 // - Events only move right and each Timer holds at most one pending wait, so one instant always terminates; a hard
 //   safety counter still stops the engine (and warns once) if that is ever exceeded.
 import {SKILL_CARDS, CARD_ECONOMY, cardAmount, getCardRowRule, hasCardRowEvent, matchesRowCondition, matchesRowShape, isInventoryOnlyCard,
-  createCardExecution, resolveCardRow, getCardChargeCapacity} from './skill-cards.mjs?v=scroll-1';
+  createCardExecution, resolveCardRow, getCardChargeCapacity} from './skill-cards.mjs?v=update-2';
 
 export const ENGINE_LIMITS = Object.freeze({ deliveriesPerInstant: 400, timersPerAdvance: 5000, logEntries: 5000, turnLog: 5000 });
 /** Player-made Triggers the engine cards listen to (not CARD_ROW_EVENTS: the ordinary walker never sees them). */
@@ -255,7 +255,6 @@ export class CardEngine {
           const keep = Math.floor(Math.min(spec.keep, Number(ev.spillBase ?? ev.spill) || 0) + EPS);
           if (keep > 0) { this.host.store?.(keep, j); this.stored += keep; if (this.inPack) this.pack.stored += keep; this.record({ k: 'keep', slot: j, amount: keep }); }
         }
-        if (spec.lastTurn) { if (this.pulseTarget(j, mask) >= 0) { this.beginTurn(j); this.pack.turns++; } }
         this.sendPulse(j, mask);
       } else if (what === 'keep') {
         // Spill Jar: half of the spill (rounded up) becomes Stored Sparks. A collected pickup's own spill already packs.
@@ -279,10 +278,30 @@ export class CardEngine {
         if (target && defOf(target)?.charges > 0 && Number.isFinite(target.charges) && target.charges < ceiling) {
           target.charges++; this.host.regained?.(target, j + 1); this.record({ k: 'whet', slot: j, target: j + 1 });
         } else this.record({ k: 'whet-none', slot: j });
+      } else if (what === 'repeat-last') {
+        // Last Round (at Pack): the Chain's last answered Trigger from flying fires once more, its Sparks into the meter before packing.
+        // Makes one Turn and one gain event heard to its right; no Timer can wait at Pack, so it cannot loop.
+        this.beginTurn(j); this.pack.turns++;
+        const r = this.host.repeatLastFiring?.(j);
+        if (!r || !(r.asked > 0)) this.record({ k: 'last-round-empty', slot: j });
+        else {
+          const real = Math.max(0, Number(r.real) || 0), spill = Math.max(0, Number(r.spill) || 0);
+          this.asked += r.asked; this.sparks += real; this.pack.sparks += real; this.pack.asked += r.asked;
+          this.gainsByTurn.set(this.turn, (this.gainsByTurn.get(this.turn) || 0) + r.asked);
+          this.record({ k: 'last-round', slot: j, amount: r.asked, real: round6(real), spill: round6(spill) });
+          if (real > EPS) this.queue.push({ type: 'gain', from: j, mask, turn: this.turn, amount: real });
+          if (spill > EPS && this.overfillHeardRightOf(j)) this.queue.push({ type: 'overfill', from: j, mask, turn: this.turn, spill, spillBase: this.baseSpill(spill) });
+        }
       } else if (what === 'fire-collect') {
+        // Harvest Home: every Collect card fires as if a plain Spark were touched; a Cluster or Dusk card fires as if its condition were met,
+        // and each of those adds +2 Sparks from Harvest Home. Cards with uses spend one (fireAction).
+        const BONUS = 2;
         this.cards.forEach((other, k) => {
           const def = defOf(other), rule = def && getCardRowRule(def, other);
-          if (rule?.event === 'body-spark') this.fireAction(k, mask, { pickupKind: 'light' });
+          if (rule?.event !== 'body-spark') return;
+          const kind = rule.when?.pickupKind;
+          if (kind === 'cluster' || kind === 'dusk') { if (this.fireAction(k, mask, { pickupKind: kind })) this.gain(j, BONUS, mask); }
+          else this.fireAction(k, mask, { pickupKind: 'light' });
         });
       }
     }

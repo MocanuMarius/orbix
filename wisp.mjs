@@ -1,11 +1,11 @@
-import { getCompanionAbility } from './companion-abilities.mjs?v=scroll-1';
-import { pickupKind, pickupContactRadius, getPickupSpec } from './pickups.mjs?v=scroll-1';
-import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=scroll-1';
-import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=scroll-1';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=scroll-1';
-import {WISP_ART} from './companion-art.mjs?v=scroll-1';
-import {collectorTowPose,collectorTowOrbit} from './collector-tow-geometry.mjs?v=scroll-1';
-import {COLLECTOR_VORTEX,vortexProgress,vortexScale,vortexCargoPoint,createVortexTrail,recordVortexTrail} from './collector-vortex.mjs?v=scroll-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=update-2';
+import { pickupKind, pickupContactRadius, getPickupSpec } from './pickups.mjs?v=update-2';
+import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=update-2';
+import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=update-2';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=update-2';
+import {WISP_ART} from './companion-art.mjs?v=update-2';
+import {collectorTowPose,collectorTowOrbit} from './collector-tow-geometry.mjs?v=update-2';
+import {COLLECTOR_VORTEX,vortexProgress,vortexScale,vortexCargoPoint,createVortexTrail,recordVortexTrail} from './collector-vortex.mjs?v=update-2';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 const smooth = value => {const u=clamp(value,0,1);return u*u*(3-2*u);};
@@ -451,21 +451,23 @@ export class WispCompanion {
         // before it passes the wisp. The fetch, reel and recovery are the normal ones; the request lapses in 0.25 s.
         const homing=this.homingFetch!=null&&engine.time-this.homingFetch<=.25;
         if(this.homingFetch!=null&&!homing)this.homingFetch=null;
+        // Homing Thread searches twice as far as the Collector normally reaches.
+        const searchReach=homing?reach*2:reach;
         let nearest = null, nearestScore = Infinity, nearestExtension=null;
         for (const ember of packets) {
           if (!collectorCanFetch(ember,engine.mod) || ember.collected || ember.carried || ember.attracted) continue;
           const x = ember.x - engine.distance;
           const shell = sparkBodyRadius(ember,engine.height);
-          if (x < home.x - reach - shell) continue;
+          if (x < home.x - searchReach - shell) continue;
           // Leave the entire approach and body-contact window to the player.
           // Once a packet passes behind this edge, forward flight cannot touch
           // it directly; only then may the carrier rescue it within its range.
           if (!homing && !this.passedBodyWindow(engine,ember,normalReach)) continue;
-          if (engine.collectorContains && !engine.collectorContains(ember,this,reach)) continue;
+          if (engine.collectorContains && !engine.collectorContains(ember,this,searchReach)) continue;
           const distance = Math.hypot(x - home.x, ember.y - home.y) - shell;
-          if(distance>reach)continue;
-          const extension=distance>normalReach?engine.collectorExtensionFor?.(this,distance):null;
-          if(distance>normalReach&&!extension)continue;
+          if(distance>searchReach)continue;
+          const extension=distance>normalReach&&!homing?engine.collectorExtensionFor?.(this,distance):null;
+          if(distance>normalReach&&!extension&&!homing)continue;
           const preference=engine.mod.collectorPreference;
           const priority=preference==='dense'?sparkMass(ember):preference==='flash'&&pickupKind(ember)==='sight'?10:0;
           const score=distance-priority*10000;

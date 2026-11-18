@@ -118,3 +118,11 @@ html body .rotate-screen button.primary:focus-visible{outline:2px solid #2a2118!
 .event-pick-card b{font-size:11px;line-height:1.1;overflow-wrap:anywhere}.event-pick-card small{font-size:10px;line-height:1.15}.event-pick-card i{font-size:9px;font-style:normal;opacity:.85}
 .compact-support .event-offer.is-disabled{opacity:.6;filter:saturate(.5)}
 @media(max-height:340px){.event-pick-hint{display:none}.event-pick h2{font-size:14px}.event-pick-head{gap:8px}.support-offers .event-pick-card{min-height:70px}.event-pick-art{width:26px;height:26px}.event-pick-cards{gap:4px}}
+
+/* First-visit "Play fullscreen?" question (display-prompt.mjs): small, one row of buttons, fits 667x300 without scrolling. */
+.game-sheet.display-prompt-sheet,.game-sheet.display-prompt-sheet:modal{width:min(94vw,440px)!important;max-width:440px!important;height:fit-content!important;min-height:0!important;inset:0!important;margin:auto!important}
+.display-prompt-sheet h2{margin:0 0 6px}
+.display-prompt-note{margin:0 0 12px;font-size:14px;line-height:1.35}
+.display-prompt-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
+.display-prompt-actions button{min-height:44px;min-width:104px;padding:8px 16px}
+@media (max-height:340px){.display-prompt-sheet{padding:10px 18px!important}.display-prompt-note{margin-bottom:8px;font-size:13px}}

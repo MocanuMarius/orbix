@@ -270,3 +270,6 @@ html body :is(#app,dialog).wb-dlg.card-exchange-sheet :is(.card-heading,.card-he
 
 /* ── v2.6-theme: a dark leather title band behind the page header (pause, Settings), drawn behind the
    header with no layout change. Paper is a step deeper, rules darker, frame darker (see the plaque art). ── */
+
+/* The running version stays readable on the Update now row even in the short-screen layout (the other rows drop their sub-labels). */
+@media(max-height:340px){html body .wb-settings .wb-set-grid .build-refresh .wb-sign-text>small[data-build-label]{display:block;margin-top:1px;font-size:9px;line-height:9px}html body .wb-settings .wb-set-grid .build-refresh .wb-sign-text>b{font-size:12px;line-height:12px}}
