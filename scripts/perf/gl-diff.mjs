@@ -17,7 +17,7 @@ const PAGE=`(async()=>{
   e.setMuted?.(true);e.start({paused:true});await e.ready;return e;}
  function frame(e,d,t,y,waves){e.distance=e.previousDistance=d;e.accumulator=0;e.time=t;e.visualTime=t;e.player.y=e.previousPlayerY=y;
   if(waves){e.luminanceWaves.clear();for(let i=0;i<6;i++){const w=e.luminanceWaves.emit({x:d+e.player.x-i*40,y,radius:260,source:'card',sourceKind:'card'});w.radius=40+i*90;w.age=.2+i*.1;}}
-  e.render();const buf=e.pixiView.buffer;return {w:buf.width,h:buf.height,gpu:!!e.pixiView.lightGpu,data:Array.from(buf.getContext('2d').getImageData(0,0,buf.width,buf.height).data)};}
+  e.render();const buf=e.pixiView.buffer;return {w:buf.width,h:buf.height,gpu:!!e.pixiView.lightGpu,data:buf.getContext('2d').getImageData(0,0,buf.width,buf.height).data};}
  const out=[];
  for(const kind of ['stress','marsh','coral','frost']){
   const shots=[];
@@ -26,7 +26,7 @@ const PAGE=`(async()=>{
    for(const [d,t,yy,w] of stops){if(kind==='stress'&&t>11&&!e.flashTether)e.collect({id:'probe-flare-'+t,kind:'sight',x:d+e.player.x+20,y:e.height*yy,phase:1,collected:false});list.push(frame(e,d,t,e.height*yy,w));}
    shots.push(list);e.destroy();}
   shots[0].forEach((g,i)=>{const c=shots[1][i];let n=0,max=0;const hist={};for(let k=0;k<g.data.length;k+=4){let m=0;for(let ch=0;ch<3;ch++)m=Math.max(m,Math.abs(g.data[k+ch]-c.data[k+ch]));if(m){n++;max=Math.max(max,m);hist[m]=(hist[m]||0)+1}}
-   out.push({frame:kind+'-'+i,gpuUsed:g.gpu,cpuGpu:c.gpu,pixels:n,of:g.w*g.h,max,over4:Object.entries(hist).filter(([k])=>+k>4).reduce((a,[,v])=>a+v,0),hist,gData:i===0?g.data:null,cData:i===0?c.data:null,w:g.w,h:g.h});});
+   out.push({frame:kind+'-'+i,gpuUsed:g.gpu,cpuGpu:c.gpu,pixels:n,of:g.w*g.h,max,over4:Object.entries(hist).filter(([k])=>+k>4).reduce((a,[,v])=>a+v,0),hist,w:g.w,h:g.h});});
  }
  return out;
 })()`;

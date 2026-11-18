@@ -45,6 +45,7 @@ import {lanternField} from './lantern-layout.mjs?v=guide-clarity-1';
 import {createLevelSceneryTwo} from './level-scenery-two.mjs?v=guide-clarity-1';
 
 const TAU = Math.PI * 2;
+const LOW_RES_OUTPUT = (() => { try { return new URLSearchParams(globalThis.location?.search || '').get('lowres') === '1'; } catch { return false; } })();
 const propContactCache=new WeakMap();
 const cross=(ax,ay,bx,by)=>ax*by-ay*bx;
 function propContains(polygons,x,y){
@@ -168,12 +169,15 @@ const GLYPHS = {
 };
 
 function pixelText(c, value, x, y, ink) {
-  c.fillStyle = ink;
+  // One path per label: glyph pixels never overlap, so a single fill paints exactly what one
+  // fillRect per pixel painted, as one GPU raster operation instead of dozens.
+  c.fillStyle = ink; c.beginPath();
   for (const letter of String(value)) {
     const rows = GLYPHS[letter];
-    if (rows) for (let yy = 0; yy < 5; yy++) for (let xx = 0; xx < 3; xx++) if (rows[yy][xx] === '1') c.fillRect(Math.round(x + xx), Math.round(y + yy), 1, 1);
+    if (rows) for (let yy = 0; yy < 5; yy++) for (let xx = 0; xx < 3; xx++) if (rows[yy][xx] === '1') c.rect(Math.round(x + xx), Math.round(y + yy), 1, 1);
     x += 4;
   }
+  c.fill();
 }
 
 function pixelLine(c, x0, y0, x1, y1, ink, size = 1) {
@@ -192,11 +196,13 @@ function pixelLine(c, x0, y0, x1, y1, ink, size = 1) {
 }
 
 function pixelDisc(c, x, y, radius, ink) {
-  c.fillStyle = ink;
+  // Rows never overlap: one path and one fill (identical pixels, one raster operation).
+  c.fillStyle = ink; c.beginPath();
   for (let row = -radius; row <= radius; row++) {
     const half = Math.floor(Math.sqrt(Math.max(0, radius * radius - row * row)));
-    c.fillRect(Math.round(x - half), Math.round(y + row), half * 2 + 1, 1);
+    c.rect(Math.round(x - half), Math.round(y + row), half * 2 + 1, 1);
   }
+  c.fill();
 }
 
 function path(c, points, offsetX = 0, offsetY = 0, scale = 1) {
@@ -324,6 +330,9 @@ export class WispFlightView {
     this.buffer.width = pixelWidth;
     this.buffer.height = Math.max(1, Math.round((e.height || 620) / (e.width || 390) * pixelWidth));
     this.scale = pixelWidth / (e.width || 390);
+    // Experiment (?lowres=1): the visible canvas keeps the pixel buffer's size and CSS
+    // (image-rendering: pixelated) does the single nearest-neighbour upscale on the GPU.
+    if (LOW_RES_OUTPUT) { this.canvas.width = this.buffer.width; this.canvas.height = this.buffer.height; }
     // On very wide displays the backing buffer reaches its 720px cap.
     // Keep the body, its shield and discharge roots in proportion to the world.
     this.wispRasterScale = pixelWidth === 720 ? Math.min(1,this.scale/WORLD_RASTER_SCALE) : 1;
@@ -361,7 +370,21 @@ export class WispFlightView {
       }
     }
     c.drawImage(this.skyCanvas, 0, 0);
-    for (let i = 0; i < 54; i++) {
+    // Stars: one path per twinkle level when no two stars share a pixel (checked once per size),
+    // else one rect each as before. Same pixels and alphas either way.
+    const stars = this.starLayout(W, H);
+    if (stars.batch) {
+      c.fillStyle = '#a9b1a0';
+      const levels = this.starLevels ??= [[], [], [], [], [], []];
+      for (const level of levels) level.length = 0;
+      for (let i = 0; i < 54; i++) levels[e.reducedMotion ? 5 : Math.floor((Math.sin(t * .7 + i) + 1) * 2)].push(i);
+      for (let k = 0; k < levels.length; k++) {
+        const list = levels[k]; if (!list.length) continue;
+        c.globalAlpha = .20 + (k === 5 ? .10 : k * .08); c.beginPath();
+        for (const i of list) { const x = stars.x[i], y = stars.y[i]; c.rect(x, y, 1, 1); if (i % 17 === 0) c.rect(x - 1, y + 1, 3, 1); }
+        c.fill();
+      }
+    } else for (let i = 0; i < 54; i++) {
       const x = Math.floor(hash(i, 4, 12) * W), y = Math.floor(hash(i, 7, 15) * H * .65);
       c.globalAlpha = .20 + (e.reducedMotion ? .10 : Math.floor((Math.sin(t * .7 + i) + 1) * 2) * .08);
       c.fillStyle = '#a9b1a0'; c.fillRect(x, y, 1, 1);
@@ -378,6 +401,17 @@ export class WispFlightView {
       c.fillStyle = palette.mist; c.fillRect(Math.round(x), y, width, i % 3 === 0 ? 2 : 1);
     }
     c.globalAlpha = 1;
+  }
+
+  starLayout(W, H) {
+    if (this.stars?.W === W && this.stars?.H === H) return this.stars;
+    const x = new Int32Array(54), y = new Int32Array(54), seen = new Set(); let batch = true;
+    const mark = (px, py) => { const k = px * 100003 + py; if (seen.has(k)) batch = false; seen.add(k); };
+    for (let i = 0; i < 54; i++) {
+      x[i] = Math.floor(hash(i, 4, 12) * W); y[i] = Math.floor(hash(i, 7, 15) * H * .65); mark(x[i], y[i]);
+      if (i % 17 === 0) for (let d = -1; d <= 1; d++) mark(x[i] + d, y[i] + 1);
+    }
+    return this.stars = { W, H, x, y, batch };
   }
 
   drawCachedBackground(e, distance, palette) {
@@ -523,11 +557,13 @@ export class WispFlightView {
     for (let layer = 0; layer < layers; layer++) {
       const y = Math.round(H * (start + layer * spacing));
       const shift = (distance * (.012 + layer * .007) + (e.reducedMotion ? 0 : t * 1.4)) % 80;
-      c.globalAlpha = .055 + layer * .012; c.fillStyle = palette.mist;
+      c.globalAlpha = .055 + layer * .012; c.fillStyle = palette.mist; c.beginPath();
+      // The 15 strips of a layer never overlap (rows differ, patches 80 px apart): one fill.
       for (let patch = -1; patch < 4; patch++) {
         const x = Math.round(patch * 80 - shift);
-        c.fillRect(x, y, 61, 1); c.fillRect(x + 7, y + 1, 46, 2); c.fillRect(x + 18, y + 3, 28, 1);
+        c.rect(x, y, 61, 1); c.rect(x + 7, y + 1, 46, 2); c.rect(x + 18, y + 3, 28, 1);
       }
+      c.fill();
     }
     c.globalAlpha = 1;
   }

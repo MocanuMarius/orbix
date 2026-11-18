@@ -116,7 +116,7 @@ function patchInspector(src){
  return s;
 }
 
-export async function startServer(root,port=0){
+export async function startServer(root,port=0,{noCache=false}={}){
  root=path.resolve(root);
  const server=http.createServer(async(req,res)=>{try{
   const url=new URL(req.url,'http://localhost');let name=decodeURIComponent(url.pathname.slice(1))||'index.html';
@@ -125,7 +125,7 @@ export async function startServer(root,port=0){
   if(name==='app.mjs')data=Buffer.from(data.toString()+BRIDGE);
   else if(name==='boundary-run-inspector.mjs')data=Buffer.from(patchInspector(data.toString()));
   else if(name==='worker.js'||name==='sw.js'){data=Buffer.from('// service worker disabled by perf harness');}
-  const headers={'Content-Type':MIME[path.extname(file)]||'application/octet-stream','Cache-Control':'max-age=3600'};
+  const headers={'Content-Type':MIME[path.extname(file)]||'application/octet-stream','Cache-Control':noCache?'no-store':'max-age=3600'};
   const range=/^bytes=(\d+)-(\d*)$/.exec(req.headers.range||'');
   if(range){const a=+range[1],b=range[2]?Math.min(+range[2],data.length-1):data.length-1;res.writeHead(206,{...headers,'Content-Range':`bytes ${a}-${b}/${data.length}`,'Content-Length':b-a+1}).end(data.subarray(a,b+1));}
   else res.writeHead(200,headers).end(data);

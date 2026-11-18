@@ -120,12 +120,14 @@ async function runStress(b,srv,{id,name,throttle,ri}){
  if(!A.noprofile)await b.send('Profiler.start');await delay(800);
  const m0=await b.metrics();await b.ev('(document.querySelector(".stress-confirm button").click(),1)');
  if(A.shots&&throttle===throttles[0]){await delay(25000);await b.shot(path.join(dir,`${day}-${label}-stress${ri?'-B':''}.png`));}
+ await b.ev('(__perf.counts={},__perf.draws=0,1)');
  const r=await until(()=>b.ev('window.__stressResult'),'stress result',400000,500);
+ const counts=await b.ev('({counts:__perf.counts,draws:__perf.draws})');
  let profile=null;if(!A.noprofile)profile=(await b.send('Profiler.stop')).profile;const m1=await b.metrics();
  if(A.shots&&throttle===throttles[0])await b.shot(path.join(dir,`${day}-${label}-stress-result${ri?'-B':''}.png`));
  const durS=r.seconds||1,d=k=>+(((m1[k]||0)-(m0[k]||0))*1000/durS).toFixed(1);
  const row={id,scenario:name,throttle,label,root:roots[ri],side:roots.length>1?(ri?'B':'A'):null,readyMs,avgFps:r.avgFps,low1Fps:r.low1Fps,minFps:r.minFps,p50:r.p50Ms,p95:r.p95Ms,p99:r.p99Ms,over33:r.over33,over50:r.over50,longest:r.longestMs,frames:r.frames,
-  msPerS:{task:d('TaskDuration'),script:d('ScriptDuration'),style:d('RecalcStyleDuration'),layout:d('LayoutDuration')},phases:r.phases,renderer:r.renderer,load:r.load,gpu:r.gpu,summary:r.summary,errors:b.errors.slice(-5)};
+  msPerS:{task:d('TaskDuration'),script:d('ScriptDuration'),style:d('RecalcStyleDuration'),layout:d('LayoutDuration')},phases:r.phases,renderer:r.renderer,load:r.load,gpu:r.gpu,summary:r.summary,errors:b.errors.slice(-5),canvasCallsPerFrame:Object.fromEntries(Object.entries(counts.counts||{}).map(([k,v])=>[k,+(v/Math.max(1,r.frames)).toFixed(1)])),drawsPerFrame:+((counts.draws||0)/Math.max(1,r.frames)).toFixed(0)};
  if(profile){row.categories=categorize(profile);const p=profileSummary(profile);row.top25=p.self.slice(0,25);row.byFile=p.byFile.slice(0,15);}
  console.log(`avg ${r.avgFps} fps  1%low ${r.low1Fps}  p50 ${r.p50Ms}  p95 ${r.p95Ms}  p99 ${r.p99Ms}  >33 ${r.over33}  >50 ${r.over50}  max ${r.longestMs}  peak ${r.phases.peak.avgFps} fps  ${r.renderer}`);
  return row;

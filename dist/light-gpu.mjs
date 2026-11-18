@@ -15,11 +15,11 @@
 import {LIGHT_EXTENT} from './light-attenuation.mjs?v=guide-clarity-1';
 import {luminanceWaveFade,REVEAL_BANDS} from './luminance-waves.mjs?v=guide-clarity-1';
 
-export const LIGHT_GPU_DEFAULT=false;
+export const LIGHT_GPU_DEFAULT=true;
 export const LIGHT_GPU_LIMITS=Object.freeze({lights:8,cells:8,rays:96,spans:16,slotCols:16,slotRows:8,mask:128,waves:48,flashes:8});
 const L=LIGHT_GPU_LIMITS,SPAN_TEXELS=L.spans/2,EMPTY=1e9;
 
-/** Off by default until verified on devices: on with ?gl=1, off with ?gl=0. */
+/** On by default (verified on the Pixel 10 emulator, 18 Nov 2026); ?gl=0 forces the Canvas 2D path. */
 export function lightGpuWanted(location=globalThis.location){
   if(typeof globalThis.__orbixLightGpu==='boolean')return globalThis.__orbixLightGpu; // test hook (scripts/perf/gl-diff.mjs)
   try{const v=new URLSearchParams(location?.search||'').get('gl');return v==='1'||v==='on'||(LIGHT_GPU_DEFAULT&&!(v==='0'||v==='off'));}catch{return false;}

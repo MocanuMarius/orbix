@@ -15,16 +15,66 @@ const cross=(ax,ay,bx,by)=>ax*by-ay*bx;
 const inside=(points,x,y)=>{let hit=false;for(let i=0,j=points.length-1;i<points.length;j=i++){
  const a=points[i],b=points[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])hit=!hit;
 }return hit;};
+// Spatial index per polygon (points array): edges by 32-unit grid cell, and by 8-unit row for the
+// point-in-polygon parity test. Both are exact filters: an edge that can produce a cut on a segment lies in a
+// cell that segment's corridor visits, and only edges whose y-span contains y can toggle the parity at y.
+// Edges keep their index, endpoints and order of operands, so every cut and every test computes the same numbers.
+const GRID=32,ROW=8,edgeIndexes=new WeakMap();let stampSerial=0;
+function edgeIndex(points){
+ let ix=edgeIndexes.get(points);if(ix)return ix;
+ const n=points.length,cells=new Map(),rows=new Map();
+ for(let i=0,j=n-1;i<n;j=i++){
+  const a=points[j],b=points[i],pad=1e-3+1e-6*(Math.abs(b[0]-a[0])+Math.abs(b[1]-a[1]));
+  const x0=Math.floor((Math.min(a[0],b[0])-pad)/GRID),x1=Math.floor((Math.max(a[0],b[0])+pad)/GRID),y0=Math.floor((Math.min(a[1],b[1])-pad)/GRID),y1=Math.floor((Math.max(a[1],b[1])+pad)/GRID);
+  for(let cy=y0;cy<=y1;cy++)for(let cx=x0;cx<=x1;cx++){const k=cx*100003+cy;let list=cells.get(k);if(!list)cells.set(k,list=[]);list.push(i);}
+  const r0=Math.floor(Math.min(a[1],b[1])/ROW),r1=Math.floor(Math.max(a[1],b[1])/ROW);
+  for(let r=r0;r<=r1;r++){let list=rows.get(r);if(!list)rows.set(r,list=[]);list.push(i);}
+ }
+ ix={n,cells,rows,stamp:new Uint32Array(n)};edgeIndexes.set(points,ix);return ix;
+}
+function insideIndexed(points,ix,x,y){
+ const list=ix.rows.get(Math.floor(y/ROW));if(!list)return false;let hit=false;
+ for(let q=0;q<list.length;q++){const i=list[q],j=i===0?ix.n-1:i-1,a=points[i],b=points[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])hit=!hit;}
+ return hit;
+}
+// Edge indices near the segment (x,y)+(dx,dy)*[0,reach]: grid cells along it, widened by one cell.
+function edgesNear(ix,x,y,dx,dy,reach,out){
+ out.length=0;const stamp=ix.stamp,mark=++stampSerial>>>0||(stamp.fill(0),stampSerial=1);
+ const steps=Math.ceil(reach/(GRID*.5))+1;let lastKey=NaN;
+ for(let s=0;s<=steps;s++){
+  const t=Math.min(reach,s*GRID*.5),cx=Math.floor((x+dx*t)/GRID),cy=Math.floor((y+dy*t)/GRID),key=cx*100003+cy;if(key===lastKey)continue;lastKey=key;
+  for(let oy=-1;oy<=1;oy++)for(let ox=-1;ox<=1;ox++){const list=ix.cells.get((cx+ox)*100003+cy+oy);if(!list)continue;
+   for(let q=0;q<list.length;q++){const i=list[q];if(stamp[i]!==mark){stamp[i]=mark;out.push(i);}}}
+ }
+ return out;
+}
+const nearEdges=[];
 export function solidRayIntervals(polygons,x,y,dx,dy,reach,boxes=null){
  const spans=[];
  // Optional bounds [minX,minY,maxX,maxY] per polygon: a ray segment whose box
  // misses a polygon's (padded) box has no cut in (0,reach) and its midpoint is
- // outside, so skipping that polygon gives exactly the same spans.
+ // outside, so skipping that polygon gives exactly the same spans. With bounds,
+ // the polygon's edge index replaces the walks over every edge (same results).
  const ex0=x+dx*reach,ey0=y+dy*reach,sx0=Math.min(x,ex0)-1e-3,sx1=Math.max(x,ex0)+1e-3,sy0=Math.min(y,ey0)-1e-3,sy1=Math.max(y,ey0)+1e-3;
  for(let p=0;p<polygons.length;p++){
   const points=polygons[p];
-  if(boxes){const b=boxes[p];if(b.maxX<sx0||b.minX>sx1||b.maxY<sy0||b.minY>sy1)continue;}
   const cuts=[0,reach];
+  if(boxes){
+   const b=boxes[p];if(b.maxX<sx0||b.minX>sx1||b.maxY<sy0||b.minY>sy1)continue;
+   const ix=edgeIndex(points),n=points.length,list=edgesNear(ix,x,y,dx,dy,reach,nearEdges);
+   for(let q=0;q<list.length;q++){
+    const i=list[q],a=points[i===0?n-1:i-1],c=points[i],ex=c[0]-a[0],ey=c[1]-a[1],den=cross(dx,dy,ex,ey);
+    if(Math.abs(den)<EPS)continue;
+    const ox=a[0]-x,oy=a[1]-y,t=cross(ox,oy,ex,ey)/den,u=cross(ox,oy,dx,dy)/den;
+    if(t>0&&t<reach&&u>=-EPS&&u<=1+EPS)cuts.push(t);
+   }
+   cuts.sort((a,b)=>a-b);
+   for(let i=1;i<cuts.length;i++)if(cuts[i]-cuts[i-1]>EPS){
+    const mid=(cuts[i]+cuts[i-1])/2;
+    if(insideIndexed(points,ix,x+dx*mid,y+dy*mid))spans.push([cuts[i-1],cuts[i]]);
+   }
+   continue;
+  }
   for(let i=0,j=points.length-1;i<points.length;j=i++){
    const a=points[j],b=points[i],ex=b[0]-a[0],ey=b[1]-a[1],den=cross(dx,dy,ex,ey);
    if(Math.abs(den)<EPS)continue;

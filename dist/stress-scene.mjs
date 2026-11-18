@@ -117,17 +117,21 @@ export async function runStressScene({document=globalThis.document,host=null,sce
   const script=scriptStressScene(engine,scene);
   const baseRender=engine.render;engine.render=function(){fps.frame(performance.now());return baseRender.apply(this,arguments);};
   await engine.ready;
-  const gaps=[],phases={ramp:[],peak:[],tail:[]};let last=0,raf=0,stopped=false;
+  const gaps=[],phases={ramp:[],peak:[],tail:[]};let last=0,raf=0,stopped=false,hiddenMs=0,pausedFrames=0,resumes=0;
   const total=scene.ramp+scene.peak+scene.tail;
   const result=await new Promise(resolve=>{
     const finish=()=>{if(stopped)return;stopped=true;cancelAnimationFrame(raf);resolve();};
     engine.onFinish=finish;
-    const frame=t=>{if(stopped)return;if(last&&engine.time>=scene.warmup){const g=t-last;gaps.push(g);phases[script.phase()].push(g);}last=t;
+    // Frames while the page is hidden (or the engine paused) are not counted.
+    const frame=t=>{if(stopped)return;if(document.visibilityState==='hidden'||engine.paused){hiddenMs+=last?t-last:0;last=0;
+      // The engine pauses itself when the page is hidden or the screen turns; the test resumes on its own.
+      if(engine.paused&&document.visibilityState!=='hidden'){pausedFrames++;if(pausedFrames>20){pausedFrames=0;resumes++;try{engine.resume();}catch{}}}
+      raf=requestAnimationFrame(frame);return;}if(last&&engine.time>=scene.warmup){const g=t-last;gaps.push(g);phases[script.phase()].push(g);}last=t;
       if(engine.time>=total||engine.finished||engine.destroyed)return finish();raf=requestAnimationFrame(frame);};
     engine.start();raf=requestAnimationFrame(frame);
   }).then(()=>{
     const view=engine.pixiView,gpuFrames=view?.lightGpu?.stats?.frames||0,renderer=engine.pixiReady&&view?(gpuFrames>0?(view.lightGpu.stats.fallbacks?'WebGL lighting (some Canvas 2D frames)':'WebGL lighting'):'Canvas 2D fallback'):'Canvas 2D (basic)';
-    const r={scene:scene.id,...summarizeFrames(gaps),seconds:+(gaps.reduce((a,b)=>a+b,0)/1000).toFixed(1),
+    const r={scene:scene.id,...summarizeFrames(gaps),seconds:+(gaps.reduce((a,b)=>a+b,0)/1000).toFixed(1),hiddenMs:Math.round(hiddenMs),resumes,
       phases:Object.fromEntries(Object.entries(phases).map(([k,v])=>[k,summarizeFrames(v)])),
       renderer,dpr:+(win.devicePixelRatio||1).toFixed(3),viewport:`${win.innerWidth}x${win.innerHeight}`,
       buffer:view?.buffer?`${view.buffer.width}x${view.buffer.height}`:null,version:version(),

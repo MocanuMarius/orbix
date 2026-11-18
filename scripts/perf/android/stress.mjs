@@ -12,7 +12,7 @@ import {startServer,delay,until} from '../lib.mjs';
 import {listTargets,evaluate,ensureForward} from './connect.mjs';
 
 const argv=process.argv.slice(2),A={};for(let i=0;i<argv.length;i++){const m=argv[i].match(/^--([^=]+)(?:=(.*))?$/);if(!m)continue;A[m[1]]=m[2]??(argv[i+1]&&!argv[i+1].startsWith('--')?argv[++i]:true);}
-const label=A.label||'run',gpu=A.gpu==='swiftshader'?'swiftshader_indirect':'host',runs=Number(A.runs||1),port=Number(A.port||4180);
+const label=A.label||'run',gpu=A.gpu==='swiftshader'?'swiftshader_indirect':'host',runs=Number(A.runs||1),port=Number(A.port||4182);
 const SDK='F:/Android/sdk',ADB=process.env.ADB||'adb',EMU=`${SDK}/emulator/emulator.exe`;
 const env={...process.env,ANDROID_SDK_ROOT:'F:\\Android\\sdk',ANDROID_AVD_HOME:'F:\\Android\\avd'};
 const day=new Date().toISOString().slice(0,10),out=path.resolve('outputs/perf/android',`${day}-${label}${gpu==='host'?'':'-swiftshader'}`);
@@ -43,16 +43,17 @@ async function openInChrome(url){
   // Navigate the existing foreground tab (new tabs start hidden and stall requestAnimationFrame).
   const targets=await listTargets().catch(()=>[]);const t=targets.find(x=>x.url!=='about:blank')||targets[0];
   if(t){await evaluate(`(location.href=${JSON.stringify(url)},1)`,t.id).catch(()=>{});}
-  else adb('shell','am','start','-a','android.intent.action.VIEW','-d',url,'com.android.chrome');
-  adb('shell','am','start','-a','android.intent.action.VIEW','-d',url,'com.android.chrome'); // brings Chrome to the front
-  return until(async()=>(await listTargets()).find(x=>x.url.includes('scene=stress'))?.id,'stress tab',60000,1000);
+  else adb('shell','am','start','-a','android.intent.action.VIEW','-d',`'${url}'`,'com.android.chrome');
+  try{adb('shell','monkey','-p','com.android.chrome','-c','android.intent.category.LAUNCHER','1');}catch{} // brings Chrome to the front
+  const mark=url.split('run=')[1];
+  return until(async()=>(await listTargets()).find(x=>x.url.includes(mark))?.id,'stress tab',60000,1000);
 }
 
 const restore=gpu!=='host'||A.restore;
 let srv=null;
 try{
   await ensureEmulator(gpu);landscape();
-  srv=await startServer(A.root||'dist',port);
+  srv=await startServer(A.root||'dist',port,{noCache:true});
   const q=new URLSearchParams({scene:'stress'});for(const [k,v] of new URLSearchParams(A.query||''))q.set(k,v);
   const url=`http://10.0.2.2:${port}/game.html?${q}`;
   const results=[];

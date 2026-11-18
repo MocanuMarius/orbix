@@ -11,7 +11,7 @@ import {startServer,launch,emulatePhone,delay,until} from '../lib.mjs';
 import {listTargets,evaluate,ensureForward} from './connect.mjs';
 
 const argv=process.argv.slice(2),A={};for(let i=0;i<argv.length;i++){const m=argv[i].match(/^--([^=]+)(?:=(.*))?$/);if(!m)continue;A[m[1]]=m[2]??(argv[i+1]&&!argv[i+1].startsWith('--')?argv[++i]:true);}
-const label=A.label||'play',flights=Number(A.flights||3),port=Number(A.port||4181),day=new Date().toISOString().slice(0,10);
+const label=A.label||'play',flights=Number(A.flights||3),port=Number(A.port||4183),day=new Date().toISOString().slice(0,10);
 const out=path.resolve('outputs/perf/android',`${day}-${label}-play${A.desktop?'-desktop':''}`);await fs.mkdir(out,{recursive:true});
 const log=(...x)=>console.log('[play]',...x);
 
@@ -25,6 +25,9 @@ setInterval(()=>{window.__driver.steps++;
  if(document.querySelector('.stress-host'))return;
  const wake=all('.entry-depart:not([disabled]),[data-action=wake-flight]')[0];if(wake){click(wake);return}
  if(document.body.classList.contains('playing')&&!document.querySelector('dialog[open]'))return;
+ const dlg=document.querySelector('dialog[open]');
+ if(dlg){const inside=s=>[...dlg.querySelectorAll(s)].filter(vis);for(const x of ['skip-practice-once','practice-skip-to-start','remember-skip-practice','confirm-new-game','confirm-starting-gift','death-continue','close-sheet','resume']){const e=inside('[data-action="'+x+'"]')[0];if(e){click(e);return}}
+  const w=inside('button').find(e=>/got it|ok|continue|start|begin|next|done|take|claim|keep|collect|close/i.test(e.textContent));if(w){click(w);return}}
  const word=all('button,[role=button]').find(e=>/^(got it|ok|okay|continue|start|begin|understood|next|done|take|claim|keep|collect|onward|depart|tap to depart|open)$/i.test(e.textContent.trim())&&!['menu','settings','new-game'].includes(e.dataset.action));
  for(const a of order){const e=all('[data-action="'+a+'"]')[0];if(e){click(e);return}}
  const next=all('[data-action=preview-node],[data-action=map-node],[data-action=route-node]')[0];if(next){click(next);return}
@@ -43,14 +46,14 @@ async function runDesktop(){
   }finally{await b.close();srv.close();}
 }
 async function runEmulator(){
-  const srv=await startServer(A.root||'dist',port);
+  const srv=await startServer(A.root||'dist',port,{noCache:true});
   try{
     ensureForward();
     const q=new URLSearchParams({cards:'1',autopilot:'1',run:String(Date.now())});for(const [k,v] of new URLSearchParams(A.query||''))q.set(k,v);
     const url=`http://10.0.2.2:${port}/game.html?${q}`;
     const targets=await listTargets();const t=targets.find(x=>x.url!=='about:blank')||targets[0];
     if(t)await evaluate(`(location.href=${JSON.stringify(url)},1)`,t.id).catch(()=>{});
-    execFileSync('adb',['shell','am','start','-a','android.intent.action.VIEW','-d',url,'com.android.chrome']);
+    if(!t)execFileSync('adb',['shell','am','start','-a','android.intent.action.VIEW','-d',`'${url}'`,'com.android.chrome']);try{execFileSync('adb',['shell','monkey','-p','com.android.chrome','-c','android.intent.category.LAUNCHER','1']);}catch{}
     const id=await until(async()=>(await listTargets()).find(x=>x.url.includes('autopilot=1'))?.id,'tab',60000,1000);
     await delay(6000);await evaluate(DRIVER,id);
     let shots=0;

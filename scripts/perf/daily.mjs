@@ -13,12 +13,13 @@ import path from 'node:path';
 const A=Object.fromEntries(process.argv.slice(2).map(a=>{const[k,...v]=a.replace(/^--/,'').split('=');return[k,v.length?v.join('='):true]}));
 const root=A.root||'dist',day=new Date().toISOString().slice(0,10),dir=path.resolve('outputs/perf/daily'),raw=path.join(dir,'raw',day);
 await fs.mkdir(raw,{recursive:true});
-const WORST=(A.scenarios||'chain,pickups10,collector').split(',');
+// --quick (under 3 minutes): 2 flights without reference stretches, 2 scenarios of 8 s.
+const WORST=(A.scenarios||(A.quick?'chain,collector':'chain,pickups10,collector')).split(',');
 const node=(script,args)=>{const r=spawnSync(process.execPath,[script,...args],{stdio:'inherit'});if(r.status)console.log(script,'exited',r.status)};
 
-const flights=A.quick?3:6;
-node('scripts/perf/session.mjs',[`--root=${root}`,`--flights=${flights}`,'--throttle=2','--ref=15',`--out=${raw}`,'--label=session','--maxMinutes=30']);
-node('scripts/perf/run.mjs',[`--root=${root}`,`--scenarios=${WORST.join(',')}`,'--throttle=4','--runs=1','--seconds=15',`--out=${raw}`,'--label=scenarios']);
+const flights=A.quick?2:6;
+node('scripts/perf/session.mjs',[`--root=${root}`,`--flights=${flights}`,'--throttle=2','--ref=15',`--out=${raw}`,'--label=session',A.quick?'--maxMinutes=1.6':'--maxMinutes=30',...(A.quick?['--noref']:[])]);
+node('scripts/perf/run.mjs',[`--root=${root}`,`--scenarios=${WORST.join(',')}`,'--throttle=4','--runs=1',`--seconds=${A.quick?8:15}`,`--out=${raw}`,'--label=scenarios']);
 
 const metrics={};
 try{
