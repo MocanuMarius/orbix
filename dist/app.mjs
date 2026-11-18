@@ -46,6 +46,7 @@ import {choiceScene} from './choice-art.mjs?v=guide-clarity-1';
 import {contextualFlightNotice} from './contextual-events.mjs?v=guide-clarity-1';
 import {eventPickMarkup,eventPickKind} from './event-pick.mjs?v=guide-clarity-1';
 import {createMusic} from './music.mjs?v=guide-clarity-1';
+import {createTallySound} from './reward-tally-sound.mjs?v=guide-clarity-1';
 import {createFxLevel,levelGain,levelForKey,levelFromPointer} from './sound-level.mjs?v=guide-clarity-1';
 import {pauseMenuMarkup,settingsMarkup,pauseContextLine,updateLevelControl} from './ui/pause-menu.mjs?v=guide-clarity-1';
 import {GAME_VERSION} from './build-version.mjs?v=guide-clarity-1';
@@ -173,7 +174,7 @@ function mountCardDraftCeremony(){
  const animateWallet=ceremonyFreshDraftId===draftId;ceremonyFreshDraftId=null;
  const root=app.querySelector('.flight-reward-ceremony');
  const unmountInspector=mountReceiptInspector(root,run);
- const unmountCeremony=mountFlightRewardCeremony({root,run,animateWallet,reducedMotion:state.settings.reducedMotion||globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches});
+ const unmountCeremony=mountFlightRewardCeremony({root,run,animateWallet,createSound:()=>createTallySound({getGain:()=>levelGain(fxLevel.level)}),reducedMotion:state.settings.reducedMotion||globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches});
  ceremonyCleanup=()=>{unmountInspector();unmountCeremony();};
 }
 function finishCardDraftIncome(){

@@ -56,3 +56,11 @@ test('practice, stale drafts and old earned-card receipts do not start a ceremon
  run.isTutorial=false;run.lastFlight.nodeId='different-flight';assert.equal(hasFlightRewardCeremony(run),false);
  delete run.cardDraft;assert.equal(flightRewardCeremonyStage(run),null);assert.equal(flightRewardCeremonyMarkup(run),'');
 });
+test('income summary has no title block or scroll cue for sources, shows every source and the balance it feeds',()=>{
+ const run=cleared().run,markup=flightRewardCeremonyMarkup(run),receipt=flightRewardCeremonyReceipt(run);
+ assert.doesNotMatch(markup,/<h1>/);assert.doesNotMatch(markup.replace(/<[^>]*>/g," "),/Stored Spark sources|Earned this flight|wallet|reserve/i);
+ assert.doesNotMatch(markup,/data-receipt-scroll-cue[^>]*>Scroll for more[^<]*<\/small><\/div><div class="tally-sources/,'sources never scroll');
+ assert.equal((markup.match(/data-tally-row=/g)||[]).length,receipt.baseRows.length+receipt.bonusRows.length);
+ assert.match(markup,new RegExp(`data-ceremony-income>${receipt.total}<`));
+ assert.match(markup,new RegExp(`data-ceremony-wallet>${receipt.wallet}<`));
+});
