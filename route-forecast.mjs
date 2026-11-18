@@ -1,5 +1,5 @@
-import {getMapStopInfo} from './map-guide.mjs?v=cord-1';
-import {getChoices} from './model.mjs?v=cord-1';
+import {getMapStopInfo} from './map-guide.mjs?v=prune-2';
+import {getChoices} from './model.mjs?v=prune-2';
 
 const emptyForecast=()=>({restReachable:false,restGuaranteed:false,nextRestDistance:null,flightsToRest:null,nextStops:[],minFlights:0,maxFlights:0,minTotalFlights:0,maxTotalFlights:0,minRests:0,maxRests:0});
 

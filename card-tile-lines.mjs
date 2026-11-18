@@ -2,8 +2,8 @@
 // tile where the card's own effect line (card-rule-bands.mjs › getCardRuleBands, type "effect") is too long
 // to fit. Same meaning, approved vocabulary, about 22 characters at most. The full line is always on the
 // opened card. Moved from the design lab's TILE_SHORT table (56 cards) with the Pulse wording applied.
-import {getCardRuleBands} from './card-rule-bands.mjs?v=cord-1';
-import {SKILL_CARDS, describeSkillCard, cardTallyLine} from './skill-cards.mjs?v=cord-1';
+import {getCardRuleBands} from './card-rule-bands.mjs?v=prune-2';
+import {SKILL_CARDS, describeSkillCard, cardTallyLine} from './skill-cards.mjs?v=prune-2';
 
 export const CARD_TILE_LINES = Object.freeze({
   'momentum': '5 Turns: +40% light',
