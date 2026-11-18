@@ -1,9 +1,9 @@
 // A disposable deck for phone inspection. Never reads or writes a player save.
-import { newState, createRun, advanceMap, getSupportChoices, getChoices, selectNode, beginFlightAttempt, markFlightAttemptStarted, finishFlight, settleCheckpoint } from './model.mjs?v=big-1';
-import { makeSkillCard, describeSkillCard } from './skill-cards.mjs?v=big-1';
-import { grantTreasureGift } from './treasure.mjs?v=big-1';
-import { cleanSlotInscriptions, writeInscription, INSCRIPTIONS, getTemporary } from './inscriptions.mjs?v=big-1';
-import { writeTemporary, queueTemporary } from './temporary-inscriptions.mjs?v=big-1';
+import { newState, createRun, advanceMap, getSupportChoices, getChoices, selectNode, beginFlightAttempt, markFlightAttemptStarted, finishFlight, settleCheckpoint } from './model.mjs?v=timers-1';
+import { makeSkillCard, describeSkillCard } from './skill-cards.mjs?v=timers-1';
+import { grantTreasureGift } from './treasure.mjs?v=timers-1';
+import { cleanSlotInscriptions, writeInscription, INSCRIPTIONS, getTemporary } from './inscriptions.mjs?v=timers-1';
+import { writeTemporary, queueTemporary } from './temporary-inscriptions.mjs?v=timers-1';
 
 export function prepareCardInspectorReward(run, cardId = 'harvest-rare') {
   if (run.cardReward && !run.cardReward.uiAcknowledged) return;

@@ -18,7 +18,7 @@
 // - Events only move right and each Timer holds at most one pending wait, so one instant always terminates; a hard
 //   safety counter still stops the engine (and warns once) if that is ever exceeded.
 import {SKILL_CARDS, CARD_ECONOMY, cardAmount, getCardRowRule, hasCardRowEvent, matchesRowCondition, matchesRowShape, isInventoryOnlyCard,
-  createCardExecution, resolveCardRow, getCardChargeCapacity} from './skill-cards.mjs?v=big-1';
+  createCardExecution, resolveCardRow, getCardChargeCapacity} from './skill-cards.mjs?v=timers-1';
 
 export const ENGINE_LIMITS = Object.freeze({ deliveriesPerInstant: 400, timersPerAdvance: 5000, logEntries: 5000, turnLog: 5000 });
 /** Player-made Triggers the engine cards listen to (not CARD_ROW_EVENTS: the ordinary walker never sees them). */
@@ -194,6 +194,8 @@ export class CardEngine {
    * tags the ring with the sender's Slot). Made only when such a card exists, and never while packing (the flight is over). */
   realPulse(from) {
     if (this.inPack || typeof this.host.cardPulse !== 'function' || !this.pulseHeardByCardsRightOf(from)) return;
+    // One real Pulse per Turn instant: a Wave Loom's ring already made at this very moment (heard by the whole Chain) is the Timer's ring too.
+    if (this.loomRing && this.loomRing.turn === this.turn && Math.abs(this.loomRing.t - this.t) < EPS) { this.record({ k: 'real-pulse-merged', slot: from }); return; }
     this.record({ k: 'real-pulse', slot: from });
     this.host.cardPulse(from);
   }
@@ -214,7 +216,7 @@ export class CardEngine {
     if (this.inPack) return;
     // Wave Loom: one real light Pulse per Turn, however many copies.
     const loom = this.cards.findIndex(card => engineSpec(card)?.governor === 'wave-loom');
-    if (loom >= 0) { const sent = this.host.worldPulse?.(loom) !== false; if (sent) this.worldPulses++; this.record({ k: sent ? 'world-pulse' : 'world-pulse-refused', slot: loom }); }
+    if (loom >= 0) { const sent = this.host.worldPulse?.(loom) !== false; if (sent) { this.worldPulses++; this.loomRing = { turn: this.turn, t: this.t }; } this.record({ k: sent ? 'world-pulse' : 'world-pulse-refused', slot: loom }); }
     // Momentum: after MOMENTUM_TURNS Turns in a row, its Luminance (copies add) until the engine stops.
     this.streak++;
     if (!this.momentum && this.streak >= MOMENTUM_TURNS) {

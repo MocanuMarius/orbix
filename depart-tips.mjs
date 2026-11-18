@@ -21,13 +21,13 @@
 //   devour                      a Devour card is in the Chain (card-black-hole.mjs isDevourCard)
 //   rest-ahead / scribe-ahead   a stop right after this flight is a Rest / a Scribe stop
 //   can-add-slot                the Chain has fewer than five slots
-import {CARD_CATALOG} from './card-catalog.mjs?v=big-1';
-import {getBiome} from './biomes.mjs?v=big-1';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=big-1';
-import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=big-1';
-import {onboardingFlightPlan} from './onboarding.mjs?v=big-1';
-import {isDevourCard} from './card-black-hole.mjs?v=big-1';
-import {getInscription} from './inscriptions.mjs?v=big-1';
+import {CARD_CATALOG} from './card-catalog.mjs?v=timers-1';
+import {getBiome} from './biomes.mjs?v=timers-1';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=timers-1';
+import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=timers-1';
+import {onboardingFlightPlan} from './onboarding.mjs?v=timers-1';
+import {isDevourCard} from './card-black-hole.mjs?v=timers-1';
+import {getInscription} from './inscriptions.mjs?v=timers-1';
 
 export const TIPS = Object.freeze([
  // ── General: fine in any run ──────────────────────────────────────────────────────────────

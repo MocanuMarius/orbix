@@ -1,4 +1,4 @@
-import {scorecardFromHash,scorecardDataURL,scorecardPNG,downloadScorecard,shareScorecard} from './scorecard.mjs?v=big-1';
+import {scorecardFromHash,scorecardDataURL,scorecardPNG,downloadScorecard,shareScorecard} from './scorecard.mjs?v=timers-1';
 const root=document.querySelector('#scorecard-view');
 function renderScorecard(){
 const score=scorecardFromHash(location.hash);

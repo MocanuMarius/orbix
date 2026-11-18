@@ -1,4 +1,4 @@
-import {getMapStopInfo,mapStopIconMarkup} from './map-guide.mjs?v=big-1';
+import {getMapStopInfo,mapStopIconMarkup} from './map-guide.mjs?v=timers-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /** The open-book page for a non-flight stop (Rest, Scribe, event): what it is and what it gives. The reward line is the node's rewardPreview. */
 export function stopPreviewMarkup(run,node,{available=false}={}){
