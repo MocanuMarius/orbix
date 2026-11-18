@@ -81,7 +81,7 @@ test('the Trigger collection lists every Trigger with what you do, how often, an
   assert.match(html, /id="tb-back"/);
 });
 
-test('engine Chains: engine wording on plates, the two-number medallion, the dial, and "Runs once" without a Timer', () => {
+test('engine Chains: engine wording on plates, the two-number medallion, the dial, and no "runs once" text', () => {
   const chime = ['first-catch', 'metronome', 'spark-chime'];
   const words = chime.map((id, i) => enginePlate(row(chime), i).long);
   assert.deepEqual(words, ['Sends a Pulse', 'Fires the next card every 3 s', '+1 Spark each Turn']);
@@ -92,7 +92,8 @@ test('engine Chains: engine wording on plates, the two-number medallion, the dia
   assert.match(html, /class="dk-dial"[^>]*><i class="dk-dial-ring"><\/i><b>3 s<\/b>/);
   assert.match(html, /dk-ret dk-ret-b/, 'the return path is drawn');
   const once = deckScreenMarkup(run(['first-catch', 'spark-chime']), createDeckView());
-  assert.match(once, /Runs once\. Add a Timer to keep it turning\./); assert.doesNotMatch(once, /dk-ret-b/);
+  assert.doesNotMatch(once, /Runs once|Add a Timer|dk-timer-mark|dk-ret-b/);
+  assert.match(html, /class="dk2-btn dk-timer-mark"[^>]*data-card-term="timer"[^>]*aria-label="Timer: /, "a Timer in the Chain shows the hourglass mark");
   // An ordinary Chain is untouched: no engine row, no two-number medallion.
   const plain = deckScreenMarkup(run(['echo', 'body-spark', 'deep-vessel']), createDeckView());
   assert.doesNotMatch(plain, /dk-eng|dk-medal2|Runs once/);

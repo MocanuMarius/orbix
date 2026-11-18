@@ -34,8 +34,8 @@ export function inscriptionBlock(slot, id, entry, card) {
   if (!ins) return '';
   const fx = card ? inscriptionEffect(ins, card) : null;
   return `<section class="dk2-inscription dk2-inscription-${ins.kind}" aria-label="Inscription on slot ${slot + 1}">
-    <h3>${inscriptionGlyph(ins.id, {role: 'list'})}<span>${fx ? 'Slot Inscription' : 'Inscription'}: <b>${esc(ins.name)}</b></span> ${cardTermMarkup('inscription', 'What is this?', {icon: false})}</h3>
-    ${fx ? `<p class="dk2-ins-fx${fx.works ? '' : ' dk2-ins-fx-idle'}" data-works="${fx.works}">${fx.works ? '' : '<i class="dk2-warn" aria-hidden="true">!</i>'}— ${esc(fx.text)}</p>` : `<p>${cardTermTextMarkup(ins.text)}</p>`}
+    <h3>${inscriptionGlyph(ins.id, {role: 'list'})}<span>${fx ? 'Slot Inscription' : 'Inscription: <b>' + esc(ins.name) + '</b>'}</span> ${cardTermMarkup('inscription', 'What is this?', {icon: false})}</h3>
+    ${fx ? `<p class="dk2-ins-fx${fx.works ? '' : ' dk2-ins-fx-idle'}" data-works="${fx.works}">${esc(ins.name)}: ${esc(fx.text)}</p>` : `<p>${cardTermTextMarkup(ins.text)}</p>`}
     ${fx ? "" : `<small>${esc(INSCRIPTION_KIND_WORDS[ins.kind])}</small>`}
   </section>`;
 }

@@ -234,7 +234,7 @@ test('Chain tab: an inscribed slot, empty or not, carries its brand and etched f
   assert.doesNotMatch(html, /class="dk2-ins dk2-ins-/, 'the old text plaque is gone');
   assert.doesNotMatch(deckScreenMarkup(cardState('chain-ui-none', ['body-spark', null, null]).run, createDeckView(), {}), /data-ins-slot=/);
   const view = createDeckView(); view.reading = run.mountedCards[0].instanceId;
-  assert.match(deckScreenMarkup(run, view, {}), /Inscription: <b>Gilded<\/b>/);
+  assert.match(deckScreenMarkup(run, view, {}), /Slot Inscription[\s\S]*Gilded: /);
 });
 test('glyphs: every Inscription has its own 24x24 two-tone brand mark, as a file and inline, and no two are alike', async () => {
   const fs = await import('node:fs');
@@ -381,5 +381,5 @@ test('Chain tab: an inscribed slot, empty or not, carries the plaque and etched 
   assert.match(html, /dk2-empty dk2-inscribed/, 'the empty slot is still clearly inscribed');
   assert.doesNotMatch(deckScreenMarkup(cardState('chain-ui-none', ['body-spark', null, null]).run, createDeckView(), {}), /data-ins-slot=/);
   const view = createDeckView(); view.reading = run.mountedCards[0].instanceId;
-  assert.match(deckScreenMarkup(run, view, {}), /Inscription: <b>Gilded<\/b>/);
+  assert.match(deckScreenMarkup(run, view, {}), /Slot Inscription[\s\S]*Gilded: /);
 });

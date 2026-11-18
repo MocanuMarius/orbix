@@ -133,3 +133,9 @@ export const FRAME_COLOURS = {
     chainLegendary: {outline: '#3d4a22', rim: '#5b4f73', light: '#f0c86a', dark: '#b98f4a', fill: '#e3d6ec'},
 };
 export const frameVars = () => Object.entries(FRAME_COLOURS).map(([k, v]) => `--fr-${k}:${frameUrl(v)}`).join(';');
+
+/** The Timer mark beside a Chain's total: an hourglass and an infinity sign (a time-based Chain keeps returning to the first slot). 17x10 whole pixels. */
+const HG = ['OOOOOOOO', 'OGGGGGGO', '.OYYYYO.', '..OYYO..', '...OO...', '...OO...', '..OYYO..', '.OYYYYO.', 'OGGGGGGO', 'OOOOOOOO'];
+const INF = ['........', '........', '........', '.OO..OO.', 'O..OO..O', '.OO..OO.', '........', '........', '........', '........'];
+export const TIMER_MARK = (rows => { const paths = {}; rows.forEach((row, y) => [...row].forEach((ch, x) => { if (PAL[ch]) (paths[ch] ||= []).push(`M${x} ${y}h1v1h-1z`); }));
+  return `<svg class="dk-timer-art" viewBox="0 0 17 10" width="51" height="30" shape-rendering="crispEdges" aria-hidden="true">${Object.entries(paths).map(([ch, d]) => `<path fill="${PAL[ch]}" d="${d.join('')}"/>`).join('')}</svg>`; })(HG.map((r, i) => r + '.' + INF[i]));

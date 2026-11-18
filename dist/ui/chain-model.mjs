@@ -343,7 +343,7 @@ export function hereLine(ctx, c) {
       : st2.operation === 'replay-row' ? 'fires the chain a second time' : COLLECTOR_OPS[st2.operation] ? 'saves Collector time' : st2.amount > 0 ? `adds ${num(st2.amount)}` : 'acts';
     return `${at}: fires ${info.cond}: ${does}.`;
   }
-  if (info.kind === 'waits') return `${at}: waits for ${info.waitLabel || triggerName(info.waits)}. It does nothing on ${on}; that is not a problem.`;
+  if (info.kind === 'waits') return `${at}: fires at ${info.waitLabel || triggerName(info.waits)}.`;
   if (info.kind === 'spent') return `${at}: its Uses were all spent by the repeats to its left, so it cannot act itself. The repeats count on that card.`;
   if (info.kind === 'idle') return `${at}: no effect on ${on}, because ${info.why}.${info.fix ? ` ${info.fix}` : ''}`;
   if (info.role === 'repeat-paid') return `${at}: repeats ${shortName(ctx.row[info.paid.target])} ${info.paid.count} times, +${num(info.paid.amount)} in all. ${shortName(ctx.row[info.paid.target])} then has no Uses left.`;
