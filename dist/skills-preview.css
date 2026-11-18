@@ -1,8 +1,0 @@
-body.skills-playtest{margin:0;width:100%;max-width:none;min-height:100dvh;height:auto;overflow:auto;background:#0a100f;color:#eee9d1;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:WispUI,system-ui,sans-serif}
-.playtest-tools{display:flex;align-items:center;gap:.8em;width:min(100%,1060px);box-sizing:border-box;padding:5px max(10px,env(safe-area-inset-right)) 5px max(10px,env(safe-area-inset-left));font-size:14px}
-.playtest-tools strong{font-size:15px}.playtest-tools span{color:#bac3b4}
-.playtest-tools button{margin-left:auto;cursor:pointer;border:1px solid #687c70;color:#ecebdc;background:#24322b;border-radius:2px;font:inherit;padding:5px 12px}
-.playtest-stage{position:relative;isolation:isolate;container-type:inline-size;width:min(100%,1060px);height:min(calc(100dvh - 44px),480px);min-height:250px;box-sizing:border-box}
-.skills-playtest #preview-book[open]{position:absolute;inset:0;margin:0!important;width:100%!important;height:100%!important;max-height:none!important;max-width:none!important;box-sizing:border-box;overflow:hidden}
-.skills-playtest #preview-status{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
-@media(orientation:portrait){.playtest-stage{height:min(80dvh,680px)}.playtest-tools{flex-wrap:wrap}}
