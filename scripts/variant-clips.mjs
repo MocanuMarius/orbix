@@ -57,6 +57,25 @@ export const SCENARIOS = {
       const f = tc.flare; if (f && !f.collected) { const d = f.y - e.player.y; e.player.y += Math.max(-3, Math.min(3, d)); if (e.player.vy * d < 0) e.player.vy *= .5; }
     },
   },
+  // Collector cord reviews (?cord=a|b|c|d): the Collector fetches Sparks at different distances, one at full reach, with Lifts and dives while it tows.
+  // Chain: courier-cord,twin-wick,cast-line,long-spool. Sparks are only dropped for an idle Collector, so every variant gets the same fetches (the cord is visual).
+  cord: {
+    title: 'Collector fetches at several distances, one at full reach, quick Lifts and dives during the tow', warmup: 1,
+    // Recording aid, the same in every variant: recovery runs 2x so a 12 s clip holds four fetches (in the game one fetch takes about 10 s).
+    setup(e, tc) { e.flame = e.maxFlame; Object.defineProperty(e.flightBoon, "recoveryRate", {value: 2, configurable: true}); tc.n = 0; tc.nextAt = .3; tc.lifts = [3.2, 3.45, 6.4, 6.65, 9.3, 9.55]; },
+    director(e, tc) {
+      e.flame = Math.max(e.flame, e.maxFlame * .7);
+      const fr = [1, .35, .7, .2, 1, .5], dy = [0, 14, -22, 10, 0, 18];
+      const idle = (e.collectors || [e.wisp]).find(w => w.enabled(e) && !w.cargo && !w.target && w.phase === 'ready');
+      if (idle && tc.t >= tc.nextAt && tc.n < 6 && !e.layout.embers.some(p => !p.collected && !p.carried)) {
+        const reach = e.collectorFetchRange(idle) * .98, i = tc.n++;
+        tc.nextAt = tc.t + .4; tc.drop("light", reach * fr[i], e.player.y + dy[i]); (tc.log ||= []).push([+tc.t.toFixed(2), +(reach * fr[i]).toFixed(0)]);
+      }
+      // Extra quick Lifts (the pilot keeps dodging obstacles itself, so the flight stays alive); a Lift is held back while an obstacle is close.
+      const px = e.distance + e.player.x, near = e.getNearbyObstacles().some(o => !o.destroyed && o.x - px < 210 && o.x + o.width > px - 20);
+      if (tc.lifts.length && tc.t >= tc.lifts[0] && !near) { tc.lifts.shift(); tc.lift(); }
+    },
+  },
   // Quiet flight, one Spark every 2.5 s: for cues that must read when little happens (starter cues, pickups).
   calm: {
     title: 'One Spark every 2.5 seconds', warmup: 1,

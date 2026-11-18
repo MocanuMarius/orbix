@@ -1,3 +1,4 @@
+import {cordVariant as cordVariantOf,cordFor,stepCord,cordPoints,CORD_POINTS} from './collector-cord.mjs?v=guide-clarity-1';
 import {drawCollectorVortex} from './collector-vortex.mjs?v=guide-clarity-1';
 import {drawAbsorbingSpark} from './tidal-light.mjs?v=guide-clarity-1';
 import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=guide-clarity-1';
@@ -28,6 +29,19 @@ function towVisibility(state,engine,light,playerY){
     lightVisibility(engine,field,tether.hookX,tether.hookY,y));
 }
 
+const cordVariant=cordVariantOf();
+function ropeSamples(engine,state,tether,variant){
+  const c=cordFor(engine,state.collectorIndex),t=engine.captureTime??engine.time;
+  if(!Number.isFinite(t))return null;
+  const mult=state.currentRange>0?Math.max(1,state.fetchingRange/state.currentRange):1,reach=Math.max(30,(state.radius||0)*mult);
+  stepCord(c,variant,tether.x,tether.y,tether.hookX,tether.hookY,reach,t);
+  const stage=state.towStage;
+  if(stage==='tow')c.turnAt=-1;else if(c.turnAt===undefined||c.turnAt<0)c.turnAt=t;
+  const alpha=tether.alpha??1;
+  const pts=cordPoints(c,variant,t,{turnAge:c.turnAt>=0?t-c.turnAt:undefined,dropAge:alpha<1?1-alpha:undefined});
+  return {pts,thin:variant==='d'?c.tension>.55:c.taut>.5};
+}
+
 export function drawCollectorGrip(ctx,state,scale=1,{engine,light,playerY}={}){
   drawCollectorVortex(ctx,state,scale,Boolean(engine?.reducedMotion));
   const tether=state.tetherPose;
@@ -41,7 +55,13 @@ export function drawCollectorGrip(ctx,state,scale=1,{engine,light,playerY}={}){
     ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
     ctx.beginPath();ctx.moveTo(tether.x*scale,tether.y*scale);
     const point={},field=engine&&(light||renderLightState(engine)),py=playerY??engine?.renderPlayerY??engine?.player.y;
-    for(let i=1;i<=18;i++){
+    const rope=cordVariant!=='a'&&engine&&!engine.reducedMotion?ropeSamples(engine,state,tether,cordVariant):null;
+    if(rope){
+      for(let i=1;i<CORD_POINTS;i++){
+        const x=Math.round(rope.pts[i*2]),y=Math.round(rope.pts[i*2+1]);ctx.lineTo(x*scale,y*scale);
+        visible=Math.min(visible,lightVisibility(engine,field,x,y,py));
+      }
+    }else for(let i=1;i<=18;i++){
       collectorTowPoint(tether,i/18,point);ctx.lineTo(point.x*scale,point.y*scale);
       if(engine)visible=Math.min(visible,lightVisibility(engine,field,point.x,point.y,py));
     }
@@ -49,6 +69,19 @@ export function drawCollectorGrip(ctx,state,scale=1,{engine,light,playerY}={}){
     // Fade to the least visible sample instead of lighting through that beam.
     if(!(visible>0)){ctx.restore();return;}
     const alpha=ctx.globalAlpha*visible*opacity;
+    if(rope){
+      // Whole-pixel widths: 2 px normally, 1 px and brighter when the cord is taut.
+      const w=rope.thin?1:2;
+      ctx.lineCap='butt';
+      ctx.globalAlpha=alpha*.78;ctx.strokeStyle=COLLECTOR_RING.edge;ctx.lineWidth=(w+2)*scale;ctx.stroke();
+      ctx.globalCompositeOperation='screen';ctx.strokeStyle='#66ef99';
+      ctx.globalAlpha=alpha*.15;ctx.lineWidth=(w+6)*scale;ctx.stroke();
+      ctx.globalAlpha=alpha*.30;ctx.lineWidth=(w+3)*scale;ctx.stroke();
+      ctx.globalAlpha=Math.min(1,alpha*(rope.thin?1:.94));ctx.strokeStyle=rope.thin?'#e2ffe9':COLLECTOR_RING.color;ctx.lineWidth=w*scale;ctx.stroke();
+      ctx.globalAlpha=Math.min(1,alpha*.94);ctx.strokeStyle=rope.thin?'#ffffff':'#e2ffe9';ctx.lineWidth=1*scale;ctx.stroke();
+      if(engine?.mod?.cardCourierCord){ctx.globalAlpha=Math.max(alpha*.6,.5);ctx.strokeStyle='#f0c86a';ctx.lineWidth=(w+1)*scale;ctx.stroke();ctx.globalAlpha=Math.max(alpha,.85);ctx.strokeStyle='#fffdf1';ctx.lineWidth=1*scale;ctx.stroke();}
+      ctx.restore();return;
+    }
     ctx.globalAlpha=alpha*.78;ctx.strokeStyle=COLLECTOR_RING.edge;ctx.lineWidth=2.8*scale;ctx.stroke();
     // A handful of reused strokes gives the filament a mint halo and a pale
     // hot core at the native raster, without blur, gradients or particles.
