@@ -3,8 +3,9 @@ import { newState, createRun, advanceMap, getSupportChoices, getChoices, selectN
 import { makeSkillCard, describeSkillCard } from './skill-cards.mjs?v=guide-clarity-1';
 import { grantTreasureGift } from './treasure.mjs?v=guide-clarity-1';
 import { cleanSlotInscriptions, writeInscription, INSCRIPTIONS } from './inscriptions.mjs?v=guide-clarity-1';
+import { ROUTE_BONUSES } from './route-bonuses.mjs?v=guide-clarity-1';
 
-export function prepareCardInspectorReward(run, cardId = 'harvest-rare') {
+export function prepareCardInspectorReward(run, cardId = 'harvest-rare', objective = 'gilded') {
   if (run.cardReward && !run.cardReward.uiAcknowledged) return;
   const id = `sample-reward:${run.cardHistory.length}`;
   run.cardReward = { id, source: 'flight', claimed: false, card: makeSkillCard(cardId, id) };
@@ -50,7 +51,7 @@ function prepareLateGamePack(state) {
     run.step = node.row + 1;
     run.phase = 'map';
   }
-  run.current.bonusId = 'gilded';
+  run.current.bonusId = objective;
   beginFlightAttempt(run);
   markFlightAttemptStarted(run);
   finishFlight(run, { success: true, flame: 100, collected: 26, bodyFuelCollected: 18, collectorPickups: 8,
@@ -59,7 +60,7 @@ function prepareLateGamePack(state) {
     artifactActivations: { 'glow-wick': 3, 'flash-stone': 2, 'hearth-bloom': 5, 'overflow-coil': 4,
       'echo-bell': 5, 'dawn-loom': 4, sunspool: 4, 'galespun-spindle': 3, 'threefold-chalice': 2,
       'night-gardener': 5, 'moonwake-lens': 3, 'ascent-chime': 4 },
-    routeBonus: { id: 'gilded', eligible: true, complete: true, target: 4, progress: 5, packed: 18 } });
+    routeBonus: { id: objective, eligible: true, complete: true, target: objective === 'gilded' ? 4 : ROUTE_BONUSES[objective].target, progress: 6, packed: 18 } });
   settleCheckpoint(state);
 }
 
@@ -132,7 +133,15 @@ export function createCardInspectorState(params = new URLSearchParams()) {
   }
   // Dev only: the end-of-game screens. ?scenario=victory (You won: scorecard + final Chain recap), defeat (Game over), death (a light has fallen).
   if (['victory', 'defeat', 'death', 'mapclear', 'retry'].includes(params.get('scenario'))) prepareEndScreen(run, params.get('scenario'));
-  if (params.get('scenario') === 'reward') prepareCardInspectorReward(run, params.get('reward') === 'edge-reach' ? 'edge-reach' : 'harvest-rare');
+  if (params.get('scenario') === 'reward') prepareCardInspectorReward(run, params.get('reward') === 'edge-reach' ? 'edge-reach' : 'harvest-rare', params.get('objective') || 'gilded');
+  // Dev only: ?scenario=event&event=5 opens that event stop (two outcomes).
+  if (params.get('scenario') === 'event') {
+    if (run.cardReward) run.cardReward.uiAcknowledged = true;
+    const node = run.map.flat().find(n => n.kind === 'event') || run.map.flat().find(n => n.type === 'support' && n.kind !== 'camp');
+    Object.assign(node, {kind: 'event', eventIndex: Number(params.get('event') || 5)});
+    run.current = node; run.step = node.row; run.path = [node.id]; run.phase = 'support'; run.supportOffers = null;
+    run.lives = Math.max(1, run.lives - 1);
+  }
   if (params.get('scenario') === 'proximity') run.reserveCards.push(makeSkillCard('edge-reach', 'sample:edge-reach'));
   if (params.get('scenario') === 'closed-eye') {
     run.mountedCards = ['lantern-lens', 'climb', 'harvest-common'].map((id, slot) =>

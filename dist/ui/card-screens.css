@@ -668,18 +668,6 @@ html body #dk-root :is(.dk2-inscription,.dk2-note-ins) :is(.card-term,.card-term
    flights left on the frame; an oath wears a small open ring that closes when it is fulfilled. Covered permanent Inscriptions show
    small and grey in the inspector. Whole pixels, kit fonts, no animation. Menus only. */
 #dk-root{--tmp:#a4561f}
-#dk-root .dk2-inscribed:has(.dk2-ins-temporary){--ins:var(--tmp)}
-#dk-root .dk2-ins-frame-temporary{border-style:dashed}
-#dk-root .dk2-ins-temporary::before{content:"";position:absolute;left:0;top:0;right:0;bottom:0;box-sizing:border-box;border:2px dashed var(--tmp);pointer-events:none}
-#dk-root .dk2-ins-count{position:absolute;right:0;top:0;min-width:14px;height:14px;padding:0 2px;box-sizing:border-box;background:var(--tmp);color:#fff1c5;font:400 13px/14px var(--pixel,monospace);text-align:center;pointer-events:none}
-#dk-root .dk2-ins-oath{position:absolute;right:2px;top:2px;width:12px;height:12px;box-sizing:border-box;border:3px solid var(--tmp);border-top-color:transparent;background:var(--slip);pointer-events:none}
-#dk-root .dk2-ins-oath-closed{border-top-color:var(--tmp)}
-#dk-root .dk2-inscription-temporary{border-color:var(--tmp);border-style:dashed}
-#dk-root .dk2-inscription .dk2-ins-status{margin:0 0 2px}
-#dk-root .dk2-inscription .dk2-ins-status b{font-weight:400;color:#ffd48a}
-#dk-root .dk2-inscription .dk2-ins-covered{display:flex;align-items:center;gap:6px;margin:2px 0;color:#a89a78;font:400 11px/13px var(--pixel,monospace)}
-#dk-root .dk2-inscription .dk2-ins-covered .ins-glyph{color:#a89a78;opacity:.7}
-.passage-temporary .ins-glyph{flex:none;color:#2a2118}
 /* Small labels on the parchment use the kit's full ink (the soft ink is under 4.5:1 at 11px on the shaded parchment) */
 #dk-root .dk21-thead,#dk-root.dk.dk21 .dk21-thead,#dk-root .dk2-meter-label,#dk-root .dk2-sort>small{color:var(--ink)!important}
 #dk-root .tb-row.tb-none{opacity:1}
