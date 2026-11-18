@@ -326,6 +326,8 @@ export function enginePlate(row, slot) {
     return {long: 'Fires the last Trigger again', short: 'Last Trigger again'};
   }
   const d = spec.does || [];
+  if (d.includes('arm-lift')) return {long: 'Arms one free Lift', short: 'Next Lift free'};
+  if (d.includes('fire-all')) return {long: 'Fires every other Spark card once (once per 3 s)', short: 'Whole Chain fires'};
   if (d.includes('homing')) return {long: 'Collector fetches again, 2× reach', short: 'Fetches again'};
   if (d.includes('flash')) return {long: 'Starts a Flare (Pulse every 2 s, very high Luminance)', short: 'A Flare'};
   if (d.includes('gain') && d.includes('pulse')) return {long: `Sends a Pulse, +${num(amount)}`, short: `Pulse, +${num(amount)}`};

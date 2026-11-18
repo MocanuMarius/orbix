@@ -130,5 +130,8 @@
  "finish-flag": "clear",
  "clean-run": "clear",
  "victory-lap": "clear",
- "curtain-call": "clear"
+ "curtain-call": "clear",
+ "brimful": "always-on",
+ "pressure-valve": "overfill",
+ "floodgate": "overfill"
 }

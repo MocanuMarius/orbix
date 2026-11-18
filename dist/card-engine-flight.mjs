@@ -29,6 +29,8 @@ function flightHost(e) {
       if (e.tutorial || e.dream || (e.condensedStart || 0) - (e.cardTithePaid || 0) < cost) return false;
       e.cardTithePaid = (e.cardTithePaid || 0) + cost; return true;
     },
+    // Pressure Valve: one free Lift is armed (never more than one); the badge on the card shows it.
+    armFreeLift: () => { e.cardFreeLift = true; e.syncPressureValve?.(); return true; },
     canFlash: () => !(e.time < e.sightUntil),
     startFlash: (seconds, slot) => {
       if (e.time < e.sightUntil) return false;

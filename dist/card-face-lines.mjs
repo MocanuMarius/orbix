@@ -57,7 +57,7 @@ const LINES = Object.freeze({
   counterweight: 'Falling: Collector 0.75 s sooner',
   'glide-prism': '×2 before it', 'courier-glass': '×2 before it', 'clear-prism': '×2 before it', 'wick-doubler': '×2 before it',
   'mending-moss': 'While recovering: 3 s sooner',
-  'home-beacon': '+3 Stored per heart left', 'clean-run': '+5 Stored, no heart lost', 'victory-lap': '+1 Stored per card fired', 'curtain-call': 'first card fires ×3', 'last-light': 'Last heart: rewards ×2', 'flash-bank': '{fx} when low',
+  'home-beacon': '+3 Stored per heart left', 'clean-run': '+5 Stored, no heart lost', 'victory-lap': '+1 Stored per card fired', 'curtain-call': 'first card fires ×3', brimful: 'Full Meter: Collect +1', 'pressure-valve': 'next Lift free', floodgate: 'whole Chain fires', 'last-light': 'Last heart: rewards ×2', 'flash-bank': '{fx} when low',
   'return-spring': 'Reels in 0.5 s sooner',
   'haul-winch': 'Cluster: reel 3 s sooner',
   'crate-lining': '{fx} Cache, half Cluster',

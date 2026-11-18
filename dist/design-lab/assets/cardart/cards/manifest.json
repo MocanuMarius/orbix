@@ -1072,5 +1072,32 @@
     "line": [
       "curtain-call"
     ]
+  },
+  "brimful": {
+    "file": "brimful.svg",
+    "rarity": "common",
+    "family": "Overfill",
+    "idea": "A full jar with one Spark spilling over the rim",
+    "line": [
+      "brimful"
+    ]
+  },
+  "pressure-valve": {
+    "file": "pressure-valve.svg",
+    "rarity": "rare",
+    "family": "Overfill",
+    "idea": "A valve wheel on a pipe, a lift arrow above",
+    "line": [
+      "pressure-valve"
+    ]
+  },
+  "floodgate": {
+    "file": "floodgate.svg",
+    "rarity": "legendary",
+    "family": "Overfill",
+    "idea": "A stone gate lifted open, Sparks pouring out",
+    "line": [
+      "floodgate"
+    ]
   }
 }

@@ -859,7 +859,7 @@ export class WispFlight {
       warmCore: false, windSensitivity: 1, flapCost: 1, steady: false, ...options.modifiers };
     this.cardExecution=(this.mod.cardExecution?.cards?.some(Boolean)||this.mod.cardExecution?.inscriptions?.some(Boolean))?createCardExecution(this.mod.cardExecution):null;
     this.cardChargeLedger={...getCardCharges(this.cardExecution)};
-    this.cardExecutions=0;this.cardFiredIds=new Set();
+    this.cardExecutions=0;this.cardFiredIds=new Set();this.cardFreeLift=false;this.cardFreeLiftsUsed=0;
     this.cardRowTrace=null;this.cardRowSequence=0;this.cardFires=emptyMarks();this.cardFireSeq=0;this.cardFireListener=null;this.cardChain=chainView(this.cardExecution);this.cardReelCredit=0;this.cardRecoveryCredit=0;this.cardWatchlightUsed=false;this.cardLastAcceptedLift=null;
     // Engine cards (card-engine-flight.mjs): built only when the Chain holds one.
     this.cardEngine=null;this.cardEngineStored=0;this.cardEngineFlash=null;this.cardEngineLastFiring=null;this.cardPack=null;this.cardEngineLuminance=0;syncFlightEngine(this);
@@ -1182,7 +1182,7 @@ export class WispFlight {
   get fourthBeat() { return this.fourthBeatAt(this.fourthBeatNow()); }
 
   liftCostForBeat(beatReady) {
-    if (this.dream?.freeGlow || beatReady || this.artifactEffects.freeLift) return 0;
+    if (this.dream?.freeGlow || beatReady || this.artifactEffects.freeLift || this.cardFreeLift) return 0;
     return this.flapCost - this.flightBoon.liftSaving(this.flapCost);
   }
   get nextLiftCost() { return this.liftCostForBeat(this.fourthBeat.ready); }
@@ -1355,7 +1355,7 @@ export class WispFlight {
     this.cancelLeveler(true); this.levelDive = 0;
     if(['up','down'].includes(this.fieldImpulse?.direction))this.fieldImpulse=null;
     // A quick free Lift expires first, so spend it before a stored Lift or route boon.
-    const freeLift=this.dream?.freeGlow || beat.ready || this.artifactEffects.consumeLift();
+    const freeLift=this.dream?.freeGlow || beat.ready || this.artifactEffects.consumeLift() || this.consumeCardFreeLift();
     const effort = freeLift ? 0 : this.flightBoon.spendLift(this.flapCost);
     if(beat.ready&&!this.dream?.freeGlow)this.activation(beat.rank===2?'main-fourth-beat-2':'main-fourth-beat',{outcome:{usedLift:true}});
     if(beat.rank && !this.dream?.freeGlow) {
@@ -1500,6 +1500,21 @@ export class WispFlight {
       if (!/^ring-spring/.test(card.cardId || '')) { delete card.banked; continue; }
       if (!shown && this.cardRecoveryCredit > 0) { card.banked = Math.round(this.cardRecoveryCredit * 10) / 10; shown = true; } else delete card.banked;
     }
+  }
+
+  /** Pressure Valve: the armed free Lift shows as a transient field on the first Pressure Valve card (never saved). */
+  syncPressureValve() {
+    let shown = false;
+    for (const card of this.cardExecution?.cards || []) {
+      if (!card) continue;
+      if (card.cardId !== 'pressure-valve') { delete card.armed; continue; }
+      if (!shown && this.cardFreeLift) { card.armed = 1; shown = true; } else delete card.armed;
+    }
+  }
+  consumeCardFreeLift() {
+    if (!this.cardFreeLift) return false;
+    this.cardFreeLift = false; this.cardFreeLiftsUsed++; this.syncPressureValve();
+    return true;
   }
 
   /** Second Wind (batch 3): a Save, with the card mounted, opens a 5 s window on this flight. */
@@ -2594,12 +2609,16 @@ export class WispFlight {
         + (ember.deliveredByWisp?(Number(this.mod.collectorFuelBonus)||0):0)
         + (!ember.deliveredByWisp&&(this.mod.mainKindler||this.hasCompanion('kindler'))?clamp(Number(this.mod.kindlerBonus)||(this.mod.mainKindler?6:10),0,30):0)
         + this.artifactEffects.fuelBonus(ember,spec);
-    const fuel=Math.round(rawFuel*.3)/.3;
+    // Brimful: with the meter already full, a Spark you touch gives 1 extra Spark per Brimful. It has no room, so it spills (packs, and feeds Overfill cards).
+    const brimful=!ember.generated&&!ember.deliveredByWisp&&!ember.fetchedInDream&&!spec.dim&&spec.fuel>0&&this.mod.cardBrimful>0&&this.maxFlame-this.flame<=1e-9
+      &&!this.tutorial&&!(this.dream&&this.dream.phase!=='done')?Math.floor(this.mod.cardBrimful)*CARD_UNIT:0;
+    const fuel=Math.round(rawFuel*.3)/.3+brimful;
     if(!ember.generated&&!ember.deliveredByWisp&&(this.mod.mainKindler||this.hasCompanion('kindler')))this.kindlerPulse=.9;
     const capacityLeft=this.maxFlame-this.flame;
     let restored = Math.min(fuel, capacityLeft);
     this.flame += restored; this.flameRestored += restored;
     const surplus=this.storeNaturalOverflow(ember,spec,Math.max(0,fuel-restored),spec.fuel-capacityLeft,cardPickupContext);
+    if(brimful>0&&this.cardEngine){this.brimfulSpills=(this.brimfulSpills||0)+brimful/CARD_UNIT;raiseFlightEngine(this,'overfill',{spill:brimful/CARD_UNIT,spillBase:brimful/CARD_UNIT});}
     restored+=this.artifactEffects.applyConsumables(ember,spec);
     if(!ember.generated&&!spec.dim){
       if(surplus>0)this.artifactEffects.notice('echo-vessel','passive');

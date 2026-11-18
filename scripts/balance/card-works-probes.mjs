@@ -53,6 +53,11 @@ function takeOff(run) {
 }
 
 export const PROBES = {
+  brimful() { // Brimful: with the meter full, a Spark you touch spills 1 extra Spark; with room it adds nothing
+    const spill = (ids, full) => { const e = synthFlight(ids); try { e.flame = full ? e.maxFlame : e.maxFlame * .5; const b = e.pickupOverflow; e.collect(pickup(e)); return (e.pickupOverflow - b) / S.CARD_UNIT; } finally { e.destroy(); } };
+    const extra = spill(['brimful'], true) - spill([], true), none = spill(['brimful'], false) - spill([], false);
+    return { ok: Math.abs(extra - 1) < 1e-6 && Math.abs(none) < 1e-6, note: `full meter: +${round(extra)} Spark spilled, meter with room: +${round(none)} (face says Collect +1)` };
+  },
   tailwind() { // Heart Stitch
     const e = synthFlight(['tailwind'], { lives: 1, maxLives: 3 });
     try {

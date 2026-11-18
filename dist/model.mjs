@@ -577,7 +577,7 @@ export function syncCardFlightForEdit(run, engine) {
   commitCardCharges(run, engine.getCardChargeLedger());
   commitCardTallies(run, getCardTallies(engine.cardExecution));
   // Ring Spring's banked seconds (a transient field of the paused flight) are shown on the Chain tab card; they are never saved.
-  for (const card of run.mountedCards || []) if (card) { const live = engine.cardExecution?.cards?.find(c => c?.instanceId === card.instanceId); if (live?.banked > 0) card.banked = live.banked; else delete card.banked; }
+  for (const card of run.mountedCards || []) if (card) { const live = engine.cardExecution?.cards?.find(c => c?.instanceId === card.instanceId); if (live?.banked > 0) card.banked = live.banked; else delete card.banked; if (live?.armed > 0) card.armed = live.armed; else delete card.armed; }
   run.flame = Math.min(engine.flame, getGlowCapacity(run));
   liveCardEdits.set(run, engine);
   return true;

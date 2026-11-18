@@ -1500,6 +1500,7 @@ export function getCardModifiers(run) {
     cardLuminancePercent: 0,
     cardWaveLoom: false,
     cardOverfillEvery: 3,
+    cardBrimful: 0,
   };
   if (!isCardRun(run)) return m;
   m.dreamDuration = 0;
@@ -1519,6 +1520,7 @@ export function getCardModifiers(run) {
     if (d.kind === "pulse-reader") m.cardPulseReader = true;
     if (d.kind === "courier-cord") m.cardCourierCord = true;
     if (d.kind === "meter-mark") m.cardMeterMark = true;
+    if (d.kind === "brimful") m.cardBrimful += 1;
     if (d.kind === "finish-flag") m.cardFinishFlag = true;
     if (d.kind === "skim-line") { m.cardProximityUnlocked = true; m.cardSkimLine = true; }
     // One source adds 50% of normal reach; a boosted source counts as `factor` sources.
