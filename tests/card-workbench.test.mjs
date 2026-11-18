@@ -161,10 +161,9 @@ test('playing-card faces print complete rules with contextual term controls and 
   assert.match(mechanics, /<summary>Details<\/summary>/);
   const swipe = cardMechanicMarkup(describeSkillCard(makeSkillCard('field-impulse', 'portrait:swipe')));
   const echo = cardMechanicMarkup(describeSkillCard(makeSkillCard('echo', 'portrait:echo')));
-  assert.match(plain(swipe), /Passive · Collector home, ¼ charge/);
-  assert.match(plain(swipe), /Swipe: float, dive or speed up, 0\.8 s/);
-  assert.match(swipe, /data-card-term="collector"/);
-  assert.match(swipe, /data-card-term="ring"/);
+  assert.match(plain(swipe), /Passive/);
+  assert.match(plain(swipe), /Swipe to float or dive/);
+  assert.match(swipe, /data-card-term="always-on"/);
   assert.match(plain(echo), /Repeat/);assert.match(plain(echo), /Repeats the next card/);
   assert.match(echo, /data-card-term="copy"/);
   assert.match(echo, /data-card-terms|data-card-term="next"/);

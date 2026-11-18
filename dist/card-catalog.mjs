@@ -22,7 +22,7 @@ const cards = [
   { id: 'field-impulse', name: 'Field Impulse', rarity: 'common', kind: 'field', retired: true, amount: 0, copyable: true, maxRank: 1, artFamily: 'field-impulse', help: 'Each Field Impulse in your chain, or copy of one, adds up to 0.8 s at full Collector charge. One swipe spends the charge once.', trigger: 'always-on',
     ruleBands: [{ type: 'condition', text: 'Passive · Collector home, ¼ charge', trigger: 'always-on', detail: 'Collector home, ¼ charge' }, { type: 'effect', text: 'Swipe: float, dive or speed up, 0.8 s' }] },
   { id: 'lift-guide', name: 'Lift Guide', rarity: 'common', kind: 'guide', amount: 1, copyable: true, maxRank: 1, starterOnly: true, artFamily: 'lift-guide', help: 'Always shows the amber arrow. A Lift tapped while the arrow is open adds 1 Spark.', row: { event: 'guide-lift', operation: 'add-sparks', amount: 1 }, trigger: 'rhythm',
-    ruleBands: [{ type: 'condition', text: 'Lift on the beat', trigger: 'rhythm' }, { type: 'effect', text: '+{amountSparks}' }, { type: 'note', text: 'Shows the arrow' }] },
+    ruleBands: [{ type: 'condition', text: 'Lift on the cue', trigger: 'rhythm' }, { type: 'effect', text: '+{amountSparks}' }, { type: 'note', text: 'Shows the arrow' }] },
   { id: 'rhythm', name: 'Rhythm', rarity: 'rare', kind: 'rhythm', amount: 0, copyable: false, maxRank: 1, artFamily: 'rhythm', trigger: 'always-on',
     ruleBands: [{ type: 'condition', text: 'Passive', trigger: 'always-on' }, { type: 'effect', text: '3 even Lifts send out a Pulse' }] },
   { id: 'harvest-common', name: 'Resonant Harvest', rarity: 'common', kind: 'harvest', amount: 1, copyable: true, maxRank: 3, evolvesTo: 'harvest-rare', artFamily: 'harvest-common', trigger: 'wave',

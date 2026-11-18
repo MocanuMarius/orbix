@@ -1,7 +1,8 @@
-import { cardTermTextMarkup } from "./card-terms.mjs?v=guide-clarity-1";
+import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=guide-clarity-1";
+import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=guide-clarity-1";
 import { uiIcon } from "./ui-icons.mjs?v=guide-clarity-1";
 import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=guide-clarity-1";
-import { chipBadge, rarityPips } from "./ui/trigger-icons.mjs?v=guide-clarity-1";
+import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=guide-clarity-1";
 import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=guide-clarity-1";
 import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=guide-clarity-1";
 import { activeFlightPact } from './flight-pacts.mjs?v=guide-clarity-1';
@@ -102,56 +103,20 @@ const cardTerms = card => {
   const markup = bands.map(item => cardTermTextMarkup(item.text)).join('');
   return [...new Set([...markup.matchAll(/data-card-term="([^"]+)"/g)].map(match => match[1]))];
 };
-const fittedRuleText = text => text
-  .replace(/^When you defeat the third guardian(?: with this equipped)?$/, 'On completing an expedition')
-  .replace(/^Future expeditions start with \+1 maximum Spark\.?$/, 'Future expeditions: +1 maximum Spark')
-  .replace(/^Double this pass’s earlier future maximum Spark gains\.?$/, 'This pass’s future gains ×2')
-  .replace(/^Double this pass’s earlier card Sparks\.?$/, 'Earlier card Sparks ×2')
-  .replace(/^Absorb a passage Spark while Collector reels in a pickup$/, 'Touch a Spark while Collector reels')
-  .replace(/^Shorten the remaining reel by up to 1s\.?$/, 'Reel up to 1 s shorter')
-  .replace(/^Shorten the remaining reel by up to (\d+)s\.?$/, 'Reel up to $1 s shorter')
-  .replace(/^An amber chevron shows when your current fall makes a Lift rise back to its starting height\.?$/, 'Lift timing from your current fall')
-  .replace(/^When your wisp absorbs a (?:passage )?Spark\.?$/, 'Touch a Spark')
-  .replace(/^When a wave crosses an uncollected Spark\.?$/, 'Pulse crosses a Spark')
-  .replace(/^First crossing of each wave\.?$/, 'Once per Pulse')
-  .replace(/^While missing a heart, absorb 3 passage Sparks directly in one flight\.?$/, 'Missing a heart: touch 3 Sparks this flight')
-  .replace(/^Start or resume flight with Collector\.?$/, 'Enter flight with Collector')
-  .replace(/^Unlock a second Collector for this expedition, even after unequipping\.?$/, 'Unlock a second Collector this expedition, even unequipped')
-  .replace(/^Repeat the action on the card to the right\.?$/, 'Repeat the card to the right')
-  .replace(/^Borrow the ability on the card to the right\.?$/, 'Borrow the card to the right')
-  .replace(/^Your meter holds (.+) more Sparks\.?$/, '+$1 maximum Sparks')
-  .replace(/^After an earlier action pays Sparks in this pass\.?$/, 'After an earlier Spark payout this pass')
-  .replace(/^Multiply this pass’s Sparks so far by (.+)\.?$/, 'This pass’s Sparks ×$1');
-// The printed face carries the condition and consequence. The live Uses
-// button and linked Help carry repeated use accounting and longer exceptions.
-const conciseRuleText = text => text
-  .replace(/^Once per flight, with Collector beside you at full charge$/, 'Collector beside you at full charge')
-  .replace(/^Catch a fatal impact and send one wave\.$/, 'Once per flight: block a fatal hit and send a Pulse.')
-  .replace(/^Collector then needs 4 recovery cycles before fetching again\.$/, 'Then recover for 4 cycles before fetching.')
-  .replace(/^Paid Lift while falling, at least 0.75s after the last Lift$/, 'Paid falling Lift · at least 0.75s apart')
-  .replace(/^An amber chevron shows when your current fall makes a Lift rise back to its starting height\.?$/, 'Amber chevron shows when a Lift can recover your height.')
-  .replace(/^Up to 0\.8s per equipped or copied source\. Extra sources extend duration\.?$/, 'Up to 0.8s per source.')
-  .replace(/^Consume the equipped Rare card immediately to the right\. Restore 1 heart\.?$/, 'Consume the Rare card to the right to restore 1 heart.')
-  .replace(/^Keeps both cards at full hearts\. Devourer survives\. Cannot be copied or replayed\.?$/, 'Full hearts keep both cards. Cannot be copied or replayed.')
-  .replace(/^A second Collector fetches independently while equipped\.?$/, 'A second Collector fetches while equipped.')
-  .replace(/^Maximum 2 Collectors\. Each reels its own pickup\. Only the first keeps fatal-impact saves\.?$/, '2 Collectors maximum. Only the first keeps fatal-impact saves.')
-  .replace(/^\+35% Collector fetching reach for \d+ extra catches\.?$/, 'Collector reach +35% for catches beyond normal reach.')
-  .replace(/^Double Collector fetching reach for \d+ extra catches\.?$/, 'Double Collector reach for catches beyond normal reach.')
-  .replace(/^Spend 1 use only when an eligible missed pickup beyond normal reach is caught\. Range extensions do not stack\.?$/, 'Range extensions do not stack.')
-  .replace(/^Spend 1 use only beyond normal reach\. Use the shortest sufficient extension\. Your wisp gets first chance\.?$/, 'Uses the shortest sufficient extension. Your wisp gets first chance.')
-  .replace(/^\d+ (?:shared )?uses\. Checks before the pickup refills it\.?$/, 'Checks before the pickup refills it.')
-  .replace(/^3 shared Grow actions per journey\. Owned Seeds add together, up to \+90\.?$/, '3 shared Grow actions per Game. Seeds add together, up to +90.')
-  .replace(/^1 use\. Maximum 2 Collectors\. Keeps its use while Twin Orbit already provides the second\.?$/, '2 Collectors maximum. Keeps its use if Twin Orbit supplies the second.')
-  .replace(/^3 uses\. Copies share uses and keep one final wave\.?$/, 'Copies share uses and keep one final Pulse.')
-  .replace(/^2 successful uses\. Collector deliveries do not count\.?$/, 'Collector deliveries do not count.');
-const redundantFaceNote = (text, card) => Number.isFinite(card.charges) && /^\d+ (?:shared )?uses?\.?$/.test(text) /* the uses badge on the picture already says 6/6 */ || Number.isFinite(card.charges) && /^\d+ (?:shared )?uses\. Spend 1 (?:per successful action|only when time is saved|only when this adds Sparks)\.?$/.test(text)
-  || /^This bonus cannot earn packing bonuses\.?$/.test(text);
-export function cardMechanicMarkup(card, { details = false, fitted = false } = {}) {
-  const bands = getCardRuleBands(card, SKILL_CARDS[card?.cardId || card?.id]);
-  const growth = (card.kind || SKILL_CARDS[card?.cardId || card?.id]?.kind) === 'camp-grow';
-  const main = bands.filter(({type,text})=>!redundantFaceNote(text,card) && (!fitted || type!=='note' || growth)).map(({type, text}) => `<span class="card-rule-stripe card-rule-${type}" data-rule-type="${type}"><span class="card-rule-text">${cardTermTextMarkup(fitted ? fittedRuleText(conciseRuleText(text)) : conciseRuleText(text))}</span></span>`).join('');
+export function cardMechanicMarkup(card, { details = false } = {}) {
+  // Two lines, never more (card-face-lines.mjs): the Trigger as one word with its icon, then the effect in a few words.
+  const def = SKILL_CARDS[card?.cardId || card?.id];
+  const trigger = faceTrigger(card, def), effect = faceEffect(card, def);
+  const icon = chipIcon(trigger.iconId === 'timers' ? 'engine-any' : trigger.iconId, 16);
+  const main = `<span class="card-rule-stripe card-rule-condition" data-rule-type="condition"><span class="card-rule-text"><i class="card-trigger-icon" aria-hidden="true">${icon}</i>${cardTermMarkup(trigger.term, trigger.word, { icon: false })}</span></span>`
+    + `<span class="card-rule-stripe card-rule-effect" data-rule-type="effect"><span class="card-rule-text">${cardTermTextMarkup(effect)}</span></span>`;
   return `<span class="card-mechanics"><span class="card-mechanic-main">${main}</span></span>${details ? `<details class="card-rules"><summary>Details</summary><p>${esc(printed(card))}</p></details>` : ''}`;
 }
+/** The "?" window's rules: the printed text plus the caps and fine print the face leaves out. */
+const cardHelpDescription = card => {
+  const text = printed(card), extra = faceFinePrint(card, SKILL_CARDS[card?.cardId || card?.id]).filter(note => !text.includes(note));
+  return [text, ...extra.map(note => `${note}.`)].join(' ');
+};
 const lifetime = (card) => card.charges == null ? 'While equipped' : `${amount(card.charges)} ${amount(card.charges) === 1 ? 'use' : 'uses'} left`;
 const walletMarkup = (wallet) => `<span class="card-bench-wallet">${resourceSymbol('packed')}<b>${amount(wallet)}</b><small>Stored Sparks</small></span>`;
 function slotMarkup(card, i, { selected = false, action = 'card-select', empty = 'Empty slot' } = {}) {
@@ -228,11 +193,10 @@ export function cardFace(card, { compact = false, fitted = false, slot = null, s
   const finite = Number.isFinite(card.charges) && Number.isFinite(maximum);
   const uses = finite ? `${amount(card.charges)}/${amount(maximum)}` : '';
   const usesLabel = `${amount(card.charges)} of ${amount(maximum)} uses remaining`;
-  const bands = getCardRuleBands(card, SKILL_CARDS[card.cardId || card.id]);
-  const verbose = bands.length >= 3 || bands.map(band => band.text).join(' ').length > 130;
+  const bands = [], verbose = false; // a face is always two short lines (card-face-lines.mjs), so no density variants
   const dense = status && verbose;
   const badge = finite ? compact ? `<span class="card-use-counter" role="img" aria-label="${usesLabel}">${uses}</span>` : `<button type="button" class="card-use-counter" data-card-term="uses" aria-haspopup="dialog" aria-label="${usesLabel}: help">${uses}</button>` : '';
-  return `<article class="skill-card card-${rarity(card)} card-effect-${effectState} ${compact ? 'compact-card card-thumbnail' : 'card-readable'} ${fitted ? 'card-fitted' : ''} ${finite ? 'card-has-uses' : ''} ${status ? 'card-has-status' : ''} ${dense || fitted && status ? 'card-status-dense' : ''} ${verbose ? 'card-rules-dense' : ''} ${bands.length >= 4 ? 'card-rules-long' : ''} ${selected ? 'card-selected' : ''}" data-card-effect-state="${effectState}" data-card-instance="${esc(card.instanceId || '')}" data-card-help="${esc(card.cardId || card.id)}" data-card-rank="${card.rank || 1}"${Number.isFinite(card.charges) ? ` data-card-charges="${card.charges}"` : ''} data-card-name="${esc(cardName(card))}" data-card-description="${esc(printed(card))}" aria-label="${esc(cardName(card))}, ${esc(rarity(card))}${status ? `, ${esc(cardStatusText(status))}` : ''}${effectReason && effectReason !== status?.reason ? `, ${esc(effectReason)}` : ''}"><header class="card-face-heading"><h3>${esc(cardName(card))}</h3>${compact ? '' : `<button type="button" class="card-help" data-card-term-trigger="${esc(card.cardId || card.id)}" data-card-terms="${cardTerms(card).join(' ')}" aria-haspopup="dialog" aria-label="Help with ${esc(cardName(card))}">?</button>`}</header><div class="card-illustration">${cardArt(card, { compact })}${rarityInlay(card)}${faceBadges(card, compact)}${compact ? '' : badge}${sightWarning ? `<span class="card-sight-warning" role="img" title="${esc(sightWarning)}" aria-label="${esc(sightWarning)}">${effectState === 'partial' ? '≈' : '×'} <small>${effectState === 'partial' ? 'Light blocked' : 'Sight blocked'}</small></span>` : ''}</div>${compact ? '' : `<div class="card-rule-band" role="group" tabindex="0" aria-label="Rules for ${esc(cardName(card))}; scroll for all details">${cardMechanicMarkup(card,{fitted})}</div>`}${cardStatusMarkup(status, {compact, slot})}${compact ? badge : ''}</article>`;
+  return `<article class="skill-card card-${rarity(card)} card-effect-${effectState} ${compact ? 'compact-card card-thumbnail' : 'card-readable'} ${fitted ? 'card-fitted' : ''} ${finite ? 'card-has-uses' : ''} ${status ? 'card-has-status' : ''} ${dense || fitted && status ? 'card-status-dense' : ''} ${verbose ? 'card-rules-dense' : ''} ${bands.length >= 4 ? 'card-rules-long' : ''} ${selected ? 'card-selected' : ''}" data-card-effect-state="${effectState}" data-card-instance="${esc(card.instanceId || '')}" data-card-help="${esc(card.cardId || card.id)}" data-card-rank="${card.rank || 1}"${Number.isFinite(card.charges) ? ` data-card-charges="${card.charges}"` : ''} data-card-name="${esc(cardName(card))}" data-card-description="${esc(cardHelpDescription(card))}" aria-label="${esc(cardName(card))}, ${esc(rarity(card))}${status ? `, ${esc(cardStatusText(status))}` : ''}${effectReason && effectReason !== status?.reason ? `, ${esc(effectReason)}` : ''}"><header class="card-face-heading"><h3>${esc(cardName(card))}</h3>${compact ? '' : `<button type="button" class="card-help" data-card-term-trigger="${esc(card.cardId || card.id)}" data-card-terms="${cardTerms(card).join(' ')}" aria-haspopup="dialog" aria-label="Help with ${esc(cardName(card))}">?</button>`}</header><div class="card-illustration">${cardArt(card, { compact })}${rarityInlay(card)}${faceBadges(card, compact)}${compact ? '' : badge}${sightWarning ? `<span class="card-sight-warning" role="img" title="${esc(sightWarning)}" aria-label="${esc(sightWarning)}">${effectState === 'partial' ? '≈' : '×'} <small>${effectState === 'partial' ? 'Light blocked' : 'Sight blocked'}</small></span>` : ''}</div>${compact ? '' : `<div class="card-rule-band" role="group" aria-label="Rules for ${esc(cardName(card))}">${cardMechanicMarkup(card,{fitted})}</div>`}${cardStatusMarkup(status, {compact, slot})}${compact ? badge : ''}</article>`;
 }
 export function starterCardsMarkup(run, gifts, existing) {
   const guide=describeSkillCard(makeSkillCard('lift-guide','included-starter-guide'));

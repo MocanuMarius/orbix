@@ -1851,3 +1851,14 @@ html body .card-victory-recap .card-winning-hand>aside{width:auto;flex:none}
 }
 html body .skill-card.card-readable:not(#k):not(#k) .card-illustration>.card-use-counter{font-size:11px!important;min-height:22px!important}
 @media(max-height:340px){html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *) .card-face-heading h3{font-size:12px!important;line-height:1.1}html body .card-starter .card-heading>button.secondary:not(#k){min-height:40px!important;height:40px!important}}
+
+/* Card face v3 (2026-11-18): two lines, never scrolls. Line 1 = Trigger icon + one word, line 2 = the effect. */
+html body .skill-card.card-readable .card-rule-band,
+html body .skill-card.card-readable:not(#k):not(#k):not(.practice-card-row *) .card-rule-band{overflow:hidden!important;overscroll-behavior:auto;touch-action:auto}
+html body .skill-card.card-readable .card-rule-band .card-rule-condition{flex:none;min-height:0;padding:3px 7px}
+html body .skill-card .card-rule-condition .card-rule-text{display:flex;align-items:center;gap:5px;min-width:0;white-space:nowrap}
+.card-trigger-icon{display:inline-flex;flex:none;width:16px;height:16px;line-height:0}
+.card-trigger-icon svg{width:16px;height:16px;display:block;image-rendering:pixelated}
+html body .skill-card .card-rule-condition button.card-term{text-decoration:underline dotted;text-underline-offset:3px;background:none;border:0;box-shadow:none;padding:0;font:inherit;color:inherit!important;white-space:nowrap}
+html body .skill-card .card-rule-effect{font-size:inherit}
+html body .skill-card.card-readable .card-rule-band .card-rule-effect{flex:1 1 auto;justify-content:center;padding-top:4px;padding-bottom:4px}

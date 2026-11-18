@@ -1,4 +1,4 @@
-// Lift Guide (2026-11-18): "Lift on the beat: +1 Spark", with the arrow always shown. Chain arithmetic for the event 'guide-lift'.
+// Lift Guide (2026-11-18): "Lift on the cue: +1 Spark", with the arrow always shown. Chain arithmetic for the event 'guide-lift'.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SKILL_CARDS, CARD_ROW_EVENTS, makeSkillCard, createCardExecution, resolveCardRow, describeSkillCard, getCardRowRule} from '../dist/skill-cards.mjs';
@@ -11,11 +11,11 @@ const fire = (list, inscriptions, kind = CARD_ROW_EVENTS.guideLift) => {
   return resolveCardRow(createCardExecution(inscriptions ? {cards, inscriptions: inscriptions.map(id => id ? {id} : null)} : cards), {kind, meterFraction: .5});
 };
 
-test('Lift Guide reads "Lift on the beat: +1 Spark" and shows as a Lift Trigger', () => {
+test('Lift Guide reads "Lift on the cue: +1 Spark" and shows as a Lift Trigger', () => {
   const def = SKILL_CARDS['lift-guide'], card = describeSkillCard(makeSkillCard('lift-guide', 'g'));
   assert.equal(getCardRowRule(def, card).event, 'guide-lift');
   assert.equal(triggerDisplay(getCardTrigger(def).id).label, 'Lift');
-  assert.match(cardRuleSentence(getCardRuleBands(card, def)), /^Lift on the beat: \+1 Spark/);
+  assert.match(cardRuleSentence(getCardRuleBands(card, def)), /^Lift on the cue: \+1 Spark/);
 });
 
 test('Lift Guide: one Spark per on-beat Lift, nothing on other Lifts', () => {

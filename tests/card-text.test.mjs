@@ -30,7 +30,7 @@ test('all 85 approved cards carry their Trigger chip as data and the approved pl
     assert.deepEqual({id: getCardTrigger(def).id, label: getCardTrigger(def).label, condition: getCardTrigger(def).condition}, {id: CHIP[entry.t], label: chipLabel(entry.t), condition: entry.c || ''}, entry.id);
     assert.equal(card.trigger.label, chipLabel(entry.t), `${entry.id} described trigger`);
     const bands = getCardRuleBands(card, def);
-    assert.equal(bands[0].type, 'condition');assert.equal(bands[0].text, headOf(pulse(entry.t), entry.c), entry.id);
+    assert.equal(bands[0].type, 'condition');assert.equal(bands[0].text, entry.id === 'lift-guide' ? 'Lift on the cue' : headOf(pulse(entry.t), entry.c), entry.id); // Lift Guide uses its own arrow window, not the Rhythm phrase
     assert.equal(bands[0].trigger, CHIP[entry.t]);
     const what = bands.find(band => band.type === 'effect').text;
     assert.equal(what, BOOST_TEXT[entry.id] || pulse(entry.b || entry.x).replace(/Flash/g, "Flare"), `${entry.id} what line`);

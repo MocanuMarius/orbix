@@ -58,12 +58,14 @@ test('meter help uses paused flight values and distinguishes its next Lift cost 
 test('concise faces retain live values and leave accounting restrictions in actual Help data',()=>{
   const face=cardFace(describeSkillCard({...makeSkillCard('low-wick','live'),charges:2}));
   assert.match(face,/2 of 6 uses remaining/);
-  assert.match(face,/Checks before the pickup refills it/);
+  // Fine print is not on the face (v3 two-line faces); it is in the Help data.
+  assert.match(face,/data-card-description="[^"]*Checks before the pickup refills it/);
+  assert.doesNotMatch(face.match(/<div class="card-rule-band"[\s\S]*$/)[0],/Checks before the pickup refills it/);
   const purse=cardFace(describeSkillCard(makeSkillCard('wayfarers-purse','purse')));
   assert.match(purse,/data-card-description="[^"]*This bonus cannot earn packing bonuses/);
   assert.doesNotMatch(purse.match(/<div class="card-rule-band"[\s\S]*$/)[0],/This bonus cannot earn packing bonuses/);
   // Approved plain wording (v1.0-cardtext): the face says what; the fine print stays in Help.
   const devourerFace=cardFace(describeSkillCard(makeSkillCard('devourer','devourer'))),devourer=devourerFace.replace(/<[^>]+>/g,'');
-  assert.match(devourer,/Eats the next Rare card: \+1 heart/);
+  assert.match(devourer,/Eats a Rare: \+1 heart/);
   assert.match(devourerFace,/data-card-description="[^"]*Full hearts keep both cards/);
 });

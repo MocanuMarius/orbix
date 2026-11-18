@@ -165,7 +165,7 @@ html body .flight-reward-ceremony button.flight-reward-receipt-continue:active{t
  .flight-reward-ceremony[data-stage=cards] .flight-reward-actions{position:absolute;right:64px;top:0;height:44px;min-height:44px;z-index:2}
  .flight-reward-ceremony[data-stage=cards] .flight-reward-actions>button{width:88px}
 }
-html body .flight-reward-ceremony .card-draft-face .card-rule-band{min-height:0!important;max-height:100%;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain;touch-action:pan-y;scrollbar-width:thin;scrollbar-color:#6b5335 #e2cf9f}
+html body .flight-reward-ceremony .card-draft-face .card-rule-band{min-height:0!important;max-height:100%;overflow:hidden!important}
 html body .flight-reward-ceremony .card-draft-face .card-rule-band:focus-visible{outline:2px solid #536430;outline-offset:-2px}
 
 /* Inspecting a source leaves the two receipt columns in place. */
