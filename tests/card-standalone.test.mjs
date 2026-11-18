@@ -37,7 +37,7 @@ test('Springboard directly bounces at half Lift strength without cost, manual Li
   const e=flight(['springboard','springboard','rhythm','tailwind']);
   try {
     e.player.vy=90;e.flame=0;e.collect({kind:'light'});
-    near(e.player.vy,-FLIGHT_TUNING.flapImpulse*.5*e.scaleY);near(e.flame,20);
+    near(e.player.vy,-FLIGHT_TUNING.flapImpulse*Math.SQRT1_2*e.scaleY);near(e.flame,20);
     assert.equal(e.flaps,0);assert.equal(e.effortSpent,0);assert.equal(e.cardRhythm.state.count,0);
     assert.equal(e.activationEvents.events.filter(event=>event.source==='card-springboard').length,1);
     for (const packet of [{kind:'light',deliveredByWisp:true},{kind:'light',generated:true},{kind:'sight'},{kind:'dark'}]) {

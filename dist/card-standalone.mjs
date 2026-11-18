@@ -11,7 +11,7 @@ export function applyDirectPickupCards(e, packet, {falling = false, impulse = 20
   if (falling && sources.some(({def}) => def.kind === 'springboard')) {
     e.cancelLeveler(true);e.levelDive = 0;
     if (['up','down'].includes(e.fieldImpulse?.direction)) e.fieldImpulse = null;
-    e.player.vy = -impulse * .5 * e.scaleY * Math.min(1.2, Math.max(.8, Number(e.mod.flap) || 1));
+    e.player.vy = -impulse * Math.SQRT1_2 * e.scaleY * Math.min(1.2, Math.max(.8, Number(e.mod.flap) || 1));
     e.liftGuide?.clear();e.wispWake?.lift(e);
     e.activation('card-springboard', {label:'Springboard', outcome:{bounce:1}});
     e.setEvent('Springboard · free half-Lift bounce');e.sound('flap');

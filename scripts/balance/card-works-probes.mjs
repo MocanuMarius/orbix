@@ -69,7 +69,7 @@ export const PROBES = {
       bounce.player.vy = 120; const flameBefore = bounce.flame; bounce.collect(pickup(bounce)); const vBounce = bounce.player.vy;
       const ratio = vBounce / vLift, hRatio = (vBounce / vLift) ** 2, free = bounce.flame >= flameBefore;
       const second = (() => { const e2 = synthFlight(['springboard']); try { e2.player.vy = -50; e2.collect(pickup(e2)); return e2.player.vy; } finally { e2.destroy(); } })();
-      const ok = Math.abs(ratio - .5) < .02 && free && second === -50;
+      const ok = Math.abs(ratio - Math.SQRT1_2) < .02 && free && second === -50;
       return { ok, status: ok ? 'works' : 'wrong number', note: `a falling pickup gives a bounce at ${round(ratio)} of a Lift's launch speed (${round(vBounce, 1)} vs ${round(vLift, 1)}), which rises only ${round(hRatio)} of a Lift's height (the card says "half-Lift"); free (meter not charged: ${free}); no bounce while rising (${second === -50}).`
         + (Math.abs(hRatio - .5) > .05 ? ' DESIGN: "half-Lift" reads as half the height; the speed is half, the height a quarter.' : '') };
     } finally { lift.destroy(); bounce.destroy(); }
