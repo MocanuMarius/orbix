@@ -79,7 +79,7 @@ test('Double Lift evolves into Climb at Rest and preserves instance identity thr
   r.current=r.map[4][0];r.step=4;r.path=[r.current.id];r.phase='support';r.condensedGlow=100;
   r.mountedCards=[makeSkillCard('double-lift','stable-rapid')];
   const q=M.getCardImprovePreview(r,'stable-rapid');
-  assert.equal(q.kind,'evolution');assert.equal(q.after.cardId,'climb');assert.equal(q.price,25);
+  assert.equal(q.kind,'evolution');assert.equal(q.after.cardId,'climb');assert.equal(q.price,40);
   assert.ok(M.improveOwnedCard(state,'stable-rapid',1,q.token));
   assert.deepEqual(r.mountedCards[0],{instanceId:'stable-rapid',cardId:'climb',rank:1});
   let data;assert.ok(M.saveState(state,{setItem:(_,text)=>{data=text;}}));

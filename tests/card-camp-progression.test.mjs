@@ -66,13 +66,13 @@ test('production connected-route Rest actions render saved completion and contin
 test('rank, evolution and Forge spend only at a verified active or completed camp', () => {
   const state = fresh('camp-service-gates'), r = state.run;
   r.reserveCards.push(makeSkillCard('spark-cache', 'rank'), { ...makeSkillCard('harvest-common', 'evolve'), rank: 3 });
-  r.condensedGlow = 200;
+  r.condensedGlow = 500;
   for (const phase of ['map', 'briefing', 'support', 'retry', 'map-clear']) {
     r.phase = phase; const before = JSON.stringify(r);
     assert.equal(M.improveOwnedCard(state, 'rank'), false); assert.equal(M.improveOwnedCard(state, 'evolve'), false);
     assert.equal(M.forgeOwnedCard(state), false); assert.equal(JSON.stringify(r), before);
   }
-  r.phase = 'map'; approach(state); r.condensedGlow = 200;
+  r.phase = 'map'; approach(state); r.condensedGlow = 500;
   const actions = [...r.cardRest.actions];
   assert.equal(M.getCardImprovePreview(r, 'evolve').kind, 'evolution');
   assert.ok(M.improveOwnedCard(state, 'rank')); assert.ok(M.improveOwnedCard(state, 'evolve'));

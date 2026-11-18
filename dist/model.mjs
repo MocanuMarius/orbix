@@ -846,7 +846,7 @@ export function getCardImprovePreview(run, index) {
       : null,
     after = nextCard ? describeSkillCard(nextCard) : before,
     price = kind === "evolution"
-      ? CARD_ECONOMY.evolve[nextDefinition.rarity]
+      ? getCardForgePrice(run, nextDefinition.rarity)
       : definition ? CARD_ECONOMY.improve[definition.rarity] * card.rank : 0,
     slot = card ? (run?.mountedCards || []).findIndex((owned) => owned?.instanceId === card.instanceId) : -1;
   const reason = !before
@@ -925,6 +925,11 @@ export function improveOwnedCard(state, instanceId, expectedRank, expectedPrevie
   // Keep the real instance and its settled uses through a family evolution.
   card.cardId = preview.after.cardId;
   card.rank = preview.after.rank;
+  if (preview.kind === "evolution") {
+    // One price track per rarity: an Evolve into a rarity counts as a Forge of it (2026-11-18).
+    const tier = SKILL_CARDS[card.cardId]?.rarity;
+    if (CARD_FORGE_RARITIES.includes(tier)) (run.cardForgeTally ??= { common: 0, rare: 0, legendary: 0 })[tier] = cardForgeCount(run, tier) + 1;
+  }
   clampCardFuel(run);
   recordCardEvent(run, "improve", {
     slot: owned.slot,

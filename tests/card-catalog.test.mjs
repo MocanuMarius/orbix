@@ -129,7 +129,7 @@ test('old rank improvements precede family evolution, retaining instance, rank a
   assert.equal(M.getCardImprovePreview(run, 'finite').reason, 'Maximum rank');
   for (const rank of [1, 2]) assert.ok(M.improveOwnedCard(state, 'harvest', rank, M.getCardImprovePreview(run, 'harvest').token));
   for (const [from, to, price, amount] of [
-    ['harvest-common', 'harvest-rare', 25, 4], ['harvest-rare', 'harvest-legendary', 150, 4], // Evolve into Legendary costs 150 (2026-11-17)
+    ['harvest-common', 'harvest-rare', 40, 4], ['harvest-rare', 'harvest-legendary', 150, 4], // Evolve into Legendary costs 150 (2026-11-17)
   ]) {
     const quote = M.getCardImprovePreview(run, 'harvest');
     assert.equal(quote.kind, 'evolution');
@@ -157,7 +157,7 @@ test('all evolution families use exact tier costs and independent, stale-safe du
       duplicate = add(run, definition.id, 'other', { rank: definition.maxRank }),
       otherBefore = structuredClone(duplicate);
     const quote = M.getCardImprovePreview(run, 'chosen'),
-      price = quote.after.rarity === 'rare' ? 25 : 150; // Evolve into Legendary = first Legendary forge (2026-11-17)
+      price = quote.after.rarity === 'rare' ? 40 : 150; // Evolve = current Forge price of the new rarity (2026-11-18)
     assert.equal(quote.price, price);
     run.condensedGlow = price - 1;
     const before = structuredClone(run);

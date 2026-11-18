@@ -184,3 +184,47 @@ test('Forge uses no Rest action and the Workshop shows the next price of each ra
   for (const text of ['Surprise Common card', 'Forge','next 30', 'Surprise Rare card', '40', 'Surprise Legendary card', '150', 'Revealed after you pay'])
     assert.ok(html.includes(text), text);
 });
+
+test('Evolve costs the current Forge price of the new rarity and shares its price track', () => {
+  const state = fresh('evolve-shared-track'), run = state.run;
+  const give = (id, instanceId) => { run.reserveCards.push(makeSkillCard(id, instanceId)); };
+  const evolve = (instanceId, expectedPrice) => {
+    const q = M.getCardImprovePreview(run, instanceId);
+    assert.equal(q.kind, 'evolution');
+    assert.equal(q.price, expectedPrice);
+    const wallet = run.condensedGlow;
+    assert.ok(M.improveOwnedCard(state, instanceId, undefined, q.token));
+    assert.equal(run.condensedGlow, wallet - expectedPrice);
+  };
+  give('echo', 'a'); give('tight-packing', 'b'); give('kindling-bead', 'c');
+  assert.equal(M.getCardImprovePreview(run, 'a').price, M.getCardForgePrice(run, 'rare'));
+  evolve('a', 40);
+  assert.equal(M.getCardForgePrice(run, 'rare'), 80, 'an Evolve raises the next Rare Forge');
+  assert.equal(M.getCardForgePreview(run, 'rare').price, 80);
+  evolve('b', 80);
+  forge(state, 'rare', 160);
+  evolve('c', 320);
+  assert.deepEqual(run.cardForgeTally, {common: 0, rare: 4, legendary: 0});
+  assert.equal(M.getCardForgePrice(run, 'legendary'), 150, 'other tiers are untouched');
+  // Evolve into Legendary raises the Legendary Forge, and vice versa.
+  forge(state, 'legendary', 150);
+  const evolved = [...M.getOwnedCards(run)].find(c => SKILL_CARDS[c.cardId]?.evolvesTo && SKILL_CARDS[SKILL_CARDS[c.cardId].evolvesTo].rarity === 'legendary');
+  if (evolved) {
+    const q = M.getCardImprovePreview(run, evolved.instanceId);
+    assert.equal(q.price, 300);
+  }
+  // Plain Improve (rank up) leaves the track alone.
+  const tally = JSON.stringify(run.cardForgeTally);
+  run.reserveCards.push(makeSkillCard('spark-cache', 'd'));
+  const rank = M.getCardImprovePreview(run, 'd');
+  if (rank.kind === 'rank') { assert.ok(M.improveOwnedCard(state, 'd', undefined, rank.token)); assert.equal(JSON.stringify(run.cardForgeTally), tally); }
+});
+
+test('a free event Evolve does not raise the Forge price', () => {
+  const state = fresh('evolve-free-event'), run = state.run;
+  run.mountedCards = [makeSkillCard('prism-lens', 'free')];
+  const before = JSON.stringify(run.cardForgeTally);
+  const opts = M.eventCardOptions(run, 'improve');
+  assert.ok(opts.some(o => o.instanceId === 'free'));
+  assert.equal(JSON.stringify(run.cardForgeTally), before);
+});

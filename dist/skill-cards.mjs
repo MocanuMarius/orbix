@@ -15,9 +15,8 @@ export const CARD_ECONOMY = Object.freeze({
   forge: { common: 15, rare: 40, legendary: 150 },
   forgeGrowth: 2,
   improve: { common: 15, rare: 25, legendary: 40 },
-  // Evolving into a Legendary costs the first Legendary forge (2026-11-17), so a Common
-  // Prism Lens is no cheap road to Prism Lens II.
-  evolve: { rare: 25, legendary: 150 },
+  // Evolve has no price of its own (2026-11-18): evolving into a rarity costs that rarity's current Forge price
+  // and counts as a Forge of it (run.cardForgeTally), so Forge and Evolve share one price track per rarity.
   maxSlots: 5,
   maxEffectiveSources: 9,
   maxPackingWeight: 36,

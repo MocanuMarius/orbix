@@ -61,7 +61,7 @@ test('Growth family prints its real tier/rank values and evolves through existin
   assert.equal(M.improveOwnedCard(state, seed.instanceId), false, 'evolution stays camp-only');
   enterCamp(run);
   for (const [id, rank, amount, price, kind] of [
-    ['growth-seed', 1, 5, 25, 'evolution'],
+    ['growth-seed', 1, 5, 40, 'evolution'],
     ['growth-seed-legendary', 1, 8, 150, 'evolution'], // Evolve into Legendary: 150 (2026-11-17)
     ['growth-seed-legendary', 2, 9, 40, 'rank'],
     ['growth-seed-legendary', 3, 10, 80, 'rank'],

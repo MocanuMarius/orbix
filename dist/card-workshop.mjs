@@ -51,7 +51,7 @@ export function cardWorkshopMarkup(run,{notice='',only=null,view=null}={}) {
   const why=p=>/enough Stored Sparks/i.test(p.reason||'')?needText(p.price||0,data.stored):(p.reason||'');
   let tiles;
   if(mode==='improve')tiles=data.improve.map(o=>{const p=o.preview,price=Math.floor(p.price||0);
-    return pickTile({...o,art:cardArt({...o.card,cardId:o.cardId},{compact:true})},'card-workshop-improve',p.kind==='evolution'?'Evolve':'Improve',price,!!p.eligible,why(p),`data-id="${esc(o.instanceId)}"`);});
+    return pickTile({...o,change:p.kind==='evolution'?`${o.change} · ${price}`:o.change,art:cardArt({...o.card,cardId:o.cardId},{compact:true})},'card-workshop-improve',p.kind==='evolution'?'Evolve':'Improve',price,!!p.eligible,why(p),`data-id="${esc(o.instanceId)}"`);});
   else if(mode==='refill')tiles=data.refill.map(o=>{const p=o.preview,price=Math.floor(p.price||0);
     return pickTile({...o,art:cardArt({...o.card,cardId:o.cardId},{compact:true})},'card-workshop-refill','Refill',price,!!p.eligible,why(p),`data-id="${esc(o.instanceId)}"`);});
   else tiles=data.forge.map(p=>pickTile({name:`Surprise ${tier(p.rarity)} card`,change:`Revealed after you pay · next ${Math.floor(p.nextPrice||0)}`,art:uiIcon('rest-forge',{size:34})},'card-workshop-forge','Forge',Math.floor(p.price||0),!!p.eligible,why(p),`data-rarity="${p.rarity}"`));
