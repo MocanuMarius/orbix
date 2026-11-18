@@ -29,6 +29,12 @@ export function classifyLift({ vy, scale = 1, since = Infinity }) {
  *  cueSigma: standard deviation (s) of the press time around the efficient moment WITH a Lift Guide arrow (x noGuideFactor without it);
  *  slip: chance a planned Lift is late by .15-.45 s; waste: chance of an extra "insurance" tap .15-.4 s after a Lift;
  *  greed: willingness to detour for Sparks (1 = normal), riskTol: how much collision risk is accepted for a Spark; learn: error shrink on a retried stop. */
+// 2026-11-19 "fitted" profiles: cue timing loosened to the owner's real play (46% of Lifts on the cue, 6% within 0.5 s). The previous profiles stay as PLAYER_PROFILES_V1.
+export const PLAYER_PROFILES_LOOSE = Object.freeze({
+  'player-beginner': { reaction: .35, jitter: .10, cadence: .18, horizon: 1.4, drop: .40, cueSigma: .20, noGuideFactor: 2, slip: .18, waste: .16, greed: .8, riskTol: .6, learn: .6, panic: .06 },
+  'player-average': { reaction: .25, jitter: .07, cadence: .14, horizon: 1.65, drop: .30, cueSigma: .15, noGuideFactor: 1.8, slip: .12, waste: .10, greed: 1.0, riskTol: .8, learn: .6, panic: .03 },
+  'player-good': { reaction: .15, jitter: .04, cadence: .10, horizon: 1.8, drop: .20, cueSigma: .10, noGuideFactor: 1.6, slip: .08, waste: .06, greed: 1.2, riskTol: 1.0, learn: .7, panic: .01 }
+});
 export const PLAYER_PROFILES = Object.freeze({
   'player-beginner': { reaction: .35, jitter: .10, cadence: .18, horizon: 1.4, drop: .40, cueSigma: .11, noGuideFactor: 2, slip: .12, waste: .10, greed: .8, riskTol: .6, learn: .6, panic: .06 },
   'player-average': { reaction: .25, jitter: .07, cadence: .14, horizon: 1.65, drop: .30, cueSigma: .07, noGuideFactor: 1.8, slip: .06, waste: .04, greed: 1.0, riskTol: .8, learn: .6, panic: .03 },

@@ -3,6 +3,7 @@
  * touch latency after an observation. Cadence bounds how often cues are sampled.
  * These profiles are not fits to observed players or device timing.
  */
+import {blackHoleDrainRate} from '../dist/black-holes.mjs';
 import {playerProfile,effectiveSkill,liftPenalty,cueTiming,pressTime} from './player-pilot.mjs';
 const profiles = {
   human150: { reaction: .15, jitter: .04, cadence: .10, horizon: 1.8, drop: .20 },
@@ -95,6 +96,7 @@ export function planHumanLift(view, target, memory, opts = {}) {
         else margin=Math.min(margin,clearance);
       }
       const timeWeight = 1 / (1 + .35*t);
+      if(opts.drainWeight&&view.holes)for(const h of view.holes){const rate=blackHoleDrainRate(Math.hypot(player.x+speed*t-h.x,y-h.y),h.influence,h.coreRadius);if(rate>0)total+=rate*dt*opts.drainWeight;}
       total+=warningCost*timeWeight;
       if (margin <= 0) total += (800 + Math.min(50, -margin)*3) * timeWeight * (opts.riskScale || 1);
       else if (margin < 22) total += (22 - margin) * 1.2 * timeWeight;
@@ -151,6 +153,15 @@ export function selectHumanFuel(view,noticed,reaction,opts={}){
 // at the Lift's launch speed, which is exactly when Lift Guide's arrow is open), glide inside a tolerant altitude band, ride lower when the
 // Meter is low, never climb to the ceiling, go for Sparks more greedily when empty, play safer on the last heart, remember a retried stop.
 // Only what a player can see is used: the view, the Meter, whether the arrow card is mounted, whether this stop was already tried.
+// A player who sees a Black Hole ahead (core or warning flecks) climbs or dives to the far side of its pull early, rather than flying through it.
+function holeMid(view) {
+  const ahead = (view.holes || []).filter(h => h.x > view.player.x - h.influence * .6 && h.x < view.player.x + view.speed * 4.2).sort((a, b) => a.x - b.x)[0]; if (!ahead) return null;
+  const lo = view.height * .14, hi = view.height * .86, up = ahead.y - ahead.influence - 12, down = ahead.y + ahead.influence + 12;
+  const upOk = up >= lo, downOk = down <= hi;
+  if (upOk && (!downOk || Math.abs(view.player.y - up) <= Math.abs(view.player.y - down))) return Math.max(lo, up);
+  if (downOk) return Math.min(hi, down);
+  return ahead.y > view.height / 2 ? lo : hi;
+}
 export function playerLiftOptions(view, memory, extra = {}) {
   const sk = { ...effectiveSkill(memory.human, { retry: !!memory.retry, lastHeart: !!memory.lastHeart, guide: !!memory.guide }), ...(extra.sk || {}) };
   const fuelFrac = view.maxEnergy ? view.energy / view.maxEnergy : 1, scarcity = Math.max(0, .55 - fuelFrac) / .55;
@@ -160,11 +171,11 @@ export function playerLiftOptions(view, memory, extra = {}) {
   return {
     sk, fuelFrac, scarcity, cue, floor, candidates: grid,
     liftCost: delay => liftPenalty({ fuelFrac, pressAt: delay, cueAt: Math.max(floor, cue.until), sigma: sk.sigma }) * (extra.liftScale || 1),
-    mid: view.height * (.50 + .12 * scarcity),
+    mid: holeMid(view) ?? view.height * (.50 + .12 * scarcity),
     deadZone: (extra.deadZone ?? (46 + 40 * scarcity)) * scaleY * (memory.human.name === 'player-good' ? 1.2 : memory.human.name === 'player-average' ? 1 : .8),
-    aimWeight: .6 + .5 * (1 - scarcity), greed: sk.greed * (1 + 1.2 * scarcity) * (extra.greed || 1),
+    aimWeight: (.6 + .5 * (1 - scarcity)) * (holeMid(view) != null ? 6 : 1), greed: sk.greed * (1 + 1.2 * scarcity) * (extra.greed || 1),
     skimBonus: extra.skim ? extra.skim * sk.riskTol * (memory.lastHeart ? 0 : 1) : 0, skimReach: extra.skimReach,
-    riskScale: 1 / Math.max(.4, sk.riskTol), ceiling: view.height * .2, ceilingWeight: 40, ...(extra.override || {})
+    drainWeight: (extra.drain ?? 2.5) * (1 + 2 * scarcity), riskScale: 1 / Math.max(.4, sk.riskTol), ceiling: view.height * .2, ceilingWeight: 40, ...(extra.override || {})
   };
 }
 

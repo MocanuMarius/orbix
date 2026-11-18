@@ -41,8 +41,8 @@ async function pilotSummaries(styles, runs) {
     for (let i = 0; i < runs; i++) rs.push(sim.flyRun(['lift-guide'], `sb${i}`, { q: 0 }));
     const n = sum(rs, 'attempts'), lifts = sum(rs, 'lifts'), time = sum(rs, 'timeFlown'), d = k => rs.reduce((x, r) => x + r.deaths[k], 0);
     out[style] = { flights: n, clearRate: n ? (n - sum(rs, 'hearts')) / n : null, deaths: { fuel: d('fuel'), terrain: d('terrain'), ceiling: d('boundary'), obstacle: d('obstacle'), other: d('other') },
-      heartsLost: n ? sum(rs, 'hearts') / n : null, liftsPerSec: time ? lifts / time : null, medianGap: null, onCue: lifts ? sum(rs, 'cueLifts') / lifts : null,
-      quick: lifts ? sum(rs, 'spam50') / lifts : null, glideShare: null, capture: sum(rs, 'fuelSeen') ? sum(rs, 'fuelTaken') / sum(rs, 'fuelSeen') : null,
+      heartsLost: n ? sum(rs, 'hearts') / n : null, liftsPerSec: time ? lifts / time : null, medianGap: (() => { const g = rs.flatMap(r => r.gaps).sort((x, y) => x - y); return g.length ? g[g.length >> 1] : null; })(), onCue: lifts ? sum(rs, 'cueLifts') / lifts : null,
+      quick: lifts ? sum(rs, 'spam50') / lifts : null, glideShare: time ? rs.flatMap(r => r.gaps).filter(g => g > 2).reduce((x, g) => x + g, 0) / time : null, capture: sum(rs, 'fuelSeen') ? sum(rs, 'fuelTaken') / sum(rs, 'fuelSeen') : null,
       refusedPerFlight: n ? sum(rs, 'denied') / n : null, secLowPerFlight: n ? sum(rs, 'under20') / n : null,
       deliveries: n ? sum(rs, 'deliveries') / n : null, skims: n ? sum(rs, 'skims') / n : null, overfills: null }; // the simulation counts Overfills only for Overfill cards
     console.error('pilot', style, 'done');

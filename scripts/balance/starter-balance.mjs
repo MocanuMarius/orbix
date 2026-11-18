@@ -34,7 +34,15 @@ export const VARIANTS = {
   'skim-line +3 Sparks/Skim': { card: 'skim-line', opts: { skimPayout: { sparks: 3 } } },
   'skim-line +6 Sparks/Skim': { card: 'skim-line', opts: { skimPayout: { sparks: 6 } } },
   'finish-flag +4 Stored, refill 10 Sparks': { card: 'finish-flag', opts: { finishPayout: { stored: 4, sparks: 10 } } },
-  'finish-flag +4 Stored, refill 20 Sparks': { card: 'finish-flag', opts: { finishPayout: { stored: 4, sparks: 20 } } }
+  'finish-flag +4 Stored, refill 20 Sparks': { card: 'finish-flag', opts: { finishPayout: { stored: 4, sparks: 20 } } },
+  // 2026-11-19 re-measure with the fitted pilots: candidate boosts (Delivery/Finish/Skim/Overfill payouts modelled here, no dist edits)
+  'courier-cord +3 Sparks +3 Stored/Delivery': { card: 'courier-cord', opts: { payout: { 'collector-delivery': { sparks: 3, stored: 3 } } } },
+  'courier-cord +4 Sparks +2 Stored/Delivery': { card: 'courier-cord', opts: { payout: { 'collector-delivery': { sparks: 4, stored: 2 } } } },
+  'finish-flag +3 Stored, refill 15 Sparks': { card: 'finish-flag', opts: { finishPayout: { stored: 3, sparks: 15 } } },
+  'finish-flag +5 Stored, refill 30 Sparks (full)': { card: 'finish-flag', opts: { finishPayout: { stored: 5, sparks: 30 } } },
+  'skim-line +3 Sparks +2 Stored/Skim': { card: 'skim-line', opts: { skimPayout: { sparks: 3, stored: 2 } } },
+  'meter-mark +1 Stored per Overfill': { card: 'meter-mark', opts: { payout: { 'natural-overfill': { stored: 1 } } } },
+  'meter-mark +2 Stored per Overfill': { card: 'meter-mark', opts: { payout: { 'natural-overfill': { stored: 2 } } } }
 };
 // Proposal candidates that combine fuel and Stored payouts (second pass, written to <pilot>.proposals.json; `--only=proposals`).
 export const PROPOSALS = {

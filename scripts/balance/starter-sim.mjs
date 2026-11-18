@@ -33,7 +33,7 @@ export async function createSim({ style }) {
     const route = opts.legacy ? null : simRoute(runSeed, ids, makeRun).path; let routeAt = 0;
     const m = { cleared: 0, attempts: 0, hearts: 0, died: false, denied: 0, under20: 0, minMeter: 1, collected: 0, cardSparks: 0, lgSparks: 0, lifts: 0, guideLifts: 0, stored: 0, cardStored: 0, meterEnd: 0,
       cueLifts: 0, spam75: 0, spam50: 0, liftsFree: 0, sparksSpent: 0, minSpent: 0, fuelSeen: 0, fuelTaken: 0, deliveries: 0, skims: 0, overfills: 0, pulses: 0,
-      att: [], deaths: { fuel: 0, terrain: 0, boundary: 0, obstacle: 0, other: 0 }, extraSparks: 0, extraStored: 0, timeFlown: 0, effStart: [] };
+      gaps: [], att: [], deaths: { fuel: 0, terrain: 0, boundary: 0, obstacle: 0, other: 0 }, extraSparks: 0, extraStored: 0, timeFlown: 0, effStart: [] };
     let guard = 0; const tries = {}, stores = {};
     // opts.startAt = { stop, sparks, hearts }: stand on the departure of that flight (route walked without effects) with that Meter and those hearts; opts.trial = k varies the
     // pilot's random stream without the retry flag; opts.once = stop after the first attempt. Used by scripts/balance/sim-courses.mjs.
@@ -67,7 +67,7 @@ export async function createSim({ style }) {
           const beforeG = log.events['guide-lift'] || 0, vy = e.player.vy, tNow = e.time, scale = e.scaleY, costNow = e.nextLiftCost, ok = flap();
           if (ok) {
             const cls = classifyLift({ vy, scale, since: lastLift == null ? Infinity : tNow - lastLift });
-            a.lifts++; if (cls.onCue) a.cue++; if (cls.spam75) a.s75++; if (cls.spam50) a.s50++; if (costNow === 0) a.free++; lastLift = tNow;
+            if (lastLift != null) m.gaps.push(tNow - lastLift); a.lifts++; if (cls.onCue) a.cue++; if (cls.spam75) a.s75++; if (cls.spam50) a.s50++; if (costNow === 0) a.free++; lastLift = tNow;
           }
           if (ok && q > 0 && (log.events['guide-lift'] || 0) === beforeG && rnd() < q && rnd() < .5) e.resolveCardRowEvent('guide-lift', { meterFraction: e.flame / e.maxFlame, guardRecovering: e.wisp?.phase === 'guard-recovery' });
           return ok;

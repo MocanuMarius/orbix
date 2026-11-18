@@ -160,7 +160,7 @@ function choose(e,style,memory){
    if(!memory.noticed.has(spark.id))memory.noticed.set(spark.id,memory.random()>=memory.human.drop*.5);
   }
   const targetView=memory.human.seekTerrainHelp?view:{...view,sparks:view.sparks.filter(p=>!p.assist)};
-  const fuelTarget=view.energy>=view.maxEnergy*(ex.fullThreshold??.9)?null:selectHumanFuel(targetView,memory.noticed,memory.human.reaction,ex);
+  const fuelTarget=view.energy>=view.maxEnergy*(ex.fullThreshold??(memory.human.player?1.01:.9))?null:selectHumanFuel(targetView,memory.noticed,memory.human.reaction,ex);
   const flashTarget=!view.flashActive?view.sparks.find(p=>p.flash&&memory.noticed.get(p.id)):null;
   // A visible white triangle is useful even at a full meter. Prefer immediate
   // fuel when nearly empty; otherwise seek light before a visibly dark reach.

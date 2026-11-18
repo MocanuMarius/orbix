@@ -92,7 +92,10 @@ export function observeFlight(e){
   }
  }
  const marks=[];
+ const holes=[];
  for(const hole of e.blackHoles?.items||[]){
+  // 2026-11-19: a player sees a Black Hole's core or its warning flecks and steers clear early; expose its position so the planner can price the drain.
+  if(!hole.giant&&sight(hole.x-e.distance,hole.y)>=VISION.hazard)holes.push({x:hole.x-e.distance,y:hole.y,influence:hole.influence||220,coreRadius:hole.coreRadius||16});
   if(!hole.giant)recordHazard(hole.x-e.distance,hole.y,hole.coreRadius||16);
   else for(let i=0;i<16;i++){
    // A giant's centre can remain beyond the screen. Only the exposed,
@@ -101,6 +104,7 @@ export function observeFlight(e){
    recordHazard(hole.x-e.distance+Math.cos(angle)*hole.coreRadius,hole.y+Math.sin(angle)*hole.coreRadius,6);
   }
   if(!blackHoleWarning(e,hole,light,e.distance,e.player.y,e.time,e.reducedMotion,marks))continue;
+  if(!hole.giant&&!holes.some(h=>h.x===hole.x-e.distance))holes.push({x:hole.x-e.distance,y:hole.y,influence:hole.influence||220,coreRadius:hole.coreRadius||16});
   for(const p of marks)if(p.alpha>=WARNING_NOTICE){
    // The coloured bent pixel is observable. The hidden source and its
    // distance are not exposed to the controller until the body is visible.
@@ -164,5 +168,5 @@ export function observeFlight(e){
   speed:e.baseSpeed*(e.boostTime>0?1.48:1),energy:e.flame,maxEnergy:e.maxFlame,liftCost:e.flapCost,scaleY:sy,
   gravity:FLIGHT_TUNING.gravity*sy*clip(e.mod.gravity,.8,1.2),liftImpulse:FLIGHT_TUNING.flapImpulse*sy*clip(e.mod.flap,.8,1.2),
   terminalFall:FLIGHT_TUNING.terminalFall*sy,gustAcceleration:gust.active?snap(gust.direction*gust.force*sy,20):0,
-  terrainStep:VISION.terrainStep,terrain:seenTerrain(e,sight),sparks:sparks.sort((a,b)=>a.x-b.x),hazards};
+  terrainStep:VISION.terrainStep,holes,terrain:seenTerrain(e,sight),sparks:sparks.sort((a,b)=>a.x-b.x),hazards};
 }
