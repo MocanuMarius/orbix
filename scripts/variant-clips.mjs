@@ -6,7 +6,8 @@
 //   node scripts/variant-clips.mjs --list                 list the built-in scenarios
 //
 // Flags (all optional except --param and --values):
-//   --param NAME        URL parameter that selects the variant (strip -> ?strip=a)
+//   --param NAME        URL parameter appended to the page and used to name the clips (the game ignores a parameter it does not know, so a value like
+//                       'final' just labels one recording: --param strip --values final)
 //   --values a,b,c      one clip per value, written to <out>/<prefix>-<value>.webm and .png (poster)
 //   --scenario NAME     built-in scenario (below) or --scenario-file path.mjs exporting {setup(e,tc), director(e,tc), warmup}
 //   --chain ids         card ids of the mounted Chain (default body-spark,echo,lift-guide,harvest-common)

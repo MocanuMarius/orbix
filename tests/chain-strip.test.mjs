@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SKILL_CARDS, resolveCardRow, createCardExecution, CARD_ROW_EVENTS} from '../dist/skill-cards.mjs';
-import {STRIP, STRIP_COLORS, baseColor, stripLayout, chainView, collectReceiptFires, engineFire, engineBars, appendFires, createChainStrip} from '../dist/chain-strip.mjs';
+import {STRIP, STRIP_COLORS, sparkNumber, baseColor, stripLayout, chainView, collectReceiptFires, engineFire, engineBars, appendFires, createChainStrip} from '../dist/chain-strip.mjs';
 import {createFpsMeter, createFpsCounter, loadShowFps, saveShowFps, FPS_KEY} from '../dist/fps-counter.mjs';
 import {createCardRowFeedback} from '../dist/card-row-feedback.mjs';
 
@@ -14,7 +14,7 @@ const mk = (def, i) => def ? {cardId: def.id, instanceId: `c${i}`} : null;
 const runtime = (list, inscriptions = []) => ({cards: list.map(mk), inscriptions});
 const snap = (rt, extra = {}) => ({cardChain: chainView(rt), cardCharges: {}, cardFires: [], ...extra});
 let seq = 0;
-const mark = (slot, kind = 'fire') => ({seq: ++seq, slot, kind});
+const mark = (slot, kind = 'fire', amount) => ({seq: ++seq, slot, kind, ...(amount ? {amount} : {})});
 const six = () => runtime([common, common, common, common, common, common]);
 const ready = (rt, extra) => { const s = createChainStrip(); s.sync(snap(rt, extra), 0); return s; };
 
@@ -245,4 +245,37 @@ test('an Inscription that acts flashes the bar of the slot that carries it', asy
   WispFlight.prototype.inscriptionActed.call(e, 'gilded');
   WispFlight.prototype.inscriptionActed.call(e, 'not-carried');
   assert.deepEqual(e.cardFires.map(m => [m.slot, m.kind]), [[2, 'bar']]);
+});
+
+test('numbers: a firing that carries an amount shows "+N" for its flash; none when it carries no amount', () => {
+  assert.equal(sparkNumber(3), '+3'); assert.equal(sparkNumber(2.6), '+3'); assert.equal(sparkNumber(0.2), ''); assert.equal(sparkNumber(undefined), ''); assert.equal(sparkNumber(12345), '+999');
+  const s = ready(six());
+  s.fire([mark(0, 'fire', 4), mark(1, 'fire')], 1000);
+  assert.equal(s.cells[0].amount, 4); s.advance(1700); assert.equal(s.playing, s.cells[1]); assert.equal(s.cells[1].amount, 0, 'no amount, no number');
+});
+
+test('numbers: repeats of a waiting card are summed into its one number; a repeat of the flashing card is dropped', () => {
+  const s = ready(six());
+  s.fire([mark(0, 'fire', 1)], 0); // card 0 starts flashing at once
+  s.fire([mark(1, 'fire', 2), mark(1, 'fire', 3), mark(0, 'fire', 9), mark(1, 'fire')], 10);
+  assert.equal(s.playing, s.cells[0]); assert.equal(s.cells[0].amount, 1, 'the flashing card keeps its own amount; the extra 9 is dropped');
+  assert.deepEqual(s.pending.map(c => c.slot), [1]);
+  s.advance(700); assert.equal(s.cells[1].amount, 5, '2 + 3 merged by the drop rule, the amount-less repeat adds nothing');
+});
+
+test('numbers: marks carry an amount only when the receipt or engine entry has one', () => {
+  assert.deepEqual(engineFire({k: 'fired', slot: 2}), {slot: 2, kind: 'fire', double: false});
+  assert.deepEqual(engineFire({k: 'gain', slot: 1, amount: 5}), {slot: 1, kind: 'fire', double: false, amount: 5});
+  const marks = collectReceiptFires({event: {kind: 'body-spark'}, steps: [{success: true, slot: 0, operation: 'add-sparks', amount: 3}, {success: true, slot: 1, operation: 'multiply'}]}, []);
+  assert.equal(marks[0].amount, 3); assert.equal('amount' in marks[1], false);
+});
+
+test('view: the number is set under the flashing frame, animates inside the 0.7 s flash, and stays empty without an amount', () => {
+  const rt = runtime([common, common]);
+  let t = 0; const {log, root, setTimer, clearTimer} = fakeDom();
+  const view = createCardRowFeedback(root, {now: () => t, setTimer, clearTimer});
+  view.update(snap(rt)); log.length = 0;
+  view.update(snap(rt, {cardFires: [mark(0, 'fire', 7)]}));
+  const numAnims = log.filter(x => x[0] === 'animate' && x[1] === 'b' && x[2].some(f => 'opacity' in f && 'transform' in f && f.transform.startsWith('translateY')));
+  assert.equal(numAnims.length, 1); assert.equal(numAnims[0][3].duration, 700);
 });

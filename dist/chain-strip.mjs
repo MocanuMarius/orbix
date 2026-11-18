@@ -9,15 +9,10 @@ import {SKILL_CARDS} from './skill-cards.mjs?v=guide-clarity-1';
 import {getInscription} from './inscriptions.mjs?v=guide-clarity-1';
 
 export const STRIP = Object.freeze({flashMs: 700, idleMs: 3000, fadeMs: 600, idleOpacity: 0.12, maxMarks: 32, frameW: 10, frameH: 14, gap: 2, padX: 12, minTouchH: 40, doubleEcho: false});
-/** Look variants for the owner's review (docs/design-versions.md v1.0-strip-A/B/C): a = hollow frames (today), b = thumbnails, c = thread. All three share the queue below. */
-export const STRIP_VARIANTS = Object.freeze(['a', 'b', 'c', 'd']);
-export const STRIP_KEY = 'orbix-chain-strip';   // hidden setting: the owner's pick can become the default by writing it here
-/** ?strip=a|b|c wins, then the hidden setting, then 'a'. Never throws (private mode, no window). */
-export function resolveStripVariant(search = globalThis.location?.search || '', storage = globalThis.localStorage) {
-  let v = null;
-  try { v = new URLSearchParams(search).get('strip'); } catch { /* keep null */ }
-  if (!STRIP_VARIANTS.includes(v)) { try { v = storage?.getItem?.(STRIP_KEY); } catch { v = null; } }
-  return STRIP_VARIANTS.includes(v) ? v : 'a';
+/** "+N" under a card's frame when its firing carried Sparks: whole numbers, at most three digits, nothing when there is no amount. */
+export function sparkNumber(amount) {
+  const n = Math.round(Number(amount) || 0);
+  return n >= 1 ? '+' + Math.min(n, 999) : '';
 }
 export const STRIP_COLORS = Object.freeze({
   common: '#b9cfb0', rare: '#abcedb', legendary: '#e6c88f',   // the kit's rarity tones (card-ui.css)
@@ -39,7 +34,7 @@ export function chainView(runtime) {
   for (let i = 0; i < length; i++) {
     const card = cards[i], def = card && SKILL_CARDS[card.cardId], entry = ins[i];
     slots.push(Object.freeze({
-      instanceId: card?.instanceId ?? null, cardId: def ? card.cardId : null, filled: !!def, rarity: def?.rarity || 'common',
+      instanceId: card?.instanceId ?? null, filled: !!def, rarity: def?.rarity || 'common',
       passive: !!def && (def.passive === true || def.kind === 'capacity'),
       bar: entry ? 'perm' : 'none'}));
   }
@@ -94,8 +89,7 @@ export function appendFires(e, marks) {
  *  - Passive and spent cards never enter the queue; the idle fade counts from the moment the queue is empty. */
 export function createChainStrip({reducedMotion = false} = {}) {
   const cells = [], bySlot = [], pending = [];
-  const ghosts = []; // Inscription-only slots (no card): only their bar can act; variants B and C draw them, A does not
-  let lastPlayed = -1, layout = null, lastSeq = 0, awakeAt = null, faded = false, version = 0, wasPaused = false, playing = null, playEnd = 0, flashSerial = 0;
+  let layout = null, lastSeq = 0, awakeAt = null, faded = false, version = 0, wasPaused = false, playing = null, playEnd = 0, flashSerial = 0;
   const wake = now => { awakeAt = now; faded = false; };
   const queueEmpty = () => !playing && !pending.length;
   function enqueue(cell, amount) {
@@ -113,7 +107,7 @@ export function createChainStrip({reducedMotion = false} = {}) {
       }
       if (!pending.length) return;
       const cell = pending.shift();
-      playing = cell; playEnd = startAt + STRIP.flashMs; cell.lit = true; cell.fireSerial = ++flashSerial; cell.startedAt = startAt; cell.amount = cell.pendAmount || 0; cell.from = lastPlayed; lastPlayed = cell.slot;
+      playing = cell; playEnd = startAt + STRIP.flashMs; cell.lit = true; cell.fireSerial = ++flashSerial; cell.startedAt = startAt; cell.amount = cell.pendAmount || 0;
     }
   }
   function applyMarks(marks, now) {
@@ -122,17 +116,18 @@ export function createChainStrip({reducedMotion = false} = {}) {
       if (!(mark.seq > lastSeq)) continue;
       lastSeq = mark.seq;
       const cell = bySlot[mark.slot];
-      if (!cell) { const g = mark.kind === 'bar' && ghosts.find(x => x.slot === mark.slot); if (g) { g.barSerial++; any = true; } continue; } // an Inscription-only slot: only variants B and C show it
-      if (cell.state === 'active') { if (enqueue(cell, mark.amount)) any = true; }
+      if (!cell) continue; // an empty (inscribed) slot has nothing to show
+      if (cell.state === 'active') {
+        if (enqueue(cell, mark.amount)) any = true;
+        else if (cell.queued && cell !== playing && mark.amount > 0) cell.pendAmount = (cell.pendAmount || 0) + mark.amount; // a dropped repeat of a WAITING card adds its Sparks to the one number it will show
+      }
       else if (mark.kind === 'bar' && cell.bar !== 'none') { cell.barSerial++; any = true; } // a passive card's Inscription still blinks its bar
     }
     if (any) wake(now);
     return any;
   }
   return {
-    cells, ghosts, reducedMotion,
-    get slotCount() { return layout ? layout.slots.length : 0; },
-    get layout() { return layout; },
+    cells, reducedMotion,
     get faded() { return faded; },
     get version() { return version; },
     get visible() { return cells.length > 0; },
@@ -155,12 +150,10 @@ export function createChainStrip({reducedMotion = false} = {}) {
         if (next) for (let i = 0; i < next.slots.length; i++) {
           const info = next.slots[i];
           if (!info.filled) continue;
-          const cell = keep.get(info.instanceId) || {slot: i, instanceId: info.instanceId, state: 'active', rarity: 'common', bar: 'none', fireSerial: 0, barSerial: 0, queued: false, lit: false, startedAt: 0, amount: 0, pendAmount: 0, from: -1, cardId: null};
-          keep.delete(info.instanceId); cell.slot = i; cell.instanceId = info.instanceId; cell.cardId = info.cardId;
+          const cell = keep.get(info.instanceId) || {slot: i, instanceId: info.instanceId, state: 'active', rarity: 'common', bar: 'none', fireSerial: 0, barSerial: 0, queued: false, lit: false, startedAt: 0, amount: 0, pendAmount: 0};
+          keep.delete(info.instanceId); cell.slot = i; cell.instanceId = info.instanceId;
           cells.push(cell); bySlot[i] = cell;
         }
-        const oldGhosts = ghosts.splice(0);
-        if (next) next.slots.forEach((info, i) => { if (!info.filled && info.bar !== 'none') ghosts.push(oldGhosts.find(g => g.slot === i) || {slot: i, barSerial: 0}); });
         for (const gone of keep.values()) { // a card that left the Chain takes its flash with it
           const at = pending.indexOf(gone); if (at >= 0) pending.splice(at, 1);
           if (playing === gone) { playing = null; if (!pending.length) awakeAt = now; }

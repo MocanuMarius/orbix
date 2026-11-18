@@ -1784,6 +1784,8 @@ html body button.flight-card-row.chain-strip[hidden]{display:none}
 .chain-strip .chain-echo{position:absolute;inset:0;box-sizing:border-box;border:1px solid #fff;box-shadow:0 0 0 1px #0b121099;opacity:0;pointer-events:none;will-change:transform,opacity}
 .chain-strip .chain-bar{position:absolute;left:0;top:16px;width:10px;height:2px;background:#f0c86a;box-shadow:0 0 0 1px #0b1210;transform-origin:50% 50%}
 .chain-strip .chain-bar-none{display:none}
+.chain-strip .chain-num{position:absolute;left:50%;top:20px;transform:translateX(-50%);font:700 14px/14px var(--pixel,monospace);color:#f0c86a;text-shadow:-1px 0 #0b1210,1px 0 #0b1210,0 -1px #0b1210,0 1px #0b1210;white-space:nowrap;opacity:0;pointer-events:none;will-change:transform,opacity}
+.chain-strip .chain-cell.chain-lit .chain-num{opacity:1}
 /* The effect icons (artifact row) leave the flight HUD while the Chain strip is up: their details stay in the paused view. The optional-objective counter sits right of the strip. */
 .flight-device:has(.chain-strip:not([hidden])) .flight-artifact-bar{display:none!important}
 .flight-device:has(.chain-strip:not([hidden])) .flight-hud .flight-bonus-counter{position:absolute;margin:0;left:calc(50% + var(--cshift,0px) + var(--strip-w,0px)/2 + 2px);top:15px;transform:none}
