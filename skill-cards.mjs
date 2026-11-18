@@ -1,11 +1,11 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=stops-2";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=finish-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=stops-2';
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=stops-2';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=stops-2';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=stops-2';
+import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=finish-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=finish-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=finish-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=finish-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -980,7 +980,7 @@ export function getCardRowRule(def, card) {
 /** A card whose payout is permanent growth or Stored Sparks. It happens only on the card's own printed trigger, once: no Inscription
  * (Kindled, Resonant, Courier, Wellspring, Sunlit, Mirror, Twin Mark) adds a second firing of it (2026-11-18). Gilded and Brimful only
  * touch Sparks, so they never change it either. */
-export const GROWTH_OPERATIONS = Object.freeze(['add-tally-capacity', 'add-cruising-speed', 'add-future-capacity', 'add-stored', 'carried-interest', 'add-stored-per-heart']);
+export const GROWTH_OPERATIONS = Object.freeze(['add-tally-capacity', 'add-cruising-speed', 'add-future-capacity', 'add-stored', 'carried-interest', 'add-stored-per-heart', 'add-stored-per-fired', 'fire-first-card']);
 export const isOncePerTriggerPayout = (def, rule) => !!def?.tallyEvent || GROWTH_OPERATIONS.includes(rule?.operation);
 export function isGrowthEffectCard(def, rule = getCardRowRule(def, def)) {
   return !!def?.tallyEvent || ['add-future-capacity', 'add-cruising-speed'].includes(rule?.operation)
@@ -1012,6 +1012,7 @@ export function matchesRowCondition(when = {}, event, pass, slot, lastOccupied) 
   if (when.collectorReeling !== undefined && !!event.collectorReeling !== when.collectorReeling) return false;
   if (when.lastOccupied !== undefined && (slot === lastOccupied) !== when.lastOccupied) return false;
   if (when.pass !== undefined && pass !== when.pass) return false;
+  if (when.heartsLost !== undefined && integer(event.heartsLost) !== when.heartsLost) return false;
   return true;
 }
 /** Position rules (docs/card-proposals.md section 1, batch 1): `when.exactlyEarlier` (Twin Flame) and `when.endsShareTrigger`
@@ -1059,6 +1060,7 @@ function baseRewards(def, card, rule, event) {
   if (rule.storedFirstCrossing) base.stored = Math.max(0, Number(rule.storedFirstCrossing) || 0);
   if (rule.operation === "add-stored") base.stored = amount;
   if (rule.operation === "add-stored-per-heart") base.stored = amount * integer(event.heartsLeft);
+  if (rule.operation === "add-stored-per-fired") base.stored = amount * (event.firedInstanceIds || []).filter(id => id !== card?.instanceId).length;
   if (rule.operation === "carried-interest") base.stored = Math.min(10, Math.floor(integer(event.carriedStored) / 10)) * amount;
   if (rule.operation === "add-cruising-speed") base.cruisingSpeed = amount;
   if (rule.operation === "add-future-capacity") base.futureCapacity = cleanCardFutureCapacity(amount);
@@ -1120,7 +1122,9 @@ export function resolveCardRow(runtime, event = {}) {
     firstCrossing: !!event.firstCrossing, pickupKind: event.pickupKind ?? null,
     ...(kind===CARD_ROW_EVENTS.wave?{waveId:event.waveId??null,
       pulseSource:event.pulseSource??null,pulseSourceKind:event.pulseSourceKind??null}:{}),
-    heartsLeft: integer(event.heartsLeft), lastHeart: event.lastHeart === true,
+    heartsLeft: integer(event.heartsLeft), lastHeart: event.lastHeart === true, heartsLost: integer(event.heartsLost),
+    // Victory Lap: the different mounted cards that fired during the flight (`'all'` = every mounted card, for previews).
+    firedInstanceIds: ((mounted) => event.firedInstanceIds === 'all' ? mounted : Array.isArray(event.firedInstanceIds) ? [...new Set(event.firedInstanceIds)].filter(id => mounted.includes(id)) : [])((runtime?.cards || []).slice(0, CARD_ECONOMY.maxSlots).filter(Boolean).map(card => card.instanceId)),
     meterFraction: event.meterFraction ?? null, direction: event.direction ?? null,
     guardRecovering: !!event.guardRecovering, collectorReeling: !!event.collectorReeling,
     availableReel: Math.max(0,Number(event.availableReel)||0),
@@ -1291,14 +1295,27 @@ export function resolveCardRow(runtime, event = {}) {
         const gain = Math.min(amount, Math.max(0, WIND_FEATHER_MAX - integer(source.tally)));
         if (gain > 0) { succeed();pay("cruisingSpeed", gain);source.tally = integer(source.tally) + gain; }
         else step.skipReason = "cruising-speed-cap";
-      } else if (operation === "add-stored" || operation === "carried-interest" || operation === "add-stored-per-heart") {
+      } else if (operation === "add-stored" || operation === "carried-interest" || operation === "add-stored-per-heart" || operation === "add-stored-per-fired") {
         step.operation = operation;
         const gain = operation === "carried-interest" ? Math.min(10, Math.floor(integer(event.carriedStored) / 10)) * amount
-          : operation === "add-stored-per-heart" ? integer(event.heartsLeft) * amount : amount;
+          : operation === "add-stored-per-heart" ? integer(event.heartsLeft) * amount
+          : operation === "add-stored-per-fired" ? receipt.event.firedInstanceIds.filter(id => id !== source.instanceId).length * amount : amount;
         if (gain > 0) {
           succeed();
           pay("stored", gain, operation === "carried-interest" ? 10 * amount : undefined);
-        } else step.skipReason = operation === "add-stored-per-heart" ? "no-hearts" : "no-carried-interest";
+        } else step.skipReason = operation === "add-stored-per-heart" ? "no-hearts" : operation === "add-stored-per-fired" ? "no-cards-fired" : "no-carried-interest";
+      } else if (operation === "fire-first-card") {
+        // Curtain Call: at Finish the card in Slot 1 fires its normal Sparks `amount` times (credited to Curtain Call's own slot, so the plates add up). Only the printed Sparks: no Gilded, Lodestone, Twin Mark or
+        // use spent. Boosts to the right of Curtain Call strengthen them like any Sparks. Growth and Stored payouts never repeat (they have no Sparks to fire).
+        step.operation = operation;
+        const first = topology[0], firstDef = SKILL_CARDS[first?.cardId], firstSource = live.get(first?.instanceId);
+        const firstRule = firstDef && firstSource && creditSlot !== 0 && !firstDef.engine ? getCardRowRule(firstDef, firstSource) : null;
+        const each = firstRule?.operation === "add-sparks" && !(firstDef.charges && !(firstSource.charges > 0)) ? Math.max(0, positionAmount(firstRule, topology, 0, Number(firstRule.amount) || 0)) : 0;
+        if (each > 0) {
+          succeed();
+          for (let n = 0; n < amount; n++) { pay("sparks", each); }
+          receipt.payerActions++;payers++;step.firedSlot = 0;
+        } else step.skipReason = creditSlot === 0 ? "is-first-card" : !first ? "empty-first-slot" : "nothing-to-fire";
       } else if (operation === "shorten-reel") {
         step.operation = operation;
         const seconds = Math.min(amount, budget("reelSeconds"));

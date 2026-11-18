@@ -1,9 +1,9 @@
 /** Configuration hints only. Every numeric verdict comes from a read-only row quote. */
-import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=stops-2';
-import { rowSnapshot, slotInscriptionList } from './inscriptions.mjs?v=stops-2';
-import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=stops-2';
-import { normalizeCompanionFleet } from './companion-abilities.mjs?v=stops-2';
-import { skillProgress } from './skill-increments.mjs?v=stops-2';
+import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=finish-1';
+import { rowSnapshot, slotInscriptionList } from './inscriptions.mjs?v=finish-1';
+import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=finish-1';
+import { normalizeCompanionFleet } from './companion-abilities.mjs?v=finish-1';
+import { skillProgress } from './skill-increments.mjs?v=finish-1';
 
 /** Labels are plain instructions (docs/card-teaching-plan.md §3); `code` is stable for code. */
 const ready = reason => ({ state: 'ready', symbol: '✓', label: 'Ready', code: 'ready', reason, fix: 'Keep this order to use it when its Trigger happens.' });
@@ -44,7 +44,7 @@ function fixtures(context) {
     add(CARD_ROW_EVENTS.attach, { pickupKind, availableRecovery: 4, availableReel: 4, collectorReeling: true }, { guard: false, recovery: false });
   }
   add(CARD_ROW_EVENTS.victory, {}, { guard: false, recovery: false });
-  add(CARD_ROW_EVENTS.clear, {carriedStored:100,heartsLeft:1}, { guard: false, recovery: false });
+  add(CARD_ROW_EVENTS.clear, {carriedStored:100,heartsLeft:1,firedInstanceIds:'all'}, { guard: false, recovery: false });
   if (context.rhythm) add(CARD_ROW_EVENTS.rhythm);
   if (context.guide) add(CARD_ROW_EVENTS.guideLift);
   if (context.field) for (const direction of ['up', 'down', 'right'])
@@ -148,6 +148,8 @@ export function getEquippedCardStatuses(run = {}, native = null) {
       if (replaySlots.size) return shared('Only one Encore fires', 'Another Refrain already gives this chain its one Encore per Trigger. More Refrains add nothing.', 'one-encore');
       return blocked('Nothing to fire again', 'No card in this chain gives anything more in an Encore. A card whose last use goes the first time cannot fire again.', 'Add a card with a Trigger, or keep enough uses for the Encore.', 'no-encore');
     }
+    if (kind === 'curtain-call' && !successes.has(slot))
+      return blocked('Nothing to fire in Slot 1', cards[0] && cards[0] !== card ? `${name(cards[0])} in Slot 1 has no Sparks to fire at the Finish.` : 'Slot 1 is empty or is Curtain Call itself, so there is nothing to fire.', 'Put a card that adds Sparks in Slot 1, to the left of Curtain Call.', 'nothing-to-fire');
     if (rule) {
       // A Boost with no Trigger of its own also strengthens always-on cards to its left.
       if (rule.operation === 'multiply' && !successes.has(slot) && alwaysOn.some(entry => entry.boostedBy.some(boost => boost.slot === slot)))

@@ -5,7 +5,7 @@
 // full rules, which the "?" help window shows (card-ui.mjs › cardHelpDescription). Numbers the player tracks during a
 // run (uses left, a growth or tally counter) stay on the face as badges, not here.
 // The internal trigger keys (card-rule-bands.mjs › CARD_TRIGGERS) are untouched; this is a wording layer on top of them.
-import {getCardRuleBands, getCardTrigger} from './card-rule-bands.mjs?v=stops-2';
+import {getCardRuleBands, getCardTrigger} from './card-rule-bands.mjs?v=finish-1';
 
 /** Words for Triggers that the display layer (card-trigger-labels.mjs) leaves without a chip, as [word, glossary key]. */
 const EXTRA_WORDS = Object.freeze({
@@ -57,7 +57,7 @@ const LINES = Object.freeze({
   counterweight: 'Falling: Collector 0.75 s sooner',
   'glide-prism': '×2 before it', 'courier-glass': '×2 before it', 'clear-prism': '×2 before it', 'wick-doubler': '×2 before it',
   'mending-moss': 'While recovering: 3 s sooner',
-  'home-beacon': '+3 Stored per heart left', 'last-light': 'Last heart: rewards ×2', 'flash-bank': '{fx} when low',
+  'home-beacon': '+3 Stored per heart left', 'clean-run': '+5 Stored, no heart lost', 'victory-lap': '+1 Stored per card fired', 'curtain-call': 'first card fires ×3', 'last-light': 'Last heart: rewards ×2', 'flash-bank': '{fx} when low',
   'return-spring': 'Reels in 0.5 s sooner',
   'haul-winch': 'Cluster: reel 3 s sooner',
   'crate-lining': '{fx} Cache, half Cluster',

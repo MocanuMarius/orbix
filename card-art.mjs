@@ -1,6 +1,6 @@
-import {SKILL_CARDS} from './skill-cards.mjs?v=stops-2';
-import {CARD_ART_FILES} from './card-art-files.mjs?v=stops-2';
-import {duskCardArt} from './dusk-card-art.mjs?v=stops-2';
+import {SKILL_CARDS} from './skill-cards.mjs?v=finish-1';
+import {CARD_ART_FILES} from './card-art-files.mjs?v=finish-1';
+import {duskCardArt} from './dusk-card-art.mjs?v=finish-1';
 /** Sixteen original scenes share one locally cached, square-cell atlas.
  * Order matches the 4×4 asset; each SVG clips exactly one 313px cell. */
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -18,6 +18,9 @@ const ART = Object.freeze({
   'courier-cord': {description:'A bright cord joins a pale Collector to a small wisp.'},
   'meter-mark': {description:'A gold notch beside a nearly full Spark Meter.'},
   'finish-flag': {description:'A gold flag above a bar that fills toward the finish.'},
+  'clean-run': {description:'A whole gold heart above a finish mark beside a small wisp.'},
+  'victory-lap': {description:'Gold Sparks round an oval lap track with a wisp inside.'},
+  'curtain-call': {description:'Gold curtains open on a small wisp with three Sparks above it.'},
   rhythm: {description:'Three evenly spaced golden wavefronts glow over a stream between dark cliffs.'},
   'harvest-common': {description:'A pearly luminous flower blooms above a field of small pale woodland blossoms.'},
   'harvest-rare': {description:'Three glowing blue water flowers spread ripples across a moonlit ruin pool.'},

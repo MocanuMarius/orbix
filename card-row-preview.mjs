@@ -1,8 +1,8 @@
 /** Try row is a quote of the equipped row, never a flight or a reward settlement. */
-import {CARD_ROW_EVENTS, SKILL_CARDS, describeSkillCard, previewCardRowEvent, hasCardRowEvent, cleanCardCruisingSpeed} from './skill-cards.mjs?v=stops-2';
-import {rowSnapshot} from './inscriptions.mjs?v=stops-2';
-import {getCardRowCards, getCardRowSource, describeCardRowScenario} from './card-row-help.mjs?v=stops-2';
-import {getCardRowTriggerContext, getCardRowTriggerIssue} from './card-status.mjs?v=stops-2';
+import {CARD_ROW_EVENTS, SKILL_CARDS, describeSkillCard, previewCardRowEvent, hasCardRowEvent, cleanCardCruisingSpeed} from './skill-cards.mjs?v=finish-1';
+import {rowSnapshot} from './inscriptions.mjs?v=finish-1';
+import {getCardRowCards, getCardRowSource, describeCardRowScenario} from './card-row-help.mjs?v=finish-1';
+import {getCardRowTriggerContext, getCardRowTriggerIssue} from './card-status.mjs?v=finish-1';
 
 const n = value => Number((Number(value) || 0).toFixed(3));
 const count = value => Math.max(0, Math.floor(Number(value) || 0));
@@ -62,7 +62,7 @@ export function getCardRowPreviewEvents(run = {}) {
       : kind === CARD_ROW_EVENTS.field ? [{guardRecovering:false,collectorReeling:false,availableRecovery:10,availableReel:0}]
       : [CARD_ROW_EVENTS.clear,CARD_ROW_EVENTS.victory].includes(kind) ? [states[0]] : states;
     for (const pickupKind of pickups) for (const meterFraction of meters) for (const firstCrossing of crossings) for (const direction of directions) for (const state of allowedStates) {
-      const event = {kind,pickupKind,meterFraction,firstCrossing,direction,...state,carriedStored:carryIn(run),heartsLeft:Math.max(0,Number(run.lives)||0),lastHeart:run.lives===1,cruisingSpeedRoom:speedRoom(run)};
+      const event = {kind,...(kind === CARD_ROW_EVENTS.clear ? {firedInstanceIds:'all'} : {}),pickupKind,meterFraction,firstCrossing,direction,...state,carriedStored:carryIn(run),heartsLeft:Math.max(0,Number(run.lives)||0),lastHeart:run.lives===1,cruisingSpeedRoom:speedRoom(run)};
       const unavailableReason = issueForEvent(event,context);
       const qualifiers = [];
       if ([CARD_ROW_EVENTS.body,CARD_ROW_EVENTS.delivery,CARD_ROW_EVENTS.attach].includes(kind) && (pickups.length > 1 || pickupKind !== 'light')) qualifiers.push(pickupKind === 'light' ? 'Spark' : pickupKind === 'dusk' ? 'Dusk' : pickupKind === 'cluster' ? 'Cluster' : 'Cache');

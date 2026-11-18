@@ -1,18 +1,18 @@
-import { flightDevoured, devouredLine } from "./devour-notes.mjs?v=stops-2";
-import { wispChipText } from "./start-bonus.mjs?v=stops-2";
-import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=stops-2";
-import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=stops-2";
-import { uiIcon } from "./ui-icons.mjs?v=stops-2";
-import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=stops-2";
-import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=stops-2";
-import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=stops-2";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=stops-2";
-import { activeFlightPact } from './flight-pacts.mjs?v=stops-2';
-import { cardArt } from "./card-art.mjs?v=stops-2";
-import { cardTileLine } from "./card-tile-lines.mjs?v=stops-2";
-import { slotInscriptionId } from "./inscriptions.mjs?v=stops-2";
-import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=stops-2";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=stops-2';
+import { flightDevoured, devouredLine } from "./devour-notes.mjs?v=finish-1";
+import { wispChipText } from "./start-bonus.mjs?v=finish-1";
+import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=finish-1";
+import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=finish-1";
+import { uiIcon } from "./ui-icons.mjs?v=finish-1";
+import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=finish-1";
+import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=finish-1";
+import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=finish-1";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=finish-1";
+import { activeFlightPact } from './flight-pacts.mjs?v=finish-1';
+import { cardArt } from "./card-art.mjs?v=finish-1";
+import { cardTileLine } from "./card-tile-lines.mjs?v=finish-1";
+import { slotInscriptionId } from "./inscriptions.mjs?v=finish-1";
+import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=finish-1";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=finish-1';
 import {
   getMountedCards,
   getOwnedCards,
@@ -29,13 +29,13 @@ import {
   getSkillWallet,
   equipOwnedCard,
   canRerollCardDraft,
-} from "./model.mjs?v=stops-2";
-import { resourceSymbol } from "./game-symbols.mjs?v=stops-2";
-import { choiceScene } from "./choice-art.mjs?v=stops-2";
-import { livesMarkup } from "./lives.mjs?v=stops-2";
-import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=stops-2";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=stops-2";
-import {canDreamAt, dreamConfig} from './dream.mjs?v=stops-2';
+} from "./model.mjs?v=finish-1";
+import { resourceSymbol } from "./game-symbols.mjs?v=finish-1";
+import { choiceScene } from "./choice-art.mjs?v=finish-1";
+import { livesMarkup } from "./lives.mjs?v=finish-1";
+import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=finish-1";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=finish-1";
+import {canDreamAt, dreamConfig} from './dream.mjs?v=finish-1';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -49,7 +49,7 @@ import {
   SKILL_CARDS,
   cardTallyLine,
   cardAmount,
-} from "./skill-cards.mjs?v=stops-2";
+} from "./skill-cards.mjs?v=finish-1";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -98,7 +98,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=stops-2";
+export { cardArt } from "./card-art.mjs?v=finish-1";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
