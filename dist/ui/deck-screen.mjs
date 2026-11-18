@@ -144,7 +144,7 @@ function liftOptsHTML(d, view) {
   const o = d.chain.liftOptions;
   if (!o || d.chain.trigger !== LIFT_KIND || !(o.falling || o.cue)) return '';
   const btn = (key, label, short, on) => `<button type="button" class="dk2-btn dk24-lopt${on ? ' dk24-on' : ''}" data-lift-opt="${key}" aria-pressed="${on}" aria-label="Lift ${esc(label.toLowerCase())}: ${on ? 'on' : 'off'}"><i aria-hidden="true"></i><span class="dk24-long">${esc(label)}</span><span class="dk24-short" aria-hidden="true">${esc(short)}</span></button>`;
-  return `<div class="dk24-lopts" role="group" aria-label="Which Lift">${o.falling ? btn('falling', 'Falling', 'Fall', view.liftFalling !== false) : ''}${o.cue ? btn('cue', 'On the cue', 'Cue', view.liftCue !== false) : ''}</div>`;
+  return `<div class="dk24-lopts" role="group" aria-label="Which Lift">${o.falling ? btn('falling', 'Falling', 'Fall', view.liftFalling !== false) : ''}</div>`;
 }
 function chipsHTML(d, ev = null, view = {}) {
   const {chain} = d, short = shortScreen();
