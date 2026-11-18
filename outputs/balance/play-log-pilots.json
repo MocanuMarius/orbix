@@ -1,0 +1,144 @@
+{
+ "made": "2026-11-18T22:43:32.710Z",
+ "runs": 6,
+ "pilots": {
+  "player-beginner": {
+   "flights": 41,
+   "clearRate": 0.4146341463414634,
+   "deaths": {
+    "fuel": 7,
+    "terrain": 0,
+    "ceiling": 0,
+    "obstacle": 17,
+    "other": 0
+   },
+   "heartsLost": 0.5853658536585366,
+   "liftsPerSec": 0.7231822910646167,
+   "medianGap": null,
+   "onCue": 0.7012987012987013,
+   "quick": 0.029970029970029972,
+   "glideShare": null,
+   "capture": 0.8123587038432555,
+   "refusedPerFlight": 0.36585365853658536,
+   "secLowPerFlight": 1.343089430894306,
+   "deliveries": 1.3414634146341464,
+   "skims": 0,
+   "overfills": null
+  },
+  "player-average": {
+   "flights": 43,
+   "clearRate": 0.6046511627906976,
+   "deaths": {
+    "fuel": 6,
+    "terrain": 0,
+    "ceiling": 0,
+    "obstacle": 11,
+    "other": 0
+   },
+   "heartsLost": 0.3953488372093023,
+   "liftsPerSec": 0.7186261722106485,
+   "medianGap": null,
+   "onCue": 0.727741935483871,
+   "quick": 0.01935483870967742,
+   "glideShare": null,
+   "capture": 0.8124191461836999,
+   "refusedPerFlight": 0.46511627906976744,
+   "secLowPerFlight": 1.2255813953488346,
+   "deliveries": 1.0930232558139534,
+   "skims": 0,
+   "overfills": null
+  },
+  "player-good": {
+   "flights": 32,
+   "clearRate": 0.6875,
+   "deaths": {
+    "fuel": 7,
+    "terrain": 0,
+    "ceiling": 0,
+    "obstacle": 3,
+    "other": 0
+   },
+   "heartsLost": 0.3125,
+   "liftsPerSec": 0.7256031479057338,
+   "medianGap": null,
+   "onCue": 0.737152034261242,
+   "quick": 0.034261241970021415,
+   "glideShare": null,
+   "capture": 0.8331970564186427,
+   "refusedPerFlight": 0.78125,
+   "secLowPerFlight": 1.32239583333333,
+   "deliveries": 1.125,
+   "skims": 0,
+   "overfills": null
+  },
+  "human150": {
+   "flights": 36,
+   "clearRate": 0.6944444444444444,
+   "deaths": {
+    "fuel": 11,
+    "terrain": 0,
+    "ceiling": 0,
+    "obstacle": 0,
+    "other": 0
+   },
+   "heartsLost": 0.3055555555555556,
+   "liftsPerSec": 0.7136115974164032,
+   "medianGap": null,
+   "onCue": 0.6843657817109144,
+   "quick": 0.004916420845624385,
+   "glideShare": null,
+   "capture": 0.8324646314221892,
+   "refusedPerFlight": 0.8611111111111112,
+   "secLowPerFlight": 2.4759259259259236,
+   "deliveries": 0.9444444444444444,
+   "skims": 0,
+   "overfills": null
+  },
+  "human250": {
+   "flights": 32,
+   "clearRate": 0.71875,
+   "deaths": {
+    "fuel": 4,
+    "terrain": 0,
+    "ceiling": 0,
+    "obstacle": 5,
+    "other": 0
+   },
+   "heartsLost": 0.28125,
+   "liftsPerSec": 0.7180072745971371,
+   "medianGap": null,
+   "onCue": 0.5918904686677199,
+   "quick": 0,
+   "glideShare": null,
+   "capture": 0.8394276629570747,
+   "refusedPerFlight": 0.34375,
+   "secLowPerFlight": 1.4843749999999971,
+   "deliveries": 1.3125,
+   "skims": 0,
+   "overfills": null
+  },
+  "human350": {
+   "flights": 33,
+   "clearRate": 0.6060606060606061,
+   "deaths": {
+    "fuel": 8,
+    "terrain": 0,
+    "ceiling": 0,
+    "obstacle": 5,
+    "other": 0
+   },
+   "heartsLost": 0.3939393939393939,
+   "liftsPerSec": 0.7163435944007767,
+   "medianGap": null,
+   "onCue": 0.4814207650273224,
+   "quick": 0,
+   "glideShare": null,
+   "capture": 0.842809364548495,
+   "refusedPerFlight": 0.45454545454545453,
+   "secLowPerFlight": 2.2550505050505025,
+   "deliveries": 1.4545454545454546,
+   "skims": 0,
+   "overfills": null
+  }
+ }
+}

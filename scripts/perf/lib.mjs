@@ -75,7 +75,7 @@ P.refFlight=async function(seconds=20,biome='pinewood',course=0){
 `;
 
 const INIT=`(()=>{
-try{localStorage.clear();localStorage.setItem('emberwing-muted','true')}catch{}
+try{localStorage.clear();localStorage.setItem('emberwing-muted','true');${process.env.PERF_RECORD_PLAY?"localStorage.setItem('wispbound-record-play','on');":''}}catch{}
 const P=window.__perf={raf:[],ticks:[],renders:[],hud:[],longTasks:[],heap:[],scenes:[],errors:[],marks:[],draws:0,counts:{},recording:false,keepAlive:true,allowDeath:false,autopilot:true,lift:60,deathsPrevented:0,hitsPrevented:0,mutations:0,rafCallbacks:0};
 const raf=window.requestAnimationFrame.bind(window);
 window.requestAnimationFrame=function(cb){P.rafCallbacks++;return raf(cb)};

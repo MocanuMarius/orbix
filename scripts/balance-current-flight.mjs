@@ -265,7 +265,7 @@ function simulate(config){
  const modifiers={...getRunModifiers(config.run||{skills:config.skills,artifacts:[],companions:config.fleet,companionRole:config.fleet[0]}),...(config.onboardingPlan?{onboardingPlan:config.onboardingPlan}:{})};
  const e=new WispFlight({canvas:canvas(),node:config.node,seed:config.seed,terrain:config.terrain,duration:config.duration,
   elite:config.profile==='gauntlet',companions:config.fleet,companionRole:config.fleet[0],modifiers,
-  skills:config.skills,condensedGlow:config.run?.condensedGlow||0,condensedRemainder:config.run?.condensedRemainder||0,flame:config.run?.flame??(config.practice?80:FLAME_TUNING.starting),onFinish:value=>{result=value;}});
+  skills:config.skills,condensedGlow:config.run?.condensedGlow||0,condensedRemainder:config.run?.condensedRemainder||0,flame:config.run?.flame??(config.practice?80:FLAME_TUNING.starting),...config.engineOptions,onFinish:value=>{result=value;}});
  config.prepareEngine?.(e);
  const record={levelId:config.node.levelId,biomeId:config.node.biomeId,terrain:config.terrain,difficulty:config.difficulty,stage:config.stage,role:config.role,fleet:config.fleet,
   style:config.style,profile:config.profile,seed:config.seed,practice:config.practice,duration:config.duration,

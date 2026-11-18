@@ -135,6 +135,7 @@ export class LuminanceWaves {
             hit=true;packet.collected=true;packet.purified=true;
             e.burst?.(packet.x-(e.distance||0),packet.y,5,'#c7ead4');
           } else {
+            if(e.rec)e.rec.pulses++;
             const meterFraction=(e.flame||0)/(e.maxFlame||100);
             const gain=Math.min((bookFuel?1/GLOW_DISPLAY_SCALE:0)+(cardFuel&&!orderedCards?cardMeter:0),Math.max(0,(e.maxFlame||100)-(e.flame||0)));
             e.flame=(e.flame||0)+gain;e.flameRestored=(e.flameRestored||0)+gain;

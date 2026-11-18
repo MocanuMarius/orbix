@@ -83,13 +83,14 @@ export function instrument(e, log = {}) {
 }
 
 /** Fly one real flight. opts: ids, inscriptions, seedIndex, stage, levelId, duration, hook(engine, log), assist flags. */
-export function fly({ ids, inscriptions = [], seedIndex = 0, stage = 2, levelId, style = 'human150', duration, run, hook, flare = false, gen = 2, flame } = {}) {
+export function fly({ ids, inscriptions = [], seedIndex = 0, stage = 2, levelId, style = 'human150', duration, run, hook, flare = false, gen = 2, flame, engineOptions } = {}) {
   const level = BIOME_LEVELS.find(l => l.id === levelId) || BIOME_LEVELS.find(l => L?.LANDFORM_RECIPES?.[l.id]) || BIOME_LEVELS[0];
   const config = buildCase({ terrain: level.terrain, difficulty: 1, stage, role: 'collector', style, seedIndex, profile: 'cavern', skills: {} });
   config.seed += `:${level.id}`;
   if (duration) config.duration = duration;
   Object.assign(config.node, { levelId: level.id, biomeId: level.biomeId, locationName: level.name });
   config.run = run || makeRun(ids, { seed: config.seed, inscriptions, flame });
+  if (engineOptions) config.engineOptions = engineOptions;
   const log = {};
   config.prepareEngine = e => { log.engine = e; instrument(e, log); if (flare) seekFlare(e); hook?.(e, log, config); };
   L?.overrideCourseGeneration?.(gen);
