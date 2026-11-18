@@ -7,7 +7,7 @@ import { auditAll } from '../scripts/balance/card-works-audit.mjs';
 
 // Designs that do not work in real flights today, with the owner proposal in outputs/balance/card-works.md (not redesigned here).
 const KNOWN_DESIGN = new Set([]);
-const KNOWN_UNPROVEN = new Set(['tailwind', 'springboard', 'long-spool', 'cast-line', 'black-hole', 'devourer', 'last-light']);
+const KNOWN_UNPROVEN = new Set(['last-light']); // the six in-flight cards have probes now (scripts/balance/card-works-probes.mjs)
 const flights = Number(process.env.CARD_WORKS_FLIGHTS || 0);
 
 test(`every released card works as its face says (${flights ? flights + ' real flights each' : 'solver tier'})`, { timeout: 900000 }, () => {
@@ -20,4 +20,11 @@ test(`every released card works as its face says (${flights ? flights + ' real f
   }
   assert.deepEqual(problems, []);
   assert.ok(rows.length >= 100);
+});
+
+test('in-flight cards match their text: Heart Stitch, Springboard, Long Spool, Cast Line, Black Hole, Devourer (probes)', () => {
+  for (const r of auditAll({ flights: 0, only: ['tailwind', 'springboard', 'long-spool', 'cast-line', 'black-hole', 'devourer'] })) {
+    assert.equal(r.tier, 'probe', r.id);
+    assert.equal(r.status, 'works', `${r.id}: ${r.notes.join('; ')}`);
+  }
 });
