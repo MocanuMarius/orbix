@@ -47,7 +47,7 @@ export const CARD_TEXT = [
   {id: 'kindling-bead', t: 'Any Trigger', c: 'needs a + card before it', x: '+1 Spark', f: 'D2',
     keep: {t: 'Any Trigger', c: 'needs a + card before it', x: '+1 Spark'}, simple: {t: 'Any Trigger', x: '+1 Spark'}},
   {id: 'growth-ring', t: 'Clear', x: '+1 max Spark forever', n: 'Dropped "Does not refill" and the copy note. Boost: 100-Spark meter cap.'},
-  {id: 'wind-feather', t: 'Clear', x: '+1% speed forever (max +6%)', n: 'Settings note moves to the inspector.'},
+  {id: 'wind-feather', t: 'Clear', x: '+1% speed per Finish, kept on this card (max +10%)', n: 'Changed 2026-11-18: growth stored on the card.'},
   {id: 'wayfarers-purse', t: 'Clear', x: '+5 Stored Sparks', n: '"Cannot earn packing bonuses" is the general rule for card payouts (glossary).'},
   {id: 'nest-egg', t: 'Clear', x: '+1 Stored per 10 brought in (max +10)', n: 'Copy note dropped (normal rule).'},
   {id: 'use-doubler', t: 'Always on', c: 'flight start', x: 'Doubles the next card\'s uses', u: '1 use', n: 'Dropped "Needs a live target / not another Use Doubler / Preview and Dream spend nothing"; status chips already say "Needs consumable right".'},

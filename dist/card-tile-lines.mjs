@@ -27,7 +27,7 @@ export const CARD_TILE_LINES = Object.freeze({
   'clear-prism': 'Doubles all before', 'wick-doubler': 'Doubles all before', 'crescendo': 'Doubles all before',
   'diving-bell': 'Final Pulse, +3 Sparks', 'counterweight': 'Ready 0.75 s sooner', 'haul-winch': 'Next reel 3 s sooner',
   'fast-spool': 'Reels in 3 s sooner', 'rhythm': '3 even Lifts: a Pulse', 'glass-spool': 'Ready 0.5 s sooner',
-  'use-doubler': 'Next card: 2× uses', 'tailwind': '3rd Collect: +1 heart', 'wind-feather': '+1% speed (max 6%)',
+  'use-doubler': 'Next card: 2× uses', 'tailwind': '3rd Collect: +1 heart', 'wind-feather': '+1% speed (max 10%)',
   'twin-orbit': '2nd Collector fetches', 'prism-lens': 'All before ×1.25', 'prism-lens-ii': 'All before ×3',
   'keystone': 'Neighbours fire twice', 'vanguard': 'Slot 1: +3, else +1', 'bookends': 'Ends match: all ×2',
   'empty-chair': '+2 per empty Slot', 'ladder': '+1 per card to left', 'twin-flame': 'Exactly 2 before: ×3', 'spill-jar': 'Half of spill: Stored',

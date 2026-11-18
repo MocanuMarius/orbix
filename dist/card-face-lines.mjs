@@ -65,7 +65,7 @@ const LINES = Object.freeze({
   'mirror-grain': 'Adds last + again', 'closing-chord': 'Last: cards before ×2.5',
   'second-sun': '×2 before, ×3 Encore',
   'edge-reach': 'A Pulse near terrain',
-  'growth-ring': '+1 max Spark forever', 'wind-feather': '+1% speed forever', 'wayfarers-purse': '+5 Stored Sparks',
+  'growth-ring': '+1 max Spark forever', 'wind-feather': '+1% speed per Finish', 'wayfarers-purse': '+5 Stored Sparks',
   'nest-egg': '+1 Stored per 10 packed',
   devourer: 'Eats a Rare: +1 heart', 'use-doubler': 'Next card: 2× uses', 'ember-feeder': 'Eats 2: +1 max Spark',
   'fast-spool': 'While reeling: 3 s sooner',

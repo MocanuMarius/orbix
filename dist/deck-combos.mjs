@@ -32,7 +32,7 @@ const stepResult=steps=>{
   if(sum('amount'))parts.push(`+${sum('amount')} Sparks`);
   if(sum('stored'))parts.push(`+${sum('stored')} Stored Sparks`);
   if(sum('futureCapacity'))parts.push(`+${sum('futureCapacity')} future maximum Sparks`);
-  if(sum('cruisingSpeed'))parts.push(`+${sum('cruisingSpeed')}% cruising speed`);
+  if(sum('cruisingSpeed'))parts.push(`+${sum('cruisingSpeed')}% speed on the card`);
   if(sum('recoverySeconds'))parts.push(`${sum('recoverySeconds')}s recovery saved`);
   if(sum('reelSeconds'))parts.push(`${sum('reelSeconds')}s reel saved`);
   return parts.join(' · ')||'No extra payout';

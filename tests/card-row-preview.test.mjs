@@ -77,14 +77,14 @@ test('low-meter, pickup, recovery, reel and first/later conditions remain distin
 test('clear uses real carry-in and remaining cruising speed room, with a separate zeroed second subtotal', () => {
   const run = row(['nest-egg','wind-feather','growth-ring','refrain'],{condensedGlow:99,cardCruisingSpeedUnlocked:5,attemptActive:true,attemptEntry:{cardCarriedStored:20,condensedGlow:80}});
   const p = previewEquippedCardRow(run,option(run,CARD_ROW_EVENTS.clear).id);
-  assert.equal(p.event.carriedStored,20);assert.equal(p.event.cruisingSpeedRoom,1);
-  assert.equal(p.totals.stored,4);assert.equal(p.totals.cruisingSpeed,1);assert.equal(p.totals.futureCapacity,2);
+  assert.equal(p.event.carriedStored,20);
+  assert.equal(p.totals.stored,4);assert.equal(p.totals.cruisingSpeed,2);assert.equal(p.totals.futureCapacity,2);
   assert.match(p.assumptions,/20 Stored Sparks carried into this flight/);
   const last = p.frames.at(-1);
   for (const key of Object.keys(p.totals)) assert.equal(last.totals[key],p.trace[key]);
-  run.cardCruisingSpeedUnlocked=6;
+  run.mountedCards[1].tally=10;
   const capped=previewEquippedCardRow(run,option(run,CARD_ROW_EVENTS.clear).id);
-  assert.equal(capped.totals.cruisingSpeed,0);assert.match(capped.steps[1].reason,/\+6%/);
+  assert.equal(capped.totals.cruisingSpeed,0);assert.match(capped.steps[1].reason,/\+10%/);
 });
 
 test('nonrow physical consumers and passives never execute or consume in the preview', () => {

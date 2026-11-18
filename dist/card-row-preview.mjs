@@ -17,7 +17,7 @@ const labels = {
 const zeroTotals = () => ({sparks:0, stored:0, futureCapacity:0, cruisingSpeed:0, recoverySeconds:0, reelSeconds:0});
 export const cardRowPreviewTotalsLabel = totals => [
   `+${n(totals.sparks)} Sparks`, totals.stored ? `+${n(totals.stored)} Stored Sparks` : '',
-  totals.futureCapacity ? `+${n(totals.futureCapacity)} maximum Sparks` : '', totals.cruisingSpeed ? `+${n(totals.cruisingSpeed)}% cruising speed` : '',
+  totals.futureCapacity ? `+${n(totals.futureCapacity)} maximum Sparks` : '', totals.cruisingSpeed ? `+${n(totals.cruisingSpeed)}% speed on the card` : '',
   totals.recoverySeconds ? `−${n(totals.recoverySeconds)}s recovery` : '', totals.reelSeconds ? `−${n(totals.reelSeconds)}s reel` : '',
 ].filter(Boolean).join(' · ');
 
@@ -72,7 +72,7 @@ export function getCardRowPreviewEvents(run = {}) {
       if (allowedStates.length > 1) qualifiers.push(state.guardRecovering ? 'after a save' : state.collectorReeling ? 'Collector reeling' : state.availableRecovery ? 'Collector recovering' : 'Collector ready');
       const description = describeCardRowScenario(event,{steps:matching.map(({slot}) => ({sourceCardId:getCardRowSource(cards,slot)?.source?.cardId})),recoverySeconds:state.availableRecovery});
       const assumptions = [description,
-        kind === CARD_ROW_EVENTS.clear ? `${event.carriedStored} Stored Sparks ${run.attemptActive && run.attemptEntry ? 'carried into this flight' : 'assumed carried into the next flight'}; ${event.cruisingSpeedRoom}% cruising speed remains before the +6% cap` : '',
+        kind === CARD_ROW_EVENTS.clear ? `${event.carriedStored} Stored Sparks ${run.attemptActive && run.attemptEntry ? 'carried into this flight' : 'assumed carried into the next flight'}; Wind Feather speed is kept on each card (max +10%)` : '',
         state.availableReel ? `${state.availableReel}s reel and recovery remaining` : state.availableRecovery ? `${state.availableRecovery}s recovery remaining` : 'Collector recovery budget: 0s',
         'Card Sparks are shown before the Spark Meter limit; the pickup’s own fuel, drains and other abilities are separate.',
       ].filter(Boolean).join(' · ');
@@ -99,7 +99,7 @@ function stepReason(step, cards, event) {
       'no-productive-action':'Nothing worked on this Trigger, so Refrain gives no Encore.',
       'no-recovery':'Collector has no recovery time left to shorten in this scenario.', 'no-active-reel':'Collector has no reel time left to shorten in this scenario.',
       'empty-future-capacity':'No max Spark gain to its left to multiply.', 'no-carried-interest':'Fewer than 10 Stored Sparks were carried into the flight.',
-      'cruising-speed-cap':'The expedition has already unlocked the +6% cruising speed cap.',
+      'cruising-speed-cap':'This card already holds the +10% speed maximum.',
     };
     if (skips[step.skipReason]) return skips[step.skipReason];
     if (step.skipReason === 'different-event-or-passive') return `${describeSkillCard(acting)?.name || 'This card'} is always on, or a separate ability. It does not fire on this Trigger.`;
@@ -123,7 +123,7 @@ function stepReason(step, cards, event) {
   if (step.operation === 'add-last-payout') effect = `Adds the last + card’s Sparks again: +${n(step.amount)} Sparks.`;
   if (step.stored) effect += ` Adds ${n(step.stored)} Stored Sparks.`;
   if (step.futureCapacity) effect = `Adds ${n(step.futureCapacity)} maximum Sparks permanently on a real flight clear. This preview grants nothing.`;
-  if (step.cruisingSpeed) effect = `Unlocks ${n(step.cruisingSpeed)}% cruising speed on a real flight clear, within the +6% cap.`;
+  if (step.cruisingSpeed) effect = `Adds ${n(step.cruisingSpeed)}% speed to the card on a real flight clear, up to +10%.`;
   if (step.recoverySeconds) effect = `Shortens Collector’s remaining recovery from ${n(step.recoveryBefore)}s to ${n(step.recoveryAfter)}s.`;
   if (step.reelSeconds) effect = `Shortens the current reel from ${n(step.reelBefore)}s to ${n(step.reelAfter)}s.`;
   if (step.copiedBy) effect = `Uses ${describeSkillCard(source)?.name || def?.name || 'the immediate right card'}${step.copiedBy === 'echo' ? `, repeat ${step.repeatIndex+1}` : ''}. ${effect}`;

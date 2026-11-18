@@ -15,7 +15,7 @@ function totalsText(totals = {}) {
     totals.futureCapacity ? `+${number(totals.futureCapacity)} future maximum Sparks` : '',
     totals.recoverySeconds ? `−${number(totals.recoverySeconds)} s recovery` : '',
     totals.reelSeconds ? `−${number(totals.reelSeconds)} s reel` : '',
-    totals.cruisingSpeed ? `+${number(totals.cruisingSpeed)}% cruising speed` : '',
+    totals.cruisingSpeed ? `+${number(totals.cruisingSpeed)}% speed on the card` : '',
   ].filter(Boolean).join(' · ');
 }
 

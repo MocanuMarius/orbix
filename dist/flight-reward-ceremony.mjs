@@ -59,7 +59,7 @@ export function flightRewardCeremonyReceipt(run){
  const optionalNotes=[{detailKey:'challenge',text:challengePayoutOnly ? null : routeNote?challengeName?`Optional challenge · ${challengeName}: ${routeNote}`:routeNote:flight.challengeComplete?'Optional challenge completed':null},
   {detailKey:'event-seal',text:flight.treasureWager?.message},{detailKey:'event-vow',text:flight.vow?.message},{detailKey:'event-chest',text:chestPayoutOnly?null:chestNote}].filter(entry=>entry.text);
  const growthNotes=[{detailKey:'effect-growth',text:clear?.futureCapacity>0?`${sourceLabel('Cards on clear',sourceNames('futureCapacity'))} · +${count(clear.futureCapacity)} permanent maximum Sparks`:null},
-  {detailKey:'effect-speed',text:clear?.cruisingSpeed>0?`${sourceLabel('Cards on clear',sourceNames('cruisingSpeed'))} · +${count(clear.cruisingSpeed)}% cruising speed unlocked`:null}].filter(entry=>entry.text);
+  {detailKey:'effect-speed',text:clear?.cruisingSpeed>0?`${sourceLabel('Cards on clear',sourceNames('cruisingSpeed'))} · +${count(clear.cruisingSpeed)}% speed, kept on the card`:null}].filter(entry=>entry.text);
  const relicEntries=Object.entries(flight.artifactActivations||{}).filter(([id,amount])=>ARTIFACTS[id]&&count(amount)>0).map(([id,amount])=>({artifactId:id,detailKey:`artifact:${id}`,text:`${ARTIFACTS[id].name} · activated ×${count(amount)}`}));
  relicEntries.push(...(Array.isArray(flight.consumedArtifacts)?flight.consumedArtifacts:[]).filter(id=>ARTIFACTS[id]).map(id=>({artifactId:id,detailKey:`artifact:${id}`,text:`${ARTIFACTS[id].name} · uses depleted this flight`})));
  const effectEntries=[...optionalNotes,...growthNotes,...relicEntries];

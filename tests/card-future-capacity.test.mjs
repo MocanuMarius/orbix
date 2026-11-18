@@ -5,6 +5,7 @@ import {CARD_UNIT,CARD_ROW_EVENTS,SKILL_CARDS,makeSkillCard,createCardExecution,
 import {getGlowCapacity,getLifeCapacity,formatGlow} from '../dist/vitality.mjs';
 import {getEquippedCardStatuses} from '../dist/card-status.mjs';
 import {cardVictoryRecap} from '../dist/card-ui.mjs';
+import {cardTallyLine} from '../dist/skill-cards.mjs';
 
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
 const row=ids=>ids.map((id,i)=>id?makeSkillCard(id,`progress:${i}`):null);
@@ -86,27 +87,34 @@ test('failed, TEST, Dream and legacy attempts do not earn permanent growth',()=>
  }
 });
 
-test('Wind Feather unlocks at most six percentage points with copies/replay; baseline remains selectable and saved',()=>{
- let state=fresh(['echo-iii','wind-feather','refrain']);clearFirst(state);M.settleCheckpoint(state);
- assert.equal(state.run.lastFlight.cardClearReceipt.cruisingSpeed,6);assert.equal(state.profile.cardCruisingSpeed,6);
- assert.equal(state.run.lastFlight.cardClearReceipt.steps.reduce((sum,step)=>sum+step.cruisingSpeed,0),6);
- assert.equal(previewCardRow(row(['wind-feather','refrain']),{kind:CARD_ROW_EVENTS.clear,cruisingSpeedRoom:0}).cruisingSpeed,0);
- assert.equal(M.getCruisingSpeed(state),6);near(M.getRunModifiers(state.run).speed,1.06);
- assert.ok(M.setCruisingSpeed(state,0));near(M.getRunModifiers(state.run).speed,1);assert.equal(M.setCruisingSpeed(state,7),false);
- state=reload(state);assert.equal(M.getCruisingSpeed(state),0);assert.equal(state.settings.cardCruisingSpeed,0);
- assert.ok(M.setCruisingSpeed(state,3));near(M.getRunModifiers(state.run).speed,1.03);
- const next=M.createRun(state.profile,'speed-selection',1,{cards:true,cruisingSpeed:M.getCruisingSpeed(state)});near(M.getRunModifiers(next).speed,1.03);
- M.settleCheckpoint(state);assert.equal(state.profile.cardCruisingSpeed,6);
+test('Wind Feather grows on its own card: +1% per cleared flight, max +10%, only while mounted, kept by save and load',()=>{
+ const speed=state=>M.getRunModifiers(state.run).speed;
+ let state=fresh(['wind-feather']);near(speed(state),1);
+ clearFirst(state);M.settleCheckpoint(state);
+ const card=()=>state.run.mountedCards[0];
+ assert.equal(card().tally,1);assert.equal(state.run.lastFlight.cardClearReceipt.cruisingSpeed,1);
+ assert.equal(state.profile.cardCruisingSpeed,0,'nothing is unlocked in the profile or Settings any more');
+ near(speed(state),1.01);
+ assert.equal(cardTallyLine(card()),'+1% speed · now +1%');
+ state=reload(state);assert.equal(state.run.mountedCards[0].tally,1);near(speed(state),1.01);
+ // Unmounted: the number stays on the card, the bonus leaves with it.
+ const kept=state.run.mountedCards[0];state.run.mountedCards[0]=null;near(speed(state),1);assert.equal(kept.tally,1);
+ // At 9 one more clear reaches +10% and the display says max; at 10 a clear adds nothing.
+ const top=fresh(['wind-feather']);top.run.mountedCards[0].tally=9;clearFirst(top);
+ assert.equal(top.run.mountedCards[0].tally,10);near(M.getRunModifiers(top.run).speed,1.1);assert.equal(cardTallyLine(top.run.mountedCards[0]),'+10% speed (max)');
+ const full=fresh(['wind-feather']);full.run.mountedCards[0].tally=10;clearFirst(full);
+ assert.equal(full.run.mountedCards[0].tally,10);assert.equal(full.run.lastFlight.cardClearReceipt.cruisingSpeed,0);
+ const other=fresh(['body-spark']);clearFirst(other);assert.equal(other.run.lastFlight.cardClearReceipt.cruisingSpeed,0);near(M.getRunModifiers(other.run).speed,1);
 });
 
-test('changing cruising speed during an active attempt waits until the following flight',()=>{
- const state=fresh(['wind-feather']);state.profile.cardCruisingSpeed=6;state.run.cardCruisingSpeedUnlocked=6;state.run.cardCruisingSpeed=6;
- selectNext(state);assert.ok(M.beginFlightAttempt(state.run));assert.ok(M.setCruisingSpeed(state,0));
- near(M.getRunModifiers(state.run).speed,1.06);M.settleCheckpoint(state);near(M.getRunModifiers(state.run).speed,1.06);
- assert.ok(M.finishFlight(state.run,{success:false,flame:0}));assert.equal(state.run.cardCruisingSpeedNext,0);
- selectNext(state);assert.ok(M.beginFlightAttempt(state.run));near(M.getRunModifiers(state.run).speed,1);
- assert.equal(state.run.cardCruisingSpeedNext,undefined);
+test('Wind Feather copies each keep their own number, together capped at +10%; an Encore adds a second step but a Boost adds nothing',()=>{
+ const state=fresh(['wind-feather','wind-feather','clear-prism','refrain']);
+ state.run.mountedCards[0].tally=9;state.run.mountedCards[1].tally=9;
+ clearFirst(state);assert.deepEqual(state.run.mountedCards.slice(0,2).map(c=>c.tally),[10,10]);near(M.getRunModifiers(state.run).speed,1.1);
+ const one=fresh(['wind-feather','clear-prism']);clearFirst(one);assert.equal(one.run.mountedCards[0].tally,1,'a Boost to its right adds nothing');
+ const enc=fresh(['wind-feather','refrain']);clearFirst(enc);assert.equal(enc.run.mountedCards[0].tally,2,'an Encore fires it again');
 });
+
 
 test('Purse and Nest Egg pay clear-only currency from carried-in savings and never pack their own output',()=>{
  for(const [carried,expected]of [[0,0],[9,0],[10,1],[29,2],[100,10],[999,10]]){
