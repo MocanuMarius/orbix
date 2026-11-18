@@ -1,16 +1,16 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=record-1';
-import {lifeHeartSvg} from './lives.mjs?v=record-1';
-import {duskGlyphArt} from './spark-symbol.mjs?v=record-1';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=record-1';
-import {glowGaugeUnits} from './glow-ui.mjs?v=record-1';
-import {getRunModifiers} from './model.mjs?v=record-1';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=record-1';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=record-1';
-import {dreamEye} from './dream.mjs?v=record-1';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=record-1';
-import {INSCRIPTIONS} from './inscriptions.mjs?v=record-1';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=record-1';
+import { resourceSymbol } from './game-symbols.mjs?v=nozoom-1';
+import {lifeHeartSvg} from './lives.mjs?v=nozoom-1';
+import {duskGlyphArt} from './spark-symbol.mjs?v=nozoom-1';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=nozoom-1';
+import {glowGaugeUnits} from './glow-ui.mjs?v=nozoom-1';
+import {getRunModifiers} from './model.mjs?v=nozoom-1';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=nozoom-1';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=nozoom-1';
+import {dreamEye} from './dream.mjs?v=nozoom-1';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=nozoom-1';
+import {INSCRIPTIONS} from './inscriptions.mjs?v=nozoom-1';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=nozoom-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   inscription: ['Inscription', 'An effect written on a Chain slot, not on a card. It stays on the slot when cards move, swap or leave. Some change the card on that slot; some work on any slot, even an empty one. Get one from the Scribe after an Elite or Guardian. One per slot; writing again replaces it.'],
@@ -469,7 +469,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=record-1').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=nozoom-1').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -480,7 +480,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=record-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=nozoom-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

@@ -13,3 +13,6 @@ input,textarea,select,[contenteditable=""],[contenteditable="true"],.selectable{
 ::selection{background:transparent;color:inherit}
 input::selection,textarea::selection,.selectable::selection{background:Highlight;color:HighlightText}
 img,svg,canvas{-webkit-user-drag:none}
+
+/* No browser zoom while playing: fast taps and two-thumb presses must never pinch- or double-tap-zoom the page (owner, 19 November 2026: the view zoomed out mid-flight and cost a heart). Scrolling inside menus still works. */
+html,body{touch-action:pan-x pan-y}

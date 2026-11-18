@@ -1,10 +1,10 @@
 /** Pause menu (v1.5-pause) and Settings (v1.1-settings) in the v2.5-theme Atlas composition. Pure markup; styles in ui/waystone.css.
  * The data-action names are the ones the game's delegated click handler already dispatches. */
-import {escapeHtml as esc} from './primitives.mjs?v=record-1';
-import {menuIcon as icon} from '../menu-icons.mjs?v=record-1';
-import {resourceSymbol} from '../game-symbols.mjs?v=record-1';
-import {clampLevel,LEVEL_STEPS} from '../sound-level.mjs?v=record-1';
-import {lifeHeartSvg} from '../lives.mjs?v=record-1';
+import {escapeHtml as esc} from './primitives.mjs?v=nozoom-1';
+import {menuIcon as icon} from '../menu-icons.mjs?v=nozoom-1';
+import {resourceSymbol} from '../game-symbols.mjs?v=nozoom-1';
+import {clampLevel,LEVEL_STEPS} from '../sound-level.mjs?v=nozoom-1';
+import {lifeHeartSvg} from '../lives.mjs?v=nozoom-1';
 
 /** One Waystone plaque. role = primary | standard | quiet | danger. Quiet and rust plaques carry no art or subtitle. */
 export function waystoneSign(role,title,{action,sub='',art='',attrs=''}={}){

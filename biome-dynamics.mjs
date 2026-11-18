@@ -1,8 +1,8 @@
-import { DRAFT_TUNING } from './drafts.mjs?v=record-1';
-import { scenePropBounds } from './scene-props.mjs?v=record-1';
-import { formatGlow } from './vitality.mjs?v=record-1';
-import { lightVisibility } from './light-field.mjs?v=record-1';
-import { inLanternRoom } from './lantern-layout.mjs?v=record-1';
+import { DRAFT_TUNING } from './drafts.mjs?v=nozoom-1';
+import { scenePropBounds } from './scene-props.mjs?v=nozoom-1';
+import { formatGlow } from './vitality.mjs?v=nozoom-1';
+import { lightVisibility } from './light-field.mjs?v=nozoom-1';
+import { inLanternRoom } from './lantern-layout.mjs?v=nozoom-1';
 
 // Small, deterministic actors attached to existing terrain. Static mountain
 // meshes never change, and each actor is used once: no repeatable currency farm.

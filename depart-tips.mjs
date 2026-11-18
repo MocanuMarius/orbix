@@ -21,14 +21,14 @@
 //   devour                      a Devour card is in the Chain (card-black-hole.mjs isDevourCard)
 //   rest-ahead / scribe-ahead   a stop right after this flight is a Rest / a Scribe stop
 //   can-add-slot                the Chain has fewer than five slots
-import {pendingOathId, getOath, oathShort} from './oaths.mjs?v=record-1';
-import {CARD_CATALOG} from './card-catalog.mjs?v=record-1';
-import {getBiome} from './biomes.mjs?v=record-1';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=record-1';
-import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=record-1';
-import {onboardingFlightPlan} from './onboarding.mjs?v=record-1';
-import {isDevourCard} from './card-black-hole.mjs?v=record-1';
-import {getInscription} from './inscriptions.mjs?v=record-1';
+import {pendingOathId, getOath, oathShort} from './oaths.mjs?v=nozoom-1';
+import {CARD_CATALOG} from './card-catalog.mjs?v=nozoom-1';
+import {getBiome} from './biomes.mjs?v=nozoom-1';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=nozoom-1';
+import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=nozoom-1';
+import {onboardingFlightPlan} from './onboarding.mjs?v=nozoom-1';
+import {isDevourCard} from './card-black-hole.mjs?v=nozoom-1';
+import {getInscription} from './inscriptions.mjs?v=nozoom-1';
 
 export const TIPS = Object.freeze([
  // ── General: fine in any run ──────────────────────────────────────────────────────────────
