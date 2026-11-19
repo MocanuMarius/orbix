@@ -5,7 +5,7 @@
 // full rules, which the "?" help window shows (card-ui.mjs › cardHelpDescription). Numbers the player tracks during a
 // run (uses left, a growth or tally counter) stay on the face as badges, not here.
 // The internal trigger keys (card-rule-bands.mjs › CARD_TRIGGERS) are untouched; this is a wording layer on top of them.
-import {getCardRuleBands, getCardTrigger} from './card-rule-bands.mjs?v=simrun-1';
+import {getCardRuleBands, getCardTrigger} from './card-rule-bands.mjs?v=skim-1';
 
 /** Words for Triggers that the display layer (card-trigger-labels.mjs) leaves without a chip, as [word, glossary key]. */
 const EXTRA_WORDS = Object.freeze({
@@ -31,7 +31,7 @@ export function faceTrigger(card = {}, definition = {}) {
 const LINES = Object.freeze({
   'field-impulse': 'Swipe to float or dive',
   'lift-guide': '{fx} on the cue',
-  'skim-line': '+1 Spark', 'pulse-reader': '+1 Spark', 'courier-cord': '+1 Spark', 'meter-mark': 'keeps 1 Stored', 'finish-flag': '+2 Stored',
+  'skim-line': '+12 Sparks', 'pulse-reader': '+1 Spark', 'courier-cord': '+1 Spark', 'meter-mark': 'keeps 1 Stored', 'finish-flag': '+2 Stored',
   rhythm: '3 even Lifts: a Pulse',
   'harvest-legendary': '+2 Sparks, +1 Stored',
   'camp-kit': '2 Rest actions',

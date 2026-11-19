@@ -4,10 +4,10 @@
 // for a Lift, or the tab is hidden (the flight pauses itself then), and which advances by the fixed simulation step,
 // so a given seed and input give the same engine log. Eligibility mirrors resolveCardRowEvent: no engine during a
 // Dream rehearsal, the clear/death animations, or a tutorial without practice cards.
-import {CARD_UNIT} from './skill-cards.mjs?v=simrun-1';
-import {CardEngine, hasEngineCards} from './card-engine.mjs?v=simrun-1';
-import {appendFires, engineFire, engineBars} from './chain-strip.mjs?v=simrun-1';
-import {createFlashTether, FLASH_PULSE_INTERVAL} from './flash-tether.mjs?v=simrun-1';
+import {CARD_UNIT} from './skill-cards.mjs?v=skim-1';
+import {CardEngine, hasEngineCards} from './card-engine.mjs?v=skim-1';
+import {appendFires, engineFire, engineBars} from './chain-strip.mjs?v=skim-1';
+import {createFlashTether, FLASH_PULSE_INTERVAL} from './flash-tether.mjs?v=skim-1';
 
 const live = e => !!(e.cardEngine && e.cardExecution && e.running && !e.paused && e.alive && !e.finished && !e.destroyed
   && !e.dying && !e.completing && !(e.tutorial && !e.mod?.practiceCards) && !(e.dream && e.dream.phase !== 'done'));
@@ -19,6 +19,7 @@ function flightHost(e) {
     gain: printed => {
       const g = Math.min(printed * CARD_UNIT, Math.max(0, e.maxFlame - e.flame));
       e.flame += g; e.flameRestored += g;
+      if (e.rec) e.rec.cardSparks += g / CARD_UNIT; // play recorder: engine-card Sparks count like row-rule ones (flight.mjs)
       return g / CARD_UNIT;
     },
     store: n => { e.cardEngineStored = (e.cardEngineStored || 0) + n; },

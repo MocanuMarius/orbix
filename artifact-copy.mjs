@@ -1,8 +1,8 @@
-import {resourceSymbol} from './game-symbols.mjs?v=simrun-1';
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=simrun-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=simrun-1';
-import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=simrun-1';
-import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=simrun-1';
+import {resourceSymbol} from './game-symbols.mjs?v=skim-1';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=skim-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=skim-1';
+import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=skim-1';
+import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=skim-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const action={collector:'Collector delivers a Spark',protector:'Protector deflects a collision',swift:'Runner starts a burst',leveler:'Space Timer starts levitating'};
