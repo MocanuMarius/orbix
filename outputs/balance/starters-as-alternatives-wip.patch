@@ -1,0 +1,175 @@
+diff --git a/dist/card-ui.css b/dist/card-ui.css
+index 34930731..c4d4ee2c 100644
+--- a/dist/card-ui.css
++++ b/dist/card-ui.css
+@@ -1903,3 +1903,10 @@ html body .card-reroll.is-dim small{display:block!important}
+ @media(prefers-reduced-motion:reduce){.card-draft-option.is-rerolled .card-draft-face{animation:none}}
+ @media(max-height:360px){.start-slot-plate small{display:none}}
+ html body .card-reroll small{font-size:12px!important;line-height:1.15!important;opacity:1!important;color:#2a2118!important}
++
++/* Start bonus tile: the starter card that comes with an Inscription or Wisp pick (2026-11-19). */
++.start-with-card{display:flex;align-items:center;gap:5px;margin-top:3px;font:10px/1.1 var(--pixel);color:#c9d9b5;min-width:0}
++.start-with-card>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
++.start-with-art{flex:none;display:block;width:18px;height:25px}
++.start-with-art>.skill-card-art,.start-with-art img{width:18px!important;height:25px!important;object-fit:contain;border:1px solid #71856e;background:#101e1b;display:block}
++html body .start-with-card{color:#16301f;margin:3px 16px 9px;justify-content:center}
+diff --git a/dist/card-ui.mjs b/dist/card-ui.mjs
+index cc3ea23e..1f63a304 100644
+--- a/dist/card-ui.mjs
++++ b/dist/card-ui.mjs
+@@ -232,17 +232,17 @@ export function startBonusTileMarkup(gift, { fitted = false } = {}) {
+   const ins = gift.kind === 'inscription';
+   const art = ins ? `<span class="start-slot-plate" aria-hidden="true">${inscriptionGlyph(gift.glyph, { size: 48, role: 'presentation' })}<small>Slot 1</small></span>` : wispArt(gift.wispId);
+   const word = ins ? 'Inscription' : 'Wisp stat', text = ins ? `Slot 1: ${gift.description}` : gift.description;
+-  return `<article class="skill-card card-readable card-common start-tile start-tile-${gift.kind} ${fitted ? 'card-fitted' : ''}" data-start-kind="${gift.kind}" data-card-name="${esc(gift.name)}"><header class="card-face-heading"><h3>${esc(gift.name)}</h3></header><div class="card-illustration">${art}</div><div class="card-rule-band" role="group" aria-label="${esc(gift.name)}"><span class="card-mechanics"><span class="card-mechanic-main"><span class="card-rule-stripe card-rule-condition"><span class="card-rule-text"><strong>${word}</strong></span></span><span class="card-rule-stripe card-rule-effect"><span class="card-rule-text">${esc(text)}</span></span></span></span></div></article>`;
++  const withLine = gift.withCard ? `<span class="start-with-card"><span class="start-with-art">${cardArt(gift.withCard, { compact: true })}</span><span>+ ${esc(cardName(gift.withCard))}</span></span>` : '';
++  return `<article class="skill-card card-readable card-common start-tile start-tile-${gift.kind} ${fitted ? 'card-fitted' : ''}" data-start-kind="${gift.kind}" data-card-name="${esc(gift.name)}"><header class="card-face-heading"><h3>${esc(gift.name)}</h3></header><div class="card-illustration">${art}</div><div class="card-rule-band" role="group" aria-label="${esc(gift.name)}"><span class="card-mechanics"><span class="card-mechanic-main"><span class="card-rule-stripe card-rule-condition"><span class="card-rule-text"><strong>${word}</strong></span></span><span class="card-rule-stripe card-rule-effect"><span class="card-rule-text">${esc(text)}</span></span></span>${withLine}</span></div></article>`;
+ }
+ export function starterCardsMarkup(run, gifts, existing) {
+-  const guide=describeSkillCard(makeSkillCard('lift-guide','included-starter-guide'));
+   const capacity=run.cardFutureCapacity>0?`<small>+${run.cardFutureCapacity} permanent maximum Sparks · starting full at ${formatGlow(run.flame)}/${formatGlow(getGlowCapacity(run))}.</small>`:'';
+-  return `<section class="card-starter"><header class="card-heading"><div><h2>${run.cardStarterVersion === 4 ? 'Choose your start' : 'Choose one starting card'}</h2><small>Pick 1 of ${gifts.length}. ${DRAFT_HINT}</small>${capacity}</div><div class="card-starter-included">${cardArt(guide,{compact:true})}<span><strong>Lift Guide included</strong><small>You can keep it or Melt it</small></span></div><button class="secondary" data-action="close-sheet">Back</button></header><div class="card-starter-pair${gifts.length===3?' card-starter-trio':''}" data-tap-pick-group>${gifts.map(gift => { const card = gift.card || { ...gift, effect: gift.description, rarity: 'common' }, face = gift.kind === 'inscription' || gift.kind === 'wisp' ? startBonusTileMarkup(gift, {fitted:gifts.length===3}) : cardFace(card,{fitted:gifts.length===3}); return `<div role="button" tabindex="0" class="card-pick" data-tap-pick aria-pressed="false" data-action="${existing ? 'existing-gift' : 'new-gift'}" data-id="${esc(gift.id)}" aria-label="${esc(cardName(card))}. Tap to select, tap again to start with it.">${face}</div>`; }).join('')}</div></section>`;
++  return `<section class="card-starter"><header class="card-heading"><div><h2>${run.cardStarterVersion >= 4 ? 'Choose your start' : 'Choose one starting card'}</h2><small>Pick 1 of ${gifts.length}. ${DRAFT_HINT}</small>${capacity}</div><button class="secondary" data-action="close-sheet">Back</button></header><div class="card-starter-pair${gifts.length===3?' card-starter-trio':''}" data-tap-pick-group>${gifts.map(gift => { const card = gift.card || { ...gift, effect: gift.description, rarity: 'common' }, face = gift.kind === 'inscription' || gift.kind === 'wisp' ? startBonusTileMarkup(gift, {fitted:gifts.length===3}) : cardFace(card,{fitted:gifts.length===3}); return `<div role="button" tabindex="0" class="card-pick" data-tap-pick aria-pressed="false" data-action="${existing ? 'existing-gift' : 'new-gift'}" data-id="${esc(gift.id)}" aria-label="${esc(cardName(card))}. Tap to select, tap again to start with it.">${face}</div>`; }).join('')}</div></section>`;
+ }
+ export function starterGiftConfirmationMarkup(run, preview, existing) {
+   const gift=preview.gift, card=gift.card || {...gift,effect:gift.description,rarity:'common'};
+-  const placement=isInventoryOnlyCard(card) ? `${esc(cardName(card))} stays in your Deck, ready at Rest. Lift Guide starts equipped, with two free slots.` : 'Both cards start equipped, with one free slot.';
+-  return `<section class="card-starter-confirm"><header class="card-heading"><div><h2>Are you sure?</h2><small>Start with ${esc(cardName(card))}</small></div></header><div class="card-starter-confirm-body"><div class="card-starter-confirm-face">${cardFace(card)}</div><div><h3>${esc(cardName(card))} + Lift Guide</h3><p>${placement}</p><p>Lift Guide is yours. Keep it, move it to reserve, or Melt it for Stored Sparks.</p></div></div><footer class="card-dialog-actions"><button class="secondary" data-action="cancel-starting-gift" data-existing="${!!existing}">No</button><button class="primary" data-action="confirm-starting-gift" data-id="${esc(gift.id)}" data-token="${esc(preview.token)}" data-existing="${!!existing}">Yes</button></footer></section>`;
++  const placement=isInventoryOnlyCard(card) ? `${esc(cardName(card))} stays in your Deck, ready at Rest.` : 'It starts equipped, with two free slots.';
++  return `<section class="card-starter-confirm"><header class="card-heading"><div><h2>Are you sure?</h2><small>Start with ${esc(cardName(card))}</small></div></header><div class="card-starter-confirm-body"><div class="card-starter-confirm-face">${cardFace(card)}</div><div><h3>${esc(cardName(card))}</h3><p>${placement}</p></div></div><footer class="card-dialog-actions"><button class="secondary" data-action="cancel-starting-gift" data-existing="${!!existing}">No</button><button class="primary" data-action="confirm-starting-gift" data-id="${esc(gift.id)}" data-token="${esc(preview.token)}" data-existing="${!!existing}">Yes</button></footer></section>`;
+ }
+ export const deckIcon = (kind = 'deck') => `<svg class="card-nav-art" viewBox="0 0 24 24" shape-rendering="crispEdges" aria-hidden="true"><path fill="#746a54" d="${kind === 'swap' ? 'M2 5h14V2l6 6-6 6v-3H2zm20 14H8v3l-6-6 6-6v3h14z' : kind === 'slot' ? 'M2 2h20v20H2z' : 'M1 6h4v16H1zM6 3h4v19H6zM11 1h12v21H11z'}"/><path fill="#d5c693" d="${kind === 'swap' ? 'M3 6h14V5l3 3-3 3V9H3zm18 10H7v-2l-3 3 3 3v-2h14z' : kind === 'slot' ? 'M4 4h16v16H4z' : 'M2 8h2v12H2zM7 5h2v15H7zM13 3h8v17h-8z'}"/><path fill="#fff4c5" d="${kind === 'slot' ? 'M6 6h12v2H8v10H6z' : kind === 'swap' ? 'M3 6h10v1H3zm8 10h10v1H11z' : 'M14 4h6v2h-6z'}"/></svg>`;
+ export const furnaceIcon = () => '<svg class="card-furnace-icon" viewBox="0 0 24 24" shape-rendering="crispEdges" aria-hidden="true"><path fill="#927769" d="M5 2h4v5h6V2h4v7h2v13H3V9h2z"/><path fill="#41271f" d="M7 10h10v9H7z"/><path fill="#ee8744" d="M9 17v-4h2v-3h2v4h2v4H9z"/><path fill="#ffe0a0" d="M11 16h2v3h-2z"/><path fill="#c0a08a" d="M5 20h14v2H5zM3 9h18v2H3z"/></svg>';
+diff --git a/dist/model.mjs b/dist/model.mjs
+index 969d35b5..9fe0c458 100644
+--- a/dist/model.mjs
++++ b/dist/model.mjs
+@@ -9,7 +9,7 @@ import {CARD_UNIT as ENGINE_CARD_UNIT} from './skill-cards.mjs?v=guide-clarity-1
+ import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=guide-clarity-1';
+ import {getCardRuleBands} from './card-rule-bands.mjs?v=guide-clarity-1';
+ import {mergeGrowthSeeds} from './skill-cards.mjs?v=guide-clarity-1';
+-import {START_BONUS_VERSION,drawStartBonusIds,applyWispBonus,getWispStat} from './start-bonus.mjs?v=guide-clarity-1';
++import {START_BONUS_VERSION,accompanyingStarterCardId,drawStartBonusIds,applyWispBonus,getWispStat} from './start-bonus.mjs?v=guide-clarity-1';
+ import {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,isInventoryOnlyCard,getInventoryCampCards,makeSkillCard,cleanCardRun,settleCardReward,getCardStarterOffers,drawSkillCard,drawSkillCardDraft,describeSkillCard,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,getCardModifiers,getCardPackingBonus,getCardGrowthUses,getCardGrowthBonus,cleanCardFutureCapacity,createCardExecution,resolveCardRow,CARD_ROW_EVENTS,commitCardCharges,recordCardEvent,drawForgeCard,CARD_FORGE_RARITIES,rerollDraftOffer,canRerollDraft} from './skill-cards.mjs?v=guide-clarity-1';
+ export {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,commitCardCharges} from './skill-cards.mjs?v=guide-clarity-1';
+ import {pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=guide-clarity-1';
+@@ -492,9 +492,9 @@ export function chooseStartingGift(state,id,expectedPreviewToken){
+  const gift=preview.gift;
+  if(isCardRun(run)){
+   if(gift.kind==='inscription'||gift.kind==='wisp'){
+-   // Start bonus: Lift Guide is always mounted. An Inscription is written on Chain slot 1 (Hollow needs an empty slot 1, so Lift Guide moves to slot 2); a Wisp stat lasts the whole run (run.wispBonus).
+-   const guide=makeSkillCard('lift-guide',`${run.campaignSeed}:starter:lift-guide`),hollow=gift.inscriptionId==='hollow';
+-   run.mountedCards[hollow?1:0]=guide;
++   // Start bonus: an Inscription is written on Chain slot 1, a Wisp stat lasts the whole run (run.wispBonus). Either comes with ONE seeded starter card (start-bonus.mjs > accompanyingStarterCardId) so the Chain is never empty; Hollow needs an empty slot 1, so the card moves to slot 2.
++   const withId=accompanyingStarterCardId(run.campaignSeed||run.seed),withCard=makeSkillCard(withId,`${run.campaignSeed}:starter:${withId}`),hollow=gift.inscriptionId==='hollow';
++   run.mountedCards[hollow?1:0]=withCard;
+    if(gift.kind==='inscription')writeInscription(run,0,gift.inscriptionId);
+    else{
+     run.wispBonus=gift.wispId;const stat=getWispStat(run);
+@@ -503,17 +503,14 @@ export function chooseStartingGift(state,id,expectedPreviewToken){
+     if(stat.stored){run.condensedGlow=(run.condensedGlow||0)+stat.stored;run.securedCondensedGlow=(run.securedCondensedGlow||0)+stat.stored;run.condensedEarned=(run.condensedEarned||0)+stat.stored;}
+    }
+    run.cardStarterVersion=Math.max(2,run.cardStarterVersion||0);run.startingGiftId=id;
+-   recordCardEvent(run,'starter',{startBonus:id,includedCardId:'lift-guide'});return true;
++   recordCardEvent(run,'starter',{startBonus:id,includedCardId:withId});return true;
+   }
+-  const secondId=gift.cardId==='lift-guide'?(getCardStarterOffers(run).find(o=>o.kind==='card'&&o.cardId&&o.cardId!=='lift-guide')?.cardId||'finish-flag'):'lift-guide';
++  // A starter-card pick mounts that ONE card and nothing else (owner decision 2026-11-19: alternatives, not additives).
+   const firstCard=makeSkillCard(gift.cardId,`${run.campaignSeed}:starter:${gift.cardId}`);
+   if(isInventoryOnlyCard(firstCard))run.reserveCards.push(firstCard);
+   else run.mountedCards[0]=firstCard;
+-  run.mountedCards[1]=makeSkillCard(secondId,`${run.campaignSeed}:starter:${secondId}`);
+-  // Dream devours the card to its right at take-off, so the game never builds a Chain with a card there: Dream goes last.
+-  if(SKILL_CARDS[run.mountedCards[0]?.cardId]?.kind==='dream'&&run.mountedCards[1])[run.mountedCards[0],run.mountedCards[1]]=[run.mountedCards[1],run.mountedCards[0]];
+   run.cardStarterVersion=Math.max(2,run.cardStarterVersion||0);run.startingGiftId=id;
+-  recordCardEvent(run,'starter',{cardId:gift.cardId,includedCardId:secondId});return true;
++  recordCardEvent(run,'starter',{cardId:gift.cardId});return true;
+  }
+  const capacity=getGlowCapacity(run);
+  if(gift.skillId){
+diff --git a/dist/skill-cards.mjs b/dist/skill-cards.mjs
+index 9c95c141..1fb85501 100644
+--- a/dist/skill-cards.mjs
++++ b/dist/skill-cards.mjs
+@@ -2,7 +2,7 @@
+ import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=guide-clarity-1";
+ export const CARD_SYSTEM = "cards-v1";
+ export const CARD_UNIT = 10 / 3;
+-import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=guide-clarity-1';
++import {accompanyingStarterCardId,drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=guide-clarity-1';
+ import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=guide-clarity-1';
+ import {cardOfferMultiplier} from './card-offer-context.mjs?v=guide-clarity-1';
+ import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=guide-clarity-1';
+@@ -717,17 +717,18 @@ export const STARTER_CARD_IDS = Object.freeze(['lift-guide', 'skim-line', 'pulse
+ /** Start bonus offers (version 4 runs): three tiles, each a starter card, an ordinary Inscription or a Wisp stat (start-bonus.mjs). Seeded by the run. */
+ function startBonusOffers(run) {
+   const saved = run.startBonusOfferIds, ids = Array.isArray(saved) && saved.length === 3 && new Set(saved).size === 3 && saved.every(isStartBonusId) ? saved : drawStartBonusIds(run.campaignSeed || run.seed);
++  const withCardId = accompanyingStarterCardId(run.campaignSeed || run.seed), withCard = describeSkillCard(makeSkillCard(withCardId, `starter:${withCardId}`));
+   return ids.map(id => {
+     const kind = startBonusKind(id), key = id.slice(kind.length + 1);
+-    if (kind === 'inscription') { const ins = getInscription(key); return { id, kind, inscriptionId: key, name: ins.name, description: ins.text, glyph: ins.glyph, family: ins.kind, rarity: 'common', artifactIds: [] }; }
+-    if (kind === 'wisp') { const stat = WISP_STATS[key]; return { id, kind, wispId: key, name: stat.name, description: stat.text, chip: stat.chip, rarity: 'common', artifactIds: [] }; }
++    if (kind === 'inscription') { const ins = getInscription(key); return { id, kind, inscriptionId: key, name: ins.name, description: ins.text, glyph: ins.glyph, family: ins.kind, rarity: 'common', artifactIds: [], withCardId, withCard }; }
++    if (kind === 'wisp') { const stat = WISP_STATS[key]; return { id, kind, wispId: key, name: stat.name, description: stat.text, chip: stat.chip, rarity: 'common', artifactIds: [], withCardId, withCard }; }
+     const card = describeSkillCard(makeSkillCard(key, `starter:${key}`)), d = SKILL_CARDS[key];
+     return { id, kind: 'card', cardId: key, name: d.name, description: card.effect, rarity: d.rarity, card, artifactIds: [] };
+   });
+ }
+ export function getCardStarterOffers(run, { legacy = false } = {}) {
+-  if (!legacy && isCardRun(run) && run.cardStarterVersion === 4 && !run.cardStarterOfferIds) return startBonusOffers(run);
+-  const oldPair = legacy || isCardRun(run) && run.cardStarterVersion !== 3 && run.cardStarterVersion !== 4,
++  if (!legacy && isCardRun(run) && run.cardStarterVersion >= 4 && !run.cardStarterOfferIds) return startBonusOffers(run);
++  const oldPair = legacy || isCardRun(run) && !(run.cardStarterVersion >= 3),
+     draw = random(`${run.campaignSeed || run.seed}:card-starter:${oldPair ? 'v1' : 'v3'}`),
+     shuffle = pool => {
+       for (let i = pool.length - 1; i > 0; i--) {
+diff --git a/dist/start-bonus.mjs b/dist/start-bonus.mjs
+index 16f927dd..625d1f49 100644
+--- a/dist/start-bonus.mjs
++++ b/dist/start-bonus.mjs
+@@ -1,12 +1,22 @@
+ // Start bonus (owner request 2026-11-18): at the start of a card run the player picks ONE of three bonuses. Each tile is drawn
+ // independently from one combined pool: a starter card, an ordinary Scribe Inscription (written on Chain slot 1), or a Wisp stat that
+ // lasts the whole run. The three kinds are weighted equally per tile (1/3 each), whatever the pool sizes; no duplicates in one offer.
+-// Pure data and helpers, no DOM. Lift Guide is always mounted as well (model.mjs › chooseStartingGift).
++// Pure data and helpers, no DOM. A starter-card pick mounts that ONE card (owner decision 2026-11-19: the starter cards are alternatives, not additives).
++// An Inscription or Wisp pick comes with ONE seeded starter card so the Chain is never empty: see accompanyingStarterCardId (the one place to remove that).
+ import {INSCRIPTION_IDS} from './inscriptions.mjs?v=guide-clarity-1';
+ 
+-export const START_BONUS_VERSION = 4;
+-/** Ordinary Inscriptions that would do nothing on slot 1 at run start (Lift Guide beside two empty slots): Whetted (Lift Guide has no uses), Mirror (nothing to its left), Lodestone (it buffs the cards beside its slot, none yet). Hollow stays: Lift Guide then goes in slot 2. tests/start-bonus.test.mjs checks this list against inscriptionOnCard. */
++export const START_BONUS_VERSION = 5;
++/** Ordinary Inscriptions that would do nothing on slot 1 at run start whatever card sits there: : Whetted (Lift Guide has no uses), Mirror (nothing to its left), Lodestone (it buffs the cards beside its slot, none yet). Hollow stays: the accompanying card then goes in slot 2. */
+ export const NO_EFFECT_AT_START = Object.freeze(['whetted', 'mirror', 'lodestone']);
++/** Inscriptions that do nothing on one particular accompanying card (from inscriptionEffect; tests/start-bonus.test.mjs re-checks this table). */
++export const NO_EFFECT_ON_CARD = Object.freeze({
++  'lift-guide': Object.freeze([]),
++  'skim-line': Object.freeze(['resonant', 'kindled', 'courier', 'wellspring', 'flare', 'brimful']),
++  'pulse-reader': Object.freeze(['resonant']),
++  'courier-cord': Object.freeze(['courier']),
++  'meter-mark': Object.freeze(['twin-mark', 'gilded', 'resonant', 'kindled', 'courier', 'wellspring', 'flare', 'brimful']),
++  'finish-flag': Object.freeze(['twin-mark', 'gilded', 'resonant', 'kindled', 'courier', 'wellspring', 'flare', 'brimful']),
++});
+ export const START_CARD_IDS = Object.freeze(['lift-guide', 'skim-line', 'pulse-reader', 'courier-cord', 'meter-mark', 'finish-flag']);
+ /** Wisp stats: stored on the run as run.wispBonus = id. Applied in getRunModifiers (reach, light, recovery), vitality (Meter, hearts) and once at the pick (hearts filled, Stored Sparks). */
+ export const WISP_STATS = Object.freeze({
+@@ -42,11 +52,17 @@ const POOLS = Object.freeze({card: START_CARD_IDS.map(id => `card:${id}`), inscr
+ const KINDS = Object.freeze(['card', 'inscription', 'wisp']);
+ export const startBonusKind = id => String(id).split(':')[0];
+ export const isStartBonusId = id => typeof id === 'string' && KINDS.some(kind => POOLS[kind].includes(id));
++/** The ONE starter card that comes with an Inscription or Wisp start bonus (so the Chain is never empty), seeded by the run. Remove this function and its callers (model.mjs › chooseStartingGift, skill-cards.mjs › startBonusOffers, card-ui.mjs tile line) to start those runs with an empty Chain. It is never also offered as a card tile. */
++export function accompanyingStarterCardId(seed) {
++  const draw = random(`${seed}:start-bonus:with-card:v5`);
++  return START_CARD_IDS[Math.floor(draw() * START_CARD_IDS.length)];
++}
+ /** Three offer ids ('card:x', 'inscription:x', 'wisp:x'), seeded by `seed`: per tile a kind with equal chance, then an unused member of that kind. */
+ export function drawStartBonusIds(seed) {
+-  const draw = random(`${seed}:start-bonus:v4`), picked = [];
++  const draw = random(`${seed}:start-bonus:v5`), picked = [], withCard = accompanyingStarterCardId(seed);
++  const pools = {...POOLS, card: POOLS.card.filter(id => id !== `card:${withCard}`), inscription: POOLS.inscription.filter(id => !NO_EFFECT_ON_CARD[withCard].includes(id.slice(12)))};
+   while (picked.length < 3) {
+-    const pool = POOLS[KINDS[Math.floor(draw() * 3)]].filter(id => !picked.includes(id));
++    const pool = pools[KINDS[Math.floor(draw() * 3)]].filter(id => !picked.includes(id));
+     picked.push(pool[Math.floor(draw() * pool.length)]);
+   }
+   return picked;
