@@ -2737,7 +2737,7 @@ export class WispFlight {
       wisp: this.getWispState(),
       ability, companions:this.getCompanionStates().map(item=>({...item})),shield:this.getShieldState(),leveler:this.getLevelerState(),
       completing:this.completing,completionProgress:this.completionProgress,collectorAura:this.getCollectorAuraState(),dying:this.dying,dyingProgress:this.dyingProgress,deathCause:this.deathCause,
-      light: this.getLightState(),cardMeterMark:!!this.mod.cardMeterMark,cardFinishFlag:!!this.mod.cardFinishFlag,edgingPulse:this.edgingPulse.state,luminanceWaves:this.luminanceWaves.getState(),
+      light: this.getLightState(),cardMeterMark:!!this.mod.cardMeterMark,edgingPulse:this.edgingPulse.state,luminanceWaves:this.luminanceWaves.getState(),
       audioFocus:this.fx?.getFocus?.()||0,
       liftGuide:this.getLiftGuide(),
       blackHole:this.blackHoles.state,

@@ -7,7 +7,7 @@ import {INSCRIPTION_IDS} from './inscriptions.mjs?v=guide-clarity-1';
 export const START_BONUS_VERSION = 4;
 /** Ordinary Inscriptions that would do nothing on slot 1 at run start (Lift Guide beside two empty slots): Whetted (Lift Guide has no uses), Mirror (nothing to its left), Lodestone (it buffs the cards beside its slot, none yet). Hollow stays: Lift Guide then goes in slot 2. tests/start-bonus.test.mjs checks this list against inscriptionOnCard. */
 export const NO_EFFECT_AT_START = Object.freeze(['whetted', 'mirror', 'lodestone']);
-export const START_CARD_IDS = Object.freeze(['lift-guide', 'skim-line', 'pulse-reader', 'courier-cord', 'meter-mark', 'finish-flag']);
+export const START_CARD_IDS = Object.freeze(['lift-guide', 'skim-line', 'pulse-reader', 'courier-cord', 'meter-mark']);
 /** Wisp stats: stored on the run as run.wispBonus = id. Applied in getRunModifiers (reach, light, recovery), vitality (Meter, hearts) and once at the pick (hearts filled, Stored Sparks). */
 export const WISP_STATS = Object.freeze({
   radius: Object.freeze({id: 'radius', name: 'Wide Reach', chip: '+20% radius', text: 'Collect radius +20%', reach: 1.2}),

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import * as M from '../dist/model.mjs';
 import {SKILL_CARDS,CARD_ECONOMY,LIVE_CARDS,makeSkillCard,drawSkillCard,drawSkillCardDraft,drawForgeCard,getCardStarterOffers,getCardMeltValue,cleanCardRun} from '../dist/skill-cards.mjs';
 
-const RETIRED = ['field-impulse'];
+const RETIRED = ['field-impulse', 'finish-flag'];
 
 test('the catalog keeps retired entries but the live pool excludes them', () => {
   for (const id of RETIRED) {
@@ -95,4 +95,16 @@ test('a retired card in an unclaimed draft is swapped for a live card of the sam
   assert.ok(!ids.includes('field-impulse'));
   assert.equal(new Set(ids).size, 3);
   assert.equal(SKILL_CARDS[run.cardDraft.offers[0].cardId].rarity, 'common');
+});
+
+test('Finish Flag (retired 2026-11-19): a saved run holding it melts the card to Stored Sparks once and loses the cue', () => {
+  const state = M.newState(), run = state.run = M.createRun(state.profile, 'flag-save', 1, { cards: true });
+  run.mountedCards = [{ instanceId: 'flag:m', cardId: 'finish-flag', rank: 1 }, null, null];
+  run.reserveCards = [{ instanceId: 'flag:r', cardId: 'finish-flag', rank: 1 }];
+  const before = run.condensedGlow || 0, melt = getCardMeltValue({ instanceId: 'p', cardId: 'finish-flag', rank: 1 });
+  let text;
+  assert.ok(M.saveState(state, { setItem: (_, value) => { text = value; } }));
+  const loaded = M.loadState({ getItem: () => text, setItem() {} }).run;
+  assert.ok(![...loaded.mountedCards, ...loaded.reserveCards].some(card => card?.cardId === 'finish-flag'));
+  assert.equal(loaded.condensedGlow, before + 2 * melt);
 });

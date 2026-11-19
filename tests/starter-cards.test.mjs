@@ -1,4 +1,4 @@
-// Pulse Reader, Courier Cord, Meter Mark, Finish Flag (2026-11-18): the Lift Guide pattern for four more Triggers.
+// Pulse Reader, Courier Cord, Meter Mark (2026-11-18; Finish Flag retired 2026-11-19): the Lift Guide pattern for four more Triggers.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { fly, makeRun, M } from '../scripts/balance/real-flight-check.mjs';
@@ -14,7 +14,7 @@ const fire = (ids, inscriptions, kind, extra = {}) => {
   return resolveCardRow(createCardExecution(inscriptions ? { cards, inscriptions: inscriptions.map(id => id ? { id } : null) } : { cards }), { kind, meterFraction: .5, heartsLeft: 2, firstCrossing: true, ...extra });
 };
 const E = CARD_ROW_EVENTS;
-const CARDS = [['pulse-reader', 'Pulse', '+1 Spark', E.wave], ['courier-cord', 'Delivery', '+1 Spark', E.delivery], ['meter-mark', 'Overfill', 'keeps 1 Stored', E.overfill], ['finish-flag', 'Finish', '+2 Stored', E.clear]];
+const CARDS = [['pulse-reader', 'Pulse', '+1 Spark', E.wave], ['courier-cord', 'Delivery', '+1 Spark', E.delivery], ['meter-mark', 'Overfill', 'keeps 1 Stored', E.overfill]];
 
 test('faces: Trigger word and one short effect line; common, copyable, starter-only', () => {
   for (const [id, word, line] of CARDS) {
@@ -38,8 +38,8 @@ test('Pulse Reader and Courier Cord: +1 Spark on their Trigger only; Echo twice;
   }
 });
 
-test('Meter Mark and Finish Flag pay Stored Sparks once; Boosts and Inscriptions never multiply them; Echo repeats', () => {
-  for (const [id, , , kind, stored] of [[...CARDS[2], 1], [...CARDS[3], 2]]) {
+test('Meter Mark pays Stored Sparks once; Boosts and Inscriptions never multiply them; Echo repeats', () => {
+  for (const [id, , , kind, stored] of [[...CARDS[2], 1]]) {
     assert.equal(fire([id], null, kind).stored, stored); assert.equal(fire([id], null, kind).sparks, 0);
     assert.equal(fire([id, 'crescendo'], null, kind).stored, stored, 'a Boost never multiplies Stored Sparks');
     assert.equal(fire([id, 'prism-lens'], null, kind).stored, stored);
@@ -63,18 +63,13 @@ test('real flights: Pulse Reader pays per Pulse crossing, Courier Cord per Deliv
   assert.ok(overfills >= 2 && kept === overfills, `${kept} Stored for ${overfills} Overfills`);
 });
 
-test('Finish Flag: +2 Stored at a real Finish; Echo +4; a Boost adds nothing', () => {
-  const clear = ids => { const run = makeRun(ids, { seed: 'ff' }), n = M.getChoices(run).find(x => x.type !== 'support'); M.selectNode(run, n.id); M.beginFlightAttempt(run); M.finishFlight(run, { success: true, flame: 60, collected: 3 }); return run.lastFlight.cardClearReceipt.stored; };
-  assert.equal(clear(['finish-flag']), 2); assert.equal(clear(['echo', 'finish-flag']), 4); assert.equal(clear(['finish-flag', 'crescendo']), 2);
-});
-
 test('cues are cheap whole-pixel rects, drawn only with the card mounted', () => {
   const calls = []; const c = { save() {}, restore() {}, set globalAlpha(v) {}, set fillStyle(v) {}, fillRect: (...a) => calls.push(a) };
   const e = { mod: {}, player: { x: 100, y: 100 }, time: 5, courierFlashAt: 4.9, distance: 50, distanceOrigin: 0, totalDistance: 1000, width: 900, luminanceWaves: { cue: { lead: 40 } } };
   drawPulseRing(c, e, { scale: 2, playerY: 100 }); assert.equal(calls.length, 16); assert.ok(calls.flat().every(Number.isInteger));
   calls.length = 0; drawCourierFlash(c, e, { scale: 2, playerY: 100 }); assert.ok(calls.length <= 3 && calls.length > 0 && calls.flat().every(Number.isInteger));
   calls.length = 0; e.time = 6; drawCourierFlash(c, e, { scale: 2 }); assert.equal(calls.length, 0, 'the flash lasts 0.35 s');
-  for (const [id, key] of [['pulse-reader', 'cardPulseReader'], ['courier-cord', 'cardCourierCord'], ['meter-mark', 'cardMeterMark'], ['finish-flag', 'cardFinishFlag']])
+  for (const [id, key] of [['pulse-reader', 'cardPulseReader'], ['courier-cord', 'cardCourierCord'], ['meter-mark', 'cardMeterMark']])
     assert.equal(getCardModifiers({ skillSystem: 'cards-v1', mountedCards: [makeSkillCard(id, 'm')], reserveCards: [] })[key], true, key);
   assert.match(glowGaugeMarkup({ flame: 10, skillSystem: 'cards-v1' }), /class="meter-mark"[^>]*hidden/);
 });
@@ -95,10 +90,3 @@ test('Pulse Reader alone: it sends its own Pulse every 8 s, is paid by it, and c
   assert.equal(left.log.slots[0]?.fired || 0, 0, 'a Pulse card to its left is not');
 });
 
-test('Finish Flag bar is HUD markup (night layers never dim it): the flight state carries the card, the HUD gets the .finish-flag class, the bar is 10 px (2026-11-18)', async () => {
-  const fs = await import('node:fs'), read = f => fs.readFileSync(new URL(`../dist/${f}`, import.meta.url), 'utf8');
-  assert.match(read('flight.mjs'), /cardFinishFlag:!!this\.mod\.cardFinishFlag/);
-  assert.match(read('app.mjs'), /classList\.toggle\('finish-flag'/);
-  assert.match(read('glow-ui.css'), /\.flight-progress\.finish-flag\{height:10px/);
-  assert.doesNotMatch(read('starter-cues.mjs'), /drawFinishBar/, 'no dimmed canvas copy');
-});

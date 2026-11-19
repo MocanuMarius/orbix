@@ -7,7 +7,7 @@ import {starterCardsMarkup} from '../dist/card-ui.mjs';
 const fresh=seed=>{const state=M.newState();state.profile.tutorialComplete=true;state.run=M.createRun(state.profile,seed,1,{cards:true});return state;};
 const reload=state=>{let value;const storage={setItem:(_,next)=>value=next,getItem:()=>value};assert.ok(M.saveState(state,storage));return M.loadState(storage);};
 
-test('opening offers are 3 distinct cards from the six starter cards, all Common, in a seeded order independent of Ascension',()=>{
+test('opening offers are 3 distinct cards from the five starter cards, all Common, in a seeded order independent of Ascension',()=>{
   const count=3000,seen={},positions=[0,0,0];
   for(let seed=0;seed<count;seed++){
     const run={skillSystem:CARD_SYSTEM,cardStarterVersion:3,campaignSeed:`starter-distribution-${seed}`,difficulty:1};
@@ -19,7 +19,7 @@ test('opening offers are 3 distinct cards from the six starter cards, all Common
     offers.forEach((gift,i)=>{seen[gift.cardId]=(seen[gift.cardId]||0)+1;if(gift.cardId==='lift-guide')positions[i]++;});
   }
   assert.deepEqual(Object.keys(seen).sort(),[...STARTER_CARD_IDS].sort());
-  for(const id of STARTER_CARD_IDS)assert.ok(Math.abs(seen[id]/count-.5)<.04,`${id} is offered about half the time: ${seen[id]/count}`);
+  for(const id of STARTER_CARD_IDS)assert.ok(Math.abs(seen[id]/count-.6)<.04,`${id} is offered about three times in five: ${seen[id]/count}`);
   assert.ok(positions.every(n=>n>count*.1),positions.join(','));
 });
 
@@ -47,7 +47,7 @@ test('fresh offers retain their order through save, inspection and rejected conf
 });
 
 test('every starter card really equips from a production New Game offer and turns its effect on',()=>{
-  const pending=new Set(STARTER_CARD_IDS),flag={'skim-line':'cardSkimLine','pulse-reader':'cardPulseReader','courier-cord':'cardCourierCord','meter-mark':'cardMeterMark','finish-flag':'cardFinishFlag','lift-guide':'cardLiftGuide'};
+  const pending=new Set(STARTER_CARD_IDS),flag={'skim-line':'cardSkimLine','pulse-reader':'cardPulseReader','courier-cord':'cardCourierCord','meter-mark':'cardMeterMark','lift-guide':'cardLiftGuide'};
   for(let seed=0;seed<300&&pending.size;seed++){
     const state=fresh(`starter-useful-${seed}`);
     for(const gift of M.getStartingGiftOffers(state.run))if(pending.has(gift.cardId)){

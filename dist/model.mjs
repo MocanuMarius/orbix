@@ -505,7 +505,7 @@ export function chooseStartingGift(state,id,expectedPreviewToken){
    run.cardStarterVersion=Math.max(2,run.cardStarterVersion||0);run.startingGiftId=id;
    recordCardEvent(run,'starter',{startBonus:id,includedCardId:'lift-guide'});return true;
   }
-  const secondId=gift.cardId==='lift-guide'?(getCardStarterOffers(run).find(o=>o.kind==='card'&&o.cardId&&o.cardId!=='lift-guide')?.cardId||'finish-flag'):'lift-guide';
+  const secondId=gift.cardId==='lift-guide'?(getCardStarterOffers(run).find(o=>o.kind==='card'&&o.cardId&&o.cardId!=='lift-guide')?.cardId||'skim-line'):'lift-guide';
   const firstCard=makeSkillCard(gift.cardId,`${run.campaignSeed}:starter:${gift.cardId}`);
   if(isInventoryOnlyCard(firstCard))run.reserveCards.push(firstCard);
   else run.mountedCards[0]=firstCard;
