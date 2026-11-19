@@ -21,3 +21,15 @@ Simulated rows are in report section 3; "est." rows extrapolate the Stored part,
 - Skim Line: today negative with an aware pilot (risk of hugging terrain). Skims run about 1/flight blind, 1.5-1.9 aware. Simulated "+6 Sparks and +4 Stored per Skim" = 18 (0.30x). A Skim is too rare to carry it: **widen the skim clearance from 48 to 64 and pay 6 Sparks and 8 Stored per Skim**, est. 40-50 (0.7-0.85x, uncertain: risk cost not modelled for the wider band).
 - Meter Mark: 0.17x (aware, noisy) / 0.46x (card-blind, Lift Guide's today-world); about 10 Overfills per flight: **each Overfill keeps 2 Stored Sparks** (was 1), est. 1.0-1.2x of T.
 - Pulse Reader: 0.57x (old pilots 0.76x): **its own Pulse every 5 s instead of 8**, est. 0.9x.
+
+## Fitted to real play, 19 November
+
+Cause of the starvation on sb1 stop 3 (coral-wreck-canopy): a Black Hole (x 2374, y 296, influence 220 px) that the pilots flew through. They only avoided touching its core; the drain was not in their plan, and they skipped the 12-Spark Cluster near the ceiling that the owner took (flying up keeps you outside the pull). They lost 60+ units of Meter in 3 s and fell at ~21 s, 21-23% of the course, the same place the owner's first attempt fell.
+
+Pilot changes (scripts only): `observeFlight` exposes seen Black Holes; `planHumanLift` prices the drain along each candidate path (`opts.drainWeight`); `playerLiftOptions` steers to the far side of a hole's pull early (`holeMid`); player pilots keep collecting at a full Meter. `PLAYER_PROFILES_LOOSE` (looser cue timing) was tried and not used: on-cue only fell 71% -> 65% while survival dropped.
+
+sb1 stop 3, single attempts: good 1/12 -> 14/20 cleared (9/12 in the first check), average 2/16 -> 10/20, beginner 0/16 -> 0/20 (it sees the hole too late: horizon 1.4 s).
+
+Pilot vs the owner's log (first six stops, Lift Guide alone): Lifts/s 0.71-0.73 vs 0.76; median Lift gap 1.37 s vs 1.3; capture 84/86/87% vs 96%; on-cue still 68-70% vs 46% (not fitted, see above); quick Lifts 2-3% vs 6%; glide share 4% vs 8%. Cleared of 6 stops: 3.2 / 4.9 / 4.5 (beginner/average/good); died before stop 6: 15/20, 10/20, 10/20.
+
+Card worth, starters ALONE vs no card (owner design change), weighted 0.1/0.3/0.6, 20 runs per cell, T = coin-toss Lift Guide alone = 73.8 +-12.8: Skim Line (+12 catalogue) 0.44x, Pulse Reader 0.64x, Courier Cord -0.36x aware / -0.02x blind, Meter Mark 0.14x, Finish Flag 0.04x. With no Lift Guide every solo start dies in 19-20 of 20 runs (3.1-3.7 hearts lost), so worth is mostly survival. Courier: fetch-beside pilot doubles Deliveries per attempt (0.7 -> 1.6-1.8) but loses ~5 more Sparks per attempt; variants (a)-(d) all stay negative. Boosts: Finish +5/+8/+12 Stored with full refill 0.48/0.57/0.68x; Meter Mark +1/+2 Stored per Overfill 0.28/0.42x. Full tables: `outputs/balance/starter-balance.md` (sections 3, 3b).

@@ -22,22 +22,18 @@ const STARTERS = ['skim-line', 'pulse-reader', 'courier-cord', 'meter-mark', 'fi
 const NAME = { 'lift-guide': 'Lift Guide', 'skim-line': 'Skim Line', 'pulse-reader': 'Pulse Reader', 'courier-cord': 'Courier Cord', 'meter-mark': 'Meter Mark', 'finish-flag': 'Finish Flag' };
 // Card-aware behaviour = extra planner options (see playerLiftOptions / selectHumanFuel). Pilot skill scales how hard the skim band is hugged.
 const aware = (card, pilot) => ({
-  'courier-cord': { fetchScale: 2.2, fetchBonus: .25 },       // aim for Sparks inside the Collector's reach and let it fetch them (a Delivery needs a fetched Spark)
+  'courier-cord': { fetchScale: 2.2, fetchBonus: .25, fetchOffset: true },       // aim for Sparks inside the Collector's reach and let it fetch them (a Delivery needs a fetched Spark)
   'skim-line': { skim: pilot.skim, skimReach: 40 },           // reward flying within 40 units of terrain (the skim clearance is 48) when the margin is safe
   'meter-mark': { fullThreshold: 1.01 },                      // keep collecting at a full Meter: each natural Overfill pays
   'pulse-reader': { densityBonus: .14 }                       // prefer Spark clusters, so its Pulse crosses uncollected Sparks
 })[card] || {};
 // Modelled boosts for the proposals (payout hooks only, no game change). Each is evaluated with the card-aware pilot in the coin-toss world.
 export const VARIANTS = {
-  'courier-cord +3 Sparks/Delivery': { card: 'courier-cord', opts: { payout: { 'collector-delivery': { sparks: 3 } } } },
-  'courier-cord +6 Sparks/Delivery': { card: 'courier-cord', opts: { payout: { 'collector-delivery': { sparks: 6 } } } },
   'skim-line +3 Sparks/Skim': { card: 'skim-line', opts: { skimPayout: { sparks: 3 } } },
   'skim-line +6 Sparks/Skim': { card: 'skim-line', opts: { skimPayout: { sparks: 6 } } },
   'finish-flag +4 Stored, refill 10 Sparks': { card: 'finish-flag', opts: { finishPayout: { stored: 4, sparks: 10 } } },
   'finish-flag +4 Stored, refill 20 Sparks': { card: 'finish-flag', opts: { finishPayout: { stored: 4, sparks: 20 } } },
   // 2026-11-19 re-measure with the fitted pilots: candidate boosts (Delivery/Finish/Skim/Overfill payouts modelled here, no dist edits)
-  'courier-cord +3 Sparks +3 Stored/Delivery': { card: 'courier-cord', opts: { payout: { 'collector-delivery': { sparks: 3, stored: 3 } } } },
-  'courier-cord +4 Sparks +2 Stored/Delivery': { card: 'courier-cord', opts: { payout: { 'collector-delivery': { sparks: 4, stored: 2 } } } },
   'finish-flag +3 Stored, refill 15 Sparks': { card: 'finish-flag', opts: { finishPayout: { stored: 3, sparks: 15 } } },
   'finish-flag +5 Stored, refill 30 Sparks (full)': { card: 'finish-flag', opts: { finishPayout: { stored: 5, sparks: 30 } } },
   'skim-line +3 Sparks +2 Stored/Skim': { card: 'skim-line', opts: { skimPayout: { sparks: 3, stored: 2 } } },
@@ -45,11 +41,34 @@ export const VARIANTS = {
   'meter-mark +2 Stored per Overfill': { card: 'meter-mark', opts: { payout: { 'natural-overfill': { stored: 2 } } } }
 };
 // Proposal candidates that combine fuel and Stored payouts (second pass, written to <pilot>.proposals.json; `--only=proposals`).
+export const COURIER = {
+  'courier-cord (a) +1 Spark/Delivery (released)': { card: 'courier-cord', opts: { payout: { 'collector-delivery': { sparks: 1 } } } },
+  'courier-cord (b) +1 Stored/Delivery': { card: 'courier-cord', opts: { payout: { 'collector-delivery': { stored: 1 } } } },
+  'courier-cord (c) +2 Stored/Delivery': { card: 'courier-cord', opts: { payout: { 'collector-delivery': { stored: 2 } } } },
+  'courier-cord (d) +2 Sparks +1 Stored/Delivery': { card: 'courier-cord', opts: { payout: { 'collector-delivery': { sparks: 2, stored: 1 } } } }
+};
 export const PROPOSALS = {
-  'courier-cord: +6 Sparks and +5 Stored per Delivery': { card: 'courier-cord', opts: { payout: { 'collector-delivery': { sparks: 6, stored: 5 } } } },
-  'skim-line: +6 Sparks and +4 Stored per Skim (aware)': { card: 'skim-line', opts: { skimPayout: { sparks: 6, stored: 4 } } },
-  'skim-line: +6 Sparks and +4 Stored per Skim (blind)': { card: 'skim-line', blind: true, opts: { skimPayout: { sparks: 6, stored: 4 } } },
-  'finish-flag: +6 Stored and Meter refilled to full': { card: 'finish-flag', opts: { finishPayout: { stored: 6, sparks: 30 } } }
+  'skim-line +6 Sparks +4 Stored/Skim (2nd pass)': { card: 'skim-line', opts: { skimPayout: { sparks: 6, stored: 4 } } },
+  'skim-line +8 Sparks +6 Stored/Skim (2nd pass)': { card: 'skim-line', opts: { skimPayout: { sparks: 8, stored: 6 } } },
+  'skim-line +10 Sparks +8 Stored/Skim (2nd pass)': { card: 'skim-line', opts: { skimPayout: { sparks: 10, stored: 8 } } },
+  'finish-flag +8 Stored, refill to full (2nd pass)': { card: 'finish-flag', opts: { finishPayout: { stored: 8, sparks: 30 } } },
+  'finish-flag +12 Stored, refill to full (2nd pass)': { card: 'finish-flag', opts: { finishPayout: { stored: 12, sparks: 30 } } },
+  'finish-flag +16 Stored, refill to full (2nd pass)': { card: 'finish-flag', opts: { finishPayout: { stored: 16, sparks: 30 } } }
+};
+// SOLO mode (owner design change 2026-11-19): each starter alone in the Chain vs no card (key 'none'). Keys: SOLO:<label>[:aware|:blind].
+export const SOLO = {
+  'courier-cord (a) +1 Spark': { card: 'courier-cord', opts: { payout: { 'collector-delivery': { sparks: 1 } } } },
+  'courier-cord (b) +1 Stored': { card: 'courier-cord', opts: { payout: { 'collector-delivery': { stored: 1 } } } },
+  'courier-cord (c) +2 Stored': { card: 'courier-cord', opts: { payout: { 'collector-delivery': { stored: 2 } } } },
+  'courier-cord (d) +2 Sparks +1 Stored': { card: 'courier-cord', opts: { payout: { 'collector-delivery': { sparks: 2, stored: 1 } } } },
+  'skim-line +3 Sparks +2 Stored': { card: 'skim-line', opts: { skimPayout: { sparks: 3, stored: 2 } } },
+  'skim-line +6 Sparks +4 Stored': { card: 'skim-line', opts: { skimPayout: { sparks: 6, stored: 4 } } },
+  'skim-line +10 Sparks +8 Stored': { card: 'skim-line', opts: { skimPayout: { sparks: 10, stored: 8 } } },
+  'finish-flag +5 Stored, full refill': { card: 'finish-flag', opts: { finishPayout: { stored: 5, sparks: 30 } } },
+  'finish-flag +8 Stored, full refill': { card: 'finish-flag', opts: { finishPayout: { stored: 8, sparks: 30 } } },
+  'finish-flag +12 Stored, full refill': { card: 'finish-flag', opts: { finishPayout: { stored: 12, sparks: 30 } } },
+  'meter-mark +1 Stored per Overfill': { card: 'meter-mark', opts: { payout: { 'natural-overfill': { stored: 1 } } } },
+  'meter-mark +2 Stored per Overfill': { card: 'meter-mark', opts: { payout: { 'natural-overfill': { stored: 2 } } } }
 };
 const rawDir = fileURLToPath(new URL('../../outputs/balance/starter-raw/', import.meta.url)), rawFile = p => path.join(rawDir, `${p}.json`);
 const here = fileURLToPath(import.meta.url);
@@ -58,6 +77,7 @@ if (args.child) await child(args.child); else if (!process.argv[1] || path.resol
 async function child(name) {
   fs.mkdirSync(rawDir, { recursive: true });
   if (args.only === 'proposals') return proposals(name);
+  if (args.only === 'courier') return courier(name);
   const P = PILOTS[name], sim = await createSim({ style: P.style });
   const seeds = Array.from({ length: RUNS }, (_, i) => `sb${i}`), results = {}, meta = { pilot: name, style: P.style, runs: RUNS };
   const rest = P.old ? 60 : 88;
@@ -77,6 +97,15 @@ async function child(name) {
   fs.writeFileSync(rawFile(name), JSON.stringify({ ...meta, results }));
 }
 
+async function courier(name) {
+  const P = PILOTS[name], sim = await createSim({ style: P.style }), seeds = Array.from({ length: RUNS }, (_, i) => `sb${i}`), results = {};
+  const run = (key, ids, o, card) => { results[key] = seeds.map(s => sim.flyRun(ids, s, { restBelow: 88, q: 0, ...o, pilotExtra: card ? () => aware(card, P) : undefined })); console.error(name, key, 'done'); };
+  run('SOLO:lift-guide coin toss', ['lift-guide'], { guideP: .5 });
+  for (const c of STARTERS) { run(`SOLO:${c} (released):aware`, [c], {}, c); if (c === 'courier-cord') run(`SOLO:${c} (released):blind`, [c], {}); }
+  for (const [k, v] of Object.entries(SOLO)) { run(`SOLO:${k}:aware`, [v.card], v.opts, v.card); if (v.card === 'courier-cord') run(`SOLO:${k}:blind`, [v.card], v.opts); }
+  fs.writeFileSync(rawFile(name + '.courier'), JSON.stringify(results));
+}
+
 async function proposals(name) {
   const P = PILOTS[name], sim = await createSim({ style: P.style }), seeds = Array.from({ length: RUNS }, (_, i) => `sb${i}`), results = {};
   for (const [k, v] of Object.entries(PROPOSALS)) { results[`LGc+${k}:aware`] = seeds.map(s => sim.flyRun(['lift-guide', v.card], s, { restBelow: 88, q: 0, guideP: .5, ...v.opts, pilotExtra: v.blind ? undefined : () => aware(v.card, P) })); console.error(name, k, 'done'); }
@@ -88,7 +117,7 @@ async function parent() {
   const names = String(args.pilots || Object.keys(PILOTS).join(',')).split(',');
   if (!args.reuse) await Promise.all(names.map(p => new Promise((res, rej) => { const c = spawn(process.execPath, [here, `--child=${p}`, `--runs=${RUNS}`, ...(args.only ? [`--only=${args.only}`] : [])], { stdio: ['ignore', 'inherit', 'inherit'] }); c.on('exit', code => code ? rej(new Error(p + ' exit ' + code)) : res()); })));
   const D = Object.fromEntries(names.map(p => [p, JSON.parse(fs.readFileSync(rawFile(p), 'utf8'))]));
-  for (const p of names) if (fs.existsSync(rawFile(p + '.proposals'))) Object.assign(D[p].results, JSON.parse(fs.readFileSync(rawFile(p + '.proposals'), 'utf8')));
+  for (const p of names) { for (const sfx of ['.proposals', '.courier']) if (fs.existsSync(rawFile(p + sfx))) Object.assign(D[p].results, JSON.parse(fs.readFileSync(rawFile(p + sfx), 'utf8'))); }
   const mean = a => a.reduce((x, y) => x + y, 0) / Math.max(1, a.length), sd = a => { const m = mean(a); return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / Math.max(1, a.length - 1)); };
   const f = (x, d = 1) => (Math.round(x * 10 ** d) / 10 ** d).toString();
   const worthOf = (R, a, b) => { const d = R[a].map((r, i) => (r.stored - R[b][i].stored) + HEART_VALUE * (R[b][i].hearts - r.hearts)); return { m: mean(d), se: sd(d) / Math.sqrt(d.length) }; };
@@ -126,8 +155,10 @@ async function parent() {
   };
   const rowsReleased = [['Lift Guide (today: pays on every on-cue Lift) vs no card', 'LG', 'none'], ...STARTERS.map(c => [`${NAME[c]} (today), card-blind pilot`, `LG+${c}`, 'LG']), ...STARTERS.map(c => [`${NAME[c]} (today), card-aware pilot`, `LG+${c}:aware`, 'LG'])];
   printWorth('new', '2. Worth, realistic pilots, today\'s released cards (baseline: Lift Guide alone)', rowsReleased, 'LG', 'Lift Guide today pays +1 Spark on every on-cue Lift.');
-  const rowsCoin = [['Lift Guide with 50% coin toss (modelled: payout halved) vs no card', 'LGc', 'none'], ...STARTERS.map(c => [`${NAME[c]} (today), aware, next to coin-toss Lift Guide`, `LGc+${c}:aware`, 'LGc']), ...Object.entries(VARIANTS).map(([k]) => [`MODEL ${k}`, `LGc+${k}:aware`, 'LGc']), ...Object.keys(PROPOSALS).map(k => [`PROPOSAL ${k}`, `LGc+${k}:aware`, 'LGc'])];
+  const rowsCoin = [['Lift Guide with 50% coin toss (modelled: payout halved) vs no card', 'LGc', 'none'], ...STARTERS.map(c => [`${NAME[c]} (today), aware, next to coin-toss Lift Guide`, `LGc+${c}:aware`, 'LGc']), ...Object.entries(VARIANTS).map(([k]) => [`MODEL ${k}`, `LGc+${k}:aware`, 'LGc']), ...Object.keys(PROPOSALS).map(k => [`PROPOSAL ${k}`, `LGc+${k}:aware`, 'LGc']), ['Courier Cord (today), NEW fetch-beside pilot', 'LGc+courier-cord:aware', 'LGc'], ...Object.keys(COURIER).flatMap(k => [[`COURIER ${k}, fetch-beside pilot`, `LGc+${k}:aware`, 'LGc'], [`COURIER ${k}, card-blind`, `LGc+${k}:blind`, 'LGc']])];
   printWorth('new', '3. Worth in the coin-toss world (baseline: coin-toss Lift Guide alone) and modelled boosts', rowsCoin, 'LGc', 'T is the coin-toss Lift Guide\'s weighted worth. Modelled rows inject the payout inside this script (the game does not have them).');
+  const rowsSolo = [['Lift Guide ALONE with 50% coin toss vs no card (T)', 'SOLO:lift-guide coin toss', 'none'], ...STARTERS.map(c => [`${NAME[c]} alone, released`, `SOLO:${c} (released):aware`, 'none']), ['Courier Cord alone, released, card-blind', 'SOLO:courier-cord (released):blind', 'none'], ...Object.keys(SOLO).flatMap(k => [[`SOLO ${k}`, `SOLO:${k}:aware`, 'none'], ...(SOLO[k].card === 'courier-cord' ? [[`SOLO ${k}, card-blind`, `SOLO:${k}:blind`, 'none']] : [])])];
+  printWorth('new', '3b. Worth of each starter ALONE in the Chain vs no card (owner design change: starters are alternatives)', rowsSolo, 'none', 'First row is T. Every other row is one card alone, aware pilot (Courier: fetch-beside pilot). Hearts lost and died-runs per condition are in the survival-by-condition table.');
   const rowsOld = [['Lift Guide (today) vs no card', 'LG', 'none'], ...STARTERS.map(c => [`${NAME[c]} (today), card-blind`, `LG+${c}`, 'LG'])];
   printWorth('old', '4. Worth, old pilots (human350/250/150, card-blind), for comparison', rowsOld, 'LG', 'The previous measurement method with the same flights and the same table layout.');
   const rowsOldCoin = [['Lift Guide with 50% coin toss vs no card', 'LGc', 'none'], ...STARTERS.map(c => [`${NAME[c]} (today), card-blind, next to coin-toss Lift Guide`, `LGc+${c}`, 'LGc'])];

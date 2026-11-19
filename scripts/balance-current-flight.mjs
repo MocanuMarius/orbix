@@ -164,7 +164,9 @@ function choose(e,style,memory){
   const flashTarget=!view.flashActive?view.sparks.find(p=>p.flash&&memory.noticed.get(p.id)):null;
   // A visible white triangle is useful even at a full meter. Prefer immediate
   // fuel when nearly empty; otherwise seek light before a visibly dark reach.
-  const target=flashTarget&&(!fuelTarget||view.dimAhead&&view.energy>view.liftCost*2)?flashTarget:fuelTarget;
+  let target=flashTarget&&(!fuelTarget||view.dimAhead&&view.energy>view.liftCost*2)?flashTarget:fuelTarget;
+  // Courier Cord aware pilot: when the Collector is ready, pass a fetchable Spark/Cluster beside it (just outside contact) so the Collector rescues it (a Delivery); by hand when the Meter is low.
+  if(ex.fetchOffset&&target&&!target.flash&&!target.hint&&view.collectorRange>0&&(target.mass||1)<=view.collectorMass&&view.energy>=view.maxEnergy*.3){const side=view.player.y>=target.y?1:-1;target={...target,y:target.y+side*Math.min(45,(target.radius||20)+8),radius:6};}
   const etaTarget=target?{...target,eta:(target.x-view.player.x)/view.speed}:null;
   if(e.time>=memory.powerGate&&powerInput(e,style,etaTarget)){
    memory.powerGate=e.time+Math.max(3,e.roleCooldown(e.companionRole));
