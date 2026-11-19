@@ -1,14 +1,14 @@
-import {SKILLS,getRunModifiers} from './model.mjs?v=skim-1';
-import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=skim-1';
-import {formatLuminance} from './luminance-units.mjs?v=skim-1';
-import {WISP_ART} from './companion-art.mjs?v=skim-1';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=skim-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=skim-1';
-import {skillIcon} from './upgrade-icons.mjs?v=skim-1';
-import {resourceSymbol} from './game-symbols.mjs?v=skim-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=skim-1';
-import {skillBookChapter} from './skill-chapters.mjs?v=skim-1';
-export {skillBookChapter} from './skill-chapters.mjs?v=skim-1';
+import {SKILLS,getRunModifiers} from './model.mjs?v=noflag-1';
+import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=noflag-1';
+import {formatLuminance} from './luminance-units.mjs?v=noflag-1';
+import {WISP_ART} from './companion-art.mjs?v=noflag-1';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=noflag-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=noflag-1';
+import {skillIcon} from './upgrade-icons.mjs?v=noflag-1';
+import {resourceSymbol} from './game-symbols.mjs?v=noflag-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=noflag-1';
+import {skillBookChapter} from './skill-chapters.mjs?v=noflag-1';
+export {skillBookChapter} from './skill-chapters.mjs?v=noflag-1';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],

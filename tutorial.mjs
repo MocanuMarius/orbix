@@ -1,8 +1,8 @@
-import {getCompanionAbility} from './companion-abilities.mjs?v=skim-1';
-import {pickupHandlingCue} from './pickup-handling-cue.mjs?v=skim-1';
-import {lightVisibility} from './light-field.mjs?v=skim-1';
-import {formatGlow} from './vitality.mjs?v=skim-1';
-import {isCourseLesson,shapePracticeCourse,updatePracticeCourse,practiceCollectorResting,practiceCourseEntryLesson,pendingCourseLesson} from './practice-course.mjs?v=skim-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=noflag-1';
+import {pickupHandlingCue} from './pickup-handling-cue.mjs?v=noflag-1';
+import {lightVisibility} from './light-field.mjs?v=noflag-1';
+import {formatGlow} from './vitality.mjs?v=noflag-1';
+import {isCourseLesson,shapePracticeCourse,updatePracticeCourse,practiceCollectorResting,practiceCourseEntryLesson,pendingCourseLesson} from './practice-course.mjs?v=noflag-1';
 // Practice is an authored flight using the same controls, fuel and colliders.
 // This module contains guidance and lesson scenery; it never grants rewards.
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));

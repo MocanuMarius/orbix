@@ -2,7 +2,7 @@
 // Condition met on that flight: a strong immediate payout of Stored Sparks. Not met: nothing. Either way it is gone after that one flight.
 // Pure data and text, no DOM. Rules (Luminance, reach, body pickups, holding Sparks) live where they always did: flight-pacts.mjs,
 // contextual-events.mjs (Pilgrim's Vow) and treasure.mjs (Sealed Purse).
-import {objectiveSparks} from './route-bonuses.mjs?v=skim-1';
+import {objectiveSparks} from './route-bonuses.mjs?v=noflag-1';
 
 export const OATHS = Object.freeze({
   'night-ledger': Object.freeze({id: 'night-ledger', short: 'Fly at 55% Luminance.', name: 'Night’s Ledger', pact: 'night-ledger', multiple: 3, rule: 'Fly the next flight with 55% Luminance. Clear it to win.'}),

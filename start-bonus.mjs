@@ -2,12 +2,12 @@
 // independently from one combined pool: a starter card, an ordinary Scribe Inscription (written on Chain slot 1), or a Wisp stat that
 // lasts the whole run. The three kinds are weighted equally per tile (1/3 each), whatever the pool sizes; no duplicates in one offer.
 // Pure data and helpers, no DOM. Lift Guide is always mounted as well (model.mjs › chooseStartingGift).
-import {INSCRIPTION_IDS} from './inscriptions.mjs?v=skim-1';
+import {INSCRIPTION_IDS} from './inscriptions.mjs?v=noflag-1';
 
 export const START_BONUS_VERSION = 4;
 /** Ordinary Inscriptions that would do nothing on slot 1 at run start (Lift Guide beside two empty slots): Whetted (Lift Guide has no uses), Mirror (nothing to its left), Lodestone (it buffs the cards beside its slot, none yet). Hollow stays: Lift Guide then goes in slot 2. tests/start-bonus.test.mjs checks this list against inscriptionOnCard. */
 export const NO_EFFECT_AT_START = Object.freeze(['whetted', 'mirror', 'lodestone']);
-export const START_CARD_IDS = Object.freeze(['lift-guide', 'skim-line', 'pulse-reader', 'courier-cord', 'meter-mark', 'finish-flag']);
+export const START_CARD_IDS = Object.freeze(['lift-guide', 'skim-line', 'pulse-reader', 'courier-cord', 'meter-mark']);
 /** Wisp stats: stored on the run as run.wispBonus = id. Applied in getRunModifiers (reach, light, recovery), vitality (Meter, hearts) and once at the pick (hearts filled, Stored Sparks). */
 export const WISP_STATS = Object.freeze({
   radius: Object.freeze({id: 'radius', name: 'Wide Reach', chip: '+20% radius', text: 'Collect radius +20%', reach: 1.2}),

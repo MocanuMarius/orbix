@@ -5,7 +5,7 @@
 // full rules, which the "?" help window shows (card-ui.mjs › cardHelpDescription). Numbers the player tracks during a
 // run (uses left, a growth or tally counter) stay on the face as badges, not here.
 // The internal trigger keys (card-rule-bands.mjs › CARD_TRIGGERS) are untouched; this is a wording layer on top of them.
-import {getCardRuleBands, getCardTrigger} from './card-rule-bands.mjs?v=skim-1';
+import {getCardRuleBands, getCardTrigger} from './card-rule-bands.mjs?v=noflag-1';
 
 /** Words for Triggers that the display layer (card-trigger-labels.mjs) leaves without a chip, as [word, glossary key]. */
 const EXTRA_WORDS = Object.freeze({

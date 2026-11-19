@@ -1,11 +1,11 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=skim-1";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=noflag-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=skim-1';
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=skim-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=skim-1';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=skim-1';
+import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=noflag-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=noflag-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=noflag-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=noflag-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -712,8 +712,8 @@ export function getCardPackingBonus(packed, sources = 0, remainder = 0) {
 export const CARD_STARTER_RARE_CHANCE = .20;
 const starterCommonIds = ['body-spark', 'spark-cache', 'deep-vessel', 'tight-packing', 'harvest-common', 'dream'];
 const starterRareIds = ['rhythm', 'cache-handling', 'flash-handling'];
-/** The six starter cards (2026-11-18): Lift Guide and five like it, each teaching one Trigger. A new run offers 3 of them at random. */
-export const STARTER_CARD_IDS = Object.freeze(['lift-guide', 'skim-line', 'pulse-reader', 'courier-cord', 'meter-mark', 'finish-flag']);
+/** The five starter cards (Finish Flag retired 2026-11-19): Lift Guide and four like it, each teaching one Trigger. A new run offers 3 of them at random. */
+export const STARTER_CARD_IDS = Object.freeze(['lift-guide', 'skim-line', 'pulse-reader', 'courier-cord', 'meter-mark']);
 /** Start bonus offers (version 4 runs): three tiles, each a starter card, an ordinary Inscription or a Wisp stat (start-bonus.mjs). Seeded by the run. */
 function startBonusOffers(run) {
   const saved = run.startBonusOfferIds, ids = Array.isArray(saved) && saved.length === 3 && new Set(saved).size === 3 && saved.every(isStartBonusId) ? saved : drawStartBonusIds(run.campaignSeed || run.seed);
@@ -1521,7 +1521,6 @@ export function getCardModifiers(run) {
     if (d.kind === "courier-cord") m.cardCourierCord = true;
     if (d.kind === "meter-mark") m.cardMeterMark = true;
     if (d.kind === "brimful") m.cardBrimful += 1;
-    if (d.kind === "finish-flag") m.cardFinishFlag = true;
     if (d.kind === "skim-line") { m.cardProximityUnlocked = true; m.cardSkimLine = true; }
     // One source adds 50% of normal reach; a boosted source counts as `factor` sources.
     if (d.kind === "proximity-range") m.cardProximitySources += factor;
