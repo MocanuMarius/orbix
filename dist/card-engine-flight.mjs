@@ -19,6 +19,7 @@ function flightHost(e) {
     gain: printed => {
       const g = Math.min(printed * CARD_UNIT, Math.max(0, e.maxFlame - e.flame));
       e.flame += g; e.flameRestored += g;
+      if (e.rec) e.rec.cardSparks += g / CARD_UNIT; // play recorder: engine-card Sparks count like row-rule ones (flight.mjs)
       return g / CARD_UNIT;
     },
     store: n => { e.cardEngineStored = (e.cardEngineStored || 0) + n; },
