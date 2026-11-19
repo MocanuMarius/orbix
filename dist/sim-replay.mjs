@@ -13,12 +13,13 @@ export const SPARK_UNITS=10/3;
 export const SIM_START=Object.freeze([{sparks:30,hearts:3},{sparks:15,hearts:3},{sparks:30,hearts:3},{sparks:30,hearts:3},{sparks:15,hearts:3},{sparks:15,hearts:2}]);
 const PENDING=['pendingChest','pendingTemporary','cardDraft','cardReward','flightReward'];
 
-function freshRun(seed,card){
+function freshRun(seed,card,solo=false){
   const state=newState();state.profile.tutorialComplete=true;state.profile.clearedFlights=1;state.settings.skipTutorial=true;
   const run=state.run=createRun(state.profile,seed,1,{cards:true});
   while(run.mountedCards.length<2)run.mountedCards.push(null);
-  run.mountedCards[0]=makeSkillCard('lift-guide','rf:0:lift-guide');
-  if(card)run.mountedCards[1]=makeSkillCard(card,`rf:1:${card}`);
+  // solo=1: the named card is the ONLY card (starter cards as alternatives); otherwise Lift Guide plus the optional card.
+  if(solo&&card)run.mountedCards[0]=makeSkillCard(card,`rf:0:${card}`);
+  else{run.mountedCards[0]=makeSkillCard('lift-guide','rf:0:lift-guide');if(card)run.mountedCards[1]=makeSkillCard(card,`rf:1:${card}`);}
   return {state,run};
 }
 function passNode(run,pick){
@@ -40,11 +41,11 @@ export function simRoute(seed,stops=SIM_STOPS){
 export function parseSimParams(params){
   const seed=params.get('simrun')||'sb0',stop=Math.max(1,Math.min(SIM_STOPS,Math.floor(Number(params.get('stop')))||1));
   const num=k=>params.has(k)&&params.get(k)!==''&&Number.isFinite(Number(params.get(k)))?Number(params.get(k)):null;
-  return {seed,stop,card:params.get('card')||null,meter:num('meter'),hearts:num('hearts'),carry:params.get('carry')==='1'};
+  return {seed,stop,card:params.get('card')||null,meter:num('meter'),hearts:num('hearts'),carry:params.get('carry')==='1',solo:params.get('solo')==='1'};
 }
 /** A throwaway state whose run stands on the departure screen of stop N. `carry` (Next stop) applies the Rests between the two stops to the carried Meter and hearts. */
 export function createSimRunState(params){
-  const p=parseSimParams(params),{state,run}=freshRun(p.seed,p.card),route=simRoute(p.seed,SIM_STOPS),target=route.flights[p.stop-1];
+  const p=parseSimParams(params),{state,run}=freshRun(p.seed,p.card,p.solo),route=simRoute(p.seed,SIM_STOPS),target=route.flights[p.stop-1];
   if(!target)throw Error(`Sim run ${p.seed} has no stop ${p.stop}`);
   const start=SIM_START[p.stop-1],units=s=>Math.round(s*SPARK_UNITS);
   const cap=run.flame,setVitals=()=>{run.flame=Math.max(0,Math.min(cap,units(p.meter??start.sparks)));run.lives=Math.max(1,Math.min(run.maxLives,p.hearts??start.hearts));};
