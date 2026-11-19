@@ -1,4 +1,4 @@
-// Skim Line (2026-11-18): "Skim: +1 Spark", a band hugging the terrain where a Skim counts. Real flights, as for Close Call.
+// Skim Line (2026-11-18): "Skim: +12 Sparks", a band hugging the terrain where a Skim counts. Real flights, as for Close Call.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { fly, BIOME_LEVELS } from '../scripts/balance/real-flight-check.mjs';
@@ -12,27 +12,27 @@ const flights = (ids, opts = {}) => levels.flatMap(l => [0, 1].map(seedIndex => 
 const logOf = f => f.log.engine.cardEngine?.log || [];
 const entries = (fl, k, pred = () => true) => fl.flatMap(f => logOf(f).filter(x => x.k === k && pred(x)));
 
-test('Skim Line face: Skim / +1 Spark, common, copyable, turns Proximity on', () => {
+test('Skim Line face: Skim / +12 Sparks, common, copyable, turns Proximity on', () => {
   const def = SKILL_CARDS['skim-line'], card = makeSkillCard('skim-line', 's');
   assert.equal(def.rarity, 'common'); assert.equal(def.copyable, true); assert.equal(def.starterOnly, true);
   assert.equal(triggerDisplay(getCardTrigger(def).id).label, 'Skim');
-  assert.equal(faceEffect(card, def), '+1 Spark');
+  assert.equal(faceEffect(card, def), '+12 Sparks');
   assert.equal(faceTrigger(card, def).word, 'Skim');
-  assert.match(describeSkillCard(card).effect, /Skim: \+1 Spark/);
+  assert.match(describeSkillCard(card).effect, /Skim: \+12 Sparks/);
   const mod = getCardModifiers({ skillSystem: 'cards-v1', mountedCards: [card], reserveCards: [] });
   assert.equal(mod.cardSkimLine, true); assert.equal(mod.cardProximityUnlocked, true);
 });
 
-test('Skim Line in real flights: it fires on skims, pays +1 each; Echo twice; a Boost rounds up; nothing without the card', () => {
+test('Skim Line in real flights: it fires on skims, pays +12 each; Echo twice; a Boost rounds up; nothing without the card', () => {
   const a = flights(['skim-line']);
   const skims = a.reduce((n, f) => n + (f.log.engine.edgingPulse?.triggerCount || 0), 0);
   const gains = entries(a, 'gain', x => x.slot === 0);
   assert.ok(skims >= 2 && gains.length === skims, `${skims} skims, ${gains.length} gains`);
-  assert.ok(gains.every(x => x.amount === 1));
+  assert.ok(gains.every(x => x.amount === 12));
   const echoed = flights(['echo', 'skim-line']);
   assert.ok(entries(echoed, 'hit', x => x.slot === 1).every(x => x.times === 2), 'Echo fires it twice');
   const boosted = flights(['skim-line', 'prism-lens']);
-  assert.ok(entries(boosted, 'gain', x => x.slot === 0).every(x => x.amount === 2), 'x1.25 rounds up to 2');
+  assert.ok(entries(boosted, 'gain', x => x.slot === 0).every(x => x.amount === 15), 'x1.25 gives 15');
   const none = flights(['body-spark']);
   assert.equal(entries(none, 'gain').length, 0);
 });

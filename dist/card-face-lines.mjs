@@ -31,7 +31,7 @@ export function faceTrigger(card = {}, definition = {}) {
 const LINES = Object.freeze({
   'field-impulse': 'Swipe to float or dive',
   'lift-guide': '{fx} on the cue',
-  'skim-line': '+1 Spark', 'pulse-reader': '+1 Spark', 'courier-cord': '+1 Spark', 'meter-mark': 'keeps 1 Stored', 'finish-flag': '+2 Stored',
+  'skim-line': '+12 Sparks', 'pulse-reader': '+1 Spark', 'courier-cord': '+1 Spark', 'meter-mark': 'keeps 1 Stored', 'finish-flag': '+2 Stored',
   rhythm: '3 even Lifts: a Pulse',
   'harvest-legendary': '+2 Sparks, +1 Stored',
   'camp-kit': '2 Rest actions',
