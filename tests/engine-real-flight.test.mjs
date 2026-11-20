@@ -122,16 +122,19 @@ test('runaway guard: the strongest released Chains stay under 20 times a typical
   }
 });
 
-test('Close Call: a skim sends a Pulse and +3 Sparks, and Echo or a Boost repeats the +3', () => {
-  const a = flights(['edge-reach', 'close-call', 'spark-chime']);
-  assert.ok(perFlight(a, 'hit', x => x.slot === 1 && x.type === 'skim') >= 2, 'it fires on skims in a flight');
-  const own = entries(a, 'gain', x => x.slot === 1);
-  assert.ok(own.length >= 2 && own.every(x => x.amount === 3), 'each skim pays +3');
-  assert.ok(entries(a, 'gain', x => x.slot === 2).every(x => x.amount === 1), 'its Pulse is heard by Spark Chime');
-  const boosted = flights(['edge-reach', 'close-call', 'crescendo']);
-  assert.ok(entries(boosted, 'gain', x => x.slot === 1).every(x => x.amount === 6), 'a Boost doubles it');
-  const echoed = flights(['edge-reach', 'echo', 'close-call']);
-  assert.ok(entries(echoed, 'hit', x => x.slot === 2).every(x => x.times === 2), 'Echo fires it twice');
+test('Close Call brings its own Proximity: a skim sends a Pulse and +12 Sparks, with no Proximity card in the Chain; Echo or a Boost repeats the +12', () => {
+  const a = flights(['close-call', 'spark-chime']);
+  assert.ok(a.every(f => f.log.engine.mod.cardProximityUnlocked), 'the card turns Proximity on');
+  assert.ok(entries(a, 'hit', x => x.slot === 0 && x.type === 'skim').length >= 2, 'it fires on skims in the flights, alone');
+  const own = entries(a, 'gain', x => x.slot === 0);
+  assert.ok(own.length >= 2 && own.every(x => x.amount === 12), 'each skim pays +12');
+  assert.ok(entries(a, 'gain', x => x.slot === 1).every(x => x.amount === 1), 'its Pulse is heard by Spark Chime');
+  const boosted = flights(['close-call', 'crescendo']);
+  assert.ok(entries(boosted, 'gain', x => x.slot === 0).every(x => x.amount === 24), 'a Boost doubles it');
+  const echoed = flights(['echo', 'close-call']);
+  assert.ok(entries(echoed, 'hit', x => x.slot === 1).every(x => x.times === 2), 'Echo fires it twice');
+  const none = flights(['spark-chime']);
+  assert.equal(entries(none, 'hit', x => x.type === 'skim').length, 0, 'without the card there is no Proximity, so no skim');
 });
 
 test('Low Ember: a Lift while the meter is under half sends a Pulse, once per 6 s', () => {

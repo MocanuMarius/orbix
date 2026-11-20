@@ -113,9 +113,11 @@ test('Overfill: Ring Spring banks seconds for the next Collector recovery; the W
   const spent = sum(a, f => (f.log.slots[0]?.nextRecovery || 0) - (f.log.engine.cardRecoveryCredit || 0));
   assert.ok(spent >= 1, `banked seconds were taken off a real recovery (${spent} s)`);
   note('Overfill', 'Ring Spring (no assist)', `${sum(a, f => f.log.events['natural-overfill'] || 0)} Overfills`, fired, `${slotSum(a, 0, 'nextRecovery')} s banked, ${spent} s spent on a recovery`, 'works', 'Banks on every Overfill; the next recovery starts that much shorter.');
-  const w = flights({ ids: ['body-spark'], inscriptions: ['wellspring'] });
+  // One Overfill rule (2026-11-20): Body Spark's own spill is an Overfill too, but a card never answers an Overfill its own firing made, so it fires on pickups' Overfills only.
+  let nat = 0;
+  const w = flights({ ids: ['body-spark'], inscriptions: ['wellspring'], hook: e => { const o = e.storeNaturalOverflow.bind(e); e.storeNaturalOverflow = (p, sp, ar, n, c) => { if (n > 1e-7 && !p.fetchedInDream && !p.generated && !p.harmful && sp.fuel > 0 && ar > 0) nat++; return o(p, sp, ar, n, c); }; } });
   const over = sum(w, f => f.log.events['natural-overfill'] || 0), collects = sum(w, f => bodyKinds(f.log.occurred));
-  assert.ok(over >= 5); assert.equal(slotSum(w, 0, 'fired'), collects + over);
+  assert.ok(nat >= 5 && over >= nat); assert.equal(slotSum(w, 0, 'fired'), collects + nat);
   note('Overfill', 'Body Spark with Wellspring Inscription', `${over} Overfills`, slotSum(w, 0, 'fired') - collects, `${2 * over} Sparks`, 'works');
 });
 

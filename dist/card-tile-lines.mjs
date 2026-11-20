@@ -8,7 +8,7 @@ import {SKILL_CARDS, describeSkillCard, cardTallyLine} from './skill-cards.mjs?v
 export const CARD_TILE_LINES = Object.freeze({
   'momentum': '5 Turns: +40% light',
   'low-ember': 'Under half: a Pulse',
-  'close-call': 'A Pulse, +3 Sparks',
+  'close-call': 'A Pulse, +12 Sparks',
   'homing-thread': 'Fetches, 2× reach',
   'last-round': 'Last Trigger again',
   'harvest-home': 'Collect cards, +2 each',

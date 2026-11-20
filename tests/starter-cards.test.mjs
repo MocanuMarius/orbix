@@ -66,9 +66,17 @@ test('Courier Cord drip: 0 at once, 5 after 5 s, 10 after 10 s, none after; two 
   assert.equal(g.rec.cardSparks, 14, 'the recorder counts dripped Sparks as card Sparks');
 });
 
-test('Courier Cord drip: nothing when the card is not mounted; capped by room at a full Meter', () => {
+test('Courier Cord drip: nothing when the card is not mounted; at a full Meter a dripped Spark is an Overfill (heard by Overfill cards to its right), not lost', () => {
   const e = dripStub({ mod: {} }); e.courierDrip = 10; run(e, 10); assert.equal(sparksOf(e), 0); assert.equal(e.courierDrip, 0);
-  const f = dripStub({ flame: 98 * CARD_UNIT }); f.courierDrip = 10; run(f, 10); assert.equal(sparksOf(f), 100); assert.equal(Math.round(f.rec.cardSparks), 2, 'only the room is paid and recorded');
+  const spills = [], raised = [];
+  const f = dripStub({ flame: 98 * CARD_UNIT, running: true, paused: false, alive: true, finished: false, destroyed: false, dying: false, completing: false,
+    cardEngine: { raise: (kind, detail) => raised.push({ kind, ...detail }) } });
+  f.cardSpillHeard = (spill, slot) => spills.push({ spill, slot });
+  f.courierDrip = 10; run(f, 10);
+  assert.equal(sparksOf(f), 100); assert.equal(Math.round(f.rec.cardSparks), 2, 'only the room is paid and recorded');
+  assert.equal(spills.length, 8, 'each of the 8 Sparks that found the Meter full is one Overfill for row cards');
+  assert.ok(spills.every(x => x.slot === 0 && Math.abs(x.spill - 1) < 1e-6), 'one Spark each, made by the Courier Cord at Slot 0 (only cards to its right hear it)');
+  assert.equal(raised.filter(x => x.kind === 'overfill' && x.fromSlot === 0).length, 8, 'engine Overfill cards to its right hear it too');
 });
 
 test('real flight: a Delivery pays no Spark at once but owes 10 s of drip; the badge shows it', () => {

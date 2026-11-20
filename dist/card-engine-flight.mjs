@@ -22,6 +22,8 @@ function flightHost(e) {
       if (e.rec) e.rec.cardSparks += g / CARD_UNIT; // play recorder: engine-card Sparks count like row-rule ones (flight.mjs)
       return g / CARD_UNIT;
     },
+    // One Overfill rule: Sparks an engine card made that find the Meter full are an Overfill for the row cards to its right as well.
+    cardSpill: (slot, spill) => e.cardSpillHeard?.(spill, slot),
     store: n => { e.cardEngineStored = (e.cardEngineStored || 0) + n; },
     // Whetstone: a regained use is written to the flight's use ledger, which otherwise only ever falls.
     regained: card => { if (e.cardChargeLedger) e.cardChargeLedger[card.instanceId] = card.charges; },

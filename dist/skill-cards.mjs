@@ -1522,9 +1522,10 @@ export function getCardModifiers(run) {
     if (d.kind === "meter-mark") m.cardMeterMark = true;
     if (d.kind === "brimful") m.cardBrimful += 1;
     if (d.kind === "skim-line") { m.cardProximityUnlocked = true; m.cardSkimLine = true; }
+    if (d.kind === "close-call") m.cardProximityUnlocked = true; // Close Call brings its own Proximity (2026-11-20), like Skim Line (without the band)
     // One source adds 50% of normal reach; a boosted source counts as `factor` sources.
     if (d.kind === "proximity-range") m.cardProximitySources += factor;
-    if (d.kind === "rhythm") m.cardRhythm = true;
+    if (d.kind === "rhythm" || d.kind === "toll-bell" || d.kind === "pacesetter") m.cardRhythm = true; // Toll Bell and Pacesetter bring their own Rhythm (2026-11-20)
     if (d.kind === "rapid-lift") m.cardRapidLiftRank = Math.max(m.cardRapidLiftRank, d.rapidRank || 1);
     if (d.kind === "dream") m.cardDream = true;
     if (d.kind === "guide") m.cardLiftGuide = true;

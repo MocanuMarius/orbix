@@ -145,11 +145,11 @@ test('Boosts multiply each card-made gain to their left, rounded up; Stored Spar
   }
   assert.equal(engineBoostAt(row(['spark-chime', 'closing-chord', 'body-spark']), 0).multiplier, 1, 'Closing Chord only as the last card');
   // Overflow Bell keeps 2 of a spill; a Crescendo to its right doubles the gain that spills, but Stored Sparks come only from the printed
-  // gain: Close Call's 3 asks for more than the meter holds, so the printed 2 that spills is kept; the Boost's extra Sparks are not.
+  // gain: Close Call's 12 asks for more than the meter holds, so the printed 2 that spills is kept; the Boost's extra Sparks are not.
   const {engine, host, at} = rig(['close-call', 'metronome', 'body-spark', 'overflow-bell', 'crescendo'], {start: 9, max: 10});
   at('skim', 0);
-  assert.equal(hits(engine, 'gain')[0].amount, 6, 'Close Call +3 doubled');
-  assert.ok(hits(engine, 'keep').every(k => k.amount <= 2)); assert.equal(host.storedTotal, 2, 'kept 2 of the printed spill (3 asked, 1 fitted); the Boost made the rest');
+  assert.equal(hits(engine, 'gain')[0].amount, 24, 'Close Call +12 doubled');
+  assert.ok(hits(engine, 'keep').every(k => k.amount <= 2)); assert.equal(host.storedTotal, 2, 'kept 2 of the printed spill (12 asked, 1 fitted); the Boost made the rest');
 });
 
 test('the two worked engines reproduce the demo’s numbers', () => {
@@ -188,12 +188,12 @@ test('Slow Wick waits 3 s, Heartbeat halves every Timer, and a burning Wick igno
 test('Metronome fires the next card every 3 s, stops when it cannot act and is re-armed by the next event', () => {
   assert.equal(SKILL_CARDS.metronome.engine.wait, 3); assert.equal(SKILL_CARDS.metronome.amount, 3);
   assert.match(describeSkillCard(makeSkillCard('metronome', 'm')).effect, /Every 3 s/);
-  const {engine, host, at} = rig(MILL, {start: 0, max: 9});
+  const {engine, host, at} = rig(MILL, {start: 0, max: 18});
   at('skim', 0);
-  assert.equal(host.meter, 3, 'Close Call: +3');
+  assert.equal(host.meter, 12, 'Close Call: +12');
   engine.advance(2.99); assert.equal(engine.turns, 0, 'nothing before 3 s');
   engine.advance(9);
-  assert.equal(engine.turns, 3); assert.equal(host.meter, 9);
+  assert.equal(engine.turns, 3); assert.equal(host.meter, 18);
   engine.advance(12);
   assert.ok(hits(engine, 'metronome-stops').length === 1, 'meter full: it stops');
   assert.equal(engine.timers.length, 0);
@@ -288,7 +288,7 @@ test('starters: First Catch once per flight, Low Ember under half once per 6 s, 
   low.engine.raise('lift', {meterFraction: .2}, 6.5); low.engine.raise('lift', {meterFraction: .2}, 7.1);
   assert.equal(low.host.meter, 2, 'fired at 1 s and 7.1 s only');
   const close = rig(['close-call', 'spark-chime']); close.engine.raise('skim', {}, 0);
-  assert.equal(close.host.meter, 4, '+3 and a Pulse that Spark Chime hears');
+  assert.equal(close.host.meter, 13, '+12 and a Pulse that Spark Chime hears');
   const edge = rig(['low-ember', 'spark-chime']);
   edge.engine.raise('lift', {meterFraction: .49}, 0); edge.engine.raise('lift', {meterFraction: .5}, 7); edge.engine.raise('lift', {meterFraction: .51}, 14);
   assert.equal(edge.host.meter, 1, 'under half fires; half and above do not');

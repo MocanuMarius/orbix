@@ -1516,9 +1516,24 @@ export class WispFlight {
       const gain=Math.min(CARD_UNIT,Math.max(0,this.maxFlame-this.flame));
       this.flame+=gain;this.flameRestored+=gain;
       if(this.rec)this.rec.cardSparks+=gain/CARD_UNIT;
+      // A dripped Spark that finds the Meter full is an Overfill like any card-made Spark: Overfill cards to the right of the Courier Cord hear it.
+      const spill=(CARD_UNIT-gain)/CARD_UNIT;
+      if(spill>1e-9){
+        const slot=this.cardExecution?.cards?.findIndex(card=>card?.cardId==='courier-cord')??-1;
+        if(this.cardEngine)raiseFlightEngine(this,'overfill',{spill,spillBase:spill,...(slot>=0?{fromSlot:slot}:{})});
+        this.cardSpillHeard(spill,slot);
+      }
     }
     if(this.courierDrip===0)this.courierDripAcc=0;
     this.syncCourierDripBadge();
+  }
+  /** A Spark a card made that found the Meter full counts as an Overfill for the row cards (Meter Mark, Ring Spring) to the right of `fromSlot`.
+   * Row Overfill cards pay no Sparks, and a re-entrant spill (a firing made while this one resolves) is not reported again, so it cannot loop. */
+  cardSpillHeard(spill,fromSlot=-1){
+    if(!(spill>1e-9)||this.inCardSpill)return;
+    this.inCardSpill=true;
+    try{this.resolveCardRowEvent(CARD_ROW_EVENTS.overfill,{pickupKind:'light',fromSlot:Number.isInteger(fromSlot)?fromSlot:-1});this.countOverfillWave(null);}
+    finally{this.inCardSpill=false;}
   }
   syncCourierDripBadge() {
     let shown=false;
@@ -1631,6 +1646,9 @@ export class WispFlight {
       const spill=instant-gain/CARD_UNIT;
       if(spill>1e-9)raiseFlightEngine(this,'overfill',{spill,...origin});
     }
+    // One Overfill rule (2026-11-20): Sparks a card made that find the Meter full are an Overfill for the row cards to the right of the maker too.
+    const rowSpill=instant-gain/CARD_UNIT;
+    if(rowSpill>1e-9&&kind!==CARD_ROW_EVENTS.overfill)this.cardSpillHeard(rowSpill,receipt.cards.findIndex(c=>c&&c.effective.sparks>0));
     return {receipt:liveReceipt,gain};
   }
 
@@ -2190,17 +2208,12 @@ export class WispFlight {
     this.lightPenalties.push(this.time + duration);
   }
 
-  storeNaturalOverflow(packet,spec,surplus,naturalSurplus,cardContext={}){
-    if(packet.generated||packet.harmful||!(spec.fuel>0)||!(surplus>0))return 0;
-    if(naturalSurplus>1e-7&&!packet.fetchedInDream){
-      if(this.rec)this.rec.overfills++;
-      this.resolveCardRowEvent(CARD_ROW_EVENTS.overfill,{...cardContext,pickupKind:packet.collectorOriginalKind||pickupKind(packet)});
-      if(this.cardEngine)raiseFlightEngine(this,'overfill',{natural:true});
-    }
-    if((this.options.cardPilot||this.mod.cardPilot)&&naturalSurplus>1e-7&&!this.tutorial&&!packet.fetchedInDream
+  /** Spillway / the plain every-third-Overfill Pulse: one count per Overfill. `key` (the pickup) stops a Spark being counted twice; a card-made Overfill has none. */
+  countOverfillWave(key){
+    if((this.options?.cardPilot||this.mod.cardPilot)&&!this.tutorial
       &&(!this.dream||this.dream.phase==='done')&&this.running&&this.alive&&!this.paused&&!this.dying&&!this.completing
-      &&!this.finished&&!this.destroyed&&!this.overfillWaveSeen.has(packet)){
-      this.overfillWaveSeen.add(packet);this.overfillWave.charge++;
+      &&!this.finished&&!this.destroyed&&!(key&&this.overfillWaveSeen.has(key))){
+      if(key)this.overfillWaveSeen.add(key);this.overfillWave.charge++;
       this.overfillWave.every=Math.max(1,Number(this.mod.cardOverfillEvery)||3);
       if(this.overfillWave.charge>=this.overfillWave.every){
         this.overfillWave.charge=0;this.overfillWave.waves++;
@@ -2210,6 +2223,16 @@ export class WispFlight {
         this.setEvent('Overfill · Pulse');
       }
     }
+  }
+
+  storeNaturalOverflow(packet,spec,surplus,naturalSurplus,cardContext={}){
+    if(packet.generated||packet.harmful||!(spec.fuel>0)||!(surplus>0))return 0;
+    if(naturalSurplus>1e-7&&!packet.fetchedInDream){
+      if(this.rec)this.rec.overfills++;
+      this.resolveCardRowEvent(CARD_ROW_EVENTS.overfill,{...cardContext,pickupKind:packet.collectorOriginalKind||pickupKind(packet)});
+      if(this.cardEngine)raiseFlightEngine(this,'overfill',{natural:true});
+    }
+    if(naturalSurplus>1e-7&&!packet.fetchedInDream)this.countOverfillWave(packet);
     const gain=condenseGlow(surplus,{rules:this.mod.condensationRules,wallet:this.condensedTotal,remainder:this.condensedRemainder,limit:this.mod.packingLimit??20,packed:this.condensedGlow});
     this.routeObjective?.recordPacking(packet,gain);
     this.pickupOverflow+=surplus;this.condensedGlow+=gain.amount;this.condensedRemainder=gain.remainder;
@@ -2665,6 +2688,7 @@ export class WispFlight {
     this.flame += restored; this.flameRestored += restored;
     const surplus=this.storeNaturalOverflow(ember,spec,Math.max(0,fuel-restored),spec.fuel-capacityLeft,cardPickupContext);
     if(brimful>0&&this.cardEngine){this.brimfulSpills=(this.brimfulSpills||0)+brimful/CARD_UNIT;raiseFlightEngine(this,'overfill',{spill:brimful/CARD_UNIT,spillBase:brimful/CARD_UNIT});}
+    if(brimful>0)this.cardSpillHeard(brimful/CARD_UNIT,this.cardExecution?.cards?.findIndex(card=>card?.cardId==='brimful')??-1);
     restored+=this.artifactEffects.applyConsumables(ember,spec);
     if(!ember.generated&&!spec.dim){
       if(surplus>0)this.artifactEffects.notice('echo-vessel','passive');

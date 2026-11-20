@@ -79,7 +79,7 @@ const LINES = Object.freeze({
   'overflow-bell': 'A Pulse; keeps 2 Stored',
   'slow-wick': '3 s later: a Pulse', metronome: 'Every 3 s: fires next', 'long-fuse': '5 s later: fires again',
   heartbeat: 'Timers wait half',
-  'first-catch': '1st of a flight: a Pulse', 'close-call': 'A Pulse, +3 Sparks', 'low-ember': 'Meter under half: a Pulse',
+  'first-catch': '1st of a flight: a Pulse', 'close-call': 'A Pulse, +12 Sparks', 'low-ember': 'Meter under half: a Pulse',
   'third-beat': '3rd Turn counts twice', momentum: '5 Turns: +40% Luminance',
   'full-satchel': '+3 Sparks before packing', 'last-round': 'Last Trigger fires again', 'harvest-home': 'Collect cards fire again, +2 each',
   'black-hole': 'Eats next: +max Sparks',
