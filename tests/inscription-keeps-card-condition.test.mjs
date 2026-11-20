@@ -7,7 +7,7 @@ import { makeSkillCard } from '../dist/skill-cards.mjs';
 
 test('Courier on Flare Bank says the meter condition stays', () => {
   const text = inscriptionOnCard('courier', makeSkillCard('flash-bank', 'x'));
-  assert.match(text, /also fires on a Delivery and every 3rd Collect: \+8 Sparks \(only with the meter ⅓ or less\)/);
+  assert.match(text, /also fires on a Delivery and a Collect, 33%: \+8 Sparks \(only with the meter ⅓ or less\)/);
   assert.doesNotMatch(inscriptionOnCard('courier', makeSkillCard('courier-tip', 'y')), /only with/);
 });
 

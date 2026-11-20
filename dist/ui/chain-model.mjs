@@ -318,7 +318,7 @@ export function enginePlate(row, slot) {
   if (spec.timer === 'wick' || spec.timer === 'fuse') return {long: `Timer: every ${secs(spec.wait * scale)}`, short: `Every ${secs(spec.wait * scale)}`};
   if (spec.timer === 'metronome') return {long: `Fires the next card every ${secs(spec.wait * scale)}`, short: `Every ${secs(spec.wait * scale)}`};
   if (spec.timerScale) return {long: 'Timers wait half as long', short: 'Waits ×½'};
-  if (spec.governor === 'third-beat') return {long: 'Every 3rd Timer firing ×2', short: '3rd firing ×2'};
+  if (spec.governor === 'third-beat') return {long: 'Each Timer firing, 33%: ×2', short: '33%: ×2'};
   if (spec.governor === 'momentum') return {long: `+1 Spark each firing, +${num(amount)}% light after 5`, short: `+1 a firing`};
   if (spec.governor === 'wave-loom') return {long: 'A light Pulse each time a Timer fires', short: 'Light Pulse'};
   if (spec.family === 'pack') {

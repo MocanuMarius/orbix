@@ -33,7 +33,7 @@ test('all 85 approved cards carry their Trigger chip as data and the approved pl
     assert.equal(bands[0].type, 'condition');assert.equal(bands[0].text, entry.id === 'lift-guide' ? 'Lift on the cue' : headOf(pulse(entry.t), entry.c), entry.id); // Lift Guide uses its own arrow window, not the Rhythm phrase
     assert.equal(bands[0].trigger, CHIP[entry.t]);
     const what = bands.find(band => band.type === 'effect').text;
-    assert.equal(what, BOOST_TEXT[entry.id] || pulse(entry.b || entry.x).replace(/Flash/g, "Flare"), `${entry.id} what line`);
+    assert.equal(what, {'lift-guide':'50%: +1 Spark','meter-mark':'50%: keeps 1 Stored','third-beat':'33%: counts twice'}[entry.id] || BOOST_TEXT[entry.id] || pulse(entry.b || entry.x).replace(/Flash/g, "Flare"), `${entry.id} what line`);
     const tag = bands.find(band => band.type === 'note')?.text;
     if (entry.u) assert.equal(tag, entry.u, `${entry.id} tag`); else assert.equal(tag, undefined, entry.id);
     assert.ok(bands.length <= 3, entry.id);

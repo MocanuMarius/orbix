@@ -353,3 +353,6 @@ test('an Elite reward reserves slot 1 for a Rare and a Guardian reward for a Leg
     assert.ok(rest[kind].legendary / (n / 2) < .012, `${kind} rest legendary`);
   }
 });
+
+// Chance rolls always succeed in this file: these tests pin what a firing pays (the chance itself: tests/card-chance.test.mjs).
+globalThis[Symbol.for('orbix.chanceForce')] = true;

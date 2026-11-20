@@ -58,6 +58,7 @@ export const CARD_TERMS = Object.freeze({
   'falling-lift': ['Lift', 'Trigger: some cards need a Lift while falling, or a Lift on the beat (Rhythm) or on the cue (Lift Guide), or a Lift with your meter under half.'],
   clear: ['Finish', 'Trigger: you clear a flight, or you pack your spare Sparks at the end of it.'],
   engine: ['Engine', 'A chain that keeps itself going: one card’s event fires a card to its right, and a Timer sends it back to Slot 1.'],
+  chance: ['Chance', 'A percentage on a card is a roll each time the card would fire. If it fails, nothing happens.'],
   turn: ['Timer firing', 'Each time a Timer card fires, the Chain is walked again from the first slot.'],
   timer: ['Timer', 'A card that acts on a clock: Metronome fires the next card every 3 s, Slow Wick sends a Pulse every 3 s, Long Fuse repeats your last Trigger every 5 s, both by themselves. Each time one fires, the Chain is walked again from the first slot; without a Timer an engine runs once. A Pulse a Timer sends is a beat: each Pulse card that hears it fires once.'],
   'engine-skim': ['Skim', 'Trigger: you fly close to terrain until Proximity fills.'],
@@ -200,9 +201,9 @@ const CARD_NOTES = Object.freeze({
   'skim-line': 'Turns Proximity on for the flight: that is part of the card, so flying close to terrain now builds the Proximity meter. A thin gold band hugs the terrain near your wisp, where a Skim counts: flying within Proximity reach of terrain. It brightens while you are inside it. When Proximity fills (a Skim), +12 Sparks. Needs no other card. Extra copies keep one band and each pays.',
   'pulse-reader': 'While mounted it sends its own Pulse every 8 seconds, and a soft ring on your wisp tightens just before any Pulse front reaches a Spark you have not collected. That crossing adds 1 Spark. Its own Pulse reaches only cards to its right and never fires Pulse Reader itself.',
   'courier-cord': 'Collector’s cord glows brighter and flashes once at each drop-off. Each Delivery adds 10 Sparks over the next 10 seconds; Deliveries add up. Needs Collector.',
-  'meter-mark': 'A gold notch at the top of the Spark Meter glows when the Meter is nearly full. Every 2nd Overfill in a flight keeps 1 spilled Spark as a Stored Spark; the count starts again each flight and shows on the card (1/2). A Boost does not multiply Stored Sparks.',
+  'meter-mark': 'A gold notch at the top of the Spark Meter glows when the Meter is nearly full. Each Overfill, 50%: keeps 1 spilled Spark as a Stored Spark. A Boost does not multiply Stored Sparks.',
   'finish-flag': 'A thin gold bar along the bottom edge fills toward the finish. Each Finish adds 2 Stored Sparks. A Boost does not multiply Stored Sparks.',
-  'lift-guide': 'The amber chevron uses your current fall and Lift impulse. It opens when a Lift can rise back to its starting height, as from level flight. It does not judge terrain; choose when to tap. A Lift tapped while the chevron is open is on the cue: +1 Spark. Extra copies keep one chevron.',
+  'lift-guide': 'The amber chevron uses your current fall and Lift impulse. It opens when a Lift can rise back to its starting height, as from level flight. It does not judge terrain; choose when to tap. A Lift tapped while the chevron is open is on the cue: 50% chance of +1 Spark. Extra copies keep one chevron.',
 });
 
 // Explanatory pictures are captures of the running game, never replacement art.

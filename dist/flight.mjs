@@ -861,6 +861,7 @@ export class WispFlight {
       boostCooldown: 1, boostDuration: 1, reward: 1, cacheFuelBonus: 0,
       warmCore: false, windSensitivity: 1, flapCost: 1, steady: false, ...options.modifiers };
     this.cardExecution=(this.mod.cardExecution?.cards?.some(Boolean)||this.mod.cardExecution?.inscriptions?.some(Boolean))?createCardExecution(this.mod.cardExecution):null;
+    if(this.cardExecution)this.cardExecution.chanceSeed=`${this.seed}:card-chance`; // the Chance stream (dist/card-chance.mjs): derived from the flight's own seed, one draw per roll, never per frame
     this.cardChargeLedger={...getCardCharges(this.cardExecution)};
     this.cardExecutions=0;this.cardFiredIds=new Set();this.cardFiredCounts=new Map();this.cardFreeLift=false;this.cardFreeLiftsUsed=0;
     this.cardRowTrace=null;this.cardRowSequence=0;this.cardFires=emptyMarks();this.cardFireSeq=0;this.cardFireListener=null;this.cardChain=chainView(this.cardExecution);this.cardReelCredit=0;this.cardRecoveryCredit=0;this.cardWatchlightUsed=false;this.cardLastAcceptedLift=null;
@@ -1681,10 +1682,10 @@ export class WispFlight {
     for (const card of next.cards) { // counts only grow, so a rebuilt row never loses what the flight has counted
       const was = this.cardExecution?.cards?.find(old => old?.instanceId === card?.instanceId)?.tally;
       if (card && Number(was) > (Number(card.tally) || 0)) card.tally = Math.floor(was);
-      const marks = this.cardExecution?.cards?.find(old => old?.instanceId === card?.instanceId)?.markCount;
-      if (card && Number(marks) > 0) card.markCount = Math.floor(marks); // Meter Mark's count for this flight
     }
     next.executions = executions;
+    if (this.cardExecution?.chanceRng) { next.chanceRng = this.cardExecution.chanceRng; next.chanceSeed = this.cardExecution.chanceSeed; } // a rebuilt row keeps the flight's chance stream
+    else next.chanceSeed = `${this.seed}:card-chance`;
     next.eventSequence=this.cardExecution?.eventSequence||this.cardRowSequence;
     next.lastTrace=this.cardRowTrace;
     this.cardExecution = (next.cards.some(Boolean)||next.inscriptions?.some(Boolean)) ? next : null;

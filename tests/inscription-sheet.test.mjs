@@ -10,7 +10,7 @@ test('sheet model: standalone on an empty slot has name, tag and text but no "Wi
 });
 test('sheet model: a mounted card gets "With <card>: ..." from the sentence builder', () => {
   const m = inscriptionSheetModel('gilded', makeSkillCard('body-spark', 'a'), 'Body Spark');
-  assert.equal(m.tag, 'Card'); assert.match(m.withLine, /^With Body Spark: \+2 Sparks each time it fires$/); assert.equal(m.works, true);
+  assert.equal(m.tag, 'Card'); assert.match(m.withLine, /^With Body Spark: each time it fires, 50%: \+2 Sparks$/); assert.equal(m.works, true);
   const idle = inscriptionSheetModel('kindled', makeSkillCard('body-spark', 'b'), 'Body Spark');
   assert.match(idle.withLine, /^With Body Spark: /); assert.equal(idle.works, true);
 });

@@ -312,9 +312,16 @@ test('Flare Tinder starts a 1 s Flare; its end is heard by Afterglow to the righ
   assert.equal(left.sparks, 0, 'card-made events flow right only');
 });
 
-test('Third Beat doubles card-made gains in every third Turn', () => {
-  const run = simulateEngineChain(row([...CHIME, 'third-beat']), {horizon: 9, events: [{t: 0, kind: 'collect'}]});
-  assert.deepEqual([...run.gainsByTurn.entries()], [[1, 1], [2, 1], [3, 2]]);
+test('Third Beat: each Timer firing, a chance that its gains count twice (no every-third counter)', () => {
+  const F = Symbol.for('orbix.chanceForce');
+  try {
+    globalThis[F] = true;
+    const yes = simulateEngineChain(row([...CHIME, 'third-beat']), {horizon: 9, events: [{t: 0, kind: 'collect'}]});
+    assert.deepEqual([...yes.gainsByTurn.entries()], [[1, 2], [2, 2], [3, 2]], 'every firing doubles when the roll succeeds');
+    globalThis[F] = false;
+    const no = simulateEngineChain(row([...CHIME, 'third-beat']), {horizon: 9, events: [{t: 0, kind: 'collect'}]});
+    assert.deepEqual([...no.gainsByTurn.entries()], [[1, 1], [2, 1], [3, 1]], 'a failed roll leaves the gain alone');
+  } finally { delete globalThis[F]; }
 });
 
 test('determinism: the same Chain and inputs give the same event log', () => {

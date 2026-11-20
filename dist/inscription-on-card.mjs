@@ -28,7 +28,7 @@ export function inscriptionEffect(inscription, card) {
   if (ins.id === 'wellspring' && engine && def.engine.hears?.includes('overfill') && !def.engine.noRepeat) return yes(`fires 3 times on each Overfill: ${effect}`);
   switch (ins.id) {
     case 'twin-mark': return engine && def.engine.noRepeat ? no('it fires the whole Chain once per Overfill, never twice') : engine ? yes('fires twice each time it fires') : once ? no(`it pays once, at ${own}`) : !rule ? no(why) : boost ? yes('fires twice: its Boost applies twice') : yes('fires twice each time it fires');
-    case 'gilded': return (engine && def.engine.does?.includes('gain')) || (rule && ['add-sparks', 'add-last-payout'].includes(rule.operation)) ? yes('+2 Sparks each time it fires') : no(curtain || (engine || !rule ? why : 'it pays no Sparks from the Chain'));
+    case 'gilded': return (engine && def.engine.does?.includes('gain')) || (rule && ['add-sparks', 'add-last-payout'].includes(rule.operation)) ? yes('each time it fires, 50%: +2 Sparks') : no(curtain || (engine || !rule ? why : 'it pays no Sparks from the Chain'));
     case 'resonant': case 'kindled': case 'courier': case 'wellspring': case 'flare': {
       if (!listens) return no(why);
       const event = ins.also, hears = e => rule.event === e || rule.alsoEvents?.includes(e), same = hears(event);
@@ -36,10 +36,10 @@ export function inscriptionEffect(inscription, card) {
       if (ins.id === 'kindled') return yes(`also fires on every Lift: ${effect}`);
       // The card keeps its own condition on the new Trigger too (Flare Bank still needs the meter at ⅓ or less on a Delivery).
       const cond = getCardRuleBands(card, def).find(b => b.type === 'condition')?.detail, tail = cond ? ` (only with ${/^meter/.test(cond) ? 'the ' : ''}${cond})` : '';
-      // Courier: a Delivery and every 3rd Collect (the count starts over each flight). Wellspring: 3 firings per Overfill. Sunlit: also each Pulse of a Flare.
+      // Courier: a Delivery, and on a Collect a 33% chance (a roll each time). Wellspring: 3 firings per Overfill. Sunlit: also each Pulse of a Flare.
       if (ins.id === 'courier') {
-        const parts = [!same && 'a Delivery', !hears('body-spark') && 'every 3rd Collect'].filter(Boolean);
-        return parts.length ? yes(`also fires on ${parts.join(' and ')}: ${effect}${tail}${parts.includes('every 3rd Collect') ? '; the Collect count starts over each flight' : ''}`) : no('it already fires on a Delivery and every Collect');
+        const parts = [!same && 'a Delivery', !hears('body-spark') && 'a Collect, 33%'].filter(Boolean);
+        return parts.length ? yes(`also fires on ${parts.join(' and ')}: ${effect}${tail}`) : no('it already fires on a Delivery and every Collect');
       }
       if (ins.id === 'wellspring') return yes(same ? `fires 3 times on each Overfill: ${effect}${tail}` : `also fires on an Overfill, 3 times: ${effect}${tail}`);
       if (ins.id === 'flare') return yes(same ? `also fires on each Pulse of a Flare: ${effect}${tail}` : `also fires on a Flare Collect and on each Pulse of a Flare: ${effect}${tail}`);

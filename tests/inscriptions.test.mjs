@@ -383,3 +383,6 @@ test('Chain tab: an inscribed slot, empty or not, carries the plaque and etched 
   const view = createDeckView(); view.reading = run.mountedCards[0].instanceId;
   assert.match(deckScreenMarkup(run, view, {}), /Slot Inscription[\s\S]*Gilded: /);
 });
+
+// Chance rolls always succeed in this file: these tests pin what a firing pays (the chance itself: tests/card-chance.test.mjs).
+globalThis[Symbol.for('orbix.chanceForce')] = true;

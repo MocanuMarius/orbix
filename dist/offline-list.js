@@ -192,6 +192,7 @@ const WISP_OFFLINE = {
     "card-art-preview.mjs",
     "card-art.mjs",
     "card-catalog.mjs",
+    "card-chance.mjs",
     "card-combos.css",
     "card-combos.html",
     "card-combos.mjs",

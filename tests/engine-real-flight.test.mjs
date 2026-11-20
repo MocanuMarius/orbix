@@ -94,11 +94,13 @@ test('Flare Tinder starts a 1 s Flare on a Collect; its end pays Afterglow +2 ea
   assert.ok(hits >= 3 && gains.every(x => x.amount === 2) && gains.length === hits);
 });
 
-test('Third Beat: every third Turn’s card gain counts twice', () => {
+test('Third Beat: each Timer firing, 33% that its card gains count twice (whatever the Turn number)', () => {
   const a = flights(['metronome', 'body-spark', 'third-beat']);
   const gains = entries(a, 'gain');
   assert.ok(gains.length > 20);
-  assert.ok(gains.every(x => x.amount === (x.turn % 3 === 0 ? 4 : 2)), 'x2 exactly in Turns 3, 6, 9...');
+  assert.ok(gains.every(x => x.amount === 2 || x.amount === 4), 'a gain is 2, or 4 when the Turn roll succeeded');
+  assert.ok(gains.some(x => x.amount === 4) && gains.some(x => x.amount === 2), 'some firings double, most do not');
+  assert.ok(gains.some(x => x.turn % 3 !== 0 && x.amount === 4), 'doubling is not tied to every third Turn');
 });
 
 test('Full Satchel (Pack): +3 Sparks go into the meter before it is packed; Echo repeats it', () => {

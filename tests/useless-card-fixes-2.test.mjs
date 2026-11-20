@@ -68,9 +68,9 @@ test('Momentum pays +1 Spark on every Timer firing, on top of its Luminance', ()
   assert.ok(!count(fl, x => x.k === 'halt'));
 });
 
-test('Third Beat reads Timer / 3rd firing counts twice, and it is true (Turn 3 doubles a gain)', () => {
+test('Third Beat reads Timer / 33%: counts twice', () => {
   const def = tile('third-beat'), card = makeSkillCard('third-beat', 't');
-  assert.equal(faceTrigger(card, def).word, 'Timer'); assert.equal(faceEffect(card, def), '3rd firing counts twice');
+  assert.equal(faceTrigger(card, def).word, 'Timer'); assert.equal(faceEffect(card, def), '33%: counts twice');
   assert.equal(faceTrigger(makeSkillCard('wave-loom', 'w'), tile('wave-loom')).word, 'Timer');
 });
 

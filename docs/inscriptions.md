@@ -17,10 +17,10 @@ Status: built. Artifacts are retired for players; Inscriptions replace them. Cod
 | Name | Kind (tag) | Text (one keyword line, glossary-linked) | Numbers |
 | --- | --- | --- | --- |
 | Twin Mark | card | Fires twice. | 2 firings (a Repeat to the left doubles that again) |
-| Gilded | card | +2 Sparks each firing. | +2 Sparks per firing, Boosts see it |
+| Gilded | card | Each firing, 50%: +2 Sparks. | a 50% roll per firing for +2 Sparks (a failed roll pays nothing); Boosts see it |
 | Resonant | card | Also fires on a Pulse. | extra Trigger: Pulse |
 | Kindled | card | Also fires on a Lift. | extra Trigger: Lift |
-| Courier | card | Also fires on a Delivery and every 3rd Collect. | extra Triggers: Delivery, every 3rd Collect (count starts over each flight) |
+| Courier | card | Also fires on a Delivery. On a Collect, 33%: also fires. | extra Triggers: Delivery, and a 33% roll on each Collect |
 | Wellspring | card | Fires 3 times on each Overfill. | 3 firings per Overfill |
 | Sunlit | card | Also fires on a Flare Collect and each Flare Pulse. | extra Triggers: Flare Collect, each Pulse of a Flare (once per Pulse) |
 | Mirror | card | Fires when the card on its left fires. | follows the left neighbour |
@@ -140,3 +140,7 @@ A chest on a card run keeps its own two finds (some of which already give Stored
 ### Chest gifts: five more permanent Inscriptions
 
 Far Lens (luminance reaches 15% farther), Quick Lens (companion recharge takes 15% less time), Mending Wick (recover 3 extra Sparks after each clear), Toll Stamp (each clear with 3 body pickups: +3 Stored Sparks), Lamplighter's Seal (each clear holding 12 Sparks: +3 Stored Sparks; the Sealed Purse oath still pays 24, or 36 with the Seal in force). Catalogue entries in `INSCRIPTIONS` flagged `chest: true` (standalone, own brand glyphs): they are NOT in `INSCRIPTION_IDS` (the Scribe's 18) and otherwise behave like any permanent Inscription (inspector, glossary, covering rule, replace-confirm). `grantTreasureGift` queues the write (`queueInscriptionWrite`, `run.pendingTemporary` with `permanent: true`, same slot screen, headed "Chest find — permanent Inscription"); the Seal is queued when the Sealed Purse is fulfilled. Effects read the Chain (`treasureRank` = written and not covered). Chest find text: "Inscription: <name> — <effect>" (`giftLine`). Old saves: `migrateChestGifts` moves the loose `treasureGifts` keys to the first slot with no permanent Inscription (none: slot 1, replacing; no slots: dropped); only `vessel` stays loose. NOTE: in normal runs a chest offers `chestRewardPair` (skills, hearts, Stored Sparks, glass seed), not `treasureChoices`; `treasureChoices` (where these finds are offered) is reached only by the tutorial, so the gifts are not currently obtainable in a normal run until they are added to `CHEST_REWARDS`.
+
+## Chance (owner rule, 20 November 2026)
+
+A card or Inscription that should pay less often uses a percentage chance per firing, never a counter ("every 2nd") and never "once per X seconds". Real clocks (Timers, Pulse Reader) and Victory Lap's "again per 15 firings" stay. The roll is `rollChance` in `dist/card-chance.mjs`: a seeded stream owned by the flight (`WispFlight` seeds it from its own seed), one draw per roll, so a replay with the same seed and inputs is identical; the Chain-tab simulator uses one fixed seed, and previews always show the expected value ("50%: +1 Spark"), never a rolled result. A failed roll is not a firing: no pay, no light, no Overfill, and Boost, Repeat and Inscription effects that depend on the card firing do not happen. A Repeat rolls again for each repeat. Converted: Lift Guide (on the cue, 50%), Gilded (50% for the +2), Meter Mark (each Overfill, 50%), Courier (on a Collect, 33%), Third Beat (each Timer firing, 33%).

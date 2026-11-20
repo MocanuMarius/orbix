@@ -11,16 +11,20 @@ const exec = (ids, inscriptions) => createCardExecution({ cards: ids.map((id, i)
 const sparksOf = (ex, event) => resolveCardRow(ex, { meterFraction: .5, heartsLeft: 2, pickupKind: 'light', ...event }).sparks;
 const text = (ins, card) => inscriptionOnCard(ins, makeSkillCard(card, 'x'));
 
-test('Courier: also fires on every 3rd Collect of the flight (a Pulse card pays on Collects 3 and 6), and on a Delivery', () => {
+test('Courier: also fires on a Delivery, and on each Collect with a 33% chance (a roll, no count)', () => {
+  const F = Symbol.for('orbix.chanceForce');
   const ex = exec(['harvest-common'], ['courier']);
-  const paid = Array.from({ length: 7 }, () => sparksOf(ex, { kind: CARD_ROW_EVENTS.body }));
-  assert.deepEqual(paid.map(n => n > 0), [false, false, true, false, false, true, false]);
-  assert.ok(sparksOf(exec(['harvest-common'], ['courier']), { kind: CARD_ROW_EVENTS.delivery }) > 0, 'a Delivery still fires it');
-  assert.equal(sparksOf(exec(['harvest-common'], ['courier']), { kind: CARD_ROW_EVENTS.body }), 0, 'a new flight starts the count over');
+  globalThis[F] = true;
+  assert.deepEqual(Array.from({ length: 4 }, () => sparksOf(ex, { kind: CARD_ROW_EVENTS.body }) > 0), [true, true, true, true], 'a succeeding roll fires on every Collect');
+  globalThis[F] = false;
+  assert.deepEqual(Array.from({ length: 4 }, () => sparksOf(ex, { kind: CARD_ROW_EVENTS.body }) > 0), [false, false, false, false], 'a failed roll does not');
+  assert.ok(sparksOf(exec(['harvest-common'], ['courier']), { kind: CARD_ROW_EVENTS.delivery }) > 0, 'a Delivery still fires it (no roll)');
+  delete globalThis[F];
+  assert.equal(ex.collectCount, undefined, 'no Collect counter');
   assert.equal(sparksOf(exec(['harvest-common'], []), { kind: CARD_ROW_EVENTS.body }), 0);
-  assert.match(text('courier', 'harvest-common'), /also fires on a Delivery and every 3rd Collect.*starts over each flight/);
+  assert.match(text('courier', 'harvest-common'), /also fires on a Delivery and a Collect, 33%:/);
   assert.match(text('courier', 'body-spark'), /also fires on a Delivery:/);
-  assert.equal(getInscription('courier').text, 'Also fires on a Delivery and every 3rd Collect.');
+  assert.equal(getInscription('courier').text, 'Also fires on a Delivery. On a Collect, 33%: also fires.');
 });
 
 test('Wellspring: the card fires 3 times on each Overfill (row card and engine card), and says so', () => {

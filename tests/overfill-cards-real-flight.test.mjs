@@ -9,7 +9,7 @@ const flights = (ids, opts = {}) => levels.flatMap(l => [0, 1].map(seedIndex => 
 const hits = (fl, slot) => sum(fl, f => (f.log.engine.cardEngine?.log || []).filter(x => x.k === 'hit' && x.type === 'overfill' && x.slot === slot).length);
 const natural = fl => sum(fl, f => f.log.engine.__natural || 0);
 // Meter Mark keeps 1 Stored on every 2nd Overfill of a flight (the count starts again each flight).
-const everySecond = fl => sum(fl, f => Math.floor((f.log.engine.__natural || 0) / 2));
+const everySecond = fl => sum(fl, f => f.log.engine.__natural || 0); // chance forced to succeed in this file: every natural Overfill
 const countNatural = e => { e.__natural = 0; const o = e.storeNaturalOverflow.bind(e); e.storeNaturalOverflow = (p, s, a, n, c) => { if (n > 1e-7) e.__natural++; return o(p, s, a, n, c); }; };
 
 test('Engine Overfill cards (Ember Bell, Overflow Bell, Pressure Valve, Floodgate) answer every natural Overfill', () => {
@@ -26,11 +26,11 @@ test('One Overfill rule: Sparks a card makes at a full Meter are Overfills for e
   assert.ok(alone.length && hits(alone, 0) > 0);
   // Meter Mark alone only ever hears pickups (no card makes Sparks), so it fires once per natural Overfill; behind Body Spark it also hears Body Spark’s spill.
   const lone = flights(['meter-mark'], { hook: countNatural });
-  assert.equal(sum(lone, f => f.log.slots[0]?.fired || 0), everySecond(lone), 'alone: on every 2nd natural Overfill of a flight');
+  assert.equal(sum(lone, f => f.log.slots[0]?.fired || 0), everySecond(lone), 'alone: on each natural Overfill (its 50% roll forced to succeed here)');
   const mark = flights(['body-spark', 'meter-mark'], { hook: countNatural });
   const fired = sum(mark, f => f.log.slots[1]?.fired || 0);
   assert.ok(fired > everySecond(mark), `Meter Mark hears card-made spill: ${fired} > ${everySecond(mark)} from natural Overfills alone`);
-  assert.equal(sum(mark, f => f.log.slots[1]?.stored || 0), fired, 'it keeps 1 Stored Spark per 2nd Overfill');
+  assert.equal(sum(mark, f => f.log.slots[1]?.stored || 0), fired, 'it keeps 1 Stored Spark per succeeding roll');
   // Events flow right only: Meter Mark to the LEFT of the maker does not hear the maker’s spill.
   const left = flights(['meter-mark', 'body-spark'], { hook: countNatural });
   assert.equal(sum(left, f => f.log.slots[0]?.fired || 0), everySecond(left), 'a Meter Mark left of Body Spark hears pickups only');
@@ -87,3 +87,6 @@ test('A Spark the Collector delivers to a full Meter is an Overfill for Overfill
   const bell = (f.log.engine.cardEngine?.log || []).filter(x => x.k === 'hit' && x.type === 'overfill').length;
   assert.ok(bell >= d);
 });
+
+// Chance rolls always succeed in this file: these tests pin what a firing pays (the chance itself: tests/card-chance.test.mjs).
+globalThis[Symbol.for('orbix.chanceForce')] = true;

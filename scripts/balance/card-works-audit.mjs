@@ -10,6 +10,7 @@ import { cardTileLine } from '../../dist/card-tile-lines.mjs';
 import { resolveChain, hereLine } from '../../dist/ui/chain-model.mjs';
 import { cardGrowthBadge } from '../../dist/card-ui.mjs';
 import { PROBES } from './card-works-probes.mjs';
+globalThis[Symbol.for('orbix.chanceForce')] = true; // the audit proves what a firing pays: chance rolls always succeed here
 
 const { SKILL_CARDS, LIVE_CARDS, makeSkillCard, getCardRowRule, createCardExecution, resolveCardRow, getCardModifiers } = S;
 const PAYER = { 'body-spark': 'body-spark', 'wave-crossing': 'harvest-common', 'collector-delivery': 'courier-tip', 'downbeat-lift': 'downbeat', 'flash-pickup': 'flash-handling',

@@ -17,7 +17,7 @@ const fire = (ids, inscriptions, kind, extra = {}) => {
   return resolveCardRow(createCardExecution(inscriptions ? { cards, inscriptions: inscriptions.map(id => id ? { id } : null) } : { cards }), { kind, meterFraction: .5, heartsLeft: 2, firstCrossing: true, ...extra });
 };
 const E = CARD_ROW_EVENTS;
-const CARDS = [['pulse-reader', 'Pulse', '+1 Spark', E.wave], ['courier-cord', 'Delivery', '+10 Sparks over 10 s', E.delivery], ['meter-mark', 'Overfill', 'every 2nd: +1 Stored', E.overfill]];
+const CARDS = [['pulse-reader', 'Pulse', '+1 Spark', E.wave], ['courier-cord', 'Delivery', '+10 Sparks over 10 s', E.delivery], ['meter-mark', 'Overfill', '50%: +1 Stored', E.overfill]];
 
 test('faces: Trigger word and one short effect line; common, copyable, starter-only', () => {
   for (const [id, word, line] of CARDS) {
@@ -91,22 +91,23 @@ const overfills = (ids, inscriptions, n) => {
   const rt = createCardExecution(inscriptions ? { cards, inscriptions: inscriptions.map(id => id ? { id } : null) } : { cards });
   return Array.from({ length: n }, () => resolveCardRow(rt, { kind: E.overfill, meterFraction: .5, heartsLeft: 2 }).stored);
 };
-test('Meter Mark keeps 1 Stored on every 2nd Overfill; Boosts and Inscriptions never multiply it; Echo repeats; the count shows as 1/2', () => {
-  const id = 'meter-mark';
-  assert.deepEqual(overfills([id], null, 5), [0, 1, 0, 1, 0]);
+test('Meter Mark: each Overfill, 50% to keep 1 Stored; Boosts and Inscriptions never multiply it; Echo rolls again; no count badge', () => {
+  const id = 'meter-mark', F = Symbol.for('orbix.chanceForce');
+  assert.deepEqual(overfills([id], null, 5), [1, 1, 1, 1, 1], 'a succeeding roll pays on every Overfill (no counter)');
+  globalThis[F] = false;
+  assert.deepEqual(overfills([id], null, 3), [0, 0, 0], 'a failed roll keeps nothing');
+  assert.deepEqual(overfills(['echo', id], null, 2), [0, 0], 'Echo rolls again and fails again');
+  assert.equal(resolveCardRow(createCardExecution({ cards: [makeSkillCard(id, 'f')] }), { kind: E.overfill, meterFraction: .5 }).steps[0].skipReason, 'chance');
+  globalThis[F] = true;
   assert.equal(fire([id], null, E.overfill).sparks, 0);
-  assert.deepEqual(overfills([id, 'crescendo'], null, 2), [0, 1], 'a Boost never multiplies Stored Sparks');
-  assert.deepEqual(overfills([id, 'prism-lens'], null, 2), [0, 1]);
-  for (const ins of ['gilded', 'twin-mark', 'kindled', 'resonant', 'brimful']) assert.deepEqual(overfills([id], [ins], 2), [0, 1], ins);
-  assert.deepEqual(overfills(['echo', id], null, 2), [1, 1], 'Echo repeats the card: each Overfill counts twice, so every Overfill pays');
-  assert.deepEqual(overfills([id], null, 1).concat(fire([id], null, E.lift).stored), [0, 0]);
+  assert.deepEqual(overfills([id, 'crescendo'], null, 2), [1, 1], 'a Boost never multiplies Stored Sparks');
+  assert.deepEqual(overfills([id, 'prism-lens'], null, 2), [1, 1]);
+  for (const ins of ['gilded', 'kindled', 'resonant', 'brimful']) assert.deepEqual(overfills([id], [ins], 1), [1], ins);
+  assert.deepEqual(overfills([id], null, 1).concat(fire([id], null, E.lift).stored), [1, 0]);
   const cards = [makeSkillCard(id, 'b')], rt = createCardExecution({ cards });
-  assert.equal(cardGrowthBadge(rt.cards[0]), null, 'no count before the first Overfill is not a badge');
   resolveCardRow(rt, { kind: E.overfill, meterFraction: .5 });
-  assert.equal(cardGrowthBadge(rt.cards[0]).text, '1/2');
-  resolveCardRow(rt, { kind: E.overfill, meterFraction: .5 });
-  assert.equal(cardGrowthBadge(rt.cards[0]).text, '0/2');
-  assert.equal(createCardExecution({ cards }).cards[0].markCount, undefined, 'a new flight starts the count at 0');
+  assert.equal(cardGrowthBadge(rt.cards[0]), null, 'the count badge (1/2) is gone');
+  assert.equal(rt.cards[0].markCount, undefined, 'no counter is kept on the card');
 });
 
 test('real flights: Pulse Reader pays per Pulse crossing, Courier Cord per Delivery (and stamps its flash), Meter Mark per Overfill', () => {
@@ -120,7 +121,7 @@ test('real flights: Pulse Reader pays per Pulse crossing, Courier Cord per Deliv
   assert.ok(b.some(f => f.log.engine.courierFlashAt > 0), 'a drop-off stamps the flash');
   const c = [0, 1, 2].map(seedIndex => fly({ ids: ['meter-mark'], seedIndex }));
   const overfills = c.reduce((n, f) => n + (f.log.events['natural-overfill'] || 0), 0), kept = c.reduce((n, f) => n + (f.log.slots[0]?.stored || 0), 0);
-  assert.ok(overfills >= 2 && kept === c.reduce((n, f) => n + Math.floor((f.log.events["natural-overfill"] || 0) / 2), 0) && kept >= 1, `${kept} Stored for ${overfills} Overfills`);
+  assert.ok(overfills >= 2 && kept === overfills && kept >= 1, `${kept} Stored for ${overfills} Overfills`);
 });
 
 test('cues are cheap whole-pixel rects, drawn only with the card mounted', () => {
@@ -150,3 +151,6 @@ test('Pulse Reader alone: it sends its own Pulse every 8 s, is paid by it, and c
   assert.equal(left.log.slots[0]?.fired || 0, 0, 'a Pulse card to its left is not');
 });
 
+
+// Chance rolls always succeed in this file: these tests pin what a firing pays (the chance itself: tests/card-chance.test.mjs).
+globalThis[Symbol.for('orbix.chanceForce')] = true;

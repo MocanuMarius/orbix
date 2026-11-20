@@ -37,3 +37,6 @@ test('a Gilded slot lifts the preview: Body Spark +2 becomes more than the bare 
   const html = deckScreenMarkup({...gilded, cardSlots: 3}, createDeckView(), {});
   assert.match(html, new RegExp(`data-result="${b}"`));
 });
+
+// Chance rolls always succeed in this file: these tests pin what a firing pays (the chance itself: tests/card-chance.test.mjs).
+globalThis[Symbol.for('orbix.chanceForce')] = true;

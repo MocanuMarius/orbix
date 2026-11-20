@@ -28,7 +28,7 @@ export async function createSim({ style }) {
   /** opts: q (old pilots: convert off-cue Lifts to paid on-cue Lifts), guideP (probability a guide Lift pays; coin toss = .5), payout (extra modelled card payouts), flights */
   function flyRun(ids, runSeed, opts = {}) {
     const q = opts.q || 0, guideP = opts.guideP ?? 1, flights = opts.flights || FLIGHTS;
-    const run = makeRun(ids, { seed: runSeed }), card = ids[ids.length - 1];
+    const run = makeRun(ids, { seed: runSeed, inscriptions: opts.inscriptions || [] }), card = ids[ids.length - 1];
     // opts.legacy = the pre-2026-11-19 flight options (no cardPilot, lives, wallet...) and the old Rest-when-hurt route; default = the app's flight on the fixed route.
     const route = opts.legacy ? null : simRoute(runSeed, ids, makeRun).path; let routeAt = 0;
     const m = { cleared: 0, attempts: 0, hearts: 0, died: false, denied: 0, under20: 0, minMeter: 1, collected: 0, cardSparks: 0, lgSparks: 0, lifts: 0, guideLifts: 0, stored: 0, cardStored: 0, meterEnd: 0,

@@ -229,3 +229,6 @@ test('Lift on the beat: Lift Guide pays +1 Spark per Lift tapped while its arrow
   assert.equal(sum(without, f => f.log.beatTaps), 0);
   assert.equal(sum(without, f => f.log.events['guide-lift'] || 0), 0, 'no Lift Guide mounted: nothing fires');
 });
+
+// Chance rolls always succeed in this file: these tests pin what a firing pays (the chance itself: tests/card-chance.test.mjs).
+globalThis[Symbol.for('orbix.chanceForce')] = true;

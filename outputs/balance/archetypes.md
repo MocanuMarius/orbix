@@ -154,3 +154,23 @@ Same method (`archetype-table.mjs --deep`, 9 real flights per Chain, pilot `play
 Loop check: no safety stops, at most 1 Timer firing per step, at most 9 engine log entries in one instant (Slow Wick + Spark Chime 8, Slow Wick + Wave Loom + Harvest 7, Metronome + Slow Wick + Third Beat + Momentum 9).
 
 FLAG: the Slow Wick + Spark Chime pair pays 10.8 Sparks a flight, under the 15 to 25 target, because a beat pays once and the Meter fills (asked 43.8 against 10.8 real). Not changed. Proposals if the owner wants the pair stronger: Slow Wick every 2 s, or Spark Chime +2 on a beat. Also seen, not caused by the beat: two Spark Chimes beside a Slow Wick start an Overfill-wave loop (404 Overfill waves a flight in one test flight) because each Chime's crossing spills into a full Meter and the spill makes a new wave; the engine does not stop it. Needs its own look.
+
+## Chances instead of counters (2026-11-20)
+
+Owner rule: a card or Inscription that should pay less often rolls a percentage per firing (a coin toss), never a counter and never "once per X seconds". One helper, `dist/card-chance.mjs` (`rollChance`), draws from a seeded stream owned by the flight (seed `<flight seed>:card-chance`, one draw per roll, never per frame; the Chain-tab simulator uses one fixed seed; previews show the full effect in plain words). Converted: Lift Guide on the cue 50%: +1 Spark; Gilded each firing 50%: +2 Sparks; Meter Mark each Overfill 50%: keeps 1 Stored; Courier on a Collect 33%: also fires; Third Beat each Timer firing 33%: gains count twice.
+
+Method: real flights, `starter-sim.mjs` (pilot `player-good`, route `sb1`, stops 2 to 4, 5 trials each = 15 flights per Chain), the same flights before (HEAD) and after (the rolls vary the flights, so counts move by a few flights either way: read trends, not single flights). Per flight: firings of the card, card Sparks, Stored.
+
+| Chain | Cleared before | Cleared after | Card Sparks / flight before | after | Firings / flight before | after |
+|---|---|---|---|---|---|---|
+| Lift Guide alone | 12/15 | 9/15 | 15.8 | 6.5 | 52.5 | 21.7 |
+| Skim Line alone (reference) | 4/15 | 4/15 | n/a | n/a | n/a | n/a |
+| Pulse Reader alone (reference) | 8/15 | 8/15 | 5.3 | 5.3 | 17.7 | 17.7 |
+| Lift archetype (Lift Guide, Toll Bell, Pacesetter) | 13/15 | 14/15 | 17.2 + 11.4 + 0 | 8.5 + 11.8 + 0 | 57.5 / 18.9 / 1.4 | 28.3 / 19.7 / 1.7 |
+| Lift Guide + Gilded on its slot | 10/15 | 7/15 | 43.3 | 11.4 | 48.1 | 19.6 |
+| Pulse Reader, Harvest + Gilded on Harvest | 11/15 | 9/15 | 6.7 + 20.0 | 6.8 + 12.5 | 22.2 / 22.2 | 22.5 / 22.5 |
+| Pulse Reader, Harvest (no Gilded) | 7/15 | 7/15 | 5.9 + 5.9 | 5.9 + 5.9 | 19.8 / 19.8 | 19.8 / 19.8 |
+| Meter Mark alone | 4/15 | 4/15 | Stored 1.53 | Stored 1.27 | 1.5 | 1.3 |
+| Lift Guide, Meter Mark | 12/15 | 9/15 | Stored 6.87 (Mark) | 4.33 (Mark) | 52.5 / 6.9 | 22.2 / 4.3 |
+
+Reading: Lift Guide alone pays 59% less card Sparks (15.8 to 6.5) and clears 9 of 15 instead of 12 of 15; that is level with Pulse Reader alone (8/15) and well above Skim Line (4/15), so the nerf lands it on the Pulse reference rather than below it. Gilded on Lift Guide fell from 43.3 to 11.4 card Sparks a flight (the very strong pairing in `inscriptions.md` is tamed: 7/15 clears, below Pulse + Gilded at 9/15). Gilded on a Pulse card pays 12.5 instead of 20.0. Meter Mark alone keeps about the same Stored (1.3 against 1.5: 50% of every Overfill replaces every 2nd, an equal average); beside Lift Guide it falls with Lift Guide's own spill (6.9 to 4.3). Courier and Third Beat were checked by the long-run frequency test in `tests/card-chance.test.mjs` (33% of Collects, 33% of Timer firings), not by flights.
