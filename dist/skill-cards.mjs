@@ -136,6 +136,9 @@ export function getEmberFeederTargets(cards, slot) {
   }
   return targets;
 }
+/** Ember Snack: the one card it eats, with Ember Feeder's rules (the first live card to its right; Deep Vessel, Growth Ring and Wind Feather are permanent and never eaten). */
+export const EMBER_SNACK_STORED = 50;
+export const getEmberSnackTarget = (cards, slot) => getEmberFeederTargets(cards, slot).slice(0, 1)[0] || null;
 /** Called only once when the real attempt starts, never by a build quote. */
 export function consumeCardUseDoublers(run) {
   if (!isCardRun(run)) return [];
@@ -1549,6 +1552,8 @@ export function getCardModifiers(run) {
     if (d.kind === "proximity") m.cardProximityUnlocked = true;
     if (d.kind === "pulse-reader") m.cardPulseReader = true;
     if (d.kind === "courier-cord") m.cardCourierCord = true;
+    if (d.kind === "radar") m.cardRadar = true;
+    if (d.kind === "kindling") m.cardKindling = true;
     if (d.kind === "meter-mark") m.cardMeterMark = true;
     if (d.kind === "brimful") m.cardBrimful += 1;
     if (d.kind === "skim-line") { m.cardProximityUnlocked = true; m.cardSkimLine = true; }

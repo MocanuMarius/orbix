@@ -7,7 +7,7 @@ const excludedWildcardEvents = new Set(['flight-clear', 'expedition-victory', 'c
 const dependentOperations = new Set(['multiply', 'add-last-payout']);
 const restOnly = def => ['camp-grow', 'camp-extra'].includes(def?.kind);
 const broad = ({def, rule}) => copies.has(def.kind)
-  || ['refrain', 'use-doubler', 'ember-feeder'].includes(def.kind)
+  || ['refrain', 'use-doubler', 'ember-feeder', 'ember-snack'].includes(def.kind)
   || (rule?.event === '*' && (dependentOperations.has(rule.operation) || rule.minimumEarlierPayers > 0));
 const sparks = entry => entry.rule?.operation === 'add-sparks' && !(entry.rule.minimumEarlierPayers > 0);
 const dependent = entry => dependentOperations.has(entry.rule?.operation) || entry.rule?.minimumEarlierPayers > 0;
@@ -36,6 +36,7 @@ function ready(candidate, owned, slots) {
   if (owned.some(copy => copies.has(copy.def.kind) && repeatable(copy, candidate))) return true;
   if (candidate.def.kind === 'use-doubler' && owned.some(finite)) return true;
   if (finite(candidate) && owned.some(entry => entry.def.kind === 'use-doubler')) return true;
+  if (candidate.def.kind === 'ember-snack' && slots >= 2 && owned.filter(entry => !restOnly(entry.def)).length >= 1) return true;
   if (candidate.def.kind === 'ember-feeder' && slots >= 2 && owned.filter(entry => !restOnly(entry.def)).length >= 1) return true;
   if (candidate.def.kind === 'refrain' && owned.some(entry => !!entry.rule)) return true;
   if (candidate.rule && owned.some(entry => entry.def.kind === 'refrain')) return true;

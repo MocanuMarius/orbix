@@ -55,7 +55,7 @@ function engineChain(def) {
 }
 function modifierDiff(id) {
   const a = M.getRunModifiers(makeRun([])), b = M.getRunModifiers(makeRun([id])), keys = Object.keys(b).filter(k => k !== 'cardExecution' && JSON.stringify(a[k]) !== JSON.stringify(b[k]));
-  const needsNeighbour = ['echo', 'chameleon', 'refrain', 'use-doubler', 'ember-feeder', 'chameleon-two'].includes(SKILL_CARDS[id].kind);
+  const needsNeighbour = ['echo', 'chameleon', 'refrain', 'use-doubler', 'ember-feeder', 'ember-snack', 'chameleon-two'].includes(SKILL_CARDS[id].kind);
   return { changed: keys.length > 0 || needsNeighbour, keys, note: needsNeighbour ? 'acts only with a neighbour (its own tests)' : 'none' };
 }
 /** A Finish is resolved by the model (finishFlight), not the flight: clear a real node with the card mounted and read the receipt. */

@@ -1530,6 +1530,22 @@ export class WispFlight {
     if(this.courierDrip===0)this.courierDripAcc=0;
     this.syncCourierDripBadge();
   }
+  /** Kindling (Common card): while the Meter is under 30% it recovers 1 Spark per 2 s of flight time and stops at 30%, so it never overfills.
+   * The 2 s are counted only while the Meter is under 30%; the Spark counts as a card Spark for the play recorder. */
+  updateKindling(dt) {
+    if(!this.mod.cardKindling||!this.alive||this.finished||this.dying||this.completing){this.kindlingAcc=0;return;}
+    const cap=this.maxFlame*.3;
+    if(this.flame>=cap-1e-9){this.kindlingAcc=0;return;}
+    this.kindlingAcc=(this.kindlingAcc||0)+dt;
+    while(this.kindlingAcc>=2-1e-9){
+      this.kindlingAcc-=2;
+      const gain=Math.min(CARD_UNIT,Math.max(0,cap-this.flame));
+      if(gain<=0)break;
+      this.flame+=gain;this.flameRestored+=gain;
+      if(this.rec)this.rec.cardSparks+=gain/CARD_UNIT;
+      if(this.flame>=cap-1e-9){this.kindlingAcc=0;break;}
+    }
+  }
   /** A Spark a card made that found the Meter full counts as an Overfill for the row cards (Meter Mark, Ring Spring) to the right of `fromSlot`.
    * Row Overfill cards pay no Sparks, and a re-entrant spill (a firing made while this one resolves) is not reported again, so it cannot loop.
    * A spill made by a Pulse crossing a Spark (`fromPulse`) never feeds the Overfill Pulse (Spillway): that Pulse would pay more Sparks, spill again and run away. */
@@ -2320,6 +2336,7 @@ export class WispFlight {
     }
     this.time += dt;
     this.updateCourierDrip(dt);
+    this.updateKindling(dt);
     this.cardRhythm?.advance();
     this.flightBoon.tryReserve();
     updateGlideRegeneration(this,dt);

@@ -19,7 +19,7 @@ const GROUP_KEYS = Object.freeze({collect: 'collect', lift: 'falling-lift', puls
 const START_CARDS = new Set(['twin-wick', 'use-doubler', 'dream', 'black-hole']);
 
 // Wave Loom and Third Beat follow a Timer, so their first line says Timer (2026-11-20).
-const TIMER_FACE = new Set(['wave-loom', 'third-beat', 'slow-wick', 'long-fuse']);
+const TIMER_FACE = new Set(['wave-loom', 'third-beat', 'slow-wick', 'long-fuse', 'radar']);
 /** {word, term, iconId}: the one word on line 1, its glossary entry and the id its icon is drawn for. */
 export function faceTrigger(card = {}, definition = {}) {
   const chip = getCardTrigger(card, definition);
@@ -80,6 +80,7 @@ const LINES = Object.freeze({
   'double-lift': 'Lift twice in 1 s: 2nd free', climb: '3 Lifts in 1 s: 2nd, 3rd free',
   'flash-tinder': 'Starts a 1 s Flare', 'homing-thread': 'Fetches a Spark, 2× reach',
   'overflow-bell': 'A Pulse; keeps 2 Stored',
+  radar: 'Every 10 s: a Pulse', 'ember-snack': 'Eats next: +50 Stored', kindling: 'Low Meter: +1 per 2 s',
   'slow-wick': 'Every 3 s: a Pulse', metronome: 'Every 3 s: fires next', 'long-fuse': 'Every 5 s: fires again',
   heartbeat: 'Timers wait half',
   'first-catch': '1st: +4 Sparks, a Pulse', 'close-call': 'A Pulse, +12 Sparks', 'low-ember': 'Under half: +6, a Pulse',

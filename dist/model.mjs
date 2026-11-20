@@ -3,7 +3,7 @@ import {INSCRIPTIONS,getInscription,countInscription,cleanSlotInscriptions,write
 export {INSCRIPTIONS,getInscription,writeInscription,clearInscription,cleanSlotInscriptions} from './inscriptions.mjs?v=guide-clarity-1';
 import {PRACTICE_STOPS,practiceLessonTopics} from './practice-course.mjs?v=guide-clarity-1';
 import {prepareScoreLedger,awardScoreStores,awardSettledScoreStores,freezeCompletedGameScore,recordCompletedGameScore} from './game-score.mjs?v=guide-clarity-1';
-import {emberFeederGain,commitCardTallies,getCardTallies,getCardChargeCapacity,getCardFeederCapacity,getEmberFeederTargets,consumeCardUseDoublers} from './skill-cards.mjs?v=guide-clarity-1';
+import {emberFeederGain,commitCardTallies,getCardTallies,getCardChargeCapacity,getCardFeederCapacity,getEmberFeederTargets,getEmberSnackTarget,EMBER_SNACK_STORED,consumeCardUseDoublers} from './skill-cards.mjs?v=guide-clarity-1';
 import {consumeBlackHoles} from './card-black-hole.mjs?v=guide-clarity-1';
 import {CARD_UNIT as ENGINE_CARD_UNIT} from './skill-cards.mjs?v=guide-clarity-1';
 import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=guide-clarity-1';
@@ -1408,10 +1408,20 @@ function interrupt(run){
 export function retryFlight(run){if(!run||run.phase!=='retry'||run.lives<=0||!run.current)return false;run.phase='briefing';run.restReady=false;return true;}
 function queue(run,amount,kind,nodeId=run.current?.id){amount=count(amount);if(!amount||run.isTutorial)return;run.pendingCondensedGlow=count(run.pendingCondensedGlow)+amount;run.pendingRewards.push({amount,kind,nodeId});}
 function resolvePhysicalCardConsumers(run){
- const devourerSacrifices=[],emberFeederSacrifices=[];
- if(!isCardRun(run))return {devourerSacrifices,emberFeederSacrifices};
+ const devourerSacrifices=[],emberFeederSacrifices=[],emberSnackMeals=[];
+ if(!isCardRun(run))return {devourerSacrifices,emberFeederSacrifices,emberSnackMeals};
  for(let slot=0;slot<run.mountedCards.length;slot++){
   const source=run.mountedCards[slot],target=run.mountedCards[slot+1];
+  if(source?.cardId==='ember-snack'){
+   const hit=getEmberSnackTarget(run.mountedCards,slot);
+   if(!hit)continue;
+   const meal={sourceInstanceId:source.instanceId,sourceCardId:source.cardId,slot,stored:EMBER_SNACK_STORED,
+    target:{instanceId:hit.card.instanceId,cardId:hit.card.cardId,name:SKILL_CARDS[hit.card.cardId].name,slot:hit.slot}};
+   run.mountedCards[hit.slot]=null;run.mountedCards[slot]=null;
+   run.reserveCards=run.reserveCards.filter(card=>card.instanceId!==meal.target.instanceId&&card.instanceId!==source.instanceId);
+   emberSnackMeals.push(meal);recordCardEvent(run,'ember-snack',meal);
+   continue;
+  }
   if(source?.cardId==='ember-feeder'){
    const targets=getEmberFeederTargets(run.mountedCards,slot);
    if(!targets.length)continue;
@@ -1432,7 +1442,7 @@ function resolvePhysicalCardConsumers(run){
   run.mountedCards[slot+1]=null;run.reserveCards=run.reserveCards.filter(card=>card.instanceId!==target.instanceId);
   run.lives++;devourerSacrifices.push(sacrifice);recordCardEvent(run,'devourer',sacrifice);
  }
- return {devourerSacrifices,emberFeederSacrifices};
+ return {devourerSacrifices,emberFeederSacrifices,emberSnackMeals};
 }
 export function getRecoveryRules(run={}){const s=run.skills||{};return{rate:.5+.05*rank(s,'main-recovery')+.05*rank(s,'main-recovery-deep'),rescue:rank(s,'main-recovery-rescue')?.1:0,challenge:rank(s,'main-recovery-challenge')?.1:0};}
 // Item availability never depends on profile discovery or ascension. Only
@@ -1571,8 +1581,8 @@ export function finishFlight(run,result){
  }
  if(run.isTutorial)run.practiceTopics=[...new Set([...(run.practiceTopics||[]),...(result.practiceTopics||[]).filter(id=>typeof id==='string')])];
  run.deathPending=false;run.attemptActive=false;run.attemptEntry=null;run.lastAttempt={success:true,nodeId:n.id,livesLost:0,livesRemaining:run.lives};
- const {devourerSacrifices,emberFeederSacrifices}=result.dreamAttempt
-  ? {devourerSacrifices:[],emberFeederSacrifices:[]} : resolvePhysicalCardConsumers(run);
+ const {devourerSacrifices,emberFeederSacrifices,emberSnackMeals}=result.dreamAttempt
+  ? {devourerSacrifices:[],emberFeederSacrifices:[],emberSnackMeals:[]} : resolvePhysicalCardConsumers(run);
  run.lastAttempt.livesRemaining=run.lives;
  const consumedArtifacts=commitArtifactCharges(run,result.artifactCharges);
  // The Finish event the Chain hears. Clean Run reads heartsLost (falls on this node); Victory Lap reads the cards that fired during the flight.
@@ -1660,6 +1670,12 @@ export function finishFlight(run,result){
  if(attempt?.cardBlackHoleMeals?.length)run.lastFlight.cardBlackHoleMeals=copy(attempt.cardBlackHoleMeals);
  if(devourerSacrifices.length){run.lastFlight.devourerSacrifices=devourerSacrifices;consumedCards.push(...devourerSacrifices.map(sacrifice=>sacrifice.targetInstanceId));}
  if(emberFeederSacrifices.length){run.lastFlight.emberFeederSacrifices=emberFeederSacrifices;consumedCards.push(...emberFeederSacrifices.flatMap(sacrifice=>sacrifice.targets.map(target=>target.instanceId)));}
+ if(emberSnackMeals.length){
+  const paid=emberSnackMeals.reduce((sum,meal)=>sum+meal.stored,0);
+  run.lastFlight.emberSnackMeals=emberSnackMeals;
+  consumedCards.push(...emberSnackMeals.flatMap(meal=>[meal.target.instanceId,meal.sourceInstanceId]));
+  queue(run,paid,'ember-snack');run.condensedEarned+=paid;run.lastFlight.emberSnackStored=paid;
+ }
  if(attempt?.cardUseDoublings?.length)run.lastFlight.cardUseDoublings=copy(attempt.cardUseDoublings);
  if(isCardRun(run)){
   run.lastFlight.cardPackingBonus=cardPackingBonus;
