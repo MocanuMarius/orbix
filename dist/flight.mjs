@@ -1530,15 +1530,15 @@ export class WispFlight {
     if(this.courierDrip===0)this.courierDripAcc=0;
     this.syncCourierDripBadge();
   }
-  /** Kindling (Common card): while the Meter is under 30% it recovers 1 Spark per 2 s of flight time and stops at 30%, so it never overfills.
-   * The 2 s are counted only while the Meter is under 30%; the Spark counts as a card Spark for the play recorder. */
+  /** Kindling (Common card): while the Meter is under 50% it recovers 1 Spark per 1 s of flight time and stops at 50%, so it never overfills.
+   * The 1 s is counted only while the Meter is under 50%; the Spark counts as a card Spark for the play recorder. */
   updateKindling(dt) {
     if(!this.mod.cardKindling||!this.alive||this.finished||this.dying||this.completing){this.kindlingAcc=0;return;}
-    const cap=this.maxFlame*.3;
+    const cap=this.maxFlame*.5;
     if(this.flame>=cap-1e-9){this.kindlingAcc=0;return;}
     this.kindlingAcc=(this.kindlingAcc||0)+dt;
-    while(this.kindlingAcc>=2-1e-9){
-      this.kindlingAcc-=2;
+    while(this.kindlingAcc>=1-1e-9){
+      this.kindlingAcc-=1;
       const gain=Math.min(CARD_UNIT,Math.max(0,cap-this.flame));
       if(gain<=0)break;
       this.flame+=gain;this.flameRestored+=gain;

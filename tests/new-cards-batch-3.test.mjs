@@ -52,15 +52,15 @@ test('Ember Snack never eats a permanent card and waits when only one is to its 
   assert.ok(!run.lastFlight.emberSnackMeals);
 });
 
-test('Kindling recovers 1 Spark per 2 s only while the Meter is under 30%, and stops at 30%', () => {
+test('Kindling recovers 1 Spark per 1 s only while the Meter is under 50%, and stops at 50%', () => {
   const e = synthFlight(['kindling']);
   assert.equal(e.mod.cardKindling, true);
   e.flame = e.maxFlame * .1; const start = e.flame;
-  for (let i = 0; i < 2 * 120; i++) e.updateKindling(1 / 120);
-  assert.ok(Math.abs(e.flame - start - CARD_UNIT) < 1e-6, '2 s gives 1 Spark');
-  for (let i = 0; i < 400 * 120; i++) { e.updateKindling(1 / 120); assert.ok(e.flame <= e.maxFlame * .3 + 1e-9); }
-  assert.ok(Math.abs(e.flame - e.maxFlame * .3) < 1e-6, 'rests at 30%');
-  e.flame = e.maxFlame * .5; for (let i = 0; i < 10 * 120; i++) e.updateKindling(1 / 120);
-  assert.equal(e.flame, e.maxFlame * .5, 'above 30% it does nothing');
+  for (let i = 0; i < 1 * 120; i++) e.updateKindling(1 / 120);
+  assert.ok(Math.abs(e.flame - start - CARD_UNIT) < 1e-6, '1 s gives 1 Spark');
+  for (let i = 0; i < 400 * 120; i++) { e.updateKindling(1 / 120); assert.ok(e.flame <= e.maxFlame * .5 + 1e-9); }
+  assert.ok(Math.abs(e.flame - e.maxFlame * .5) < 1e-6, 'rests at 50%');
+  e.flame = e.maxFlame * .7; for (let i = 0; i < 10 * 120; i++) e.updateKindling(1 / 120);
+  assert.equal(e.flame, e.maxFlame * .7, 'above 50% it does nothing');
   const plain = synthFlight([]); assert.ok(!plain.mod.cardKindling);
 });
