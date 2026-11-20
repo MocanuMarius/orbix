@@ -1,20 +1,20 @@
-import { flightDevoured, devouredLine } from "./devour-notes.mjs?v=burn-1";
-import { wispChipText } from "./start-bonus.mjs?v=burn-1";
-import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=burn-1";
-import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=burn-1";
-import { uiIcon } from "./ui-icons.mjs?v=burn-1";
-import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=burn-1";
-import { bandMarkup } from "./trigger-bands.mjs?v=burn-1";
-import { meltMarkBadge } from "./melt-mark.mjs?v=burn-1";
-import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=burn-1";
-import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=burn-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=burn-1";
-import { activeFlightPact } from './flight-pacts.mjs?v=burn-1';
-import { cardArt } from "./card-art.mjs?v=burn-1";
-import { cardTileLine } from "./card-tile-lines.mjs?v=burn-1";
-import { slotInscriptionId } from "./inscriptions.mjs?v=burn-1";
-import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=burn-1";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=burn-1';
+import { flightDevoured, devouredLine, emberSnackLine } from "./devour-notes.mjs?v=clear-2";
+import { wispChipText } from "./start-bonus.mjs?v=clear-2";
+import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=clear-2";
+import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=clear-2";
+import { uiIcon } from "./ui-icons.mjs?v=clear-2";
+import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=clear-2";
+import { bandMarkup } from "./trigger-bands.mjs?v=clear-2";
+import { meltMarkBadge } from "./melt-mark.mjs?v=clear-2";
+import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=clear-2";
+import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=clear-2";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=clear-2";
+import { activeFlightPact } from './flight-pacts.mjs?v=clear-2';
+import { cardArt } from "./card-art.mjs?v=clear-2";
+import { cardTileLine } from "./card-tile-lines.mjs?v=clear-2";
+import { slotInscriptionId } from "./inscriptions.mjs?v=clear-2";
+import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=clear-2";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=clear-2';
 import {
   getMountedCards,
   getOwnedCards,
@@ -31,13 +31,13 @@ import {
   getSkillWallet,
   equipOwnedCard,
   canRerollCardDraft,
-} from "./model.mjs?v=burn-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=burn-1";
-import { choiceScene } from "./choice-art.mjs?v=burn-1";
-import { livesMarkup } from "./lives.mjs?v=burn-1";
-import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=burn-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=burn-1";
-import {canDreamAt, dreamConfig} from './dream.mjs?v=burn-1';
+} from "./model.mjs?v=clear-2";
+import { resourceSymbol } from "./game-symbols.mjs?v=clear-2";
+import { choiceScene } from "./choice-art.mjs?v=clear-2";
+import { livesMarkup } from "./lives.mjs?v=clear-2";
+import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=clear-2";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=clear-2";
+import {canDreamAt, dreamConfig} from './dream.mjs?v=clear-2';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -51,7 +51,7 @@ import {
   SKILL_CARDS,
   cardTallyLine,
   cardAmount,
-} from "./skill-cards.mjs?v=burn-1";
+} from "./skill-cards.mjs?v=clear-2";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -86,8 +86,9 @@ export const cardName = (c) => c?.name || c?.cardId || "Card";
 export function flightCardChangesMarkup(run){
   const flight=run?.lastFlight;if(!flight)return '';
   const fed=flight.emberFeederSacrifices||[],doubled=flight.cardUseDoublings||[],eaten=flightDevoured(flight);
-  if(!fed.length&&!doubled.length&&!eaten.length)return '';
-  return `<details class="card-flight-changes"><summary>Card changes this flight · ${fed.length+doubled.length+(eaten.length?1:0)}</summary>${eaten.length?`<p><strong>${esc(devouredLine(eaten))}.</strong> Gone for good.</p>`:''}${doubled.map(change=>`<p><strong>Use Doubler consumed.</strong> ${esc(change.name)} · ${change.before} → ${change.after} remaining uses.</p>`).join('')}${fed.map(change=>`<p><strong>Ember Feeder · +${amount(change.totalCapacity)} maximum Sparks while equipped.</strong> Permanently consumed ${change.targets.map(target=>`${esc(target.name)} (slot ${target.slot+1})`).join(' and ')}. No meter refill.</p>`).join('')}</details>`;
+  const snack=emberSnackLine(flight);
+  if(!fed.length&&!doubled.length&&!eaten.length&&!snack)return '';
+  return `<details class="card-flight-changes"><summary>Card changes this flight · ${fed.length+doubled.length+(eaten.length?1:0)+(snack?1:0)}</summary>${eaten.length?`<p><strong>${esc(devouredLine(eaten))}.</strong> Gone for good.</p>`:''}${snack?`<p><strong>${esc(snack)}.</strong></p>`:''}${doubled.map(change=>`<p><strong>Use Doubler consumed.</strong> ${esc(change.name)} · ${change.before} → ${change.after} remaining uses.</p>`).join('')}${fed.map(change=>`<p><strong>Ember Feeder · +${amount(change.totalCapacity)} maximum Sparks while equipped.</strong> Permanently consumed ${change.targets.map(target=>`${esc(target.name)} (slot ${target.slot+1})`).join(' and ')}. No meter refill.</p>`).join('')}</details>`;
 }
 function flightPackingReceipt(run, reward) {
   const flight = run?.lastFlight,
@@ -100,7 +101,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=burn-1";
+export { cardArt } from "./card-art.mjs?v=clear-2";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }

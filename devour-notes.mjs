@@ -1,8 +1,8 @@
 // Devour cards (Black Hole, Dream, Devourer, Ember Feeder) eat cards for good. The player is told before (departure screen) and after (flight rewards notes).
 // Pure helpers, no DOM.
-import {previewBlackHoleMeals} from './card-black-hole.mjs?v=burn-1';
-import {SKILL_CARDS, getEmberFeederTargets, getEmberSnackTarget, isCardRun} from './skill-cards.mjs?v=burn-1';
-import {getLifeCapacity} from './vitality.mjs?v=burn-1';
+import {previewBlackHoleMeals} from './card-black-hole.mjs?v=clear-2';
+import {SKILL_CARDS, getEmberFeederTargets, getEmberSnackTarget, isCardRun} from './skill-cards.mjs?v=clear-2';
+import {getLifeCapacity} from './vitality.mjs?v=clear-2';
 
 const nameOf = id => SKILL_CARDS[id]?.name || id;
 const join = names => names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0] || '';
@@ -15,6 +15,8 @@ export function flightDevoured(flight) {
   for (const eat of flight?.devourerSacrifices || []) out.push({cardId: eat.cardId, name: nameOf(eat.cardId), by: 'Devourer'});
   return out;
 }
+/** The Stored Sparks Ember Snack paid this flight, as one short line ('Ember Snack · +50 Stored'), or ''. */
+export const emberSnackLine = flight => (flight?.emberSnackStored > 0 ? `Ember Snack · +${Math.round(flight.emberSnackStored)} Stored` : '');
 export const devouredLine = items => items.length ? `Devoured: ${join(items.map(item => item.name))}` : '';
 
 /** Warnings for the departure screen: what a mounted Devour card will eat in the flight about to start. [{text, cardIds}] */

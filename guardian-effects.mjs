@@ -1,7 +1,7 @@
-import {iceShardPoints,iceShardContact,sampleIceShard} from './guardian-geometry.mjs?v=burn-1';
-import {getPickupSpec} from './pickups.mjs?v=burn-1';
-import {installShutters,resizeShutters} from './shutter-cone.mjs?v=burn-1';
-import {prepareStormEncounter,resizeStormRooms} from './storm-encounter.mjs?v=burn-1';
+import {iceShardPoints,iceShardContact,sampleIceShard} from './guardian-geometry.mjs?v=clear-2';
+import {getPickupSpec} from './pickups.mjs?v=clear-2';
+import {installShutters,resizeShutters} from './shutter-cone.mjs?v=clear-2';
+import {prepareStormEncounter,resizeStormRooms} from './storm-encounter.mjs?v=clear-2';
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 export function prepareGuardian(layout,height,speed,seed=1){
  const boss=layout.boss,s=height/620;

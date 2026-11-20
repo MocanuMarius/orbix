@@ -1,5 +1,5 @@
-import {skillIcon} from './upgrade-icons.mjs?v=burn-1';
-import {uiIcon,UI_ICON_NAMES,uiIconGrid} from './ui-icons.mjs?v=burn-1';
+import {skillIcon} from './upgrade-icons.mjs?v=clear-2';
+import {uiIcon,UI_ICON_NAMES,uiIconGrid} from './ui-icons.mjs?v=clear-2';
 
 // Old glyphs and legacy names. Spark-like aliases now draw the approved Spark; the skill portraits (shield, wing, wind, moon, leaf, sun) are not part of the icon set.
 const aliases = {'✧':'spark','✦':'sun','◈':'spark','ϟ':'wind','⌄':'wing','⌃':'wing','»':'wind','◇':'flame','♢':'wind','≈':'wind','♨':'flame','♡':'heart',boost:'flame',survival:'spark',mobility:'wing',spirit:'spark',ash:'flame',speed:'wind',phoenix:'flame',rebirth:'sun',control:'wing',wisp:'spark',ember:'spark'};

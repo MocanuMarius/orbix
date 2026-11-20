@@ -1,5 +1,5 @@
-import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=burn-1';
-import {createChainStrip, baseColor, stripLayout, STRIP, STRIP_COLORS, sparkNumber} from './chain-strip.mjs?v=burn-1';
+import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=clear-2';
+import {createChainStrip, baseColor, stripLayout, STRIP, STRIP_COLORS, sparkNumber} from './chain-strip.mjs?v=clear-2';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number = value => Number((Number(value) || 0).toFixed(3));
 const capped = trace => Number.isFinite(trace?.restoredSparks) && Math.abs(trace.restoredSparks - trace.sparks) > 1e-7;

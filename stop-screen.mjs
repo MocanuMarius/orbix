@@ -2,15 +2,15 @@
 // a header with the stop's name and status chips, the stop's picture whole at the left, and the options as large equal tiles side by side.
 // Tap-to-pick (tap-pick.mjs): the first tap selects, the second takes. A disabled option stays on screen with its reason. Never scrolls.
 // Pure markup; the handlers live in app.mjs (data-action="support" index N, "chest-choice" id, "event-card" id, "event-pick-back").
-import {resourceSymbol} from './game-symbols.mjs?v=burn-1';
-import {livesMarkup} from './lives.mjs?v=burn-1';
-import {uiIcon} from './ui-icons.mjs?v=burn-1';
-import {cardArt} from './card-art.mjs?v=burn-1';
-import {getGlowCapacity,getLifeCapacity,formatGlow} from './vitality.mjs?v=burn-1';
-import {oathShort} from './oaths.mjs?v=burn-1';
-import {cardTermTextMarkup} from './card-terms.mjs?v=burn-1';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=burn-1';
-import {chestSparks,CHEST_CARD_LINE,describeChestFind} from './treasure.mjs?v=burn-1';
+import {resourceSymbol} from './game-symbols.mjs?v=clear-2';
+import {livesMarkup} from './lives.mjs?v=clear-2';
+import {uiIcon} from './ui-icons.mjs?v=clear-2';
+import {cardArt} from './card-art.mjs?v=clear-2';
+import {getGlowCapacity,getLifeCapacity,formatGlow} from './vitality.mjs?v=clear-2';
+import {oathShort} from './oaths.mjs?v=clear-2';
+import {cardTermTextMarkup} from './card-terms.mjs?v=clear-2';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=clear-2';
+import {chestSparks,CHEST_CARD_LINE,describeChestFind} from './treasure.mjs?v=clear-2';
 
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const STOP_HINT='Tap an option, tap again to take it.';

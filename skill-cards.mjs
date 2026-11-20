@@ -1,12 +1,12 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=burn-1";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=clear-2";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=burn-1';
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=burn-1';
-import {rollChance} from './card-chance.mjs?v=burn-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=burn-1';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=burn-1';
+import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=clear-2';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=clear-2';
+import {rollChance} from './card-chance.mjs?v=clear-2';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=clear-2';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=clear-2';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({

@@ -1,16 +1,16 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=burn-1';
-import {lifeHeartSvg} from './lives.mjs?v=burn-1';
-import {duskGlyphArt} from './spark-symbol.mjs?v=burn-1';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=burn-1';
-import {glowGaugeUnits} from './glow-ui.mjs?v=burn-1';
-import {getRunModifiers} from './model.mjs?v=burn-1';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=burn-1';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=burn-1';
-import {dreamEye} from './dream.mjs?v=burn-1';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=burn-1';
-import {INSCRIPTIONS} from './inscriptions.mjs?v=burn-1';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=burn-1';
+import { resourceSymbol } from './game-symbols.mjs?v=clear-2';
+import {lifeHeartSvg} from './lives.mjs?v=clear-2';
+import {duskGlyphArt} from './spark-symbol.mjs?v=clear-2';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=clear-2';
+import {glowGaugeUnits} from './glow-ui.mjs?v=clear-2';
+import {getRunModifiers} from './model.mjs?v=clear-2';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=clear-2';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=clear-2';
+import {dreamEye} from './dream.mjs?v=clear-2';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=clear-2';
+import {INSCRIPTIONS} from './inscriptions.mjs?v=clear-2';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=clear-2';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   inscription: ['Inscription', 'An effect written on a Chain slot, not on a card. It stays on the slot when cards move, swap or leave. Some change the card on that slot; some work on any slot, even an empty one. Get one from the Scribe after an Elite or Guardian. One per slot; writing again replaces it.'],
@@ -44,7 +44,7 @@ export const CARD_TERMS = Object.freeze({
   cluster: ['Cluster', 'A group of Sparks that counts as one pickup.'],
   rhythm: ['Rhythm', 'Perform 3 successful Lifts at an even pace to send one Pulse.'],
   dream: ['Dream', 'Equip Dream to rehearse 8 seconds after Rest or before an Elite or Guardian, in full light with free Lifts. Devour makes it longer.'],
-  devour: ['Devour', 'At take-off, this card destroys the card to its right and grows. The growth stays on this card and is lost with it. Nothing to its right: nothing happens.'],
+  devour: ['Devour', 'At take-off, this card destroys the card to its right and grows. The growth stays on this card and is lost with it. Nothing to its right: nothing happens. Ember Snack eats the card to its right after a clear and pays 50 Stored Sparks.'],
   watchlight: ['Watchlight', 'With Collector beside you at full charge, block one fatal impact per flight and send a Pulse.'],
   pass: ['Chain', 'Your cards in Slots 1 to 5. When a Trigger happens, they fire left to right.'],
   slot: ['Slot', 'One place in your chain, numbered 1 to 5 from the left. Rest can give you more Slots.'],
@@ -60,7 +60,7 @@ export const CARD_TERMS = Object.freeze({
   engine: ['Engine', 'A chain that keeps itself going: one card’s event fires a card to its right, and a Timer sends it back to Slot 1.'],
   chance: ['Chance', 'A percentage on a card is a roll each time the card would fire. If it fails, nothing happens.'],
   turn: ['Timer firing', 'Each time a Timer card fires, the Chain is walked again from the first slot.'],
-  timer: ['Timer', 'A card that acts on a clock: Metronome fires the next card every 3 s, Slow Wick sends a Pulse every 3 s, Long Fuse repeats your last Trigger every 5 s, both by themselves. Each time one fires, the Chain is walked again from the first slot; without a Timer an engine runs once. A Pulse a Timer sends is a beat: each Pulse card that hears it fires once.'],
+  timer: ['Timer', 'A card that acts on a clock: Metronome fires the next card every 3 s, Slow Wick sends a Pulse every 3 s, Radar sends a Pulse every 10 s, Long Fuse repeats your last Trigger every 5 s, both by themselves. Each time one fires, the Chain is walked again from the first slot; without a Timer an engine runs once. A Pulse a Timer sends is a beat: each Pulse card that hears it fires once.'],
   'engine-skim': ['Skim', 'Trigger: you fly close to terrain until Proximity fills.'],
   timers: ['Timers', 'The card changes every Timer card in your chain.'],
   'take-off': ['Take-off', 'When you start a flight. Cards that say At take-off act then.'],
@@ -101,7 +101,7 @@ const CARD_TERM_DETAILS = Object.freeze({
   trigger: "The Triggers are Collect, Lift, Pulse, Delivery, Overfill, Finish and Skim. Boost cards work with all of them; Passive cards and At Rest cards do not wait for one. One touch can be two Triggers: a Spark that overfills your meter is Overfill, then Collect.",
   boost: "Boosts sit to the right of the cards they strengthen. Several Boosts multiply together (×1.25 then ×2 is ×2.5). Fractions round up: each firing’s Sparks are rounded up to a whole number at the end (2.5 becomes 3); Collector time keeps its decimals. They also strengthen always-on cards to their left (+20% Luminance ×2 = +40%), except Boosts that have their own Trigger or limited uses. Boosts never multiply Stored Sparks rewards or gains that last beyond the journey, such as Growth Ring and Wind Feather. Caps still apply: the meter stops at 100 Sparks, and boosted time never brings Collector below half a second.",
   engine: "Events made by a card travel to the right only. A card never answers an event it made itself in the same firing. An engine stops when a card cannot do its job, for example on a full meter; as Lift spends Sparks, the next event can start it again. Without a Timer a chain runs once.",
-  timer: "Slow Wick sends a Pulse every 3 s, with or without a Pulse to start it; each Pulse card that hears it fires once. Metronome, once an event reaches it, fires the card to its right every 3 s while that card can act. Long Fuse fires your last Trigger again every 5 s. Heartbeat halves every wait.",
+  timer: "Slow Wick sends a Pulse every 3 s and Radar sends one every 10 s, with or without a Pulse to start it; each Pulse card that hears it fires once. Metronome, once an event reaches it, fires the card to its right every 3 s while that card can act. Long Fuse fires your last Trigger again every 5 s. Heartbeat halves every wait.",
   encore: "All Refrains share one Encore per Trigger. It happens only if something worked the first time. The Sparks start at zero again, uses spent stay spent, and a first-crossing Stored Spark comes only once. Second Sun multiplies by more in an Encore.",
 });
 
@@ -470,7 +470,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=burn-1').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=clear-2').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -481,7 +481,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=burn-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=clear-2').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

@@ -12,8 +12,8 @@
 // Fallback: create() returns null when WebGL2 or float textures are missing, when the browser reports a software
 // GL ("major performance caveat"), or with ?gl=0. A lost context makes render() return null; the caller then draws
 // with Canvas 2D for that frame, and the GPU path resumes after webglcontextrestored. No dependencies.
-import {LIGHT_EXTENT} from './light-attenuation.mjs?v=burn-1';
-import {luminanceWaveFade,REVEAL_BANDS} from './luminance-waves.mjs?v=burn-1';
+import {LIGHT_EXTENT} from './light-attenuation.mjs?v=clear-2';
+import {luminanceWaveFade,REVEAL_BANDS} from './luminance-waves.mjs?v=clear-2';
 
 export const LIGHT_GPU_DEFAULT=true;
 export const LIGHT_GPU_LIMITS=Object.freeze({lights:8,cells:8,rays:96,spans:16,slotCols:16,slotRows:8,mask:128,waves:48,flashes:8,chunks:6,chunkLayers:8});

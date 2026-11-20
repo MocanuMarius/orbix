@@ -1,7 +1,7 @@
 // Final flight summary: the Overfill line (work order 7). Sparks that a pickup brought past a full Spark Meter spill; the code packs
 // them into Stored Sparks at the run's rate (condensed-glow.mjs › condenseGlow: displayed Sparks x multiplier, 1 per 6 without
 // packing perks, rounded down with the fraction carried to the next flight). Shown only when something spilled.
-import {glowPoints} from './vitality.mjs?v=burn-1';
+import {glowPoints} from './vitality.mjs?v=clear-2';
 const whole = v => Math.max(0, Math.floor(Number(v) || 0));
 /** {sparks, stored, per, text, long} for lastFlight, or null when nothing spilled. `rules` is condensationRules (multiplier). */
 export function overfillSummary(flight, rules = {}) {
