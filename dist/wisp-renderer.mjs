@@ -38,6 +38,7 @@ import {PolygonPath,batchOn} from './rect-raster.mjs?v=guide-clarity-1';
 import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=guide-clarity-1';
 import {drawShellArcs} from './shell-arcs.mjs?v=guide-clarity-1';
 import {drawWispWake} from './wisp-wake.mjs?v=guide-clarity-1';
+import {graphicsSkips} from './graphics-preset.mjs?v=guide-clarity-1';
 import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=guide-clarity-1';
 import {drawFallWarning} from './fall-chain-art.mjs?v=guide-clarity-1';
 import {castTerrainLight,castTerrainLightGPU,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=guide-clarity-1';
@@ -408,7 +409,8 @@ export class WispFlightView {
     // Stars: one path per twinkle level when no two stars share a pixel (checked once per size),
     // else one rect each as before. Same pixels and alphas either way.
     const stars = this.starLayout(W, H);
-    if (stars.batch && STARS_ON()) {
+    if (graphicsSkips('stars')) { /* Graphics Medium/Low: no star layer */ }
+    else if (stars.batch && STARS_ON()) {
       // Star layer: a transparent canvas holding each star at its current twinkle alpha; only stars whose
       // level changed are repainted (about one per frame), then one drawImage. Same pixels (no star shares a pixel).
       const layer = this.starCanvas ??= this.document.createElement('canvas'), lh = Math.ceil(H * .65) + 2;
@@ -1255,7 +1257,7 @@ export class WispFlightView {
     g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, W, H);
     chunks?.(g);
     edge.composite(g);
-    if (EDGE_LIGHT_PROBE) { c.globalAlpha = EDGE_LIGHT.peak; c.drawImage(layer, 0, 0); c.globalAlpha = 1; return; } // ?edgelight=0: measurement probe only
+    if (EDGE_LIGHT_PROBE || graphicsSkips('edgeglow')) { c.globalAlpha = EDGE_LIGHT.peak; c.drawImage(layer, 0, 0); c.globalAlpha = 1; return; } // ?edgelight=0: measurement probe only
     const strength = this.edgeStrength ??= this.document.createElement('canvas');
     if (strength.width !== W || strength.height !== H) { strength.width = W; strength.height = H; }
     const m = this.edgeStrengthContext ??= strength.getContext('2d');
@@ -1579,7 +1581,7 @@ export class WispFlightView {
     this.drawSceneProps(e, t, distance);
     // v1.2-level growth replaces the shared ecology plants and loose stones
     // (e.g. no lichen tufts on ice); Oldgrowth Pines keeps them.
-    if ((!scenery || scenery.keepsEcology) && !SKIP.has('ecology')) drawTerrainEcology(c,e,{scale:s,distance,time:t});
+    if ((!scenery || scenery.keepsEcology) && !SKIP.has('ecology') && !graphicsSkips('ecology')) drawTerrainEcology(c,e,{scale:s,distance,time:t});
     if(SKIP.has('edges')){}else if(e.boundaryStyle==='spectral'&&this.edgeRasterEnabled!==false){
       const edge=this.contactEdgeRaster??=new ContactEdgeRaster(this.document);
       edge.begin(this.buffer.width,this.buffer.height);
@@ -1613,7 +1615,7 @@ export class WispFlightView {
     const playerX = e.player.x * s, playerY = yOf(e) * s;
     e.luminanceWaves?.draw(c,{distance,scale:s,time:t});
     if (!SKIP.has('light')) this.lightFog(e, fleet, playerX, playerY);
-    drawWispWake(c,e,s,this.wispRasterScale??1);
+    if (!graphicsSkips('wake')) drawWispWake(c,e,s,this.wispRasterScale??1);
     drawFallWarning(c,e,{distance,scale:s,light:this.currentLightState});
     e.drawWayfinder?.(c,s);
     if (!SKIP.has('warnings')) drawGuardianWarnings(c,{engine:e,distance,scale:s,time:t});
@@ -1659,7 +1661,7 @@ export class WispFlightView {
     if(e.completing){c.save();c.globalCompositeOperation='screen';const p=e.completionProgress||0;c.globalAlpha=.11*p*p*(3-2*p)+Math.sin(Math.PI*p)*.02;c.fillStyle='#efd4a0';c.fillRect(0,0,this.buffer.width,this.buffer.height);c.restore();}
     // Composite the closest opaque plane once, after every world light/wash
     // and overlay. Its real-terrain clip leaves open flight and actors clear.
-    if (!SKIP.has('foreground')) drawTerrainForeground(c,e,{scale:s,distance});
+    if (!SKIP.has('foreground') && !graphicsSkips('foreground')) drawTerrainForeground(c,e,{scale:s,distance});
     if (!rehearsing) drawProximityMeter(c,e,{scale:s});
     this.context.imageSmoothingEnabled = false;
     this.context.drawImage(this.buffer, 0, 0, this.canvas.width, this.canvas.height);

@@ -252,3 +252,24 @@ GPU shade vs old, paired: +5.5, +4.4, +3.4, +1.2 FPS (4 of 4 rounds, median +3.9
 **Checks.** Same-moment pixel compare, desktop, 16 marsh frames with Pulse rings (shade active), `glshade` on vs off: 0 differing pixels (max delta 0). `gl-diff.mjs` (GL vs Canvas 2D lighting, stress/marsh/coral/frost): max delta 1-4/255, as before. Renderer tests: same 43 pass / 1 fail as a clean HEAD copy (`pixel-renderer.test.mjs` fails on an unrelated `getModifiers` import). `heavy.mjs --check` fails its stored baseline both for this tree and for HEAD run right after it (stress 4x p95 58.4 ms here vs 87.6 ms for HEAD; avg 27.5 vs 22.6 FPS), so the baseline is stale, not a regression. Screenshot: `outputs/perf/heavy/2026-11-18-lightfix-marsh-marsh.png` (normal lit marsh frame, Pulse rings, rock shade correct). Guardian warm-up: the emulator still logged 3 GPU-process crashes in the first warm-ups after a Chrome start, so the crash is not our light programs (it happened with `gl=0` too); the warm-up draw does not prevent it.
 
 **What remains the limit.** The rest of the lighting cost is the WebGL context itself on the emulator: the GL draw and the GL-to-2D composite each cost a context switch and a cross-context sync in the GPU process (whose main thread is at about 98%), independent of pixel count. Removing it means not using a second context at all: either the whole flight renderer in WebGL (one context, no transfers), or doing the darkness in Canvas 2D with far fewer operations than the old 2D path. Confirm on a real Pixel 10 first; the emulator's GLES translator likely overstates context switches.
+
+---
+
+# Graphics presets, 20 November
+
+High = today's rendering (default). Medium skips the foreground layer, the terrain edge glow (the rim stays, drawn without the glow pass; same as `?edgelight=0`), Wisp wake marks and the star layer. Low also skips the ecology (stones, plants, tufts, roots, pools, animals). Kept on every preset: lighting pass, terrain and rims, Sparks and pickups, hazards, Black Holes (motes and warning flecks too), warnings, starter cues, fleet, Wisp, HUD. Files: `dist/graphics-preset.mjs`, `dist/wisp-renderer.mjs`, `dist/ui/pause-menu.mjs`, `dist/ui/waystone.css`, `dist/app.mjs`; bench selector `?graphics=low|medium|high` (this page load only, not stored). Raw: `outputs/perf/android/*/graphics-{pinewood,marsh}.json`, logs `outputs/perf/graphics-*-log.txt`.
+
+Emulator `bench.mjs ab`, 5 rounds x 30 s, rotated order, base = High. Round 1 of pinewood was the first flights after the emulator boot (3 GPU-process crashes in warm-up, High 10.8 FPS), so it is shown but not used for the paired figures.
+
+| scene | preset | median FPS | 1% low (median) | paired vs High |
+| --- | --- | --- | --- | --- |
+| pinewood late-mid | High | 33.4 | ~9.7 | reference |
+| | Medium | 38.7 | ~12 | +5.7, +9.4, +5.0, +1.6 (rounds 2-5, 4/4) |
+| | Low | 41.9 | ~12 (two rounds with 0.6-1.2 s hitches: 30, 34) | +7.9, -1.9, +8.2, +0.8 (rounds 2-5; the two weak rounds carry the hitches) |
+| marsh late-mid | High | 33.4 | ~10 | reference |
+| | Medium | 40.6 | ~12-14 | +8.1 paired median, 5/5 |
+| | Low | 40.6 | ~12-15 | +8.4 paired median, 5/5 |
+
+Noise band (range of High): pinewood 10.8-34.2 (round 1 contaminated; about 32-34 without it), marsh 5.9. Marsh: Medium is a real gain, Low adds nothing over Medium there (its ground detail is v1.2 scenery growth, not the shared ecology, so Low's extra skip does not apply). Pinewood: Medium is a gain in 4/4 clean rounds; Low's extra gain over Medium is not established (the hitches are shader-compile stalls, not the preset).
+
+Checks: High vs High same-moment frames 0 differing pixels (the High path adds only false branches); Medium vs High 1551 px differ, Low vs High 2288 px (max 135/255, wake marks, rim glow, plants). Seeded autopilot stepped 1800 steps with renders: End state hash identical on High and Low (`scripts/perf/graphics-probe.mjs state`). Only `wisp-renderer.mjs` and `app.mjs` import the preset module (tested).
