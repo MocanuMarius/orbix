@@ -1,16 +1,16 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=noflag-1';
-import {lifeHeartSvg} from './lives.mjs?v=noflag-1';
-import {duskGlyphArt} from './spark-symbol.mjs?v=noflag-1';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=noflag-1';
-import {glowGaugeUnits} from './glow-ui.mjs?v=noflag-1';
-import {getRunModifiers} from './model.mjs?v=noflag-1';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=noflag-1';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=noflag-1';
-import {dreamEye} from './dream.mjs?v=noflag-1';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=noflag-1';
-import {INSCRIPTIONS} from './inscriptions.mjs?v=noflag-1';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=noflag-1';
+import { resourceSymbol } from './game-symbols.mjs?v=batch-1';
+import {lifeHeartSvg} from './lives.mjs?v=batch-1';
+import {duskGlyphArt} from './spark-symbol.mjs?v=batch-1';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=batch-1';
+import {glowGaugeUnits} from './glow-ui.mjs?v=batch-1';
+import {getRunModifiers} from './model.mjs?v=batch-1';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=batch-1';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=batch-1';
+import {dreamEye} from './dream.mjs?v=batch-1';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=batch-1';
+import {INSCRIPTIONS} from './inscriptions.mjs?v=batch-1';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=batch-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   inscription: ['Inscription', 'An effect written on a Chain slot, not on a card. It stays on the slot when cards move, swap or leave. Some change the card on that slot; some work on any slot, even an empty one. Get one from the Scribe after an Elite or Guardian. One per slot; writing again replaces it.'],
@@ -199,7 +199,7 @@ const CARD_NOTES = Object.freeze({
   'camp-kit': 'Keep in your Deck when arriving at Rest to choose 2 different actions. No active slot is needed. Spend the use only after the second action succeeds. Extra Second Ember cards do not add a third action or spend another use.',
   'skim-line': 'Turns Proximity on for the flight: that is part of the card, so flying close to terrain now builds the Proximity meter. A thin gold band hugs the terrain near your wisp, where a Skim counts: flying within Proximity reach of terrain. It brightens while you are inside it. When Proximity fills (a Skim), +12 Sparks. Needs no other card. Extra copies keep one band and each pays.',
   'pulse-reader': 'While mounted it sends its own Pulse every 8 seconds, and a soft ring on your wisp tightens just before any Pulse front reaches a Spark you have not collected. That crossing adds 1 Spark. Its own Pulse reaches only cards to its right and never fires Pulse Reader itself.',
-  'courier-cord': 'Collector’s cord glows brighter while it carries a pickup and flashes once at the drop-off. Each Delivery adds 1 Spark. Needs Collector.',
+  'courier-cord': 'Collector’s cord glows brighter and flashes once at each drop-off. Each Delivery adds 10 Sparks over the next 10 seconds; Deliveries add up. Needs Collector.',
   'meter-mark': 'A gold notch at the top of the Spark Meter glows when the Meter is nearly full. Each natural Overfill keeps 1 spilled Spark as a Stored Spark. A Boost does not multiply Stored Sparks.',
   'finish-flag': 'A thin gold bar along the bottom edge fills toward the finish. Each Finish adds 2 Stored Sparks. A Boost does not multiply Stored Sparks.',
   'lift-guide': 'The amber chevron uses your current fall and Lift impulse. It opens when a Lift can rise back to its starting height, as from level flight. It does not judge terrain; choose when to tap. A Lift tapped while the chevron is open is on the cue: +1 Spark. Extra copies keep one chevron.',
@@ -469,7 +469,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=noflag-1').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=batch-1').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -480,7 +480,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=noflag-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=batch-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

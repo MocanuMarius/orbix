@@ -1,4 +1,4 @@
-import {OATHS,oathLine,oathOfPact,oathReward,pendingOathId,getOath} from './oaths.mjs?v=noflag-1';
+import {OATHS,oathLine,oathOfPact,oathReward,pendingOathId,getOath} from './oaths.mjs?v=batch-1';
 // Optional one-flight wagers (dist/oaths.mjs): accepted at an event, applied to the next flight only. Won on a clear: a fixed payout of
 // Stored Sparks, paid by the model; it never recursively packs. Not cleared: nothing. Gone after that flight either way.
 const pact=(oathId,extra)=>{const o=OATHS[oathId];return Object.freeze({id:o.pact,oath:oathId,name:o.name,description:o.rule+' One flight only.',...extra});};

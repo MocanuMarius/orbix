@@ -1,13 +1,13 @@
 /** Small, read-only explanations for the actual chain. */
-import {SKILL_CARDS, getMountedCards, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, CARD_ROW_EVENTS, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts} from './skill-cards.mjs?v=noflag-1';
-import {rowSnapshot, getInscription, slotInscriptionId} from './inscriptions.mjs?v=noflag-1';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=noflag-1';
-import {inscriptionEffect} from './inscription-on-card.mjs?v=noflag-1';
-import {getCardRuleBands} from './card-rule-bands.mjs?v=noflag-1';
-import {getEquippedCardStatuses} from './card-status.mjs?v=noflag-1';
-import {ARTIFACTS} from './model.mjs?v=noflag-1';
-import {artifactDescription} from './artifact-copy.mjs?v=noflag-1';
-import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=noflag-1';
+import {SKILL_CARDS, getMountedCards, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, CARD_ROW_EVENTS, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts} from './skill-cards.mjs?v=batch-1';
+import {rowSnapshot, getInscription, slotInscriptionId} from './inscriptions.mjs?v=batch-1';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=batch-1';
+import {inscriptionEffect} from './inscription-on-card.mjs?v=batch-1';
+import {getCardRuleBands} from './card-rule-bands.mjs?v=batch-1';
+import {getEquippedCardStatuses} from './card-status.mjs?v=batch-1';
+import {ARTIFACTS} from './model.mjs?v=batch-1';
+import {artifactDescription} from './artifact-copy.mjs?v=batch-1';
+import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=batch-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number=value=>Number(Number(value||0).toFixed(3));

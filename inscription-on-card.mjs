@@ -2,9 +2,9 @@
 // sentence for the card detail panel, the Scribe's write preview and the Chain tab. Menu screens only, never in flight.
 //   inscriptionOnCard('kindled', card)  ->  "Kindled: no effect on this card (it only fires at Finish)"
 //   inscriptionEffect('gilded', card)   ->  {works: true, text: '+2 Sparks each time it fires'}
-import {getInscription} from './inscriptions.mjs?v=noflag-1';
-import {SKILL_CARDS, getCardRowRule, isOncePerTriggerPayout} from './skill-cards.mjs?v=noflag-1';
-import {getCardTrigger, getCardRuleBands} from './card-rule-bands.mjs?v=noflag-1';
+import {getInscription} from './inscriptions.mjs?v=batch-1';
+import {SKILL_CARDS, getCardRowRule, isOncePerTriggerPayout} from './skill-cards.mjs?v=batch-1';
+import {getCardTrigger, getCardRuleBands} from './card-rule-bands.mjs?v=batch-1';
 
 const ALSO = {'wave-crossing': 'a Pulse', 'downbeat-lift': 'every Lift', 'collector-delivery': 'a Delivery', 'natural-overfill': 'an Overfill', 'flash-pickup': 'a Flare Collect'};
 const no = why => ({works: false, text: `no effect on this card (${why})`});
@@ -33,10 +33,12 @@ export function inscriptionEffect(inscription, card) {
       const event = ins.also, same = rule.event === event || rule.alsoEvents?.includes(event);
       if (same && ins.id !== 'kindled') return no(`it already fires on ${ALSO[event]}`);
       if (ins.id === 'kindled') return yes(`also fires on every Lift: ${effect}`);
-      return yes(`also fires on ${ALSO[event]}: ${effect}`);
+      // The card keeps its own condition on the new Trigger too (Flare Bank still needs the meter at ⅓ or less on a Delivery).
+      const cond = getCardRuleBands(card, def).find(b => b.type === 'condition')?.detail, tail = cond ? ` (only with ${/^meter/.test(cond) ? 'the ' : ''}${cond})` : '';
+      return yes(`also fires on ${ALSO[event]}: ${effect}${tail}`);
     }
     case 'mirror': return listens ? yes(`also fires whenever the card on its left fires: ${effect}`) : no(engine || !rule || boost ? why : `it only fires at ${own}`);
-    case 'brimful': return rule && ['add-sparks', 'add-last-payout'].includes(rule.operation) ? yes('its Sparks above the Meter become Stored Sparks') : no(curtain || (engine || !rule ? why : 'it pays no Sparks from the Chain'));
+    case 'brimful': return rule && ['add-sparks', 'add-last-payout'].includes(rule.operation) && !rule.overSeconds ? yes('its Sparks above the Meter become Stored Sparks') : no(curtain || (engine || !rule ? why : 'it pays no Sparks from the Chain'));
     case 'whetted': return Number.isFinite(def.charges) ? yes('+1 use each flight') : no('it has no uses');
     default: return yes(lower(ins.text));
   }

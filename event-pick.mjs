@@ -1,6 +1,6 @@
-import {cardArt} from './card-art.mjs?v=noflag-1';
-import {cardTermTextMarkup} from './card-terms.mjs?v=noflag-1';
-import {eventCardOptions} from './model.mjs?v=noflag-1';
+import {cardArt} from './card-art.mjs?v=batch-1';
+import {cardTermTextMarkup} from './card-terms.mjs?v=batch-1';
+import {eventCardOptions} from './model.mjs?v=batch-1';
 
 // Event card pick (pick 1 of 2, 2026-11-18): after the player taps "Improve a card" or "Refill a card" the SAME screen swaps its two
 // big options for the eligible cards, as tiles. Back returns to the two options. Pure markup; the handlers live in app.mjs.

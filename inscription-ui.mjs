@@ -3,10 +3,10 @@
 // clear of the card's picture, name, trigger chip and the label under the card; tapping it names the Inscription and its rule.
 // One thin etched line inside the slot frame; the "Inscription" block of the card inspector. Kit colours and fonts, whole
 // pixels, no gradients (styles: dist/ui/card-screens.css, "Inscriptions").
-import {getInscription} from './inscriptions.mjs?v=noflag-1';
-import {inscriptionEffect} from './inscription-on-card.mjs?v=noflag-1';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=noflag-1';
-import {cardTermTextMarkup, cardTermMarkup} from './card-terms.mjs?v=noflag-1';
+import {getInscription} from './inscriptions.mjs?v=batch-1';
+import {inscriptionEffect} from './inscription-on-card.mjs?v=batch-1';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=batch-1';
+import {cardTermTextMarkup, cardTermMarkup} from './card-terms.mjs?v=batch-1';
 export {inscriptionGlyph};
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 

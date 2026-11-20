@@ -2,8 +2,8 @@
 // tile where the card's own effect line (card-rule-bands.mjs › getCardRuleBands, type "effect") is too long
 // to fit. Same meaning, approved vocabulary, about 22 characters at most. The full line is always on the
 // opened card. Moved from the design lab's TILE_SHORT table (56 cards) with the Pulse wording applied.
-import {getCardRuleBands} from './card-rule-bands.mjs?v=noflag-1';
-import {SKILL_CARDS, describeSkillCard, cardTallyLine} from './skill-cards.mjs?v=noflag-1';
+import {getCardRuleBands} from './card-rule-bands.mjs?v=batch-1';
+import {SKILL_CARDS, describeSkillCard, cardTallyLine} from './skill-cards.mjs?v=batch-1';
 
 export const CARD_TILE_LINES = Object.freeze({
   'momentum': '5 Turns: +40% light',
@@ -12,9 +12,9 @@ export const CARD_TILE_LINES = Object.freeze({
   'homing-thread': 'Fetches, 2× reach',
   'last-round': 'Last Trigger again',
   'harvest-home': 'Collect cards, +2 each',
-  'wave-loom': 'A light Pulse per Turn',
+  'wave-loom': 'Pulse each Timer Turn',
   'climb': 'Lifts 2 and 3 free', 'watchlight': 'Collector saves you', 'second-look': 'Re-roll a reward card', 'springboard': 'Collect: free bounce',
-  'lift-guide': 'On the beat: +1 Spark', 'wind-feather': '+1% speed per Finish', 'growth-ring': '+1 max Spark/Finish', 'skim-line': 'Skim: +12 Sparks', 'pulse-reader': 'Pulse: +1 Spark', 'courier-cord': 'Delivery: +1 Spark', 'meter-mark': 'Keeps 1 Stored', 'finish-flag': 'Finish: +2 Stored', 'cache-handling': 'Fetches Caches: +12', 'second-sun': '×2 before, ×3 Encore',
+  'lift-guide': 'On the beat: +1 Spark', 'wind-feather': '+1% speed per Finish', 'growth-ring': '+1 max Spark/Finish', 'skim-line': 'Skim: +12 Sparks', 'pulse-reader': 'Pulse: +1 Spark', 'courier-cord': '+10 Sparks over 10 s', 'meter-mark': 'Keeps 1 Stored', 'finish-flag': 'Finish: +2 Stored', 'cache-handling': 'Fetches Caches: +12', 'second-sun': '×2 before, ×3 Encore',
   'twin-wick': '2 Collectors a flight', 'harvest-legendary': '+2 Sparks, +1 Stored',
   'nest-egg': '+1 Stored per 10', 'flash-handling': '+6; fetches Flare',
   'dream': 'Devour: longer Dream', 'spillway': '2nd Overfill: a Pulse', 'mirror-grain': 'Adds last + again',

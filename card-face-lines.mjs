@@ -5,7 +5,7 @@
 // full rules, which the "?" help window shows (card-ui.mjs › cardHelpDescription). Numbers the player tracks during a
 // run (uses left, a growth or tally counter) stay on the face as badges, not here.
 // The internal trigger keys (card-rule-bands.mjs › CARD_TRIGGERS) are untouched; this is a wording layer on top of them.
-import {getCardRuleBands, getCardTrigger} from './card-rule-bands.mjs?v=noflag-1';
+import {getCardRuleBands, getCardTrigger} from './card-rule-bands.mjs?v=batch-1';
 
 /** Words for Triggers that the display layer (card-trigger-labels.mjs) leaves without a chip, as [word, glossary key]. */
 const EXTRA_WORDS = Object.freeze({
@@ -31,7 +31,7 @@ export function faceTrigger(card = {}, definition = {}) {
 const LINES = Object.freeze({
   'field-impulse': 'Swipe to float or dive',
   'lift-guide': '{fx} on the cue',
-  'skim-line': '+12 Sparks', 'pulse-reader': '+1 Spark', 'courier-cord': '+1 Spark', 'meter-mark': 'keeps 1 Stored', 'finish-flag': '+2 Stored',
+  'skim-line': '+12 Sparks', 'pulse-reader': '+1 Spark', 'courier-cord': '+10 Sparks over 10 s', 'meter-mark': 'keeps 1 Stored', 'finish-flag': '+2 Stored',
   rhythm: '3 even Lifts: a Pulse',
   'harvest-legendary': '+2 Sparks, +1 Stored',
   'camp-kit': '2 Rest actions',
@@ -91,7 +91,7 @@ const LINES = Object.freeze({
   'second-wind': 'All fire for 5 s', undertow: 'Counts as a Collect',
   tributary: 'Every 3rd Collect: Delivery', tithe: 'Pay 5 Stored: +1 max Spark',
   'chameleon-two': 'Fires next on any Trigger', whetstone: 'Next card regains 1 use',
-  'wave-loom': 'Sends a Pulse', 'spark-chime': '{fx}', 'ember-bell': 'Sends a Pulse', afterglow: '{fx}',
+  'wave-loom': 'Pulse every Timer Turn', 'spark-chime': '{fx}', 'ember-bell': 'Sends a Pulse', afterglow: '{fx}',
 });
 
 // A short pass for any card without an entry (a new card shows readable text until it gets a line above).
