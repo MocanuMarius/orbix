@@ -58,7 +58,7 @@ test('also-fires Inscriptions: the card here answers one more Trigger, and not a
   const cases = [['resonant', 'wave-crossing'], ['kindled', 'downbeat-lift'], ['courier', 'collector-delivery'], ['wellspring', 'natural-overfill'], ['flare', 'flash-pickup']];
   for (const [id, kind] of cases) {
     const event = {kind, pickupKind: 'light', meterFraction: 0.1};
-    assert.equal(sparks(['body-spark'], [id], event), BS, `${id} on ${kind}`);
+    assert.equal(sparks(['body-spark'], [id], event), id === 'wellspring' ? 3 * BS : BS, `${id} on ${kind} (Wellspring fires 3 times per Overfill)`);
     assert.equal(sparks(['body-spark'], [], event), 0, `${id}: not without it`);
     assert.equal(sparks(['body-spark', null], [null, id], event), 0, `${id}: empty slot`);
     const other = cases.find(([, k]) => k !== kind)[1];
@@ -81,14 +81,14 @@ test('Brimful: reports the Sparks of the card here so the flight can store what 
   e.running = true; e.flame = e.maxFlame - CARD_UNIT; // room for one Spark of the two
   const stored = e.resonanceStored;
   e.resolveCardRowEvent('body-spark', {pickupKind: 'light'});
-  assert.equal(e.resonanceStored - stored, 1);
+  assert.equal(e.resonanceStored - stored, 2, 'one spilled Spark becomes 2 Stored Sparks');
 });
 
 test('Whetted: the card here starts each flight with one extra use, kept by the slot not the card', () => {
   const run = cardState('whet', ['spark-cache', null, null]).run;
   const base = getCardModifiers(run).cardExecution.cards[0].charges;
   writeInscription(run, 0, 'whetted');
-  assert.equal(getCardModifiers(run).cardExecution.cards[0].charges, base + 1);
+  assert.equal(getCardModifiers(run).cardExecution.cards[0].charges, base + 2);
   assert.equal(run.mountedCards[0].charges, base, 'the run card is untouched');
   run.mountedCards[0] = makeSkillCard('body-spark', 'swap'); // a card without uses
   assert.equal(getCardModifiers(run).cardExecution.cards[0].charges, undefined);
@@ -112,10 +112,10 @@ test('Lodestone: the cards on both sides gain +1 each firing; works on an empty 
   assert.equal(sparks(['body-spark', null, 'body-spark'], [null, 'lodestone', null], WAVE), 0);
 });
 
-test('Ember Bed: at Finish, 3 Stored Sparks plus 1 per empty slot; nothing on other events', () => {
+test('Ember Bed: at Finish, 5 Stored Sparks plus 2 per empty slot; nothing on other events', () => {
   const clear = {kind: 'flight-clear', carriedStored: 0, cruisingSpeedRoom: 6};
-  assert.equal(fire(['body-spark', null, null], [null, 'ember-bed'], clear).stored, 5);
-  assert.equal(fire(['body-spark', 'body-spark', 'body-spark'], [null, 'ember-bed'], clear).stored, 3);
+  assert.equal(fire(['body-spark', null, null], [null, 'ember-bed'], clear).stored, 9);
+  assert.equal(fire(['body-spark', 'body-spark', 'body-spark'], [null, 'ember-bed'], clear).stored, 5);
   assert.equal(fire(['body-spark', null, null], [null, 'ember-bed']).stored, 0);
   assert.equal(fire(['body-spark', null, null], [], clear).stored, 0);
 });

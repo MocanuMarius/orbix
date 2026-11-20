@@ -117,8 +117,8 @@ test('Overfill: Ring Spring banks seconds for the next Collector recovery; the W
   let nat = 0;
   const w = flights({ ids: ['body-spark'], inscriptions: ['wellspring'], hook: e => { const o = e.storeNaturalOverflow.bind(e); e.storeNaturalOverflow = (p, sp, ar, n, c) => { if (n > 1e-7 && !p.fetchedInDream && !p.generated && !p.harmful && sp.fuel > 0 && ar > 0) nat++; return o(p, sp, ar, n, c); }; } });
   const over = sum(w, f => f.log.events['natural-overfill'] || 0), collects = sum(w, f => bodyKinds(f.log.occurred));
-  assert.ok(nat >= 5 && over >= nat); assert.equal(slotSum(w, 0, 'fired'), collects + nat);
-  note('Overfill', 'Body Spark with Wellspring Inscription', `${over} Overfills`, slotSum(w, 0, 'fired') - collects, `${2 * over} Sparks`, 'works');
+  assert.ok(nat >= 5 && over >= nat); assert.equal(slotSum(w, 0, 'fired'), collects + 3 * nat, 'Wellspring fires the card 3 times per Overfill');
+  note('Overfill', 'Body Spark with Wellspring Inscription', `${over} Overfills`, slotSum(w, 0, 'fired') - collects, `${6 * over} Sparks`, 'works');
 });
 
 test('Finish: Home Beacon adds 3 Stored per heart left at the real clear and spends one use; Last Light doubles Spark rewards on the last heart only', () => {

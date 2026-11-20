@@ -67,15 +67,16 @@ function flightHost(e) {
     // Wave Loom: the same real light Pulse a Pulse card makes, heard by Pulse cards when it crosses a Spark.
     worldPulse: () => {
       if (e.dream && e.dream.phase !== 'done') return false;
-      e.radiateLight?.({once: true, reveal: true, source: 'card-wave-loom', sourceKind: 'card', color: '#d9f0dc'});
+      const wave = e.radiateLight?.({once: true, reveal: true, source: 'card-wave-loom', sourceKind: 'card', color: '#d9f0dc'});
+      if (wave && typeof wave === 'object') wave.beat = true; // a Timer Pulse: lights the passage, its crossings fire nothing (see stepFlightEngine)
       return true;
     },
     // A Pulse sent by a card: a real light ring from the wisp, tagged with the sender's Slot so only Pulse cards to its right hear it
     // cross a Spark (dist/luminance-waves.mjs passes the Slot on as the event's fromSlot). Slot -1 is a Timer's return: the whole Chain.
-    cardPulse: slot => {
+    cardPulse: (slot, beat = false) => {
       if (e.dream && e.dream.phase !== 'done') return false;
       const wave = e.radiateLight?.({once: true, reveal: true, source: 'card-pulse', sourceKind: 'card', color: '#d9f0dc'});
-      if (wave && typeof wave === 'object') wave.fromSlot = slot;
+      if (wave && typeof wave === 'object') { wave.fromSlot = slot; if (beat) wave.beat = true; }
       return true;
     },
     // Cues (no reading in flight): the strip in card-row-feedback.mjs pulses on a new Turn and dims on a stop; these
@@ -118,6 +119,8 @@ export function stepFlightEngine(e, skimsBefore = null) {
   if (!live(e)) return;
   if (!e.cardEngine.tookOff) e.cardEngine.takeOff(e.time);
   e.cardEngine.advance(e.time);
+  // Timer beat: the Pulse a Timer firing made fires every Pulse card that may hear it once (never per Spark crossed).
+  if (e.cardEngine.takeBeat()) e.resolveCardRowEvent('wave-crossing', {firstCrossing: true, pickupKind: 'light', pulseSource: 'card-pulse', pulseSourceKind: 'card', beat: true, engineHeard: true});
   if (e.cardEngineFlash && !(e.time < e.sightUntil)) {
     const slot = e.cardEngineFlash.slot; e.cardEngineFlash = null;
     e.cardEngine.flashEnded(slot, e.time);

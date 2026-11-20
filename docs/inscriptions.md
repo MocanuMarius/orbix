@@ -20,19 +20,19 @@ Status: built. Artifacts are retired for players; Inscriptions replace them. Cod
 | Gilded | card | +2 Sparks each firing. | +2 Sparks per firing, Boosts see it |
 | Resonant | card | Also fires on a Pulse. | extra Trigger: Pulse |
 | Kindled | card | Also fires on a Lift. | extra Trigger: Lift |
-| Courier | card | Also fires on a Delivery. | extra Trigger: Delivery |
-| Wellspring | card | Also fires on an Overfill. | extra Trigger: Overfill |
-| Sunlit | card | Also fires when you Collect a Flare. | extra Trigger: Flare |
+| Courier | card | Also fires on a Delivery and every 3rd Collect. | extra Triggers: Delivery, every 3rd Collect (count starts over each flight) |
+| Wellspring | card | Fires 3 times on each Overfill. | 3 firings per Overfill |
+| Sunlit | card | Also fires on a Flare Collect and each Flare Pulse. | extra Triggers: Flare Collect, each Pulse of a Flare (once per Pulse) |
 | Mirror | card | Fires when the card on its left fires. | follows the left neighbour |
-| Brimful | card | Its Sparks above the Meter become Stored Sparks. | spill becomes Stored Sparks, not boosted again |
-| Whetted | card | +1 use each flight. | +1 use per flight, never kept |
+| Brimful | card | Each Spark above the Meter becomes 2 Stored Sparks. | each spilled Spark becomes 2 Stored Sparks (flat, not boosted again) |
+| Whetted | card | +2 uses each flight. | +2 uses per flight, never kept |
 | Hollow | standalone | Empty slot: +2 Sparks on each Collect. | +2 Sparks per Collect |
 | Hearth | standalone | +10 max Sparks. | +10 max Sparks (cap 100) |
 | Lantern | standalone | +25% Luminance. | +25% |
 | Long Cord | standalone | Collector reach +30%. | x1.3 |
 | Bell | standalone | A Pulse every 6 seconds. | a real light Pulse per 6 s of flight |
 | Lodestone | standalone | Cards on both sides: +1 Spark each firing. | +1 per neighbour, per firing |
-| Ember Bed | standalone | Finish: +3 Stored Sparks, +1 per empty slot. | 3 + empty slots |
+| Ember Bed | standalone | Finish: +5 Stored Sparks, +2 per empty slot. | 5 + 2 per empty slot |
 | Cinder | standalone | Lift costs 1 less Spark. | -1, floor 1 |
 
 Where the rules live: the row walker (`resolveCardRow` in `dist/skill-cards.mjs`: Twin Mark as extra firings, Gilded and Lodestone as Sparks paid at the slot so Boosts see them, the "also fires" Inscriptions and Mirror as rule matches, Hollow and Ember Bed as standalone totals, Brimful as a receipt field the flight turns into Stored Sparks); the engine (`dist/card-engine.mjs`: Twin Mark, Gilded and Lodestone on gain cards); run modifiers (`getRunModifiers`, `getCardModifiers`, `getRawGlowCapacity`: Lantern, Long Cord, Cinder, Hearth, Whetted); the flight step (`stepFlightInscriptions` in `dist/card-engine-flight.mjs`: Bell).

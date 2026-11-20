@@ -67,6 +67,8 @@ import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } 
 import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=guide-clarity-1';
 import { buildLandformCourse, landformFlashSites } from './course-landforms.mjs?v=guide-clarity-1';
 import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration, FLASH_LUMINANCE_BONUS } from './pickups.mjs?v=guide-clarity-1';
+import { getInscription } from './inscriptions.mjs?v=guide-clarity-1';
+const BRIMFUL_STORED_PER_SPILL = getInscription('brimful')?.storedPerSpill || 1;
 import { createFlashTether, stepFlashTether, drawFlashTether, flashLightGlow, FLASH_PULSE_INTERVAL } from './flash-tether.mjs?v=guide-clarity-1';
 import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=guide-clarity-1';
 import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=guide-clarity-1';
@@ -1598,7 +1600,7 @@ export class WispFlight {
     if(kind===CARD_ROW_EVENTS.delivery&&this.mod.cardCourierCord)this.courierFlashAt=this.time;
     const wind=this.cardSecondWindUntil>this.time&&this.cardExecution.cards.some(card=>card?.cardId==='second-wind');
     // Spark Chime (2026-11-20): a real Pulse crossing a Spark is also heard by engine cards that listen for it, whether or not a row card hears the crossing.
-    if(kind==='wave-crossing'&&this.cardEngine&&!engine)raiseFlightEngine(this,'crossing',{...(Number.isInteger(detail.fromSlot)&&detail.fromSlot>=0?{fromSlot:detail.fromSlot}:{})});
+    if(kind==='wave-crossing'&&this.cardEngine&&!engine&&!detail.engineHeard)raiseFlightEngine(this,'crossing',{...(Number.isInteger(detail.fromSlot)&&detail.fromSlot>=0?{fromSlot:detail.fromSlot}:{})});
     if(!wind&&!hasCardRowEvent(this.cardExecution,kind))return null;
     // One event shortens one Collector, so its recovery and reel budgets agree.
     // Attachments act on their owner; ordinary events prefer the longest reel.
@@ -1622,7 +1624,7 @@ export class WispFlight {
     this.flame+=gain;this.flameRestored+=gain;
     if(this.rec)this.rec.cardSparks+=gain/CARD_UNIT;
     // Brimful: Sparks a Brimful card gained above the Meter become Stored Sparks (never boosted again).
-    if(receipt.brimful>0){const over=Math.floor(Math.min(receipt.brimful,Math.max(0,instant-gain/CARD_UNIT))+1e-9);if(over>0)this.resonanceStored+=over;}
+    if(receipt.brimful>0){const over=Math.floor(Math.min(receipt.brimful,Math.max(0,instant-gain/CARD_UNIT))+1e-9);if(over>0)this.resonanceStored+=over*BRIMFUL_STORED_PER_SPILL;}
     if(this.tutorial&&this.mod.practiceCards&&kind==='wave-crossing'&&gain>0)this.tutorial.harvestPaid=true;
     if(this.tutorial&&kind==='wave-crossing'&&receipt.sparks>0)this.tutorial.pulsePaidAt=this.time;
     this.resonanceStored+=receipt.stored;
@@ -2269,6 +2271,8 @@ export class WispFlight {
     if(slot>=0)appendFires(this,[{slot,kind:'bar'}]);
   }
 
+  /** Sunlit: each Pulse a Flare sends is heard by Sunlit slots once (never per Spark crossed). */
+  flarePulseHeard(){if(this.cardExecution)this.resolveCardRowEvent(CARD_ROW_EVENTS.flash,{pickupKind:'light',flarePulse:true});}
   radiateLight({id='reveal',x=this.distance+this.player.x,y=this.player.y,
     radius=Math.hypot(this.width,this.height),duration=1.5,color='#c5ecff',follow=null,interval=1,reveal=true,once=false,
     source=id,sourceKind='ability'}={}) {

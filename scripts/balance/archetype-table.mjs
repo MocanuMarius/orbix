@@ -33,7 +33,7 @@ function measure(name, ids) {
 const rows = Object.entries(CHAINS).map(([n, ids]) => measure(n, ids));
 // Deep dives (--deep): Finish cards one by one after Lift Guide (baseline: Lift Guide + Deep Vessel, a passive card that pays nothing), and Timer set-ups.
 export const FINISH_TESTS = ['home-beacon', 'clean-run', 'victory-lap', 'wayfarers-purse', 'nest-egg', 'growth-ring', 'wind-feather', 'curtain-call', 'deep-vessel'];
-export const TIMER_TESTS = [['slow-wick'], ['spark-chime'], ['spark-chime', 'slow-wick'], ['slow-wick', 'spark-chime'], ['metronome', 'body-spark'], ['long-fuse', 'spark-chime'], ['spark-chime', 'long-fuse'], ['pulse-reader', 'spark-chime'], ['pulse-reader', 'spark-chime', 'slow-wick'], ['body-spark', 'metronome', 'spark-chime']];
+export const TIMER_TESTS = [['slow-wick'], ['spark-chime'], ['spark-chime', 'slow-wick'], ['slow-wick', 'spark-chime'], ['metronome', 'body-spark'], ['long-fuse', 'spark-chime'], ['spark-chime', 'long-fuse'], ['pulse-reader', 'spark-chime'], ['pulse-reader', 'spark-chime', 'slow-wick'], ['body-spark', 'metronome', 'spark-chime'], ['slow-wick', 'wave-loom', 'harvest-common']];
 const f = (x, n = 1) => (+x).toFixed(n);
 const out = [`| Archetype | Chain | Cleared | Avg s | Card Sparks/flight | Stored/flight | Firings/flight per card (L to R) | Dead cards |`, `|---|---|---|---|---|---|---|---|`];
 for (const r of rows) {

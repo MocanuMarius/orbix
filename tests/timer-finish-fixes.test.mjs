@@ -11,9 +11,9 @@ import { drawSkillCard } from '../dist/skill-cards.mjs';
 const row = ids => ids.map((id, i) => id ? makeSkillCard(id, `x${i}`) : null);
 const turnsAt = run => run.engine.turnLog;
 
-test('Slow Wick relights itself 5 s after every firing, with no Pulse to feed it', () => {
+test('Slow Wick relights itself 3 s after every firing, with no Pulse to feed it', () => {
   const run = simulateEngineChain(row(['slow-wick']), { horizon: 30 });
-  assert.deepEqual(turnsAt(run), [5, 10, 15, 20, 25, 30]);
+  assert.deepEqual(turnsAt(run), [3, 6, 9, 12, 15, 18, 21, 24, 27, 30]);
   assert.equal(run.running, true, 'still burning');
 });
 
@@ -31,8 +31,8 @@ test('a Pulse a Wick hears never makes it fire faster than its own period', () =
   assert.ok(engine.log.filter(x => x.k === 'already-waiting').length > 20, 'the Wick heard them and ignored them while burning');
   engine.advance(30);
   const t = engine.turnLog;
-  for (let i = 1; i < t.length; i++) assert.ok(t[i] - t[i - 1] >= 5 - 1e-6, `gap ${t[i] - t[i - 1]}`);
-  assert.equal(t.length, 6);
+  for (let i = 1; i < t.length; i++) assert.ok(t[i] - t[i - 1] >= 3 - 1e-6, `gap ${t[i] - t[i - 1]}`);
+  assert.equal(t.length, 10);
 });
 
 test('the Chain tab simulation shows Slow Wick, Long Fuse and Wave Loom alone as repeating, not "runs once"', () => {
@@ -43,16 +43,16 @@ test('the Chain tab simulation shows Slow Wick, Long Fuse and Wave Loom alone as
     assert.ok(stats.turnsPer10s > 0, `${id} turns per 10 s ${stats.turnsPer10s}`);
   }
   assert.equal(findEngineLoop(row(['spark-chime'])).runsOnce, true, 'a Chain with no Timer still runs once');
-  assert.ok(Math.abs(engineStats(row(['slow-wick'])).turnsPer10s - 10 / 5) < 0.01);
+  assert.ok(Math.abs(engineStats(row(['slow-wick'])).turnsPer10s - 10 / 3) < 0.01);
   assert.ok(Math.abs(engineStats(row(['wave-loom'])).turnsPer10s - 10 / 6) < 0.01);
 });
 
 test('Third Beat is Common, and Timer card text says how often they fire', () => {
   assert.equal(SKILL_CARDS['third-beat'].rarity, 'common');
   assert.equal(drawSkillCard({ campaignSeed: 'x', mapIndex: 0 }, 'frequency', { id: 'n' }, 'common') !== null, true);
-  assert.equal(faceEffect(makeSkillCard('slow-wick', 'a'), SKILL_CARDS['slow-wick']), 'Every 5 s: a Pulse');
+  assert.equal(faceEffect(makeSkillCard('slow-wick', 'a'), SKILL_CARDS['slow-wick']), 'Every 3 s: a Pulse');
   assert.equal(faceEffect(makeSkillCard('long-fuse', 'a'), SKILL_CARDS['long-fuse']), 'Every 5 s: fires again');
-  assert.equal(cardTileLine(makeSkillCard('slow-wick', 'a')), 'Every 5 s: a Pulse');
+  assert.equal(cardTileLine(makeSkillCard('slow-wick', 'a')), 'Every 3 s: a Pulse');
   for (const id of ['slow-wick', 'long-fuse']) assert.match(SKILL_CARDS[id].help, /by itself/);
 });
 

@@ -83,8 +83,11 @@ export class CardEngine {
     this.log = []; this.logged = 0; this.turnLog = []; this.gainsByTurn = new Map();
     this.sparks = 0; this.asked = 0; this.stored = 0; this.stops = 0; this.lastStop = null; this.halted = false; this.warned = false;
     this.pack = { sparks: 0, asked: 0, stored: 0, acts: 0, turns: 0 };
-    this.streak = 0; this.momentum = 0; this.worldPulses = 0;
+    this.streak = 0; this.momentum = 0; this.worldPulses = 0; this.beatDue = false; this.beats = 0;
   }
+  /** Timer beat (2026-11-20): the Pulse a Timer firing makes fires each Pulse card that may hear it once, with no per-Spark crossings.
+   * The flight drains this once per step (dist/card-engine-flight.mjs). */
+  takeBeat() { const due = this.beatDue; this.beatDue = false; return due; }
   get cards() { return slotCards(this.runtime?.cards || []); }
   get timerScale() { return this.cards.some(card => engineSpec(card)?.timerScale) ? 0.5 : 1; }
   get turns() { return this.turn; }
@@ -209,22 +212,26 @@ export class CardEngine {
     return -1;
   }
   sendPulse(from, mask, extra = {}) {
+    const beat = extra.back === true && !this.inPack;
     const to = this.pulseTarget(from, mask);
-    this.realPulse(from);
+    this.realPulse(from, beat);
+    if (beat) { this.beatDue = true; this.beats++; this.record({ k: 'beat', slot: from }); }
     if (to < 0) { this.record({ k: 'pulse-unheard', slot: from }); return false; }
     this.record({ k: 'pulse', slot: from, to, ...extra });
     this.queue.push({ type: 'pulse', to, from, mask, turn: this.turn });
+    // A Timer beat: every other engine Pulse card (a second Spark Chime) hears it once too, instead of once per Spark the ring crosses.
+    if (beat) for (let j = to + 1; j < this.cards.length; j++) { const sp = engineSpec(this.cards[j]); if (hears(sp, 'pulse') && hears(sp, 'crossing') && !(mask & (1 << j))) this.queue.push({ type: 'pulse', to: j, from, mask, turn: this.turn }); }
     return true;
   }
   /** A Pulse sent by a card is a REAL Pulse (2026-11-17): the world gets a light ring that cards to the RIGHT of the sender hear when it
    * crosses a Spark you have not taken, exactly like a Flare's Pulse. It never re-fires the sender or the cards to its left (the host
    * tags the ring with the sender's Slot). Made only when such a card exists, and never while packing (the flight is over). */
-  realPulse(from) {
+  realPulse(from, beat = false) {
     if (this.inPack || typeof this.host.cardPulse !== 'function' || !this.pulseHeardByCardsRightOf(from)) return;
     // One real Pulse per Turn instant: a Wave Loom's ring already made at this very moment (heard by the whole Chain) is the Timer's ring too.
     if (this.loomRing && this.loomRing.turn === this.turn && Math.abs(this.loomRing.t - this.t) < EPS) { this.record({ k: 'real-pulse-merged', slot: from }); return; }
     this.record({ k: 'real-pulse', slot: from });
-    this.host.cardPulse(from);
+    this.host.cardPulse(from, beat);
   }
   pulseHeardByCardsRightOf(from) {
     const rt = this.runtime || {}, keep = list => Array.isArray(list) ? list.map((item, j) => j > from ? item : null) : list;
@@ -243,7 +250,7 @@ export class CardEngine {
     if (this.inPack) return;
     // Wave Loom: one real light Pulse per Turn, however many copies.
     const loom = this.cards.findIndex(card => engineSpec(card)?.governor === 'wave-loom');
-    if (loom >= 0) { const sent = this.host.worldPulse?.(loom) !== false; if (sent) { this.worldPulses++; this.loomRing = { turn: this.turn, t: this.t }; } this.record({ k: sent ? 'world-pulse' : 'world-pulse-refused', slot: loom }); }
+    if (loom >= 0) { const sent = this.host.worldPulse?.(loom) !== false; if (sent) { this.worldPulses++; this.loomRing = { turn: this.turn, t: this.t }; this.beatDue = true; this.beats++; } this.record({ k: sent ? 'world-pulse' : 'world-pulse-refused', slot: loom }); }
     // Momentum: after MOMENTUM_TURNS Turns in a row, its Luminance (copies add) until the engine stops.
     this.streak++;
     if (!this.momentum && this.streak >= MOMENTUM_TURNS) {
@@ -269,7 +276,7 @@ export class CardEngine {
     if (spec.cooldown) this.lowEmberAt.set(id, this.t);
     if (spec.oncePerTurn) this.bellTurn.set(id, this.turn);
     // The mask names the card that made an event (its direct maker), so that card never answers it this Turn.
-    const times = spec.noRepeat ? 1 : (1 + this.echoRepeats(j)) * (this.cards[j] && this.runtime?.inscriptions?.[j]?.id === 'twin-mark' ? 2 : 1), mask = 1 << j;
+    const times = spec.noRepeat ? 1 : (1 + this.echoRepeats(j)) * (this.cards[j] && this.runtime?.inscriptions?.[j]?.id === 'twin-mark' ? 2 : 1) * (ev.type === 'overfill' && this.cards[j] && this.runtime?.inscriptions?.[j]?.id === 'wellspring' ? 3 : 1), mask = 1 << j;
     this.record({ k: 'hit', slot: j, type: ev.type, from: ev.from, times });
     if (spec.family === 'pack') this.pack.acts++;
     for (let r = 0; r < times; r++) this.act(j, ev, mask);

@@ -137,3 +137,20 @@ Slow Wick + Spark Chime pays 10.8 card Sparks a flight (asked about 28; the rest
 
 **Owner numbers applied (2026-11-20): Slow Wick 5 s, Victory Lap step 15.** Same method (`archetype-table.mjs --deep`, 9 flights per Chain). Slow Wick + Spark Chime: 5.3 card Sparks and 22.1 firings per flight (was 10.8 and 43.8 at 3 s). Pulse Reader + Spark Chime + Slow Wick: 94.2 Sparks, firings 248.3 / 267.9 / 0 per flight (was 170.8 at 3 s), still about 4.4 times the reference of Pulse Reader + Spark Chime alone: 21.4 Sparks, 50.3 / 50.3 firings per flight.
 Victory Lap beside Lift Guide adds +4.4 Stored per cleared flight (was +6.3 with step 10; target 3 to 5, now inside it). Home Beacon unchanged at +11.0. Loop check: no safety stops, one Timer firing per step.
+
+## Timer beat rule (2026-11-20)
+
+Owner decision: a Pulse made by a Timer firing (Slow Wick, and Wave Loom whenever a Timer fires or on its own 6 s) is a beat. Each Pulse card that may hear it fires exactly once per Timer firing; the ring is still drawn and still lights the passage, but its crossings fire no card. Pulses from other sources (Pulse Reader's 8 s Pulse, Flares, Bell, First Catch, Close Call, Ember Bell, Overfill waves) keep per-Spark crossings. Slow Wick is back to 3 s. Pulse cards that fire only on later crossings (Far Shore, Ripple Glass) do not hear a beat, which is one event; First Ripple-type cards hear it as a first crossing.
+
+Same method (`archetype-table.mjs --deep`, 9 real flights per Chain, pilot `player-good`; loop check `timer-loop-check.mjs`):
+
+| Chain | Cleared | Card Sparks / flight | Firings / flight (L to R) | Target |
+|---|---|---|---|---|
+| Spark Chime, Slow Wick | 8/9 | 10.8 | 43.8 / 0 (asked 43.8, the rest hits a full Meter) | pair 15 to 25: below |
+| Pulse Reader, Spark Chime | 5/9 | 21.4 | 50.3 / 50.3 | reference |
+| Pulse Reader, Spark Chime, Slow Wick | 6/9 | 43.4 (was 94.2 at 5 s, 170.8 at 3 s) | 94.9 / 94.9 / 0 | trio 30 to 50: inside |
+| Slow Wick, Wave Loom, Resonant Harvest | 4/9 | 9.5 | 0 / 0 / 31.8 | none set |
+
+Loop check: no safety stops, at most 1 Timer firing per step, at most 9 engine log entries in one instant (Slow Wick + Spark Chime 8, Slow Wick + Wave Loom + Harvest 7, Metronome + Slow Wick + Third Beat + Momentum 9).
+
+FLAG: the Slow Wick + Spark Chime pair pays 10.8 Sparks a flight, under the 15 to 25 target, because a beat pays once and the Meter fills (asked 43.8 against 10.8 real). Not changed. Proposals if the owner wants the pair stronger: Slow Wick every 2 s, or Spark Chime +2 on a beat. Also seen, not caused by the beat: two Spark Chimes beside a Slow Wick start an Overfill-wave loop (404 Overfill waves a flight in one test flight) because each Chime's crossing spills into a full Meter and the spill makes a new wave; the engine does not stop it. Needs its own look.
