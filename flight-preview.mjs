@@ -1,18 +1,18 @@
-import {getBiome} from './biomes.mjs?v=ring-1';
-import {getBossPreview} from './boss.mjs?v=ring-1';
-import {levelMapPreview} from './level-map-art.mjs?v=ring-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=ring-1';
-import {resourceSymbol} from './game-symbols.mjs?v=ring-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=ring-1';
-import {flightRewardKind,SCRIBE_OFFER_COUNT,isCardRun} from './model.mjs?v=ring-1';
-import {bonusIcon} from './route-bonus-ui.mjs?v=ring-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=ring-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=ring-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=ring-1';
-import {sparkHabitat} from './spark-fields.mjs?v=ring-1';
-import {lanternFlightCue} from './map-theme.mjs?v=ring-1';
-import {actionButton} from './ui/primitives.mjs?v=ring-1';
-import {cardTermTextMarkup} from './card-terms.mjs?v=ring-1';
+import {getBiome} from './biomes.mjs?v=slots-1';
+import {getBossPreview} from './boss.mjs?v=slots-1';
+import {levelMapPreview} from './level-map-art.mjs?v=slots-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=slots-1';
+import {resourceSymbol} from './game-symbols.mjs?v=slots-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=slots-1';
+import {flightRewardKind,SCRIBE_OFFER_COUNT,isCardRun} from './model.mjs?v=slots-1';
+import {bonusIcon} from './route-bonus-ui.mjs?v=slots-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=slots-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=slots-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=slots-1';
+import {sparkHabitat} from './spark-fields.mjs?v=slots-1';
+import {lanternFlightCue} from './map-theme.mjs?v=slots-1';
+import {actionButton} from './ui/primitives.mjs?v=slots-1';
+import {cardTermTextMarkup} from './card-terms.mjs?v=slots-1';
 
 export const TRAVEL_GUIDE_ART=Object.freeze(['waystone','rootwood','night-atlas']);
 /** One stepped sign, mirrored for the return journey. */

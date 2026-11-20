@@ -1,8 +1,8 @@
-import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=ring-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=ring-1';
-import {queueInscriptionWrite} from './temporary-inscriptions.mjs?v=ring-1';
-import {oathLine,oathReward} from './oaths.mjs?v=ring-1';
-import {INSCRIPTIONS,ownsInscription,hasActiveInscription} from './inscriptions.mjs?v=ring-1';
+import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=slots-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=slots-1';
+import {queueInscriptionWrite} from './temporary-inscriptions.mjs?v=slots-1';
+import {oathLine,oathReward} from './oaths.mjs?v=slots-1';
+import {INSCRIPTIONS,ownsInscription,hasActiveInscription} from './inscriptions.mjs?v=slots-1';
 
 export const TREASURE_KINDS = Object.freeze(['vessel', 'lens', 'tithe', 'wager']);
 export const LENS_SIGHT = 1.15;
@@ -74,10 +74,21 @@ function duplicateOffer(run){
 // A chest's OWN FIND (JOB E, 2026-11-18): one lasting find per chest, then the Stored Sparks / surprise card choice. By site: the Hollow Vessel holds the max-Spark
 // vessel (+3 maximum Sparks for the run, fills the new space: its effect before today in card runs); the Starglass Cache a Far Lens or Quick Lens Inscription; the
 // Tollkeeper's Strongbox a Mending Wick or Toll Stamp Inscription; the Reliquary nothing (its Seal Inscription is won by the sealed-purse wager). Gifts already held are skipped.
-const FIND_CANDIDATES = Object.freeze({vessel:['vessel'], lens:['farLens','quickLens'], tithe:['wick','toll'], wager:[]});
+const FIND_CANDIDATES = Object.freeze({vessel:['vessel'], lens:[], tithe:[], wager:[]});
 function findRandom(seed){let s=2166136261;for(const c of String(seed))s=Math.imul(s^c.charCodeAt(0),16777619);return()=>{s+=0x6d2b79f5;let n=s;n=Math.imul(n^(n>>>15),n|1);n^=n+Math.imul(n^(n>>>7),n|61);return((n^(n>>>14))>>>0)/4294967296;};}
 /** The gift id ('vessel', 'farLens', ...) this chest holds, or null. Seeded by the run, map and chest, so reloading never changes it. */
+/** Chance that a chest holds an Inscription (docs/inscriptions.md: only Guardians and some chests give them). */
+export const CHEST_INSCRIPTION_CHANCE = 0.35;
+const INSCRIPTION_FINDS = Object.freeze(['farLens', 'quickLens', 'wick', 'toll']);
+/** True when this chest holds an Inscription. Seeded by the run, map and chest, so reloading never changes it. */
+export function chestHoldsInscription(run, node) {
+  return findRandom(`${run.campaignSeed || run.seed}:${run.mapIndex}:${node?.id}:chest-inscription`)() < CHEST_INSCRIPTION_CHANCE;
+}
 export function chestFindId(run, node, kind) {
+  if (chestHoldsInscription(run, node)) {
+    const pool = INSCRIPTION_FINDS.filter(id => !heldGift(run, id));
+    if (pool.length) return pool[Math.floor(findRandom(`${run.campaignSeed || run.seed}:${run.mapIndex}:${node?.id}:chest-find`)() * pool.length)];
+  }
   const free = (FIND_CANDIDATES[kind] || []).filter(id => id === 'vessel' ? treasureRank(run, id) < limits.vessel : !heldGift(run, id));
   if (!free.length) return null;
   return free[Math.floor(findRandom(`${run.campaignSeed || run.seed}:${run.mapIndex}:${node?.id}:chest-find`)() * free.length)];
