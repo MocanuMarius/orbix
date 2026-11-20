@@ -1300,7 +1300,12 @@ export function resolveCardRow(runtime, event = {}) {
         const gain = operation === "carried-interest" ? Math.min(10, Math.floor(integer(event.carriedStored) / 10)) * amount
           : operation === "add-stored-per-heart" ? integer(event.heartsLeft) * amount
           : operation === "add-stored-per-fired" ? receipt.event.firedInstanceIds.filter(id => id !== source.instanceId).length * amount : amount;
-        if (gain > 0) {
+        // Meter Mark: keeps its Stored Spark only on every 2nd Overfill. The count is a transient field on the card (markCount): it starts at 0 each flight, and a preview always pays.
+        const everyNth = Number(rule.everyNth) || 0;
+        let due = true;
+        if (everyNth > 1 && gain > 0 && !runtime.preview) { source.markCount = integer(source.markCount) + 1; due = source.markCount % everyNth === 0; }
+        if (gain > 0 && !due) step.skipReason = "counting";
+        else if (gain > 0) {
           succeed();
           pay("stored", gain, operation === "carried-interest" ? 10 * amount : undefined);
         } else step.skipReason = operation === "add-stored-per-heart" ? "no-hearts" : operation === "add-stored-per-fired" ? "no-cards-fired" : "no-carried-interest";
@@ -1407,6 +1412,7 @@ export function resolveCardRow(runtime, event = {}) {
 export const executeCardRowEvent = resolveCardRow;
 export function previewCardRow(snapshot, event = {}) {
   const runtime = createCardExecution(snapshot);
+  runtime.preview = true;
   if (Number.isFinite(snapshot?.eventSequence)) runtime.eventSequence = snapshot.eventSequence;
   return resolveCardRow(runtime, event);
 }

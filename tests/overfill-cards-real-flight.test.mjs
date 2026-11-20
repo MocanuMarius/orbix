@@ -8,6 +8,8 @@ const levels = [0, 8].map(i => BIOME_LEVELS[i]).filter(Boolean);
 const flights = (ids, opts = {}) => levels.flatMap(l => [0, 1].map(seedIndex => fly({ ids, levelId: l.id, seedIndex, engineOptions: { cardPilot: true }, ...opts })));
 const hits = (fl, slot) => sum(fl, f => (f.log.engine.cardEngine?.log || []).filter(x => x.k === 'hit' && x.type === 'overfill' && x.slot === slot).length);
 const natural = fl => sum(fl, f => f.log.engine.__natural || 0);
+// Meter Mark keeps 1 Stored on every 2nd Overfill of a flight (the count starts again each flight).
+const everySecond = fl => sum(fl, f => Math.floor((f.log.engine.__natural || 0) / 2));
 const countNatural = e => { e.__natural = 0; const o = e.storeNaturalOverflow.bind(e); e.storeNaturalOverflow = (p, s, a, n, c) => { if (n > 1e-7) e.__natural++; return o(p, s, a, n, c); }; };
 
 test('Engine Overfill cards (Ember Bell, Overflow Bell, Pressure Valve, Floodgate) answer every natural Overfill', () => {
@@ -24,14 +26,14 @@ test('One Overfill rule: Sparks a card makes at a full Meter are Overfills for e
   assert.ok(alone.length && hits(alone, 0) > 0);
   // Meter Mark alone only ever hears pickups (no card makes Sparks), so it fires once per natural Overfill; behind Body Spark it also hears Body Spark’s spill.
   const lone = flights(['meter-mark'], { hook: countNatural });
-  assert.equal(sum(lone, f => f.log.slots[0]?.fired || 0), natural(lone), 'alone: once per natural Overfill');
+  assert.equal(sum(lone, f => f.log.slots[0]?.fired || 0), everySecond(lone), 'alone: on every 2nd natural Overfill of a flight');
   const mark = flights(['body-spark', 'meter-mark'], { hook: countNatural });
   const fired = sum(mark, f => f.log.slots[1]?.fired || 0);
-  assert.ok(fired > natural(mark), `Meter Mark hears card-made spill: ${fired} > ${natural(mark)} natural`);
-  assert.equal(sum(mark, f => f.log.slots[1]?.stored || 0), fired, 'it keeps 1 Stored Spark per Overfill');
+  assert.ok(fired > everySecond(mark), `Meter Mark hears card-made spill: ${fired} > ${everySecond(mark)} from natural Overfills alone`);
+  assert.equal(sum(mark, f => f.log.slots[1]?.stored || 0), fired, 'it keeps 1 Stored Spark per 2nd Overfill');
   // Events flow right only: Meter Mark to the LEFT of the maker does not hear the maker’s spill.
   const left = flights(['meter-mark', 'body-spark'], { hook: countNatural });
-  assert.equal(sum(left, f => f.log.slots[0]?.fired || 0), natural(left), 'a Meter Mark left of Body Spark hears pickups only');
+  assert.equal(sum(left, f => f.log.slots[0]?.fired || 0), everySecond(left), 'a Meter Mark left of Body Spark hears pickups only');
   // Ring Spring banks seconds for each card-made Overfill too.
   const spring = flights(['body-spark', 'ring-spring'], { hook: countNatural });
   assert.ok(sum(spring, f => f.log.slots[1]?.fired || 0) > natural(spring), 'Ring Spring hears card-made spill');

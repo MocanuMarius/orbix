@@ -108,8 +108,10 @@ test('every numeric catalog rule produces its declared effect on a matching exec
       prefix = Array.from({ length: Math.max(rule.minimumEarlierPayers || 0, rule.when?.exactlyEarlier || 0, rule.when?.endsShareTrigger ? 2 : 0, rule.perCardLeft ? 1 : 0,
         ['multiply', 'add-last-payout', 'multiply-future-capacity', 'add-stored-per-fired', 'fire-first-card'].includes(rule.operation) ? 1 : 0) }, (_, i) =>
         makeSkillCard((['add-stored-per-fired', 'fire-first-card'].includes(rule.operation) ? 'body-spark' : additive[kind]) || 'body-spark', `prefix:${i}`)),
-      receipt = resolveCardRow(createCardExecution([...prefix, card, ...(rule.perEmptySlot ? [null] : [])]), event),
-      steps = receipt.steps.filter(step => step.actingInstanceId === card.instanceId);
+      runtime = createCardExecution([...prefix, card, ...(rule.perEmptySlot ? [null] : [])]);
+    let receipt = resolveCardRow(runtime, event);
+    for (let n = 1; n < (rule.everyNth || 1); n++) receipt = resolveCardRow(runtime, event); // a counted rule (Meter Mark) pays on its Nth event
+    const steps = receipt.steps.filter(step => step.actingInstanceId === card.instanceId);
     assert.ok(steps.some(step => step.success), `${def.id}: its matching event works`);
     assert.ok(steps.some(step => step.operation === rule.operation), `${def.id}: declared operation executes`);
   }

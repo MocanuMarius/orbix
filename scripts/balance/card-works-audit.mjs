@@ -36,7 +36,9 @@ export function setupFor(def) {
 
 function solverCheck(setup) {
   const cards = setup.row.map((id, i) => makeSkillCard(id, `a${i}`));
-  const receipt = resolveCardRow(createCardExecution({ cards }), setup.event);
+  const runtime = createCardExecution({ cards });
+  let receipt = resolveCardRow(runtime, setup.event);
+  for (let n = 1; n < (setup.rule?.everyNth || 1); n++) receipt = resolveCardRow(runtime, setup.event); // a counted rule (Meter Mark) pays on its Nth event
   const mine = receipt.cards[setup.slot], step = receipt.steps.find(s => s.slot === setup.slot && s.success);
   if (!step) return { ok: false, why: `never fires in the solver (${receipt.steps.filter(s => s.slot === setup.slot).map(s => s.skipReason).join(',')})` };
   const key = KEY[setup.rule.operation];

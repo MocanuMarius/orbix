@@ -190,6 +190,7 @@ export function cardGrowthBadge(card) {
   if (def.kind === 'wind-feather') return { text: `+${n}%`, label: `Now +${n}% flight speed from this card` };
   if (def.kind === 'growth-ring') return { text: `+${n}`, label: `Now +${n} max Sparks from this card` };
   if (def.kind === 'camp-grow') { const v = cardAmount(card); return { text: `+${v}`, label: `Grows +${v} max Sparks at Rest` }; }
+  if (def.kind === 'meter-mark' && Number.isFinite(card.markCount)) { const c = card.markCount % 2; return { text: `${c}/2`, label: `${c} of 2 Overfills counted: the 2nd keeps a Stored Spark` }; }
   if (def.kind === 'ring-spring' && Number(card.banked) > 0) { const b = Number(card.banked); return { text: `${b} s`, label: `${b} seconds banked: they come off the next Collector recovery` }; }
   if (def.kind === 'courier-cord' && Number(card.dripLeft) > 0) { const s = Math.ceil(Number(card.dripLeft) - 1e-9); return { text: `${s} s`, label: `${s} seconds of Spark drip left` }; }
   if (def.kind === 'pressure-valve' && Number(card.armed) > 0) return { text: 'Free', label: 'Armed: your next Lift is free' };

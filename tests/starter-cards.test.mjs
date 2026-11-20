@@ -17,7 +17,7 @@ const fire = (ids, inscriptions, kind, extra = {}) => {
   return resolveCardRow(createCardExecution(inscriptions ? { cards, inscriptions: inscriptions.map(id => id ? { id } : null) } : { cards }), { kind, meterFraction: .5, heartsLeft: 2, firstCrossing: true, ...extra });
 };
 const E = CARD_ROW_EVENTS;
-const CARDS = [['pulse-reader', 'Pulse', '+1 Spark', E.wave], ['courier-cord', 'Delivery', '+10 Sparks over 10 s', E.delivery], ['meter-mark', 'Overfill', 'keeps 1 Stored', E.overfill]];
+const CARDS = [['pulse-reader', 'Pulse', '+1 Spark', E.wave], ['courier-cord', 'Delivery', '+10 Sparks over 10 s', E.delivery], ['meter-mark', 'Overfill', 'every 2nd: +1 Stored', E.overfill]];
 
 test('faces: Trigger word and one short effect line; common, copyable, starter-only', () => {
   for (const [id, word, line] of CARDS) {
@@ -85,15 +85,28 @@ test('real flight: a Delivery pays no Spark at once but owes 10 s of drip; the b
   assert.ok(seen, 'the event ran'); assert.equal(seen.gain, 0); assert.equal(seen.flame, 0); assert.ok(seen.drip > 9.9 && seen.drip <= 10); assert.ok(seen.badge > 0);
 });
 
-test('Meter Mark pays Stored Sparks once; Boosts and Inscriptions never multiply them; Echo repeats', () => {
-  for (const [id, , , kind, stored] of [[...CARDS[2], 1]]) {
-    assert.equal(fire([id], null, kind).stored, stored); assert.equal(fire([id], null, kind).sparks, 0);
-    assert.equal(fire([id, 'crescendo'], null, kind).stored, stored, 'a Boost never multiplies Stored Sparks');
-    assert.equal(fire([id, 'prism-lens'], null, kind).stored, stored);
-    for (const ins of ['gilded', 'twin-mark', 'kindled', 'resonant', 'brimful']) assert.equal(fire([id], [ins], kind).stored, stored, ins);
-    assert.equal(fire(['echo', id], null, kind).stored, 2 * stored, 'Echo is a card, and repeats it');
-    assert.equal(fire([id], null, E.lift).stored, 0);
-  }
+// Meter Mark keeps 1 Stored Spark on every 2nd Overfill of a flight (2026-11-20). Fire the same Overfill n times on one runtime.
+const overfills = (ids, inscriptions, n) => {
+  const cards = ids.map((id, i) => id ? makeSkillCard(id, `s${i}`) : null);
+  const rt = createCardExecution(inscriptions ? { cards, inscriptions: inscriptions.map(id => id ? { id } : null) } : { cards });
+  return Array.from({ length: n }, () => resolveCardRow(rt, { kind: E.overfill, meterFraction: .5, heartsLeft: 2 }).stored);
+};
+test('Meter Mark keeps 1 Stored on every 2nd Overfill; Boosts and Inscriptions never multiply it; Echo repeats; the count shows as 1/2', () => {
+  const id = 'meter-mark';
+  assert.deepEqual(overfills([id], null, 5), [0, 1, 0, 1, 0]);
+  assert.equal(fire([id], null, E.overfill).sparks, 0);
+  assert.deepEqual(overfills([id, 'crescendo'], null, 2), [0, 1], 'a Boost never multiplies Stored Sparks');
+  assert.deepEqual(overfills([id, 'prism-lens'], null, 2), [0, 1]);
+  for (const ins of ['gilded', 'twin-mark', 'kindled', 'resonant', 'brimful']) assert.deepEqual(overfills([id], [ins], 2), [0, 1], ins);
+  assert.deepEqual(overfills(['echo', id], null, 2), [1, 1], 'Echo repeats the card: each Overfill counts twice, so every Overfill pays');
+  assert.deepEqual(overfills([id], null, 1).concat(fire([id], null, E.lift).stored), [0, 0]);
+  const cards = [makeSkillCard(id, 'b')], rt = createCardExecution({ cards });
+  assert.equal(cardGrowthBadge(rt.cards[0]), null, 'no count before the first Overfill is not a badge');
+  resolveCardRow(rt, { kind: E.overfill, meterFraction: .5 });
+  assert.equal(cardGrowthBadge(rt.cards[0]).text, '1/2');
+  resolveCardRow(rt, { kind: E.overfill, meterFraction: .5 });
+  assert.equal(cardGrowthBadge(rt.cards[0]).text, '0/2');
+  assert.equal(createCardExecution({ cards }).cards[0].markCount, undefined, 'a new flight starts the count at 0');
 });
 
 test('real flights: Pulse Reader pays per Pulse crossing, Courier Cord per Delivery (and stamps its flash), Meter Mark per Overfill', () => {
@@ -107,7 +120,7 @@ test('real flights: Pulse Reader pays per Pulse crossing, Courier Cord per Deliv
   assert.ok(b.some(f => f.log.engine.courierFlashAt > 0), 'a drop-off stamps the flash');
   const c = [0, 1, 2].map(seedIndex => fly({ ids: ['meter-mark'], seedIndex }));
   const overfills = c.reduce((n, f) => n + (f.log.events['natural-overfill'] || 0), 0), kept = c.reduce((n, f) => n + (f.log.slots[0]?.stored || 0), 0);
-  assert.ok(overfills >= 2 && kept === overfills, `${kept} Stored for ${overfills} Overfills`);
+  assert.ok(overfills >= 2 && kept === c.reduce((n, f) => n + Math.floor((f.log.events["natural-overfill"] || 0) / 2), 0) && kept >= 1, `${kept} Stored for ${overfills} Overfills`);
 });
 
 test('cues are cheap whole-pixel rects, drawn only with the card mounted', () => {

@@ -31,7 +31,7 @@ test('Wind Feather and Growth Ring grow once per Finish whatever the slot Inscri
 });
 
 test('Stored Sparks payouts are paid once: Twin Mark and "also fires" Inscriptions add none (Home Beacon, Finish Flag, Meter Mark)', () => {
-  for (const [card, kind, stored] of [['home-beacon', CARD_ROW_EVENTS.clear, 6], ['finish-flag', CARD_ROW_EVENTS.clear, 2], ['meter-mark', CARD_ROW_EVENTS.overfill, 1]]) {
+  for (const [card, kind, stored] of [['home-beacon', CARD_ROW_EVENTS.clear, 6], ['finish-flag', CARD_ROW_EVENTS.clear, 2]]) {
     const base = fire([card], [null], kind).receipt.stored;
     assert.ok(base > 0, `${card} pays`);
     for (const ins of ['twin-mark', 'kindled', 'resonant', 'courier', 'wellspring', 'flare', 'gilded', 'brimful']) assert.equal(fire([card], [ins], kind).receipt.stored, base, `${card} + ${ins}`);
