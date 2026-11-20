@@ -17,9 +17,9 @@
 //   no Overfill hearer, a Metronome whose next card cannot act, a Long Fuse with nothing to repeat.
 // - Events only move right and each Timer holds at most one pending wait, so one instant always terminates; a hard
 //   safety counter still stops the engine (and warns once) if that is ever exceeded.
-import {rollChance, GILDED_CHANCE, THIRD_BEAT_CHANCE} from './card-chance.mjs?v=cards-3';
+import {rollChance, GILDED_CHANCE, THIRD_BEAT_CHANCE} from './card-chance.mjs?v=burn-1';
 import {SKILL_CARDS, CARD_ECONOMY, cardAmount, getCardRowRule, hasCardRowEvent, matchesRowCondition, matchesRowShape, isInventoryOnlyCard,
-  createCardExecution, resolveCardRow, getCardChargeCapacity} from './skill-cards.mjs?v=cards-3';
+  createCardExecution, resolveCardRow, getCardChargeCapacity} from './skill-cards.mjs?v=burn-1';
 
 export const ENGINE_LIMITS = Object.freeze({ deliveriesPerInstant: 400, timersPerAdvance: 5000, logEntries: 5000, turnLog: 5000 });
 /** Player-made Triggers the engine cards listen to (not CARD_ROW_EVENTS: the ordinary walker never sees them). */

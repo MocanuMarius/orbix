@@ -1,4 +1,4 @@
-import {drawPickup} from './pickup-art.mjs?v=cards-3';
+import {drawPickup} from './pickup-art.mjs?v=burn-1';
 
 const TAU = 2 * Math.PI;
 const clamp = (x, lo=0, hi=1) => Math.max(lo,Math.min(hi,x));

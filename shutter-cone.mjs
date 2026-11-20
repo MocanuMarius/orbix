@@ -1,7 +1,7 @@
-export { installShutters } from './lantern-layout.mjs?v=cards-3';
-import { lanternField } from './lantern-layout.mjs?v=cards-3';
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=cards-3';
-import { lightAttenuation } from './light-attenuation.mjs?v=cards-3';
+export { installShutters } from './lantern-layout.mjs?v=burn-1';
+import { lanternField } from './lantern-layout.mjs?v=burn-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=burn-1';
+import { lightAttenuation } from './light-attenuation.mjs?v=burn-1';
 
 const clamp01 = value => Math.max(0, Math.min(1, value));
 const smooth = value => value * value * (3 - 2 * value);

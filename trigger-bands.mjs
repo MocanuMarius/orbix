@@ -2,8 +2,8 @@
 // Pure and DOM-free. The seven Triggers and the Timer get a colour; Passive, Boost, Repeat and cards with no Trigger share one
 // neutral. Colours are the parchment kit's own inks (the rarity rims, the wisp's blue, the Spark gold, the heart red), kept apart
 // from the three rarity tones so a band is never mistaken for a rarity.
-import {SKILL_CARDS} from './skill-cards.mjs?v=cards-3';
-import {getCardTrigger} from './card-rule-bands.mjs?v=cards-3';
+import {SKILL_CARDS} from './skill-cards.mjs?v=burn-1';
+import {getCardTrigger} from './card-rule-bands.mjs?v=burn-1';
 
 export const BAND_COLOURS = Object.freeze({
   collect: '#e0a83a', lift: '#6fb0d8', pulse: '#3fb59f', delivery: '#9a7fc2',

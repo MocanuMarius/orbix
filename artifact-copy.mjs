@@ -1,8 +1,8 @@
-import {resourceSymbol} from './game-symbols.mjs?v=cards-3';
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=cards-3';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=cards-3';
-import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=cards-3';
-import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=cards-3';
+import {resourceSymbol} from './game-symbols.mjs?v=burn-1';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=burn-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=burn-1';
+import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=burn-1';
+import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=burn-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const action={collector:'Collector delivers a Spark',protector:'Protector deflects a collision',swift:'Runner starts a burst',leveler:'Space Timer starts levitating'};

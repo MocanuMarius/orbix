@@ -1,6 +1,6 @@
-import {newState,createRun,advanceMap,selectNode} from './model.mjs?v=cards-3';
-import {describeTreasure,TREASURE_KINDS} from './treasure.mjs?v=cards-3';
-import {getGlowCapacity,getLifeCapacity,REST_GLOW_TUNING} from './vitality.mjs?v=cards-3';
+import {newState,createRun,advanceMap,selectNode} from './model.mjs?v=burn-1';
+import {describeTreasure,TREASURE_KINDS} from './treasure.mjs?v=burn-1';
+import {getGlowCapacity,getLifeCapacity,REST_GLOW_TUNING} from './vitality.mjs?v=burn-1';
 // Deliberately independent of storage. Every refresh creates the same mock run.
 export function createRestInspectorState(params=new URLSearchParams()){
  const state=newState();state.profile.difficulty=4;
