@@ -6,8 +6,8 @@
 //   state; changes land on a bar line and fade over 1-3 s.
 // - Screen changes never restart the music. Pause ducks it; a hidden tab
 //   suspends the audio clock; resume continues exactly where it was.
-import {createLevelStore,levelGain} from './sound-level.mjs?v=clear-2';
-import {createLiftGuideAudio} from './lift-guide-audio.mjs?v=clear-2';
+import {createLevelStore,levelGain} from './sound-level.mjs?v=ring-1';
+import {createLiftGuideAudio} from './lift-guide-audio.mjs?v=ring-1';
 import {PIECES,pieceById,createRotation,intensityFor,settleIntensity,compilePiece,ROTATION,MUSIC_TWO_CODE,LIFT_PERIOD,LIFT_BPM} from './music-score.mjs?v=music-two-2';
 import {createSynth,createScorePlayer,createStemPlayer} from './music-synth.mjs?v=music-two-2';
 

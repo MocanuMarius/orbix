@@ -1,6 +1,6 @@
 // Risk-earned sight, plus bounded fuel recovery with Regenerative Pulse.
 // Neither outcome is a pickup or invokes artifact hooks.
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=clear-2';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=ring-1';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => n * n * (3 - 2 * n);
 const EPSILON = 1e-9;

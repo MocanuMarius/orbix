@@ -1,4 +1,4 @@
-import {desktopDocumentUrl,gameNeedsDesktopHost} from './display-layout.mjs?v=clear-2';
+import {desktopDocumentUrl,gameNeedsDesktopHost} from './display-layout.mjs?v=ring-1';
 
 const query=new URLSearchParams(location.search);
 const needsHost=gameNeedsDesktopHost({requested:query.get('display'),hosted:query.get('hosted')==='1',embedded:window.parent!==window,

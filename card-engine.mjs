@@ -17,9 +17,9 @@
 //   no Overfill hearer, a Metronome whose next card cannot act, a Long Fuse with nothing to repeat.
 // - Events only move right and each Timer holds at most one pending wait, so one instant always terminates; a hard
 //   safety counter still stops the engine (and warns once) if that is ever exceeded.
-import {rollChance, GILDED_CHANCE, THIRD_BEAT_CHANCE} from './card-chance.mjs?v=clear-2';
+import {rollChance, GILDED_CHANCE, THIRD_BEAT_CHANCE} from './card-chance.mjs?v=ring-1';
 import {SKILL_CARDS, CARD_ECONOMY, cardAmount, getCardRowRule, hasCardRowEvent, matchesRowCondition, matchesRowShape, isInventoryOnlyCard,
-  createCardExecution, resolveCardRow, getCardChargeCapacity} from './skill-cards.mjs?v=clear-2';
+  createCardExecution, resolveCardRow, getCardChargeCapacity} from './skill-cards.mjs?v=ring-1';
 
 export const ENGINE_LIMITS = Object.freeze({ deliveriesPerInstant: 400, timersPerAdvance: 5000, logEntries: 5000, turnLog: 5000 });
 /** Player-made Triggers the engine cards listen to (not CARD_ROW_EVENTS: the ordinary walker never sees them). */
@@ -228,7 +228,8 @@ export class CardEngine {
    * crosses a Spark you have not taken, exactly like a Flare's Pulse. It never re-fires the sender or the cards to its left (the host
    * tags the ring with the sender's Slot). Made only when such a card exists, and never while packing (the flight is over). */
   realPulse(from, beat = false) {
-    if (this.inPack || typeof this.host.cardPulse !== 'function' || !this.pulseHeardByCardsRightOf(from)) return;
+    // A Timer beat always shows its ring (it lights the passage) even when no card hears it; other Pulses are made only when some card hears them.
+    if (this.inPack || typeof this.host.cardPulse !== 'function' || (!beat && !this.pulseHeardByCardsRightOf(from))) return;
     // One real Pulse per Turn instant: a Wave Loom's ring already made at this very moment (heard by the whole Chain) is the Timer's ring too.
     if (this.loomRing && this.loomRing.turn === this.turn && Math.abs(this.loomRing.t - this.t) < EPS) { this.record({ k: 'real-pulse-merged', slot: from }); return; }
     this.record({ k: 'real-pulse', slot: from });
