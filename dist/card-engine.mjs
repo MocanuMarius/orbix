@@ -26,6 +26,8 @@ export const ENGINE_TRIGGERS = Object.freeze({ collect: 'collect', delivery: 'de
   gain: 'gain', overfill: 'overfill', pack: 'pack' });
 /** Momentum: Turns in a row (no stop between them) before its Luminance starts. */
 export const MOMENTUM_TURNS = 5;
+/** Wave Loom with no Timer in the Chain: it makes its own Turn this often (seconds of flight time). */
+export const WAVE_LOOM_SELF_TURN = 6;
 const EPS = 1e-9;
 const defOf = card => SKILL_CARDS[card?.cardId];
 export const engineSpec = card => defOf(card)?.engine || null;
@@ -114,6 +116,30 @@ export class CardEngine {
     if (this.momentum) { this.momentum = 0; this.host.setLuminance?.(0); this.record({ k: 'momentum-ends' }); }
   }
   nextAt() { return this.timers.length ? Math.min(...this.timers.map(t => t.at)) : Infinity; }
+  hasTimerCard() { return this.cards.some(card => !!engineSpec(card)?.timer); }
+  /** Take-off, once per flight (2026-11-20): Slow Wick and Long Fuse light themselves, an Afterglow lights its own 1 s Flare (heard by the whole Chain
+   * when it ends), and a Wave Loom with no Timer in the Chain starts making its own Turn every WAVE_LOOM_SELF_TURN seconds. */
+  takeOff(now = this.t) {
+    if (this.tookOff || this.inPack) return;
+    this.tookOff = true;
+    this.advance(now);
+    const cards = this.cards;
+    cards.forEach((card, j) => {
+      const spec = engineSpec(card);
+      if (spec?.selfStart && spec.timer && spec.timer !== 'metronome') this.light(j, { type: 'pulse', from: j - 1, mask: 1 << j, turn: this.turn });
+    });
+    if (cards.some(card => engineSpec(card)?.takeOffFlare) && this.host.startFlash) {
+      const spec = engineSpec(cards.find(card => engineSpec(card)?.takeOffFlare));
+      const started = !!this.host.startFlash(Number(spec.takeOffFlare) || 1, -1);
+      this.record({ k: started ? 'flash' : 'flash-refused', slot: -1 });
+    }
+    const loom = cards.findIndex(card => engineSpec(card)?.governor === 'wave-loom');
+    if (loom >= 0 && !this.hasTimerCard()) this.scheduleLoom(loom);
+    this.flush();
+  }
+  scheduleLoom(slot) {
+    this.timers.push({ at: this.t + WAVE_LOOM_SELF_TURN, wait: WAVE_LOOM_SELF_TURN, slot, kind: 'loom', seq: ++this.seq, instanceId: this.cards[slot]?.instanceId ?? null });
+  }
 
   /** Run every Timer due by `now`, each at its own time, in (time, sequence) order. */
   advance(now) {
@@ -223,6 +249,8 @@ export class CardEngine {
       const percent = this.cards.reduce((sum, card) => engineSpec(card)?.governor === 'momentum' ? sum + cardAmount(card) : sum, 0);
       if (percent > 0) { this.momentum = percent; this.host.setLuminance?.(percent); this.record({ k: 'momentum', amount: percent }); }
     }
+    // Momentum also pays its own Spark(s) on every Turn (visible on the Chain strip); copies add. It never stops the streak by itself on a full Meter.
+    this.cards.forEach((card, j) => { const spec = engineSpec(card); if (spec?.governor === 'momentum' && spec.turnGain > 0) this.gain(j, spec.turnGain, 1 << j, true); });
   }
 
   answer(j, ev) {
@@ -321,7 +349,7 @@ export class CardEngine {
     }
   }
   /** One card-made Spark gain at `slot`: Boosts to its right, Third Beat, rounded up; Overfill to the right. */
-  gain(slot, base, mask) {
+  gain(slot, base, mask, quiet = false) {
     const { multiplier } = engineBoostAt(this.cards, slot, this.pass);
     const amount = Math.max(0, Math.ceil(Math.max(0, Number(base) || 0) * multiplier * this.thirdBeat() - EPS));
     if (!(amount > 0)) return { real: 0, spill: 0 };
@@ -337,7 +365,7 @@ export class CardEngine {
     if (spill > EPS && !this.inPack) this.host.cardSpill?.(slot, spill);
     const heard = spill > EPS && this.overfillHeardRightOf(slot);
     if (heard) this.queue.push({ type: 'overfill', from: slot, mask, turn: this.turn, spill, spillBase: Math.max(0, Math.min(spill, Math.ceil(Math.max(0, Number(base) || 0) - EPS) - real)) });
-    if (real <= EPS && !heard) this.stop('meter-full', slot);
+    if (real <= EPS && !heard && !quiet) this.stop('meter-full', slot);
     return { real, spill };
   }
   /** Timers: Slow Wick and Long Fuse burn once at a time; Metronome is armed once and ticks until it cannot. */
@@ -359,6 +387,13 @@ export class CardEngine {
     this.timers.push({ at: this.t + wait, wait, slot, kind, seq: ++this.seq, instanceId: this.cards[slot]?.instanceId ?? null });
   }
   fireTimer(tm) {
+    if (tm.kind === 'loom') {
+      // Wave Loom's own Turn: only while it is still mounted and no Timer card is (a Timer takes over the Turns).
+      const slot = this.cards.findIndex(c => c?.instanceId === tm.instanceId);
+      if (slot < 0 || this.hasTimerCard()) return;
+      this.beginTurn(slot); this.scheduleLoom(slot); this.flush();
+      return;
+    }
     const card = this.cards[tm.slot], spec = engineSpec(card);
     // A Deck edit while paused can move the card; a stale wait simply ends.
     if (!spec || card.instanceId !== tm.instanceId || (spec.timer === 'metronome' ? tm.kind !== 'tick' : spec.timer !== tm.kind)) {

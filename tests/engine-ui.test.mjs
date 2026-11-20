@@ -84,11 +84,11 @@ test('the Trigger collection lists every Trigger with what you do, how often, an
 test('engine Chains: engine wording on plates, the two-number medallion, the dial, and no "runs once" text', () => {
   const chime = ['first-catch', 'metronome', 'spark-chime'];
   const words = chime.map((id, i) => enginePlate(row(chime), i).long);
-  assert.deepEqual(words, ['Sends a Pulse', 'Fires the next card every 3 s', '+1 Spark each Turn']);
+  assert.deepEqual(words, ['Sends a Pulse, +4', 'Fires the next card every 3 s', '+1 Spark each time a Timer fires']);
   assert.equal(enginePlate(row(['close-call', 'metronome', 'body-spark']), 1).long, 'Fires the next card every 3 s');
   assert.equal(enginePlate(row(['close-call', 'metronome', 'body-spark', 'heartbeat']), 1).long, 'Fires the next card every 1.5 s');
   const html = deckScreenMarkup(run([...chime, null]), createDeckView());
-  assert.match(html, /dk-medal2/); assert.match(html, /<b id="dk22-num">1<\/b><small>per Turn<\/small>/); assert.match(html, /<b>3\.3<\/b><small>Turns per 10&nbsp;s<\/small>/);
+  assert.match(html, /dk-medal2/); assert.match(html, /<b id="dk22-num">1<\/b><small>per firing<\/small>/); assert.match(html, /<b>3\.3<\/b><small>firings per 10&nbsp;s<\/small>/);
   assert.match(html, /class="dk-dial"[^>]*><i class="dk-dial-ring"><\/i><b>3 s<\/b>/);
   assert.match(html, /dk-ret dk-ret-b/, 'the return path is drawn');
   const once = deckScreenMarkup(run(['first-catch', 'spark-chime']), createDeckView());

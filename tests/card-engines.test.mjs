@@ -15,6 +15,16 @@ import {getGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS} from '../dist/vitality.mjs';
 import {rewardEarnings} from '../dist/reward-screen.mjs';
 
 const row = ids => ids.map((id, i) => id ? makeSkillCard(id, `e${i}`) : null);
+// First Catch and Low Ember also pay their own Sparks since 2026-11-20 (+4 / +6): the loop tests below are about their Pulse, so they run with the Pulse part only.
+// The "own Sparks" tests at the end of this file put the real rules back (realEngine).
+let ownSparks = false;
+// The flight glue imports the engine under a versioned URL (a second module copy), so patch both copies.
+const { CardEngine: FlightCardEngine } = await import('../dist/card-engine.mjs?v=guide-clarity-1');
+for (const Engine of [CardEngine, FlightCardEngine]) {
+  const gainBefore = Engine.prototype.gain;
+  Engine.prototype.gain = function (slot, base, mask, quiet) { return !ownSparks && ['first-catch', 'low-ember'].includes(this.cards[slot]?.cardId) ? { real: 0, spill: 0 } : gainBefore.call(this, slot, base, mask, quiet); };
+}
+const withOwnSparks = fn => { ownSparks = true; try { return fn(); } finally { ownSparks = false; } };
 // The demo engine: First Catch (Collect -> Pulse), a Metronome that fires the next card every 3 s, a Spark Chime (+1 per Turn).
 const CHIME = ['first-catch', 'metronome', 'spark-chime'];
 // The Wick version: one Turn only (nothing loops it), used where the Slow Wick's own rules are tested.
@@ -228,7 +238,7 @@ test('Homing Thread: a Delivery sends a Collector with charge for the nearest Sp
 test('Momentum: after 5 Turns in a row, +40% Luminance until the engine stops', () => {
   assert.equal(SKILL_CARDS.momentum.rarity, 'legendary'); assert.equal(SKILL_CARDS.momentum.amount, 40);
   const lum = [];
-  const runtime = createCardExecution(row([...CHIME, 'momentum'])), host = createMeterHost({start: 0, max: 7});
+  const runtime = createCardExecution(row([...CHIME, 'momentum'])), host = createMeterHost({start: 0, max: 12}); // Momentum also pays +1 Spark a Turn
   host.runtime = runtime; host.setLuminance = p => lum.push(p);
   const engine = new CardEngine(runtime, host);
   playerEvent(engine, host, 'collect', {}, 0);

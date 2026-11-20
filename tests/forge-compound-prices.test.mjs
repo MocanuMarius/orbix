@@ -43,39 +43,39 @@ function forge(state, rarity, expectedPrice) {
   return card;
 }
 
-test('first prices are 15, 40 and 150, and each forge of a rarity doubles that rarity only', () => {
+test('first prices are 15, 40 and 150, and each forge of a rarity rises by half its first price for that rarity only (linear, 2026-11-20)', () => {
   assert.deepEqual(CARD_ECONOMY.forge, {common: 15, rare: 40, legendary: 150});
-  assert.equal(CARD_ECONOMY.forgeGrowth, 2);
+  assert.equal(CARD_ECONOMY.forgeStep, 0.5);
   const state = fresh(), run = state.run;
-  forge(state, 'common', 15); forge(state, 'common', 30); forge(state, 'common', 60);
+  forge(state, 'common', 15); forge(state, 'common', 23); forge(state, 'common', 30);
   assert.equal(M.getCardForgePreview(run, 'rare').price, 40, 'rarities escalate independently');
   assert.equal(M.getCardForgePreview(run, 'legendary').price, 150);
-  forge(state, 'rare', 40); forge(state, 'rare', 80); forge(state, 'rare', 160);
-  forge(state, 'legendary', 150); forge(state, 'legendary', 300);
-  assert.equal(M.getCardForgePreview(run, 'common').price, 120);
-  assert.equal(M.getCardForgePreview(run, 'common').nextPrice, 240, 'the offer shows the next price after this one');
-  assert.equal(M.getCardForgePreview(run, 'legendary').price, 600);
+  forge(state, 'rare', 40); forge(state, 'rare', 60); forge(state, 'rare', 80);
+  forge(state, 'legendary', 150); forge(state, 'legendary', 225);
+  assert.equal(M.getCardForgePreview(run, 'common').price, 38);
+  assert.equal(M.getCardForgePreview(run, 'common').nextPrice, 45, 'the offer shows the next price after this one');
+  assert.equal(M.getCardForgePreview(run, 'legendary').price, 300);
   assert.deepEqual(run.cardForgeTally, {common: 3, rare: 3, legendary: 2});
-  assert.equal(run.condensedGlow, 5000 - (15 + 30 + 60) - (40 + 80 + 160) - (150 + 300));
+  assert.equal(run.condensedGlow, 5000 - (15 + 23 + 30) - (40 + 60 + 80) - (150 + 225));
 });
 
 test('the doubled price lasts the whole run: reload, the next Rest and later Rests keep it; only a new run starts over', () => {
   let state = fresh('forge-rest-lifetime'), run = state.run;
   forge(state, 'rare', 40); forge(state, 'legendary', 150);
   const nextRare = M.getCardForgePreview(run, 'rare');
-  assert.equal(nextRare.price, 80);
+  assert.equal(nextRare.price, 60);
   state = reload(state); run = state.run;
   assert.deepEqual(M.getCardForgePreview(run, 'rare'), nextRare, 'reload neither resets the price nor rerolls the card');
-  assert.equal(M.getCardForgePreview(run, 'legendary').price, 300);
+  assert.equal(M.getCardForgePreview(run, 'legendary').price, 225);
   assert.ok(M.resolveSupport(run, M.getSupportChoices(run).findIndex(choice => choice.effect?.restContinue)));
-  assert.equal(M.getCardForgePreview(run, 'rare').price, 80, 'finishing the Rest keeps its price');
+  assert.equal(M.getCardForgePreview(run, 'rare').price, 60, 'finishing the Rest keeps its price');
   enterRest(run, run.map.flat().find(node => node.kind === 'camp' && node.row > 4));
   const atNextRest = M.getCardForgePreview(run, 'rare');
-  assert.equal(atNextRest.price, 80, 'the next Rest does NOT start over');
+  assert.equal(atNextRest.price, 60, 'the next Rest does NOT start over');
   assert.equal(atNextRest.card.instanceId, nextRare.card.instanceId, 'moving to another Rest does not reroll the unpaid surprise');
   assert.notEqual(atNextRest.token, nextRare.token, 'a quote from another Rest is stale');
   assert.equal(M.forgeOwnedCard(state, 'rare', nextRare.token), false);
-  forge(state, 'rare', 80); forge(state, 'rare', 160);
+  forge(state, 'rare', 60); forge(state, 'rare', 80);
   state.run = M.createRun(state.profile, 'forge-next-expedition', 1, {cards: true});
   enterRest(state.run);
   assert.equal(M.getCardForgePreview(state.run, 'rare').price, 40);
@@ -113,7 +113,7 @@ test('preview, failed and stale confirmations never spend, reveal or raise the p
   run.phase = 'support';
   forge(state, 'rare', 40);
   assert.equal(M.forgeOwnedCard(state, 'rare', quote.token), false, 'the paid quote cannot be paid twice');
-  assert.equal(M.getCardForgePreview(run, 'rare').price, 80);
+  assert.equal(M.getCardForgePreview(run, 'rare').price, 60);
 });
 
 test('the forged card is hidden until paid, seeded so reload or Back cannot reroll it, and revealed after paying', () => {
@@ -161,7 +161,7 @@ test('forging then melting always loses Stored Sparks, for every rarity and the 
     const state = fresh(`forge-melt-${rarity}`), run = state.run;
     for (let step = 0; step < 5; step++) {
       const price = M.getCardForgePreview(run, rarity).price;
-      assert.equal(price, CARD_ECONOMY.forge[rarity] * 2 ** step);
+      assert.equal(price, Math.ceil(CARD_ECONOMY.forge[rarity] * (1 + 0.5 * step) - 1e-9));
       const card = forge(state, rarity, price), melt = getCardMeltValue(card);
       assert.equal(melt, CARD_ECONOMY.melt[rarity]);
       assert.ok(price > melt, `${rarity} forge ${step + 1}: ${price} > ${melt}`);
@@ -199,11 +199,11 @@ test('Evolve costs the current Forge price of the new rarity and shares its pric
   give('echo', 'a'); give('tight-packing', 'b'); give('kindling-bead', 'c');
   assert.equal(M.getCardImprovePreview(run, 'a').price, M.getCardForgePrice(run, 'rare'));
   evolve('a', 40);
-  assert.equal(M.getCardForgePrice(run, 'rare'), 80, 'an Evolve raises the next Rare Forge');
-  assert.equal(M.getCardForgePreview(run, 'rare').price, 80);
-  evolve('b', 80);
-  forge(state, 'rare', 160);
-  evolve('c', 320);
+  assert.equal(M.getCardForgePrice(run, 'rare'), 60, 'an Evolve raises the next Rare Forge');
+  assert.equal(M.getCardForgePreview(run, 'rare').price, 60);
+  evolve('b', 60);
+  forge(state, 'rare', 80);
+  evolve('c', 100);
   assert.deepEqual(run.cardForgeTally, {common: 0, rare: 4, legendary: 0});
   assert.equal(M.getCardForgePrice(run, 'legendary'), 150, 'other tiers are untouched');
   // Evolve into Legendary raises the Legendary Forge, and vice versa.
@@ -211,7 +211,7 @@ test('Evolve costs the current Forge price of the new rarity and shares its pric
   const evolved = [...M.getOwnedCards(run)].find(c => SKILL_CARDS[c.cardId]?.evolvesTo && SKILL_CARDS[SKILL_CARDS[c.cardId].evolvesTo].rarity === 'legendary');
   if (evolved) {
     const q = M.getCardImprovePreview(run, evolved.instanceId);
-    assert.equal(q.price, 300);
+    assert.equal(q.price, 225);
   }
   // Plain Improve (rank up) leaves the track alone.
   const tally = JSON.stringify(run.cardForgeTally);

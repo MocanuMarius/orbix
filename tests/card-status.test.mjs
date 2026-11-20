@@ -23,7 +23,7 @@ test('ordering quotes combine actual predicates and only same-event Spark payers
   assert.equal(states(build(['prism-lens']))[0],'blocked');
   assert.deepEqual(states(build(['prism-lens','body-spark'])),['blocked','ready']);
   assert.deepEqual(states(build(['body-spark','prism-lens'])),['ready','ready']);
-  assert.equal(states(build(['body-spark','clear-prism']))[1],'blocked');
+  assert.equal(states(build(['body-spark','clear-prism']))[1],'ready','Clear Prism pays +6 on a Flare by itself');
   assert.equal(states(build(['first-ripple','ripple-glass']))[1],'blocked');
   assert.equal(states(build(['far-shore','ripple-glass']))[1],'ready');
   // Crescendo doubles whenever something is to its left (no two-payer requirement since 2026-11-17).

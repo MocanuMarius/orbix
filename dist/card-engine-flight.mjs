@@ -116,6 +116,7 @@ export function raiseFlightEngine(e, kind, detail = {}) {
 /** Each simulation step: due Timers, the end of a Flare, a filled Proximity meter (a skim). */
 export function stepFlightEngine(e, skimsBefore = null) {
   if (!live(e)) return;
+  if (!e.cardEngine.tookOff) e.cardEngine.takeOff(e.time);
   e.cardEngine.advance(e.time);
   if (e.cardEngineFlash && !(e.time < e.sightUntil)) {
     const slot = e.cardEngineFlash.slot; e.cardEngineFlash = null;

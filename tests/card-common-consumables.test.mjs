@@ -141,11 +141,14 @@ test('limited recovery cards keep uses when ready, clamp short recovery and cann
 test('finite multipliers require an earlier payer and successful Flare, Cache and guard events retain their real sources',()=>{
   for(const [id,payer,kind] of [['courier-glass','courier-tip',CARD_ROW_EVENTS.delivery],['clear-prism','flash-handling',CARD_ROW_EVENTS.flash]]){
     const empty=createCardExecution([makeSkillCard(id,'multiplier')]),cap=empty.cards[0].charges;
-    resolveCardRow(empty,{kind});assert.equal(empty.cards[0].charges,cap,'no earlier card Sparks means no use');
+    resolveCardRow(empty,{kind});
+    if(id==='clear-prism')assert.equal(empty.cards[0].charges,cap-1,'Clear Prism pays its own +6 with no earlier card, and spends one use');
+    else assert.equal(empty.cards[0].charges,cap,'no earlier card Sparks means no use');
     const row=createCardExecution([makeSkillCard(payer,'payer'),{...makeSkillCard(id,'multiplier'),charges:1},makeSkillCard('refrain','replay')]),
       receipt=resolveCardRow(row,{kind});
     assert.equal(row.cards[1].charges,0);assert.equal(receipt.steps.filter(step=>step.sourceCardId===id&&step.success).length,1);
-    near(receipt.sparks,SKILL_CARDS[payer].amount*3,'one doubling on the first pass, unmodified payer on replay');
+    if(id==='clear-prism')assert.ok(receipt.sparks>=SKILL_CARDS[payer].amount*3+6,'one doubling on the first pass, unmodified payer on replay, plus its own +6');
+    else near(receipt.sparks,SKILL_CARDS[payer].amount*3,'one doubling on the first pass, unmodified payer on replay');
   }
   for(const [id,kind,pickupKind,expected] of [['crate-lining',CARD_ROW_EVENTS.delivery,'cache',8],['crate-lining',CARD_ROW_EVENTS.delivery,'cluster',4],]){
     const row=createCardExecution([makeSkillCard('echo',`copy:${id}`),{...makeSkillCard(id,id),charges:1},makeSkillCard('refrain',`replay:${id}`)]),

@@ -1597,6 +1597,8 @@ export class WispFlight {
     // Second Wind (batch 3): for 5 s after a Save every Trigger fires the Chain. The time is a field of this flight only, and only counts while the card is mounted.
     if(kind===CARD_ROW_EVENTS.delivery&&this.mod.cardCourierCord)this.courierFlashAt=this.time;
     const wind=this.cardSecondWindUntil>this.time&&this.cardExecution.cards.some(card=>card?.cardId==='second-wind');
+    // Spark Chime (2026-11-20): a real Pulse crossing a Spark is also heard by engine cards that listen for it, whether or not a row card hears the crossing.
+    if(kind==='wave-crossing'&&this.cardEngine&&!engine)raiseFlightEngine(this,'crossing',{...(Number.isInteger(detail.fromSlot)&&detail.fromSlot>=0?{fromSlot:detail.fromSlot}:{})});
     if(!wind&&!hasCardRowEvent(this.cardExecution,kind))return null;
     // One event shortens one Collector, so its recovery and reel budgets agree.
     // Attachments act on their owner; ordinary events prefer the longest reel.
@@ -1645,7 +1647,7 @@ export class WispFlight {
       const origin=Number.isInteger(detail.fromSlot)&&detail.fromSlot>=0?{fromSlot:detail.fromSlot}:{};
       if(gain>0)raiseFlightEngine(this,'gain',{amount:gain/CARD_UNIT,...origin});
       const spill=instant-gain/CARD_UNIT;
-      if(spill>1e-9)raiseFlightEngine(this,'overfill',{spill,...origin});
+      if(spill>1e-9&&!(kind==='wave-crossing'&&!('fromSlot' in origin)))raiseFlightEngine(this,'overfill',{spill,...origin}); // loop guard: a spill made by an untagged Pulse crossing never feeds Overfill cards (Ember Bell would answer it with a Pulse, which crosses again)
     }
     // One Overfill rule (2026-11-20): Sparks a card made that find the Meter full are an Overfill for the row cards to the right of the maker too.
     const rowSpill=instant-gain/CARD_UNIT;
@@ -1677,6 +1679,8 @@ export class WispFlight {
     for (const card of next.cards) { // counts only grow, so a rebuilt row never loses what the flight has counted
       const was = this.cardExecution?.cards?.find(old => old?.instanceId === card?.instanceId)?.tally;
       if (card && Number(was) > (Number(card.tally) || 0)) card.tally = Math.floor(was);
+      const marks = this.cardExecution?.cards?.find(old => old?.instanceId === card?.instanceId)?.markCount;
+      if (card && Number(marks) > 0) card.markCount = Math.floor(marks); // Meter Mark's count for this flight
     }
     next.executions = executions;
     next.eventSequence=this.cardExecution?.eventSequence||this.cardRowSequence;
@@ -2648,7 +2652,7 @@ export class WispFlight {
       let restored = 0;
       const cardFlash=!ember.generated&&!ember.fetchedInDream?this.resolveCardRowEvent(CARD_ROW_EVENTS.flash,cardPickupContext):null;
       if(cardFlash)restored=cardFlash.gain;
-      if (this.mod.collectorFlashFetch && (!this.cardExecution || !this.mod.cardFlashHandling)) {
+      if (this.mod.collectorFlashFetch && (!this.cardExecution || !(this.mod.cardFlashHandling || this.mod.cardFlashFetch))) {
         const nativeRestored = Math.min(Math.max(FLAME_TUNING.emberFuel, Number(this.mod.cardFlashMeter) || 0), Math.max(0, this.maxFlame - this.flame));
         restored += nativeRestored;this.flame += nativeRestored;
         this.flameRestored += nativeRestored;

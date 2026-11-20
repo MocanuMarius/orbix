@@ -80,7 +80,7 @@ export const CARD_GUIDE_TOPICS = {
       ),
       step(
         "Read the quote",
-        "Melt gives 10 for a Common, 20 for a Rare, 40 for a Legendary. Forge gives one surprise card of the rarity you choose, revealed after you pay: Common 15, Rare 40, Legendary 150. Each forge of a rarity this journey makes its next one dearer (+5, +20, +75). Forge uses no Rest action.",
+        "Melt gives 10 for a Common, 20 for a Rare, 40 for a Legendary. Forge gives one surprise card of the rarity you choose, revealed after you pay: Common 15, Rare 40, Legendary 150. Each Forge or Evolve of a rarity this journey adds half the first price to the next one (Common +8, Rare +20, Legendary +75, rounded up). Forge uses no Rest action.",
         "forge",
       ),
     ],

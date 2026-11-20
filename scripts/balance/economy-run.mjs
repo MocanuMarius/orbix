@@ -4,6 +4,7 @@
 // is preferred when a row offers one, the player always takes the rarest card of each pack, and at each Rest the whole
 // wallet is spent by one policy: forge (greedy by rarity), evolve (improve toward an Evolve, then Evolve), or none.
 import { writeFileSync } from 'node:fs';
+import { writePendingTemporary } from '../../dist/temporary-inscriptions.mjs';
 import * as M from '../../dist/model.mjs';
 import { SKILL_CARDS } from '../../dist/skill-cards.mjs';
 import { getGlowCapacity } from '../../dist/vitality.mjs';
@@ -61,10 +62,11 @@ function playRun(seed, policy) {
     if (r.cardReward && !r.cardReward.claimed) r.cardReward.uiAcknowledged = true;
     if (r.victoryPending) { const f = r.flightReward; if (f && !f.claimed) { if (f.offers?.length) M.chooseFlightReward(state, f.offers[0]); else f.claimed = true; } M.acknowledgeVictory(state); credit('flights (reward choice)', w0, mi0); continue; }
     if (r.phase === 'map-clear') { if (!M.advanceMap(r)) break; continue; }
+    if (r.pendingTemporary) { writePendingTemporary(r); continue; } // a chest's Inscription find opens the slot write screen: write it on the first free slot
     if (r.phase === 'map') {
       const rank = n => n.kind === 'camp' ? 0 : n.kind === 'treasure' ? 1 : n.type === 'support' ? 2 : (n.elite || n.boss) ? 4 : 3;
       const choices = [...M.getChoices(r)].sort((a, b) => rank(a) - rank(b));
-      if (!choices.length || !M.selectNode(r, choices[0].id)) break; continue;
+      if (!choices.length || !M.selectNode(r, choices[0].id)) { if (process.env.ECO_DEBUG) console.error('map stuck', r.mapIndex, choices.map(c => [c.id, c.kind, c.type]), Object.keys(r).filter(k => /pending|fork|oath|survey/i.test(k) && r[k]).join()); break; } continue;
     }
     if (r.phase === 'briefing') {
       const node = r.current, mi = r.mapIndex;
@@ -83,7 +85,8 @@ function playRun(seed, policy) {
       if (index < 0) index = choices.findIndex(c => !c.disabled);
       let ok = M.resolveSupport(r, index, state.profile);
       for (let j = 0; j < choices.length && !ok; j++) ok = M.resolveSupport(r, j, state.profile);
-      if (!ok) { if (r.current?.kind === 'scribe' && r.flightReward?.offers?.length) { M.chooseFlightReward(state, r.flightReward.offers[0]); M.leaveScribe(r); continue; } break; }
+      if (!ok && kind === 'treasure') { try { M.chooseChestReward(state, 'sparks'); ok = !r.pendingChest && r.phase !== 'support'; } catch { /* stale chest flow */ } } // chests are a two-step reward now
+      if (!ok) { if (process.env.ECO_DEBUG) console.error("support failed", r.current?.kind, JSON.stringify(choices.map(c => [c.id, c.disabled, c.effect]))); if (r.current?.kind === 'scribe') { if (r.flightReward?.offers?.length) M.chooseFlightReward(state, r.flightReward.offers[0]); M.leaveScribe(r); continue; } break; }
       if (r.pendingChest) M.chooseChestReward(state, 'sparks');
       M.settleCheckpoint(state); credit(camp ? 'Rest' : kind === 'treasure' ? 'chests' : kind === 'event' ? 'events' : 'other stops (' + kind + ')', w0, mi); continue;
     }
@@ -112,4 +115,4 @@ for (const policy of ['none', 'forge', 'evolve']) {
   lines.push('', `Policy ${policy}: ends with Commons ${f(mean(L, l => l.final.common))}, Rares ${f(mean(L, l => l.final.rare))}, Legendaries ${f(mean(L, l => l.final.legendary))}; forges C/R/L ${['common', 'rare', 'legendary'].map(k => f(mean(L, l => l.forges[k]))).join('/')}; evolves R/L ${['rare', 'legendary'].map(k => f(mean(L, l => l.evolves[k]))).join('/')}; spent forge ${f(mean(L, l => l.spent.forge))}, evolve ${f(mean(L, l => l.spent.evolve))}, improve ${f(mean(L, l => l.spent.improve))}; wallet left ${f(mean(L, l => l.wallet))}`);
 }
 console.log(lines.join('\n'));
-if (write) writeFileSync('outputs/balance/economy.md', '# Economy per full card run (production model, synthetic cleared flights)\n\nSource: scripts/balance/economy-run.mjs. Drop rates 94.5/5/0.5, Elite slot 1 reserved Rare, Guardian slot 1 reserved Legendary; Forge price doubles per forge of a tier for the rest of the run.\n\n```\n' + lines.join('\n') + '\n```\n');
+if (write) writeFileSync('outputs/balance/economy.md', '# Economy per full card run (production model, synthetic cleared flights)\n\nSource: scripts/balance/economy-run.mjs. Drop rates 94.5/5/0.5, Elite slot 1 reserved Rare, Guardian slot 1 reserved Legendary; Forge price rises linearly per Forge or Evolve of a tier for the rest of the run: base x (1 + 0.5 x n), rounded up (2026-11-20; it doubled before: none 4.2 R / 2.3 L, forge 7.2 / 3.5, evolve 5.1 / 4.1).\n\n```\n' + lines.join('\n') + '\n```\n');

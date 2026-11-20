@@ -71,7 +71,7 @@ test('Forge previews anywhere but purchases only at Rest with exact offers and s
   const second = M.getCardForgePreview(run);
   assert.notEqual(second.card.instanceId, first.card.instanceId);
   assert.ok(M.forgeOwnedCard(state, 'rare', second.token));
-  assert.equal(run.condensedGlow, 80, 'two Rare forges cost 40 then 80');
+  assert.equal(run.condensedGlow, 100, 'two Rare forges cost 40 then 60 (linear, 2026-11-20), so 100 is left');
   assert.equal(run.cardReward, undefined);
   assert.equal(run.reserveCards.length, 2);
   state = reload(state); run = state.run;

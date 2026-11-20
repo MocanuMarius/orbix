@@ -18,7 +18,7 @@ const HEAD = {'Lift':'Lift','Flash':'Collect a Flare','Latch':'When your Collect
 const chipLabel = t => triggerDisplay(CHIP[t]).label, headOf = (t, c) => t === 'Delivery' && c === 'Cluster' ? 'Deliver a Cluster' : (HEAD[t] || t) + (c ? ` · ${c}` : '');
 const pulse = text => text && text.replace(/\b[Ww]aves?\b/g, word => word.endsWith('s') ? 'Pulses' : 'Pulse');
 const BOOST_TEXT = {'prism-lens':'Every card before it ×1.25','prism-lens-ii':'Every card before it ×3','crescendo':'Double every card before it',
-  'closing-chord':'Every card before it ×2.5','second-sun':'Every card before it ×2, ×3 in an Encore'};
+  'clear-prism':'+6 Sparks; double every reward before it','closing-chord':'Every card before it ×2.5','second-sun':'Every card before it ×2, ×3 in an Encore'};
 
 test('all 85 approved cards carry their Trigger chip as data and the approved plain wording', () => {
   assert.equal(CARD_TEXT.length, 85);

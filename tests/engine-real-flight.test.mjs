@@ -48,7 +48,7 @@ test('timer firings reach the in-flight Chain strip: a Turn mark for the Metrono
 test('the Chime loop under today’s rules: First Catch lights it, Ember Bell hears the Overfill, Slow Wick waits 3 s and returns the Pulse; only a Timer returns to Slot 1', () => {
   const a = flights(['first-catch', 'spark-chime', 'ember-bell', 'slow-wick']);
   assert.ok(perFlight(a, 'turn') >= 3, `a loop turns: ${perFlight(a, 'turn')} Turns a flight`);
-  assert.ok(entries(a, 'gain').every(x => x.slot === 1 && x.amount === 1), 'Spark Chime gives 1 Spark per Pulse');
+  assert.ok(entries(a, 'gain').every(x => (x.slot === 1 && x.amount === 1) || (x.slot === 0 && x.amount === 4)), 'Spark Chime gives 1 Spark per Pulse (First Catch’s own +4 is the only other gain)');
   assert.ok(entries(a, 'hit', x => x.slot === 2).every(x => x.type === 'overfill'), 'Ember Bell hears Overfill and nothing else');
   assert.ok(entries(a, 'turn').every(x => x.slot === 3), 'only the Timer starts a Turn');
   assert.ok(entries(a, 'pulse', x => x.slot === -1).every(x => x.back === true), 'only a Timer returns a Pulse to Slot 1');
@@ -64,7 +64,8 @@ test('the Chime loop under today’s rules: First Catch lights it, Ember Bell he
 test('First Catch sends exactly one Pulse per flight, on the first Collect', () => {
   const a = flights(['first-catch', 'spark-chime']);
   for (const f of a) assert.equal(logOf(f).filter(x => x.k === 'hit' && x.slot === 0).length, 1);
-  assert.equal(perFlight(a, 'gain', x => x.slot === 1), 1, 'its Pulse is heard by Spark Chime: +1');
+  assert.ok(entries(a, 'gain').filter(x => x.slot === 0).every(x => x.amount === 4) && perFlight(a, 'gain', x => x.slot === 0) === 1, 'First Catch pays +4 Sparks of its own, once a flight');
+  assert.ok(perFlight(a, 'gain', x => x.slot === 1) >= 1, 'its Pulse is heard by Spark Chime (and Chime also hears the real Pulse crossing Sparks)');
 });
 
 test('Long Fuse repeats the Chain’s last firing exactly 5 s after a Pulse, for what that firing paid', () => {

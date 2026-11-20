@@ -141,19 +141,21 @@ test('Ember Feeder consumes two exact occupied instances atomically, keeps holes
   const before=structuredClone(run);getMountedCards(run);getEquippedCardStatuses(run);
   previewCardRow(run,{kind:'flight-clear'});assert.deepEqual(run,before);
   clear(state);assert.deepEqual(run.mountedCards.map(c=>c?.cardId||null),['ember-feeder',null,null,null]);
-  assert.equal(getCardFeederCapacity(run.mountedCards[0]),1);near(getGlowCapacity(run),baseline+CARD_UNIT);
+  assert.equal(getCardFeederCapacity(run.mountedCards[0]),3,'two cards eaten: +3');near(getGlowCapacity(run),baseline+3*CARD_UNIT);
   assert.equal(run.cardFutureCapacity,0,'an eaten clear card cannot also earn its clear reward');
   assert.equal(state.profile.cardFutureCapacity,0);
   const receipt=run.lastFlight.emberFeederSacrifices[0];
   assert.deepEqual(receipt.targets.map(t=>[t.instanceId,t.slot]),[['chain:2',2],['chain:3',3]]);
-  assert.deepEqual(run.lastFlight.consumedCards,['chain:2','chain:3']);assert.equal(receipt.totalCapacity,1);
-  assert.equal(M.finishFlight(run,{success:true}),false);assert.equal(getCardFeederCapacity(run.mountedCards[0]),1);
-  const restored=reload(state);assert.equal(getCardFeederCapacity(restored.run.mountedCards[0]),1);
+  assert.deepEqual(run.lastFlight.consumedCards,['chain:2','chain:3']);assert.equal(receipt.totalCapacity,3);
+  assert.equal(M.finishFlight(run,{success:true}),false);assert.equal(getCardFeederCapacity(run.mountedCards[0]),3);
+  const restored=reload(state);assert.equal(getCardFeederCapacity(restored.run.mountedCards[0]),3);
   M.settleCheckpoint(restored);assert.equal(restored.profile.cardFutureCapacity,0);
 });
 
-test('fewer than two targets, failed flights and Dream never consume a partial meal',()=>{
-  for(const ids of [['ember-feeder'],['ember-feeder','spark-cache'],['ember-feeder',null,'tight-packing']]){
+test('with nothing to eat, failed flights and Dream consume nothing; one card eaten is +1 (2026-11-20)',()=>{
+  const one=fresh(['ember-feeder',null,'spark-cache']);clear(one);
+  assert.deepEqual(one.run.mountedCards.map(c=>c?.cardId||null),['ember-feeder',null,null]);assert.equal(getCardFeederCapacity(one.run.mountedCards[0]),1,'one card eaten: +1');
+  for(const ids of [['ember-feeder'],['ember-feeder','growth-ring'],['ember-feeder',null,'deep-vessel']]){
     const state=fresh(ids),expected=state.run.mountedCards.map(c=>c?.instanceId||null);
     clear(state);assert.deepEqual(state.run.mountedCards.map(c=>c?.instanceId||null),expected);
     assert.equal(getCardFeederCapacity(state.run.mountedCards[0]),0);assert.equal(state.run.lastFlight.emberFeederSacrifices,undefined);
@@ -164,8 +166,8 @@ test('fewer than two targets, failed flights and Dream never consume a partial m
   }
   const state=fresh(['ember-feeder','spark-cache','tight-packing']);
   clear(state,{cardCharges:{'chain:1':0}});
-  assert.equal(state.run.mountedCards[1],null);assert.equal(state.run.mountedCards[2].cardId,'tight-packing');
-  assert.equal(getCardFeederCapacity(state.run.mountedCards[0]),0,'a card exhausted during flight cannot count as food');
+  assert.equal(state.run.mountedCards[1],null);assert.equal(state.run.mountedCards[2],null,'only the card that still has uses is eaten');
+  assert.equal(getCardFeederCapacity(state.run.mountedCards[0]),1,'a card exhausted during flight cannot count as food: one card, +1');
 });
 
 test('growth follows the feeder instance through duplicate swaps, saves, unequipping and melting without refilling',()=>{
@@ -185,14 +187,14 @@ test('growth follows the feeder instance through duplicate swaps, saves, unequip
 test('physical consumers resolve safely left to right, including a feeder or Devourer being eaten first',()=>{
   for(const [ids,lives,survivors,grown,healed] of [
     [['devourer','ember-feeder','tight-packing','body-spark'],1,['devourer',null,'tight-packing','body-spark'],0,1],
-    [['ember-feeder','devourer','echo-ii','body-spark'],1,['ember-feeder',null,null,'body-spark'],1,0],
-    [['ember-feeder','ember-feeder','body-spark','tight-packing'],1,['ember-feeder',null,null,'tight-packing'],1,0],
-    [['ember-feeder','body-spark','tight-packing','devourer','echo-ii'],1,['ember-feeder',null,null,'devourer',null],1,1],
+    [['ember-feeder','devourer','echo-ii','body-spark'],1,['ember-feeder',null,null,'body-spark'],3,0],
+    [['ember-feeder','ember-feeder','body-spark','tight-packing'],1,['ember-feeder',null,null,'tight-packing'],3,0],
+    [['ember-feeder','body-spark','tight-packing','devourer','echo-ii'],1,['ember-feeder',null,null,'devourer',null],3,1],
   ]){
     const state=fresh(ids);state.run.lives=lives;clear(state);
     assert.deepEqual(state.run.mountedCards.map(c=>c?.cardId||null),survivors,ids.join(','));
     assert.equal(state.run.mountedCards.reduce((sum,c)=>sum+getCardFeederCapacity(c),0),grown);
-    assert.equal(state.run.lives,lives+healed);assert.equal(state.run.lastFlight.emberFeederSacrifices?.length||0,grown);
+    assert.equal(state.run.lives,lives+healed);assert.equal(state.run.lastFlight.emberFeederSacrifices?.length||0,grown?1:0);
   }
 });
 
@@ -203,7 +205,7 @@ test('neither new physical action is copyable or replayable; statuses name exact
   const printed=getMountedCards(state.run),status=getEquippedCardStatuses(state.run);
   // Plain status instructions and the approved face wording (v1.0-cardtext).
   assert.equal(status[0].state,'blocked');assert.match(status[1].reason,/Pocket Sparks in Slot 3 and Refrain in Slot 4/);
-  assert.match(printed[1].effect,/Eats the next 2 cards/);assert.match(printed[1].effectiveSummary,/Stored growth \+0 maximum Sparks/);assert.match(printed[1].effectiveSummary,/permanently consume/);
+  assert.match(printed[1].effect,/Eats 1 card: \+1 max Spark; 2 cards: \+3/);assert.match(printed[1].effectiveSummary,/Stored growth \+0 maximum Sparks/);assert.match(printed[1].effectiveSummary,/permanently consume/);
   const doubler=fresh(['echo','use-doubler','spark-cache']),dstatus=getEquippedCardStatuses(doubler.run);
   assert.equal(dstatus[0].state,'blocked');assert.match(dstatus[1].reason,/Pocket Sparks in Slot 3 goes from 6 to 12/);
   assert.match(getMountedCards(doubler.run)[1].effectiveSummary,/6 → 12 remaining uses/);

@@ -90,7 +90,7 @@ export const CARD_TEXT = [
     keep: {t: 'Any Trigger', c: 'last card only', x: 'Chain\'s Sparks ×1.75'}, simple: {t: 'Any Trigger', x: 'Chain\'s Sparks ×1.75'}},
   {id: 'edge-reach', t: 'Always on', c: 'near terrain for 2 s', x: 'Sends a wave; reach +50%', n: 'Code (model.mjs: proximityUnlocked) lets Edge Reach send Proximity waves on its own; today\'s face does not say so. Text now matches the code.'},
   {id: 'devourer', t: 'Always on', c: 'clear while missing a heart', x: 'Eats the next Rare card: +1 heart', n: '"Keeps both at full hearts" is the missing-heart condition; "Devourer survives" is implied.'},
-  {id: 'ember-feeder', t: 'Always on', c: 'after a clear', x: 'Eats the next 2 cards: +1 max Spark', n: 'Still eats nothing if fewer than 2 cards follow (status chip "Needs 2 cards right"). The +1 stays on Ember Feeder while it is in the chain.'},
+  {id: 'ember-feeder', t: 'Always on', c: 'after a clear', x: 'Eats 1 card: +1 max Spark; 2 cards: +3', n: 'Eats nothing only if no card follows (status chip "Needs a card to its right"). The bonus stays on Ember Feeder while it is in the chain.'},
   {id: 'twin-orbit', t: 'Always on', x: 'A 2nd Collector fetches too', f: 'D6', n: '"The first keeps Field Impulse and saves" moves to the inspector.'},
   // ── Legendary ──
   {id: 'harvest-legendary', t: 'Wave', x: '+2 Sparks, +1 Stored on its 1st Spark', n: 'The Stored Spark is still paid once per wave (not again in an Encore).'},

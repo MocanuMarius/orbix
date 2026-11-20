@@ -28,9 +28,9 @@ test('bounded context weights reward real owned partners and respect row and cop
   assert.equal(multiplier('body-spark',['wick-doubler']),2,'an owned multiplier can find a new payer');
   assert.equal(multiplier('use-doubler',['spark-cache']),4);
   assert.equal(multiplier('use-doubler',['camp-kit']),1.5,'Rest cards cannot receive flight uses');
-  assert.equal(multiplier('ember-feeder',['body-spark']),1.5);
+  assert.equal(multiplier('ember-feeder',['body-spark']),4);
   assert.equal(multiplier('ember-feeder',['body-spark','deep-vessel']),4);
-  assert.equal(multiplier('ember-feeder',['body-spark','deep-vessel'],{slots:2}),1.5);
+  assert.equal(multiplier('ember-feeder',['body-spark','deep-vessel'],{slots:2}),4);
   for (const def of Object.values(SKILL_CARDS)) for (const mode of ['draft','forge']) {
     const weight=multiplier(def.id,['body-spark','spark-cache'],{mode});
     assert.ok(weight>=1&&weight<=4,`${def.id}/${mode} retains ordinary circulation`);

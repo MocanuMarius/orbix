@@ -24,7 +24,7 @@ export function departureDevourWarnings(run) {
   cards.forEach((card, slot) => {
     if (card?.cardId === 'ember-feeder') {
       const targets = getEmberFeederTargets(cards, slot);
-      if (targets.length === 2) out.push({text: `Ember Feeder will devour ${join(targets.map(t => nameOf(t.card.cardId)))} at the Finish`, cardIds: targets.map(t => t.card.cardId)});
+      if (targets.length >= 1) out.push({text: `Ember Feeder will devour ${join(targets.map(t => nameOf(t.card.cardId)))} at the Finish`, cardIds: targets.map(t => t.card.cardId)});
     }
     if (card?.cardId === 'devourer' && run.lives < getLifeCapacity(run) && SKILL_CARDS[cards[slot + 1]?.cardId]?.rarity === 'rare')
       out.push({text: `Devourer will devour ${nameOf(cards[slot + 1].cardId)} at the Finish if you clear`, cardIds: [cards[slot + 1].cardId]});

@@ -178,10 +178,10 @@ function chainPanelHTML(d, view, opts) {
   const text = sol.sparks > 0 ? `+${num(sol.sparks)}` : once > 0 ? `+${num(once)}` : '0';
   const passes = chain.passes.length ? chain.passes.join(' + ') : '';
   const twoNumbers = ev?.loop && ev.perTurn !== null && ev.per10 !== null;
-  const sumLabel = twoNumbers ? `Engine: ${num(ev.perTurn)} Sparks per Turn, ${num(Math.round(ev.per10 * 10) / 10)} Turns every 10 seconds`
+  const sumLabel = twoNumbers ? `Engine: ${num(ev.perTurn)} Sparks each time a Timer fires, ${num(Math.round(ev.per10 * 10) / 10)} firings every 10 seconds`
     : `Equals ${passes ? `${chain.passes.join(' plus ')}, ` : ''}${sol.sparks > 0 ? `plus ${num(sol.sparks)}` : 'zero'} Sparks on ${tr.name}`;
   const medal = twoNumbers
-    ? `<span class="dk22-medal dk-medal2" id="dk22-medal"><span class="dk-m-row"><b id="dk22-num">${esc(num(ev.perTurn))}</b><small>per Turn</small></span><span class="dk-m-row"><b>${esc(num(Math.round(ev.per10 * 10) / 10))}</b><small>Turns per 10&nbsp;s</small></span></span>`
+    ? `<span class="dk22-medal dk-medal2" id="dk22-medal"><span class="dk-m-row"><b id="dk22-num">${esc(num(ev.perTurn))}</b><small>per firing</small></span><span class="dk-m-row"><b>${esc(num(Math.round(ev.per10 * 10) / 10))}</b><small>firings per 10&nbsp;s</small></span></span>`
     : `<span class="dk22-medal${text.length > 3 ? ' dk22-long' : ''}" id="dk22-medal"><b id="dk22-num">${esc(text)}</b><small>Sparks</small></span>`;
   const origin = has ? triggerIcon(chain.trigger, 32) : start ? chipIcon(start, 32) : `<img src="${WISP_ORB_SRC}" width="32" height="32" alt="">`;
   const originName = has ? termBtn(chain.trigger, {icon: false, cls: 'dk22-term-origin'}) : start ? chipTermBtn(start, {icon: false, cls: 'dk22-term-origin'}) : 'No Trigger';
@@ -579,7 +579,7 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
     for (const s of steps) {
       if (token !== engineToken) return;
       if (s.t > lastT + 1e-9) {
-        if (waiting) note(`${turn ? `Turn ${turn} · ` : ''}${shortName(d.row[waiting.slot])} waits ${num(waiting.wait)} s, shown ${ENGINE_SPEED}× faster`);
+        if (waiting) note(`${turn ? `Timer fired ${turn}× · ` : ''}${shortName(d.row[waiting.slot])} waits ${num(waiting.wait)} s, shown ${ENGINE_SPEED}× faster`);
         if (!(await (waiting ? waitDial(waiting.slot, lastT, s.t, token) : later((s.t - lastT) / ENGINE_SPEED * 1000, token)))) return;
         lastT = s.t;waiting = null;
       }
@@ -587,15 +587,15 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
       else if (s.kind === 'hit') {light(s.slot);await engineSparkPath([{x: notchX(s.slot), y}], 1);}
       else if (s.kind === 'gain') {light(s.slot);gained += Number(s.real) || 0;engineMeter(s.meter, maxP, gained);$('dk2-tag').textContent = `+${num(s.amount)}`;}
       else if (s.kind === 'wait') {light(s.slot);waiting = s;await engineSparkPath([{x: notchX(s.slot), y}], 1);}
-      else if (s.kind === 'turn') {turn = s.n;light(s.slot);note(`Turn ${turn}`);}
+      else if (s.kind === 'turn') {turn = s.n;light(s.slot);note(`Timer fired ${turn}×`);}
       else if (s.kind === 'back') {
         const from = notchX(s.from), to = notchX(s.to);
         await engineSparkPath([{x: from, y}, {x: from, y: yR}, {x: notchX(engineView(d.chain)?.to ?? 0), y: yR}, {x: notchX(engineView(d.chain)?.to ?? 0), y}, {x: to, y}], ENGINE_STEP * 1.6);
         continue;
       } else if (s.kind === 'keep') {$('dk2-tag').textContent = `Keeps ${num(s.amount)}`;}
       else if (s.kind === 'stop') {
-        light(-1);parkSpark();stage.classList.add('dk-stopped');note(`Stopped: ${s.reason}${turn ? ` · ${turn} Turn${turn === 1 ? '' : 's'}` : ''}`);
-        stopPlay();announce(`The engine stopped: ${s.reason}. ${turn} Turns, plus ${num(gained)} Sparks.`);
+        light(-1);parkSpark();stage.classList.add('dk-stopped');note(`Stopped: ${s.reason}${turn ? ` · fired ${turn}×` : ''}`);
+        stopPlay();announce(`The engine stopped: ${s.reason}. The Timer fired ${turn} times, plus ${num(gained)} Sparks.`);
         return;
       }
       if (!(await later(ENGINE_STEP, token))) return;

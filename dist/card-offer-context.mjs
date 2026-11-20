@@ -36,7 +36,7 @@ function ready(candidate, owned, slots) {
   if (owned.some(copy => copies.has(copy.def.kind) && repeatable(copy, candidate))) return true;
   if (candidate.def.kind === 'use-doubler' && owned.some(finite)) return true;
   if (finite(candidate) && owned.some(entry => entry.def.kind === 'use-doubler')) return true;
-  if (candidate.def.kind === 'ember-feeder' && slots >= 3 && owned.filter(entry => !restOnly(entry.def)).length >= 2) return true;
+  if (candidate.def.kind === 'ember-feeder' && slots >= 2 && owned.filter(entry => !restOnly(entry.def)).length >= 1) return true;
   if (candidate.def.kind === 'refrain' && owned.some(entry => !!entry.rule)) return true;
   if (candidate.rule && owned.some(entry => entry.def.kind === 'refrain')) return true;
   if (hasPayers(candidate, owned, slots)) return true;

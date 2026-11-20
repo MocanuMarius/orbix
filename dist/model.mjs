@@ -3,7 +3,7 @@ import {INSCRIPTIONS,getInscription,countInscription,cleanSlotInscriptions,write
 export {INSCRIPTIONS,getInscription,writeInscription,clearInscription,cleanSlotInscriptions} from './inscriptions.mjs?v=guide-clarity-1';
 import {PRACTICE_STOPS,practiceLessonTopics} from './practice-course.mjs?v=guide-clarity-1';
 import {prepareScoreLedger,awardScoreStores,awardSettledScoreStores,freezeCompletedGameScore,recordCompletedGameScore} from './game-score.mjs?v=guide-clarity-1';
-import {commitCardTallies,getCardTallies,getCardChargeCapacity,getCardFeederCapacity,getEmberFeederTargets,consumeCardUseDoublers} from './skill-cards.mjs?v=guide-clarity-1';
+import {emberFeederGain,commitCardTallies,getCardTallies,getCardChargeCapacity,getCardFeederCapacity,getEmberFeederTargets,consumeCardUseDoublers} from './skill-cards.mjs?v=guide-clarity-1';
 import {consumeBlackHoles} from './card-black-hole.mjs?v=guide-clarity-1';
 import {CARD_UNIT as ENGINE_CARD_UNIT} from './skill-cards.mjs?v=guide-clarity-1';
 import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=guide-clarity-1';
@@ -1007,7 +1007,7 @@ function ensureCardRest(run) {
   return run.cardRest;
 }
 /** Forge (approved 2026-11-17). Common, Rare and Legendary start at CARD_ECONOMY.forge; each
- * successful forge of a rarity doubles that rarity's next price for the rest of the run (2026-11-18;
+ * successful Forge or Evolve of a rarity adds half the first price to that rarity's next price for the rest of the run (linear since 2026-11-20, doubled before;
  * run.cardForgeTally holds the count, rarities are independent, no reset at a Rest). The
  * surprise card is seeded by the run-wide count of that rarity (cardForgeTally), so a new
  * Rest never repeats an earlier result and reload or Back never rerolls one. */
@@ -1019,7 +1019,7 @@ function cardForgePricing(run, rarity) {
   return { key, craftCount };
 }
 const cardForgeCount = (run, rarity) => count(run?.cardForgeTally?.[rarity]);
-const forgePriceAt = (rarity, crafts) => Math.ceil(CARD_ECONOMY.forge[rarity] * CARD_ECONOMY.forgeGrowth ** crafts);
+const forgePriceAt = (rarity, crafts) => Math.ceil(CARD_ECONOMY.forge[rarity] * (1 + CARD_ECONOMY.forgeStep * crafts) - 1e-9);
 export function getCardForgePrice(run, rarity = "rare") {
   if (!CARD_FORGE_RARITIES.includes(rarity)) return 0;
   return forgePriceAt(rarity, cardForgePricing(run, rarity).craftCount);
@@ -1414,9 +1414,10 @@ function resolvePhysicalCardConsumers(run){
   const source=run.mountedCards[slot],target=run.mountedCards[slot+1];
   if(source?.cardId==='ember-feeder'){
    const targets=getEmberFeederTargets(run.mountedCards,slot);
-   if(targets.length!==2)continue;
-   const sacrifice={sourceInstanceId:source.instanceId,sourceCardId:source.cardId,slot,capacity:1,
-    totalCapacity:getCardFeederCapacity(source)+1,
+   if(!targets.length)continue;
+   const gain=emberFeederGain(targets.length);
+   const sacrifice={sourceInstanceId:source.instanceId,sourceCardId:source.cardId,slot,capacity:gain,
+    totalCapacity:getCardFeederCapacity(source)+gain,
     targets:targets.map(({card,slot:targetSlot})=>({instanceId:card.instanceId,cardId:card.cardId,name:SKILL_CARDS[card.cardId].name,slot:targetSlot}))};
    const consumed=new Set(sacrifice.targets.map(card=>card.instanceId));
    for(const {slot:targetSlot} of targets)run.mountedCards[targetSlot]=null;
@@ -2117,7 +2118,7 @@ export function getRunModifiers(run={}){const rank=skillProgress,companion=norma
   }
   if(m.cardFieldImpulse)m.collectorFieldImpulse=true;
   if(m.cardCacheHandling)m.collectorFetchMass=Math.max(3,m.collectorFetchMass);
-  if(m.cardFlashHandling)m.collectorFlashFetch=true;
+  if(m.cardFlashHandling||m.cardFlashFetch)m.collectorFlashFetch=true;
   return m;
 }
 

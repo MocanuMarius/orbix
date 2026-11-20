@@ -1,32 +1,27 @@
 # Economy per full card run (production model, synthetic cleared flights)
 
-Source: scripts/balance/economy-run.mjs. Drop rates 94.5/5/0.5, Elite slot 1 reserved Rare, Guardian slot 1 reserved Legendary; Forge price doubles per forge of a tier for the rest of the run.
+Source: scripts/balance/economy-run.mjs. Drop rates 94.5/5/0.5, Elite slot 1 reserved Rare, Guardian slot 1 reserved Legendary; Forge price rises linearly per Forge or Evolve of a tier for the rest of the run: base x (1 + 0.5 x n), rounded up (2026-11-20; it doubled before: none 4.2 R / 2.3 L, forge 7.2 / 3.5, evolve 5.1 / 4.1).
 
 ```
 runs=150 per policy; reached the end: 150/150 (otherwise stopped in phase: none)
-flights/run 28.00, Rests/run 10.94 (map 1/2/3: 3.59 / 3.61 / 3.74), card packs/run 27.00
+flights/run 28.00, Rests/run 10.95 (map 1/2/3: 3.60 / 3.64 / 3.71), card packs/run 27.00
 Rares offered/run 4.56, Legendaries offered/run 2.38
-Stored Sparks earned/run (no spending): 832.26; per map 245.71 / 275.61 / 310.93
+Stored Sparks earned/run (no spending): 773.90; per map 236.34 / 256.70 / 280.86
 
 | income source (Stored Sparks wallet rise) | per run |
 |---|---|
 | Rest | 0.00 |
 | card packs | 0.00 |
-| chests | 124.47 |
+| chests | 114.87 |
 | events | 3.81 |
 | flights (reward choice) | 0.00 |
-| flights: Elite | 17.49 |
-| flights: Guardian | 54.93 |
-| flights: ordinary | 631.55 |
+| flights: Elite | 15.90 |
+| flights: Guardian | 50.51 |
+| flights: ordinary | 588.81 |
 
-Policy none: ends with Commons 20.73, Rares 4.18, Legendaries 2.37; forges C/R/L 0.00/0.00/0.00; evolves R/L 0.00/0.00; spent forge 0.00, evolve 0.00, improve 0.00; wallet left 840.26
+Policy none: ends with Commons 20.26, Rares 4.09, Legendaries 2.39; forges C/R/L 0.00/0.00/0.00; evolves R/L 0.00/0.00; spent forge 0.00, evolve 0.00, improve 0.00; wallet left 782.43
 
-Policy forge: ends with Commons 24.68, Rares 7.16, Legendaries 3.51; forges C/R/L 4.12/3.00/1.13; evolves R/L 0.00/0.00; spent forge 724.60, evolve 0.00, improve 0.00; wallet left 116.17
+Policy forge: ends with Commons 27.37, Rares 8.68, Legendaries 3.06; forges C/R/L 7.41/4.59/0.67; evolves R/L 0.00/0.00; spent forge 751.59, evolve 0.00, improve 0.00; wallet left 32.41
 
-Policy evolve: ends with Commons 16.66, Rares 4.51, Legendaries 6.12; forges C/R/L 0.00/0.00/0.00; evolves R/L 3.49/3.79; spent forge 0.00, evolve 655.33, improve 42.70; wallet left 147.73
+Policy evolve: ends with Commons 17.29, Rares 5.00, Legendaries 4.45; forges C/R/L 0.00/0.00/0.00; evolves R/L 2.71/2.13; spent forge 0.00, evolve 586.30, improve 29.30; wallet left 167.00
 ```
-
-## Reading (synthetic: every flight cleared, flames at half, no deaths; income per flight is the model's, not a human measurement)
-- About 28 cleared flights, 11 Rests (about 3.6 per map), 27 card packs and 832 Stored Sparks earned per full run; 75 percent of it from ordinary flight clears, 15 percent chests.
-- Forge with doubling (15/30/60..., 40/80/160..., 150/300/600...): spending everything buys about 4 Commons, 3 Rares and 1.1 Legendary (725 Sparks). Evolve-first buys about 3.5 Rare and 3.8 Legendary evolutions (700 Sparks) and ends with 6.1 Legendaries against 3.5.
-- Recommendation: keep bases 15 / 40 / 150. The doubling already makes the 4th Common and 3rd Rare cost more than they are worth, and the 2nd Legendary Forge (300) is the real ceiling. Evolve into Legendary (flat 150) is about 2.5x cheaper than a second Legendary Forge; if the owner wants Forge to stay competitive with Evolve, lower the Legendary base to 100 rather than touching Common or Rare.
