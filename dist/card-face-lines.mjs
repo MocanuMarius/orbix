@@ -91,7 +91,7 @@ const LINES = Object.freeze({
   'second-wind': 'All fire for 5 s', undertow: 'Counts as a Collect',
   tributary: 'Every 3rd Collect: Delivery', tithe: 'Pay 5 Stored: +1 max Spark',
   'chameleon-two': 'Fires next on any Trigger', whetstone: 'Next card regains 1 use',
-  'wave-loom': 'Sends a Pulse', 'spark-chime': '{fx}', 'ember-bell': 'Sends a Pulse', afterglow: '{fx}',
+  'wave-loom': 'Pulse every Timer Turn', 'spark-chime': '{fx}', 'ember-bell': 'Sends a Pulse', afterglow: '{fx}',
 });
 
 // A short pass for any card without an entry (a new card shows readable text until it gets a line above).
