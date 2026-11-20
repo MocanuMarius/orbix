@@ -1,18 +1,18 @@
-import { flightDevoured, devouredLine } from "./devour-notes.mjs?v=batch-1";
-import { wispChipText } from "./start-bonus.mjs?v=batch-1";
-import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=batch-1";
-import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=batch-1";
-import { uiIcon } from "./ui-icons.mjs?v=batch-1";
-import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=batch-1";
-import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=batch-1";
-import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=batch-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=batch-1";
-import { activeFlightPact } from './flight-pacts.mjs?v=batch-1';
-import { cardArt } from "./card-art.mjs?v=batch-1";
-import { cardTileLine } from "./card-tile-lines.mjs?v=batch-1";
-import { slotInscriptionId } from "./inscriptions.mjs?v=batch-1";
-import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=batch-1";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=batch-1';
+import { flightDevoured, devouredLine } from "./devour-notes.mjs?v=presets-1";
+import { wispChipText } from "./start-bonus.mjs?v=presets-1";
+import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=presets-1";
+import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=presets-1";
+import { uiIcon } from "./ui-icons.mjs?v=presets-1";
+import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=presets-1";
+import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=presets-1";
+import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=presets-1";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=presets-1";
+import { activeFlightPact } from './flight-pacts.mjs?v=presets-1';
+import { cardArt } from "./card-art.mjs?v=presets-1";
+import { cardTileLine } from "./card-tile-lines.mjs?v=presets-1";
+import { slotInscriptionId } from "./inscriptions.mjs?v=presets-1";
+import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=presets-1";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=presets-1';
 import {
   getMountedCards,
   getOwnedCards,
@@ -29,13 +29,13 @@ import {
   getSkillWallet,
   equipOwnedCard,
   canRerollCardDraft,
-} from "./model.mjs?v=batch-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=batch-1";
-import { choiceScene } from "./choice-art.mjs?v=batch-1";
-import { livesMarkup } from "./lives.mjs?v=batch-1";
-import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=batch-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=batch-1";
-import {canDreamAt, dreamConfig} from './dream.mjs?v=batch-1';
+} from "./model.mjs?v=presets-1";
+import { resourceSymbol } from "./game-symbols.mjs?v=presets-1";
+import { choiceScene } from "./choice-art.mjs?v=presets-1";
+import { livesMarkup } from "./lives.mjs?v=presets-1";
+import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=presets-1";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=presets-1";
+import {canDreamAt, dreamConfig} from './dream.mjs?v=presets-1';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -49,7 +49,7 @@ import {
   SKILL_CARDS,
   cardTallyLine,
   cardAmount,
-} from "./skill-cards.mjs?v=batch-1";
+} from "./skill-cards.mjs?v=presets-1";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -98,7 +98,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=batch-1";
+export { cardArt } from "./card-art.mjs?v=presets-1";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
@@ -159,7 +159,7 @@ export function getCardFaceAvailability(run, card, status = null) {
   const def = effective?.def || SKILL_CARDS[card.cardId || card.id];
   const sightWarning = activeFlightPact(context)?.id === 'blind-pilgrim' ? closedEyeCardWarning(def) : '';
   // Ember Feeder still contributes its accumulated capacity without two targets.
-  const partlyConfigured = status?.code === 'needs-two-right' && getCardFeederCapacity(card) > 0;
+  const partlyConfigured = status?.code === 'needs-card-right' && getCardFeederCapacity(card) > 0;
   const state = status?.state === 'blocked' && !partlyConfigured || sightWarning && def?.kind === 'luminance'
     ? 'blocked' : sightWarning || partlyConfigured ? 'partial' : 'active';
   let presentedStatus = status;
@@ -190,6 +190,7 @@ export function cardGrowthBadge(card) {
   if (def.kind === 'wind-feather') return { text: `+${n}%`, label: `Now +${n}% flight speed from this card` };
   if (def.kind === 'growth-ring') return { text: `+${n}`, label: `Now +${n} max Sparks from this card` };
   if (def.kind === 'camp-grow') { const v = cardAmount(card); return { text: `+${v}`, label: `Grows +${v} max Sparks at Rest` }; }
+  if (def.kind === 'meter-mark' && Number.isFinite(card.markCount)) { const c = card.markCount % 2; return { text: `${c}/2`, label: `${c} of 2 Overfills counted: the 2nd keeps a Stored Spark` }; }
   if (def.kind === 'ring-spring' && Number(card.banked) > 0) { const b = Number(card.banked); return { text: `${b} s`, label: `${b} seconds banked: they come off the next Collector recovery` }; }
   if (def.kind === 'courier-cord' && Number(card.dripLeft) > 0) { const s = Math.ceil(Number(card.dripLeft) - 1e-9); return { text: `${s} s`, label: `${s} seconds of Spark drip left` }; }
   if (def.kind === 'pressure-valve' && Number(card.armed) > 0) return { text: 'Free', label: 'Armed: your next Lift is free' };
@@ -205,7 +206,7 @@ function faceBadges(card, compact) {
 export function cardFace(card, { compact = false, fitted = false, slot = null, selected = false, status = null, sightWarning = '', availability = null } = {}) {
   if (!card) return `<article class="skill-card empty-card"><div class="card-empty-art">+</div><h3>Empty slot${slot === null ? '' : ` ${slot + 1}`}</h3></article>`;
   status = availability?.status || status;
-  const effectState = availability?.state || (status?.state === 'blocked' ? status.code === 'needs-two-right' && getCardFeederCapacity(card) > 0 ? 'partial' : 'blocked' : 'active');
+  const effectState = availability?.state || (status?.state === 'blocked' ? status.code === 'needs-card-right' && getCardFeederCapacity(card) > 0 ? 'partial' : 'blocked' : 'active');
   sightWarning = availability?.sightWarning || sightWarning;
   const effectReason = availability?.reason || '';
   const maximum = getCardChargeCapacity(card);
@@ -487,7 +488,7 @@ export function cardForgeMarkup(run, preview, { notice = '', paused = false, bac
   const reason = short ? `Need ${Math.max(0, amount(preview.price) - wallet)} more Stored Sparks.` : preview.reason;
   const receipt = lastForged ? `<div class="card-forge-receipt" role="status"><strong>${esc(lastForged.name)} added to your deck</strong><button class="secondary" data-action="card-forge-view" data-id="${esc(lastForged.instanceId)}">View card</button></div>` : '';
   const face = hidden ? `<div class="card-forge-mystery" role="img" aria-label="Surprise ${esc(label)} card, revealed after you pay"><strong aria-hidden="true">?</strong><span>Surprise ${esc(label)} card</span><small>Revealed after you pay</small></div>` : cardFace(preview.card);
-  return `<section class="card-forge-preview"><header class="card-heading"><button class="secondary card-back" data-action="card-forge-back">Back to ${esc(backLabel)}</button><div><small>${paused ? 'FLIGHT PAUSED · ' : ''}CREATE A CARD</small><h2>Forge</h2></div>${walletMarkup(wallet)}</header><div class="card-exchange-body"><div class="card-forge-card">${face}</div><div class="card-exchange-result"><nav class="card-forge-tiers" aria-label="Forge rarity and next price in Stored Sparks">${['common', 'rare', 'legendary'].map(rarity => `<button class="secondary ${preview.rarity === rarity ? "selected" : ""}" data-action="card-preview-forge" data-rarity="${rarity}" aria-pressed="${preview.rarity === rarity}">${tier(rarity)} · ${amount(getCardForgePrice(run, rarity))}</button>`).join('')}</nav>${receipt}<span class="card-forge-destination">${hidden ? 'Surprise card' : 'Shown card'} · goes to your deck</span><strong>Costs ${amount(preview.price)} Stored Sparks</strong>${notice ? `<span class="card-forge-status" role="status">${esc(notice)}</span>` : ''}${reason ? `<span class="card-forge-status" role="status">${esc(reason)}</span>` : !notice ? `<span class="card-forge-status">${hidden ? 'One random card you do not own yet. Equip it from Deck.' : isInventoryOnlyCard(preview.card) ? 'Available at Rest directly from your Deck.' : 'Equip the new card from Deck.'}</span>` : ''}<small>Next ${label} forge: ${amount(preview.nextPrice)} · each forge doubles that price for the rest of the run.</small><small>Rest service · uses no Rest action.</small></div></div><footer class="card-dialog-actions">${short ? '<button class="secondary" data-action="card-melt-mode">Melt for Sparks…</button>' : ''}<button class="primary" data-action="card-confirm-forge" data-rarity="${preview.rarity}" data-token="${esc(preview.token)}" ${!preview.eligible ? "disabled" : ""}>Forge ${label} · ${amount(preview.price)}</button></footer></section>`;
+  return `<section class="card-forge-preview"><header class="card-heading"><button class="secondary card-back" data-action="card-forge-back">Back to ${esc(backLabel)}</button><div><small>${paused ? 'FLIGHT PAUSED · ' : ''}CREATE A CARD</small><h2>Forge</h2></div>${walletMarkup(wallet)}</header><div class="card-exchange-body"><div class="card-forge-card">${face}</div><div class="card-exchange-result"><nav class="card-forge-tiers" aria-label="Forge rarity and next price in Stored Sparks">${['common', 'rare', 'legendary'].map(rarity => `<button class="secondary ${preview.rarity === rarity ? "selected" : ""}" data-action="card-preview-forge" data-rarity="${rarity}" aria-pressed="${preview.rarity === rarity}">${tier(rarity)} · ${amount(getCardForgePrice(run, rarity))}</button>`).join('')}</nav>${receipt}<span class="card-forge-destination">${hidden ? 'Surprise card' : 'Shown card'} · goes to your deck</span><strong>Costs ${amount(preview.price)} Stored Sparks</strong>${notice ? `<span class="card-forge-status" role="status">${esc(notice)}</span>` : ''}${reason ? `<span class="card-forge-status" role="status">${esc(reason)}</span>` : !notice ? `<span class="card-forge-status">${hidden ? 'One random card you do not own yet. Equip it from Deck.' : isInventoryOnlyCard(preview.card) ? 'Available at Rest directly from your Deck.' : 'Equip the new card from Deck.'}</span>` : ''}<small>Next ${label} forge: ${amount(preview.nextPrice)} · each Forge or Evolve of this rarity adds half the first price for the rest of the run.</small><small>Rest service · uses no Rest action.</small></div></div><footer class="card-dialog-actions">${short ? '<button class="secondary" data-action="card-melt-mode">Melt for Sparks…</button>' : ''}<button class="primary" data-action="card-confirm-forge" data-rarity="${preview.rarity}" data-token="${esc(preview.token)}" ${!preview.eligible ? "disabled" : ""}>Forge ${label} · ${amount(preview.price)}</button></footer></section>`;
 }
 /** One small tile for the victory recap: the Deck's tile content (Trigger chip, picture, name, effect line) plus the slot's Inscription brand. */
 function recapTile(run, card, slot) {

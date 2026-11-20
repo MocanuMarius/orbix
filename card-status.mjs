@@ -1,9 +1,9 @@
 /** Configuration hints only. Every numeric verdict comes from a read-only row quote. */
-import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=batch-1';
-import { rowSnapshot, slotInscriptionList } from './inscriptions.mjs?v=batch-1';
-import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=batch-1';
-import { normalizeCompanionFleet } from './companion-abilities.mjs?v=batch-1';
-import { skillProgress } from './skill-increments.mjs?v=batch-1';
+import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, emberFeederGain, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=presets-1';
+import { rowSnapshot, slotInscriptionList } from './inscriptions.mjs?v=presets-1';
+import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=presets-1';
+import { normalizeCompanionFleet } from './companion-abilities.mjs?v=presets-1';
+import { skillProgress } from './skill-increments.mjs?v=presets-1';
 
 /** Labels are plain instructions (docs/card-teaching-plan.md §3); `code` is stable for code. */
 const ready = reason => ({ state: 'ready', symbol: '✓', label: 'Ready', code: 'ready', reason, fix: 'Keep this order to use it when its Trigger happens.' });
@@ -128,8 +128,8 @@ export function getEquippedCardStatuses(run = {}, native = null) {
     if (kind === 'ember-feeder' && capacityFull(slot)) return max100();
     if (kind === 'ember-feeder') {
       const targets = getEmberFeederTargets(cards, slot), growth = getCardFeederCapacity(card);
-      if (!targets.length) return blocked('Needs two cards to its right', `This Ember Feeder keeps +${growth} max Sparks while it is in your chain, but it eats only when two cards sit to its right.`, 'Put two cards anywhere to its right. A clear eats both; fewer than two eats neither.', 'needs-two-right');
-      return ready(`After a clear, it eats ${targets.map(({card: target, slot: targetSlot}) => `${name(target)} in Slot ${targetSlot + 1}`).join(' and ')} for good, and grows from +${growth} to +${growth + 1} max Sparks. No refill; copies and Encores never feed it.`);
+      if (!targets.length) return blocked('Needs a card to its right', `This Ember Feeder keeps +${growth} max Sparks while it is in your chain, but it eats only when a card sits to its right.`, 'Put a card anywhere to its right. A clear eats one for +1 max Spark, or two for +3.', 'needs-card-right');
+      return ready(`After a clear, it eats ${targets.map(({card: target, slot: targetSlot}) => `${name(target)} in Slot ${targetSlot + 1}`).join(' and ')} for good, and grows from +${growth} to +${growth + emberFeederGain(targets.length)} max Sparks. No refill; copies and Encores never feed it.`);
     }
     if (kind === 'devourer') {
       const target=cards[slot+1];

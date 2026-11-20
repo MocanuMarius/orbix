@@ -4,10 +4,10 @@
 // for a Lift, or the tab is hidden (the flight pauses itself then), and which advances by the fixed simulation step,
 // so a given seed and input give the same engine log. Eligibility mirrors resolveCardRowEvent: no engine during a
 // Dream rehearsal, the clear/death animations, or a tutorial without practice cards.
-import {CARD_UNIT} from './skill-cards.mjs?v=batch-1';
-import {CardEngine, hasEngineCards} from './card-engine.mjs?v=batch-1';
-import {appendFires, engineFire, engineBars} from './chain-strip.mjs?v=batch-1';
-import {createFlashTether, FLASH_PULSE_INTERVAL} from './flash-tether.mjs?v=batch-1';
+import {CARD_UNIT} from './skill-cards.mjs?v=presets-1';
+import {CardEngine, hasEngineCards} from './card-engine.mjs?v=presets-1';
+import {appendFires, engineFire, engineBars} from './chain-strip.mjs?v=presets-1';
+import {createFlashTether, FLASH_PULSE_INTERVAL} from './flash-tether.mjs?v=presets-1';
 
 const live = e => !!(e.cardEngine && e.cardExecution && e.running && !e.paused && e.alive && !e.finished && !e.destroyed
   && !e.dying && !e.completing && !(e.tutorial && !e.mod?.practiceCards) && !(e.dream && e.dream.phase !== 'done'));
@@ -22,6 +22,8 @@ function flightHost(e) {
       if (e.rec) e.rec.cardSparks += g / CARD_UNIT; // play recorder: engine-card Sparks count like row-rule ones (flight.mjs)
       return g / CARD_UNIT;
     },
+    // One Overfill rule: Sparks an engine card made that find the Meter full are an Overfill for the row cards to its right as well.
+    cardSpill: (slot, spill) => e.cardSpillHeard?.(spill, slot),
     store: n => { e.cardEngineStored = (e.cardEngineStored || 0) + n; },
     // Whetstone: a regained use is written to the flight's use ledger, which otherwise only ever falls.
     regained: card => { if (e.cardChargeLedger) e.cardChargeLedger[card.instanceId] = card.charges; },
@@ -114,6 +116,7 @@ export function raiseFlightEngine(e, kind, detail = {}) {
 /** Each simulation step: due Timers, the end of a Flare, a filled Proximity meter (a skim). */
 export function stepFlightEngine(e, skimsBefore = null) {
   if (!live(e)) return;
+  if (!e.cardEngine.tookOff) e.cardEngine.takeOff(e.time);
   e.cardEngine.advance(e.time);
   if (e.cardEngineFlash && !(e.time < e.sightUntil)) {
     const slot = e.cardEngineFlash.slot; e.cardEngineFlash = null;

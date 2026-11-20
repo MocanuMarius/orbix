@@ -2,29 +2,29 @@
 // tile where the card's own effect line (card-rule-bands.mjs › getCardRuleBands, type "effect") is too long
 // to fit. Same meaning, approved vocabulary, about 22 characters at most. The full line is always on the
 // opened card. Moved from the design lab's TILE_SHORT table (56 cards) with the Pulse wording applied.
-import {getCardRuleBands} from './card-rule-bands.mjs?v=batch-1';
-import {SKILL_CARDS, describeSkillCard, cardTallyLine} from './skill-cards.mjs?v=batch-1';
+import {getCardRuleBands} from './card-rule-bands.mjs?v=presets-1';
+import {SKILL_CARDS, describeSkillCard, cardTallyLine} from './skill-cards.mjs?v=presets-1';
 
 export const CARD_TILE_LINES = Object.freeze({
-  'momentum': '5 Turns: +40% light',
-  'low-ember': 'Under half: a Pulse',
-  'close-call': 'A Pulse, +3 Sparks',
+  'momentum': '+1/firing, 5th: +40%',
+  'low-ember': 'Under half: +6, Pulse',
+  'close-call': 'A Pulse, +12 Sparks',
   'homing-thread': 'Fetches, 2× reach',
   'last-round': 'Last Trigger again',
   'harvest-home': 'Collect cards, +2 each',
-  'wave-loom': 'Pulse each Timer Turn',
+  'wave-loom': 'Pulse when Timer fires',
   'climb': 'Lifts 2 and 3 free', 'watchlight': 'Collector saves you', 'second-look': 'Re-roll a reward card', 'springboard': 'Collect: free bounce',
-  'lift-guide': 'On the beat: +1 Spark', 'wind-feather': '+1% speed per Finish', 'growth-ring': '+1 max Spark/Finish', 'skim-line': 'Skim: +12 Sparks', 'pulse-reader': 'Pulse: +1 Spark', 'courier-cord': '+10 Sparks over 10 s', 'meter-mark': 'Keeps 1 Stored', 'finish-flag': 'Finish: +2 Stored', 'cache-handling': 'Fetches Caches: +12', 'second-sun': '×2 before, ×3 Encore',
+  'lift-guide': 'On the beat: +1 Spark', 'wind-feather': '+1% speed per Finish', 'growth-ring': '+1 max Spark/Finish', 'skim-line': 'Skim: +12 Sparks', 'pulse-reader': 'Pulse: +1 Spark', 'courier-cord': '+10 Sparks over 10 s', 'meter-mark': 'Every 2nd: +1 Stored', 'finish-flag': 'Finish: +2 Stored', 'cache-handling': 'Fetches Caches: +12', 'second-sun': '×2 before, ×3 Encore',
   'twin-wick': '2 Collectors a flight', 'harvest-legendary': '+2 Sparks, +1 Stored',
   'nest-egg': '+1 Stored per 10', 'flash-handling': '+6; fetches Flare',
   'dream': 'Devour: longer Dream', 'spillway': '2nd Overfill: a Pulse', 'mirror-grain': 'Adds last + again',
-  'ember-feeder': 'Eats 2: +1 max Spark', 'refrain': 'Encore: fires again', 'devourer': 'Eats a Rare: +1 heart',
+  'ember-feeder': 'Eats 1: +1, 2: +3 max', 'refrain': 'Encore: fires again', 'devourer': 'Eats a Rare: +1 heart',
   'tight-packing': '+50% from packing', 'tight-packing-ii': '+75% from packing', 'tight-packing-iii': '+100% from packing',
   'return-spring': 'Reels in 0.5 s sooner', 'spillway-ii': 'Each Overfill: a Pulse',
   'growth-seed': '+5 max, full meter', 'growth-seed-common': '+3 max, full meter', 'growth-seed-legendary': '+8 max, full meter',
   'camp-kit': '2 Rest actions', 'echo-iii': 'Repeats next ×3', 'echo-ii': 'Repeats next twice',
   'ripple-glass': 'Doubles all before', 'glide-prism': 'Lift: ×2 all before', 'courier-glass': 'Doubles all before',
-  'clear-prism': 'Doubles all before', 'wick-doubler': 'Doubles all before', 'crescendo': 'Doubles all before',
+  'clear-prism': '+6; doubles all before', 'wick-doubler': 'Doubles all before', 'crescendo': 'Doubles all before',
   'diving-bell': 'Final Pulse, +3 Sparks', 'counterweight': 'Ready 0.75 s sooner', 'haul-winch': 'Next reel 3 s sooner',
   'fast-spool': 'Reels in 3 s sooner', 'rhythm': '3 even Lifts: a Pulse', 'glass-spool': 'Ready 0.5 s sooner',
   'use-doubler': 'Next card: 2× uses', 'tailwind': '3rd Collect: +1 heart', 'wind-feather': '+1% speed (max 10%)',
@@ -38,8 +38,8 @@ export const CARD_TILE_LINES = Object.freeze({
   // Engine, Pack and Black Hole cards (released 2026-11-18).
   'metronome': 'Every 3 s: fires next', 'heartbeat': 'Timers wait half', 'slow-wick': 'Pulse: 3 s, then Pulse',
   'spark-chime': 'Pulse: +1 Spark', 'ember-bell': 'Overfill: sends Pulse', 'long-fuse': 'Pulse: 5 s, fire again',
-  'first-catch': '1st Collect: a Pulse', 'overflow-bell': 'Pulse; keeps 2 Stored', 'flash-tinder': 'Collect: 1 s Flare',
-  'afterglow': 'Flare ends: +2 Sparks', 'third-beat': '3rd Turn counts twice', 'black-hole': 'Eats next: +max Sparks',
+  'first-catch': '1st: +4, then a Pulse', 'overflow-bell': 'Pulse; keeps 2 Stored', 'flash-tinder': 'Collect: 1 s Flare',
+  'afterglow': 'Flare ends: +2 Sparks', 'third-beat': '3rd firing counts 2×', 'black-hole': 'Eats next: +max Sparks',
   'full-satchel': 'Pack: +3 Sparks',
 });
 

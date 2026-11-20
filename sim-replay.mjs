@@ -3,9 +3,9 @@
 // Opens a throwaway card run (nothing is read from or written to the save: app.mjs treats it like a mock scene) on the SAME map, route and flight
 // seed the pilots of scripts/balance/starter-sim.mjs fly, with Lift Guide mounted and nothing else, and shows the normal departure screen.
 // After the flight the normal result shows, plus a small panel: Next stop / Retry / Exit. Never loaded without the `simrun` parameter.
-import {newState,createRun,getChoices,selectNode,resolveSupport} from './model.mjs?v=batch-1';
-import {makeSkillCard} from './skill-cards.mjs?v=batch-1';
-import {prepareRouteOffer} from './route-offers.mjs?v=batch-1';
+import {newState,createRun,getChoices,selectNode,resolveSupport} from './model.mjs?v=presets-1';
+import {makeSkillCard} from './skill-cards.mjs?v=presets-1';
+import {prepareRouteOffer} from './route-offers.mjs?v=presets-1';
 
 export const SIM_STOPS=6;
 export const SPARK_UNITS=10/3;
@@ -13,10 +13,17 @@ export const SPARK_UNITS=10/3;
 export const SIM_START=Object.freeze([{sparks:30,hearts:3},{sparks:15,hearts:3},{sparks:30,hearts:3},{sparks:30,hearts:3},{sparks:15,hearts:3},{sparks:15,hearts:2}]);
 const PENDING=['pendingChest','pendingTemporary','cardDraft','cardReward','flightReward'];
 
-function freshRun(seed,card,solo=false){
+/** `cards=a,b,c` -> ['a','b','c'] (trimmed, empty entries dropped, ids unknown to makeSkillCard dropped by the caller). */
+export function parseCardList(text){return String(text||'').split(',').map(s=>s.trim()).filter(Boolean);}
+function freshRun(seed,card,solo=false,cards=null){
   const state=newState();state.profile.tutorialComplete=true;state.profile.clearedFlights=1;state.settings.skipTutorial=true;
   const run=state.run=createRun(state.profile,seed,1,{cards:true});
   while(run.mountedCards.length<2)run.mountedCards.push(null);
+  // cards=[...]: exactly these cards, left to right, nothing else mounted (unknown ids ignored).
+  if(cards&&cards.length){
+    const made=[];cards.forEach((id,i)=>{try{const c=makeSkillCard(id,`rf:${i}:${id}`);if(c&&c.cardId===id)made.push(c);}catch{}});
+    if(made.length){run.mountedCards.fill(null);while(run.mountedCards.length<made.length)run.mountedCards.push(null);made.forEach((c,i)=>{run.mountedCards[i]=c;});return {state,run};}
+  }
   // solo=1: the named card is the ONLY card (starter cards as alternatives); otherwise Lift Guide plus the optional card.
   if(solo&&card)run.mountedCards[0]=makeSkillCard(card,`rf:0:${card}`);
   else{run.mountedCards[0]=makeSkillCard('lift-guide','rf:0:lift-guide');if(card)run.mountedCards[1]=makeSkillCard(card,`rf:1:${card}`);}
@@ -41,11 +48,11 @@ export function simRoute(seed,stops=SIM_STOPS){
 export function parseSimParams(params){
   const seed=params.get('simrun')||'sb0',stop=Math.max(1,Math.min(SIM_STOPS,Math.floor(Number(params.get('stop')))||1));
   const num=k=>params.has(k)&&params.get(k)!==''&&Number.isFinite(Number(params.get(k)))?Number(params.get(k)):null;
-  return {seed,stop,card:params.get('card')||null,meter:num('meter'),hearts:num('hearts'),carry:params.get('carry')==='1',solo:params.get('solo')==='1'};
+  return {seed,stop,card:params.get('card')||null,meter:num('meter'),hearts:num('hearts'),cards:parseCardList(params.get('cards')),carry:params.get('carry')==='1',solo:params.get('solo')==='1'};
 }
 /** A throwaway state whose run stands on the departure screen of stop N. `carry` (Next stop) applies the Rests between the two stops to the carried Meter and hearts. */
 export function createSimRunState(params){
-  const p=parseSimParams(params),{state,run}=freshRun(p.seed,p.card,p.solo),route=simRoute(p.seed,SIM_STOPS),target=route.flights[p.stop-1];
+  const p=parseSimParams(params),{state,run}=freshRun(p.seed,p.card,p.solo,p.cards),route=simRoute(p.seed,SIM_STOPS),target=route.flights[p.stop-1];
   if(!target)throw Error(`Sim run ${p.seed} has no stop ${p.stop}`);
   const start=SIM_START[p.stop-1],units=s=>Math.round(s*SPARK_UNITS);
   const cap=run.flame,setVitals=()=>{run.flame=Math.max(0,Math.min(cap,units(p.meter??start.sparks)));run.lives=Math.max(1,Math.min(run.maxLives,p.hearts??start.hearts));};
@@ -73,7 +80,7 @@ export function installSimPanel({getRun,params,nodeId}){
   el.style.cssText='position:fixed;left:50%;top:4px;transform:translateX(-50%);z-index:9999;display:none;gap:6px;align-items:center;padding:3px 8px;border-radius:10px;background:rgba(32,22,14,.92);color:#f3e6c8;font:600 12px system-ui,sans-serif;border:1px solid #b88a4a';
   const btn=(label,go)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.style.cssText='min-height:32px;padding:0 10px;border-radius:8px;border:1px solid #b88a4a;background:#5b3b1e;color:#fff4d8;font:inherit';b.addEventListener('click',go);return b;};
   const label=document.createElement('span');label.textContent=`Sim run ${p.seed}, stop ${p.stop}`;
-  const extra={card:p.card};
+  const extra={card:p.card,cards:p.cards.length?p.cards.join(','):null};
   const next=btn('Next stop',()=>{const r=getRun();location.href=simRunUrl(p.seed,p.stop+1,{...extra,carry:1,meter:Math.round(r.flame/SPARK_UNITS),hearts:r.lives});});
   const retry=btn('Retry',()=>{location.href=simRunUrl(p.seed,p.stop,{...extra,meter:p.meter,hearts:p.hearts});});
   const exit=btn('Exit',()=>{const u=new URL(location.href);u.search='';location.href=u.toString();});

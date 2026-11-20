@@ -198,7 +198,7 @@ html body .wb-settings{--pw:min(870px,calc(100% - 16px));--px:calc((100% - var(-
 html body .wb-settings .wb-page{justify-content:center;gap:8px}
 html body .wb-settings .wb-head{margin-bottom:6px}
 html body .wb-settings .wb-set-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 22px;width:100%;align-items:start;margin:0;padding:0;overflow:visible;max-height:none;background:none;border:0}
-html body .wb-settings .wb-set-grid>section{display:grid;gap:6px;align-content:start;min-width:0}
+html body .wb-settings .wb-set-grid>section,html body .wb-settings .wb-set-col>section{display:grid;gap:6px;align-content:start;min-width:0}
 html body .wb-settings .wb-set-group{margin:0 0 2px!important;padding:0 0 4px;border:0;border-bottom:2px solid var(--wb-group-rule);font:400 13px/1 var(--pixel,monospace)!important;letter-spacing:2px;text-transform:uppercase;text-align:center;color:var(--wb-group)!important;text-shadow:none!important}
 html body .wb-settings .wb-set-row{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:46px}
 html body .wb-settings .wb-set-label{font:400 16px/1 var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:var(--wb-label);text-shadow:none}
@@ -273,3 +273,8 @@ html body :is(#app,dialog).wb-dlg.card-exchange-sheet :is(.card-heading,.card-he
 
 /* The running version stays readable on the Update now row even in the short-screen layout (the other rows drop their sub-labels). */
 @media(max-height:340px){html body .wb-settings .wb-set-grid .build-refresh .wb-sign-text>small[data-build-label]{display:block;margin-top:1px;font-size:9px;line-height:9px}html body .wb-settings .wb-set-grid .build-refresh .wb-sign-text>b{font-size:12px;line-height:12px}}
+/* Graphics (Settings): three choices in one row, the current one is the standard plaque, the others the quiet slip. */
+html body .wb-settings .wb-set-choice{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+html body .wb-settings .wb-set-choice .wb-sign{min-width:0;padding-left:4px;padding-right:4px}
+html body .wb-settings .wb-set-note{display:block;margin:0;font:400 11px/1.25 var(--pixel,monospace);color:var(--wb-label);text-align:center}
+html body .wb-settings .wb-set-col{display:grid;gap:8px;align-content:start;min-width:0}

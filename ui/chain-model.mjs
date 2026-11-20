@@ -7,14 +7,14 @@
 // LEFT did to it (an Echo repeating it). Later Boosts and the Encore keep their own plates. Honesty rule: the
 // plates read left to right (+ adds, × multiplies the running figure, Encore repeats the line, each firing
 // rounded up to whole Sparks) must give the resolver's total; when they do not, plates show plain figures.
-import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, getEffectiveCardSources, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=batch-1';
-import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=batch-1';
-import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=batch-1';
+import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, getEffectiveCardSources, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=presets-1';
+import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=presets-1';
+import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=presets-1';
 import {DISPLAY_GROUPS, GROUP_TERM} from '../card-trigger-labels.mjs';
-import {faceTrigger, faceEffect} from '../card-face-lines.mjs?v=batch-1';
-import {getCardRuleBands} from '../card-rule-bands.mjs?v=batch-1';
-import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=batch-1';
-import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=batch-1';
+import {faceTrigger, faceEffect} from '../card-face-lines.mjs?v=presets-1';
+import {getCardRuleBands} from '../card-rule-bands.mjs?v=presets-1';
+import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=presets-1';
+import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=presets-1';
 
 /** The Triggers in the designer's order, with the game's names and glossary keys (card-terms.mjs). */
 export const TRIGGERS = Object.freeze([
@@ -217,7 +217,8 @@ export function slotInfo(ctx, slot, {plain} = {}) {
   if (ok.operation === 'multiply') {
     const second = steps.find(st => st.success && st.pass === 2 && st.operation === 'multiply');
     const m2 = second && Math.abs(second.multiplier - ok.multiplier) > 1e-9 ? second.multiplier : null;
-    return {kind: 'act', role: 'mul', plate: `×${num(ok.multiplier)}`, step: ok, m2};
+    const also = Number(rule?.alsoSparks) > 0 ? Number(rule.alsoSparks) : 0; // Clear Prism: doubles the cards before it, then pays its own Sparks
+    return {kind: 'act', role: 'mul', plate: `×${num(ok.multiplier)}${also ? ` +${num(also)}` : ''}`, step: ok, m2, also};
   }
   if (ok.operation === 'replay-row') return {kind: 'act', role: 'encore', plate: 'Encore', step: ok};
   if (ok.copiedBy && attr?.paid?.has(slot)) {const p = attr.paid.get(slot);return {kind: 'act', role: 'repeat-paid', plate: `Repeats ×${p.count}: +${num(p.amount)}`, step: ok, paid: p};}
@@ -238,7 +239,7 @@ export function plateSum(ctx, useEff) {
       if (info.kind !== 'act') continue;
       if (info.role === 'add') r += Number(num(useEff ? info.eff : info.base));
       else if (info.role === 'repeat-paid') r += Number(num(info.paid.amount));
-      else if (info.role === 'mul') r *= p === 2 && info.m2 ? info.m2 : info.step.multiplier;
+      else if (info.role === 'mul') { r *= p === 2 && info.m2 ? info.m2 : info.step.multiplier; if (info.also) r += info.also; }
     }
     total += ctx.sol?.receipt && 'sparksExact' in ctx.sol.receipt ? Math.ceil(r - 1e-9) : r;
   }
@@ -317,9 +318,9 @@ export function enginePlate(row, slot) {
   if (spec.timer === 'wick' || spec.timer === 'fuse') return {long: `Waits ${secs(spec.wait * scale)}`, short: `Waits ${secs(spec.wait * scale)}`};
   if (spec.timer === 'metronome') return {long: `Fires the next card every ${secs(spec.wait * scale)}`, short: `Every ${secs(spec.wait * scale)}`};
   if (spec.timerScale) return {long: 'Timers wait half as long', short: 'Waits ×½'};
-  if (spec.governor === 'third-beat') return {long: 'Every 3rd Turn ×2', short: '3rd Turn ×2'};
-  if (spec.governor === 'momentum') return {long: `+${num(amount)}% light after 5 Turns`, short: `+${num(amount)}% light`};
-  if (spec.governor === 'wave-loom') return {long: 'A light Pulse each Turn', short: 'Light Pulse'};
+  if (spec.governor === 'third-beat') return {long: 'Every 3rd Timer firing ×2', short: '3rd firing ×2'};
+  if (spec.governor === 'momentum') return {long: `+1 Spark each firing, +${num(amount)}% light after 5`, short: `+1 a firing`};
+  if (spec.governor === 'wave-loom') return {long: 'A light Pulse each time a Timer fires', short: 'Light Pulse'};
   if (spec.family === 'pack') {
     if (spec.does?.includes('gain')) return {long: `${sparks} at Pack`, short: `+${num(amount)} at Pack`};
     if (spec.does?.includes('fire-collect')) return {long: 'Fires Collect, Cluster and Dusk cards', short: 'Fires Collect'};
@@ -331,7 +332,7 @@ export function enginePlate(row, slot) {
   if (d.includes('homing')) return {long: 'Collector fetches again, 2× reach', short: 'Fetches again'};
   if (d.includes('flash')) return {long: 'Starts a Flare (Pulse every 2 s, very high Luminance)', short: 'A Flare'};
   if (d.includes('gain') && d.includes('pulse')) return {long: `Sends a Pulse, +${num(amount)}`, short: `Pulse, +${num(amount)}`};
-  if (d.includes('gain')) return {long: `${sparks} each Turn`, short: `+${num(amount)} a Turn`};
+  if (d.includes('gain')) return {long: `${sparks} each time a Timer fires`, short: `+${num(amount)} a firing`};
   if (d.includes('pulse')) return {long: spec.keep ? `Sends a Pulse, keeps ${num(spec.keep)} Stored` : 'Sends a Pulse', short: 'Sends a Pulse'};
   return null;
 }

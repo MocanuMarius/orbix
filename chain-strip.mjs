@@ -5,8 +5,8 @@
 //   Inscription   2 px bar under the frame; blinks white when it acts on a card that cannot flash
 // Flashes are SEQUENTIAL (one at a time, always 0.7 s) with at most ONE pending flash per card (debounce); see createChainStrip.
 // This file is the pure part (no DOM): colours, the firing marks the flight raises, and the state machine the view reads.
-import {SKILL_CARDS} from './skill-cards.mjs?v=batch-1';
-import {getInscription} from './inscriptions.mjs?v=batch-1';
+import {SKILL_CARDS} from './skill-cards.mjs?v=presets-1';
+import {getInscription} from './inscriptions.mjs?v=presets-1';
 
 export const STRIP = Object.freeze({flashMs: 700, idleMs: 3000, fadeMs: 600, idleOpacity: 0.12, maxMarks: 32, frameW: 10, frameH: 14, gap: 2, padX: 12, minTouchH: 40, doubleEcho: false});
 /** "+N" under a card's frame when its firing carried Sparks: whole numbers, at most three digits, nothing when there is no amount. */

@@ -1,16 +1,16 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=batch-1';
-import {lifeHeartSvg} from './lives.mjs?v=batch-1';
-import {duskGlyphArt} from './spark-symbol.mjs?v=batch-1';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=batch-1';
-import {glowGaugeUnits} from './glow-ui.mjs?v=batch-1';
-import {getRunModifiers} from './model.mjs?v=batch-1';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=batch-1';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=batch-1';
-import {dreamEye} from './dream.mjs?v=batch-1';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=batch-1';
-import {INSCRIPTIONS} from './inscriptions.mjs?v=batch-1';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=batch-1';
+import { resourceSymbol } from './game-symbols.mjs?v=presets-1';
+import {lifeHeartSvg} from './lives.mjs?v=presets-1';
+import {duskGlyphArt} from './spark-symbol.mjs?v=presets-1';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=presets-1';
+import {glowGaugeUnits} from './glow-ui.mjs?v=presets-1';
+import {getRunModifiers} from './model.mjs?v=presets-1';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=presets-1';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=presets-1';
+import {dreamEye} from './dream.mjs?v=presets-1';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=presets-1';
+import {INSCRIPTIONS} from './inscriptions.mjs?v=presets-1';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=presets-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   inscription: ['Inscription', 'An effect written on a Chain slot, not on a card. It stays on the slot when cards move, swap or leave. Some change the card on that slot; some work on any slot, even an empty one. Get one from the Scribe after an Elite or Guardian. One per slot; writing again replaces it.'],
@@ -58,8 +58,8 @@ export const CARD_TERMS = Object.freeze({
   'falling-lift': ['Lift', 'Trigger: some cards need a Lift while falling, or a Lift on the beat (Rhythm) or on the cue (Lift Guide), or a Lift with your meter under half.'],
   clear: ['Finish', 'Trigger: you clear a flight, or you pack your spare Sparks at the end of it.'],
   engine: ['Engine', 'A chain that keeps itself going: one card’s event fires a card to its right, and a Timer sends it back to Slot 1.'],
-  turn: ['Turn', 'One trip round an engine: a Timer sends its event back to Slot 1, or a Metronome ticks.'],
-  timer: ['Timer', 'A card that acts on a clock: “Every 3 s” is Metronome, “3 s later” is Slow Wick, “5 s” is Long Fuse. An engine needs one to keep turning.'],
+  turn: ['Timer firing', 'Each time a Timer card fires, the Chain is walked again from the first slot.'],
+  timer: ['Timer', 'A card that acts on a clock: Metronome fires the next card every 3 s, Slow Wick sends a Pulse 3 s after it is lit, Long Fuse repeats your last Trigger after 5 s. Each time one fires, the Chain is walked again from the first slot; without a Timer an engine runs once.'],
   'engine-skim': ['Skim', 'Trigger: you fly close to terrain until Proximity fills.'],
   timers: ['Timers', 'The card changes every Timer card in your chain.'],
   'take-off': ['Take-off', 'When you start a flight. Cards that say At take-off act then.'],
@@ -99,7 +99,7 @@ const CARD_TERM_DETAILS = Object.freeze({
   slot: "Order matters only where a card says so: Boosts reach cards to their left, Echo and Chameleon copy the next card, Kindling Bead needs a + card before it, and Closing Chord must be the last card. You start with 3 Slots and Rest can add up to 5.",
   trigger: "The Triggers are Collect, Lift, Pulse, Delivery, Overfill, Finish and Skim. Boost cards work with all of them; Passive cards and At Rest cards do not wait for one. One touch can be two Triggers: a Spark that overfills your meter is Overfill, then Collect.",
   boost: "Boosts sit to the right of the cards they strengthen. Several Boosts multiply together (×1.25 then ×2 is ×2.5). Fractions round up: each firing’s Sparks are rounded up to a whole number at the end (2.5 becomes 3); Collector time keeps its decimals. They also strengthen always-on cards to their left (+20% Luminance ×2 = +40%), except Boosts that have their own Trigger or limited uses. Boosts never multiply Stored Sparks rewards or gains that last beyond the journey, such as Growth Ring and Wind Feather. Caps still apply: the meter stops at 100 Sparks, and boosted time never brings Collector below half a second.",
-  engine: "Events made by a card travel to the right only. A card never answers an event it made itself in the same Turn. An engine stops when a card cannot do its job, for example on a full meter; as Lift spends Sparks, the next event can start it again. Without a Timer a chain runs once.",
+  engine: "Events made by a card travel to the right only. A card never answers an event it made itself in the same firing. An engine stops when a card cannot do its job, for example on a full meter; as Lift spends Sparks, the next event can start it again. Without a Timer a chain runs once.",
   timer: "Slow Wick waits 3 s, then sends a Pulse back to Slot 1. Metronome, once an event reaches it, fires the card to its right every 3 s while that card can act. Long Fuse waits 5 s, then fires your last Trigger again. Heartbeat halves every wait.",
   encore: "All Refrains share one Encore per Trigger. It happens only if something worked the first time. The Sparks start at zero again, uses spent stay spent, and a first-crossing Stored Spark comes only once. Second Sun multiplies by more in an Encore.",
 });
@@ -166,7 +166,7 @@ export function cardTermTextMarkup(value, {exclude = [], sparkContext} = {}) {
 const CARD_NOTES = Object.freeze({
   dream: CARD_TERM_DETAILS.dream,
   'use-doubler': 'When an actual flight starts, Use Doubler consumes itself to double the remaining uses of the real card directly to its right. The added uses and expanded ceiling belong to that exact card through swaps, saves and eligible paid refills. An empty Slot, a spent card, a lasting card or another Use Doubler keeps the card unspent. Opening a preview, Dream, pausing, resuming and reloading never repeat a grant. Echo, Chameleon and an Encore cannot copy it.',
-  'ember-feeder': 'After a successful real flight, Ember Feeder consumes the first two occupied cards anywhere to its right together, skipping empty slots. Both cards must still be present; fewer than two consumes neither. Each meal adds one maximum Spark to that specific Ember Feeder while equipped. Stored growth survives swaps and saves, but removing, melting or consuming the Feeder removes its capacity bonus. Equipping never refills the meter. Heart Stitch heals first; physical consumers then resolve left to right before clear rewards. Failed flights, Dream, copies and Encores never feed it.',
+  'ember-feeder': 'After a successful real flight, Ember Feeder consumes the first two occupied cards anywhere to its right together, skipping empty slots (or just one when only one is there; Growth Ring, Wind Feather and Deep Vessel are skipped). One card adds one maximum Spark and two cards add three to that specific Ember Feeder while equipped. Stored growth survives swaps and saves, but removing, melting or consuming the Feeder removes its capacity bonus. Equipping never refills the meter. Heart Stitch heals first; physical consumers then resolve left to right before clear rewards. Failed flights, Dream, copies and Encores never feed it.',
   'devourer': 'After a successful clear, Devourer can consume the actual Rare card immediately to its right to restore one missing heart. That Rare must have been equipped for the flight and remain present. Full hearts and failed flights spare it. Heart Stitch heals first; Devourers then resolve from left to right. The target disappears, while Devourer remains. Echo, Chameleon and an Encore cannot copy it.',
   'slip-feather': 'Proximity enables terrain charging at normal reach without Collector or another skill. Skim near real solid terrain for 2 seconds; open sky and touching terrain never charge it. Extra Proximity cards share one meter. Edge Reach is the Rare version with additional reach. Removing every Proximity and Edge Reach source turns it off unless you learned the native skill.',
   'springboard': 'Touch a natural fuel pickup while descending to bounce upward at half your ordinary Lift impulse. Generated pickups, Collector deliveries, Flare and Pulse crossings do not trigger it. The bounce costs no Sparks and never counts as a manual Lift, Downbeat or Rhythm tap. Springboard cannot be copied; extra equipped copies keep one bounce.',
@@ -200,7 +200,7 @@ const CARD_NOTES = Object.freeze({
   'skim-line': 'Turns Proximity on for the flight: that is part of the card, so flying close to terrain now builds the Proximity meter. A thin gold band hugs the terrain near your wisp, where a Skim counts: flying within Proximity reach of terrain. It brightens while you are inside it. When Proximity fills (a Skim), +12 Sparks. Needs no other card. Extra copies keep one band and each pays.',
   'pulse-reader': 'While mounted it sends its own Pulse every 8 seconds, and a soft ring on your wisp tightens just before any Pulse front reaches a Spark you have not collected. That crossing adds 1 Spark. Its own Pulse reaches only cards to its right and never fires Pulse Reader itself.',
   'courier-cord': 'Collector’s cord glows brighter and flashes once at each drop-off. Each Delivery adds 10 Sparks over the next 10 seconds; Deliveries add up. Needs Collector.',
-  'meter-mark': 'A gold notch at the top of the Spark Meter glows when the Meter is nearly full. Each natural Overfill keeps 1 spilled Spark as a Stored Spark. A Boost does not multiply Stored Sparks.',
+  'meter-mark': 'A gold notch at the top of the Spark Meter glows when the Meter is nearly full. Every 2nd Overfill in a flight keeps 1 spilled Spark as a Stored Spark; the count starts again each flight and shows on the card (1/2). A Boost does not multiply Stored Sparks.',
   'finish-flag': 'A thin gold bar along the bottom edge fills toward the finish. Each Finish adds 2 Stored Sparks. A Boost does not multiply Stored Sparks.',
   'lift-guide': 'The amber chevron uses your current fall and Lift impulse. It opens when a Lift can rise back to its starting height, as from level flight. It does not judge terrain; choose when to tap. A Lift tapped while the chevron is open is on the cue: +1 Spark. Extra copies keep one chevron.',
 });
@@ -469,7 +469,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=batch-1').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=presets-1').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -480,7 +480,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=batch-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=presets-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

@@ -1,13 +1,13 @@
 /** Small, read-only explanations for the actual chain. */
-import {SKILL_CARDS, getMountedCards, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, CARD_ROW_EVENTS, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts} from './skill-cards.mjs?v=batch-1';
-import {rowSnapshot, getInscription, slotInscriptionId} from './inscriptions.mjs?v=batch-1';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=batch-1';
-import {inscriptionEffect} from './inscription-on-card.mjs?v=batch-1';
-import {getCardRuleBands} from './card-rule-bands.mjs?v=batch-1';
-import {getEquippedCardStatuses} from './card-status.mjs?v=batch-1';
-import {ARTIFACTS} from './model.mjs?v=batch-1';
-import {artifactDescription} from './artifact-copy.mjs?v=batch-1';
-import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=batch-1';
+import {SKILL_CARDS, getMountedCards, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, CARD_ROW_EVENTS, getUseDoublerTarget, getEmberFeederTargets, emberFeederGain, getCardFeederCapacity, getAlwaysOnCardBoosts} from './skill-cards.mjs?v=presets-1';
+import {rowSnapshot, getInscription, slotInscriptionId} from './inscriptions.mjs?v=presets-1';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=presets-1';
+import {inscriptionEffect} from './inscription-on-card.mjs?v=presets-1';
+import {getCardRuleBands} from './card-rule-bands.mjs?v=presets-1';
+import {getEquippedCardStatuses} from './card-status.mjs?v=presets-1';
+import {ARTIFACTS} from './model.mjs?v=presets-1';
+import {artifactDescription} from './artifact-copy.mjs?v=presets-1';
+import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=presets-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number=value=>Number(Number(value||0).toFixed(3));
@@ -63,7 +63,7 @@ export function getDeckCardExplanation(run,card){
   const ordered=['multiply','add-last-payout','multiply-future-capacity'].includes(rule?.operation)||rule?.minimumEarlierPayers||when.lastOccupied;
   const placement=['echo','chameleon','use-doubler'].includes(card.kind)
     ? `Next card: Slot ${card.slot+2} · ${cards[card.slot+1]?.name||'empty or outside the chain'}. No empty Slot between them.`
-    : card.kind==='ember-feeder' ? 'Targets the first two occupied cards to its right, skipping empty slots. Their destruction happens only after a successful clear.'
+    : card.kind==='ember-feeder' ? 'Targets the first one or two occupied cards to its right, skipping empty slots. Their destruction happens only after a successful clear.'
     : card.kind==='devourer' ? `Next card: Slot ${card.slot+2} · ${cards[card.slot+1]?.name||'empty or outside the chain'}. A clear with a heart missing eats that Rare card to heal.`
     : card.kind==='refrain' ? 'Refrain can sit anywhere. It gives one Encore for the same Trigger; all Refrains share it.'
     : rule?.operation==='multiply' ? 'Order matters: it strengthens only the cards to its left, so put it to their right. Each firing starts at 0 Sparks.'
@@ -90,7 +90,7 @@ export function getDeckCardExplanation(run,card){
   if(boosts.length){const base=boosts.reduce((s,e)=>s+e.base,0),boosted=boosts.reduce((s,e)=>s+e.boosted,0),unit=boosts[0].unit,by=[...new Set(boosts.flatMap(e=>e.boostedBy.map(b=>b.name)))].join(' and ');
     summary=`+${number(base)}${unit.startsWith('%')?'':' '}${unit} → +${number(boosted)}${unit.startsWith('%')?'':' '}${unit}, boosted by ${by}. ${summary}`;}
   if(card.kind==='use-doubler'){const target=getUseDoublerTarget(run.mountedCards,card.slot);if(target)summary=`On real flight entry: consume Use Doubler. ${SKILL_CARDS[target.cardId].name} (slot ${card.slot+2}) keeps ${target.charges} → ${target.charges*2} uses. No effect in preview or Dream.`;}
-  if(card.kind==='ember-feeder'){const targets=getEmberFeederTargets(run.mountedCards,card.slot),growth=getCardFeederCapacity(card);if(targets.length)summary=`After clear: permanently destroy ${targets.map(({card:target,slot})=>`${SKILL_CARDS[target.cardId].name} (slot ${slot+1})`).join(' + ')}. This Feeder: +${growth} → +${growth+1} maximum Sparks while equipped. No refill.`;}
+  if(card.kind==='ember-feeder'){const targets=getEmberFeederTargets(run.mountedCards,card.slot),growth=getCardFeederCapacity(card);if(targets.length)summary=`After clear: permanently destroy ${targets.map(({card:target,slot})=>`${SKILL_CARDS[target.cardId].name} (slot ${slot+1})`).join(' + ')}. This Feeder: +${growth} → +${growth+emberFeederGain(targets.length)} maximum Sparks while equipped. No refill.`;}
   return {status,usesPass:!!rule||card.kind==='refrain',trigger:rule&&rule.event!=='*'?eventNames[rule.event]:printedBands.find(band=>band.type==='condition')?.text||'Passive',requirements,placement,ordered:!!ordered||rule?.operation==='multiply',example,summary,boosts};
 }
 

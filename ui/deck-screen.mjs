@@ -7,27 +7,27 @@
 // This module draws and handles everything that does not change the save. Every real change (equip, swap,
 // take out, Melt, Workshop) goes through the `actions` the app passes in, which call the model's own
 // transactions and then reopen the sheet; the view state object survives that reopen.
-import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=batch-1';
-import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=batch-1';
-import {uiIcon} from '../ui-icons.mjs?v=batch-1';
-import {wispChipText} from '../start-bonus.mjs?v=batch-1';
-import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=batch-1';
-import {getEquippedCardStatuses} from '../card-status.mjs?v=batch-1';
-import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=batch-1';
-import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=batch-1';
+import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=presets-1';
+import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=presets-1';
+import {uiIcon} from '../ui-icons.mjs?v=presets-1';
+import {wispChipText} from '../start-bonus.mjs?v=presets-1';
+import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=presets-1';
+import {getEquippedCardStatuses} from '../card-status.mjs?v=presets-1';
+import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=presets-1';
+import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=presets-1';
 import {LIFT_KIND, resolveChain, slotInfo, hereLine, fullRuleText, plateWords, whenOf, markOf, TRIGGER_BY, triggerName, RARITY_WORD, rarityOf, nameOf, shortName, isRest, num, METER_MAX, START_FLAME,
-  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=batch-1';
-import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips, TIMER_MARK} from './trigger-icons.mjs?v=batch-1';
-import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=batch-1';
+  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=presets-1';
+import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips, TIMER_MARK} from './trigger-icons.mjs?v=presets-1';
+import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=presets-1';
 import {triggerLabel, triggerTermKey} from '../card-trigger-labels.mjs';
-import {CARD_TERMS} from '../card-terms.mjs?v=batch-1';
-import {SKILL_CARDS} from '../skill-cards.mjs?v=batch-1';
-import {isDevourCard} from '../card-black-hole.mjs?v=batch-1';
-import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=batch-1';
-import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=batch-1';
-import {slotInscriptionId, slotInscriptionList, slotEntry} from '../inscriptions.mjs?v=batch-1';
-import {inscriptionEffect} from '../inscription-on-card.mjs?v=batch-1';
-import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=batch-1';
+import {CARD_TERMS} from '../card-terms.mjs?v=presets-1';
+import {SKILL_CARDS} from '../skill-cards.mjs?v=presets-1';
+import {isDevourCard} from '../card-black-hole.mjs?v=presets-1';
+import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=presets-1';
+import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=presets-1';
+import {slotInscriptionId, slotInscriptionList, slotEntry} from '../inscriptions.mjs?v=presets-1';
+import {inscriptionEffect} from '../inscription-on-card.mjs?v=presets-1';
+import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=presets-1';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const SPARK_SRC = SPARK_ICON_SRC;
@@ -178,10 +178,10 @@ function chainPanelHTML(d, view, opts) {
   const text = sol.sparks > 0 ? `+${num(sol.sparks)}` : once > 0 ? `+${num(once)}` : '0';
   const passes = chain.passes.length ? chain.passes.join(' + ') : '';
   const twoNumbers = ev?.loop && ev.perTurn !== null && ev.per10 !== null;
-  const sumLabel = twoNumbers ? `Engine: ${num(ev.perTurn)} Sparks per Turn, ${num(Math.round(ev.per10 * 10) / 10)} Turns every 10 seconds`
+  const sumLabel = twoNumbers ? `Engine: ${num(ev.perTurn)} Sparks each time a Timer fires, ${num(Math.round(ev.per10 * 10) / 10)} firings every 10 seconds`
     : `Equals ${passes ? `${chain.passes.join(' plus ')}, ` : ''}${sol.sparks > 0 ? `plus ${num(sol.sparks)}` : 'zero'} Sparks on ${tr.name}`;
   const medal = twoNumbers
-    ? `<span class="dk22-medal dk-medal2" id="dk22-medal"><span class="dk-m-row"><b id="dk22-num">${esc(num(ev.perTurn))}</b><small>per Turn</small></span><span class="dk-m-row"><b>${esc(num(Math.round(ev.per10 * 10) / 10))}</b><small>Turns per 10&nbsp;s</small></span></span>`
+    ? `<span class="dk22-medal dk-medal2" id="dk22-medal"><span class="dk-m-row"><b id="dk22-num">${esc(num(ev.perTurn))}</b><small>per firing</small></span><span class="dk-m-row"><b>${esc(num(Math.round(ev.per10 * 10) / 10))}</b><small>firings per 10&nbsp;s</small></span></span>`
     : `<span class="dk22-medal${text.length > 3 ? ' dk22-long' : ''}" id="dk22-medal"><b id="dk22-num">${esc(text)}</b><small>Sparks</small></span>`;
   const origin = has ? triggerIcon(chain.trigger, 32) : start ? chipIcon(start, 32) : `<img src="${WISP_ORB_SRC}" width="32" height="32" alt="">`;
   const originName = has ? termBtn(chain.trigger, {icon: false, cls: 'dk22-term-origin'}) : start ? chipTermBtn(start, {icon: false, cls: 'dk22-term-origin'}) : 'No Trigger';
@@ -579,7 +579,7 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
     for (const s of steps) {
       if (token !== engineToken) return;
       if (s.t > lastT + 1e-9) {
-        if (waiting) note(`${turn ? `Turn ${turn} · ` : ''}${shortName(d.row[waiting.slot])} waits ${num(waiting.wait)} s, shown ${ENGINE_SPEED}× faster`);
+        if (waiting) note(`${turn ? `Timer fired ${turn}× · ` : ''}${shortName(d.row[waiting.slot])} waits ${num(waiting.wait)} s, shown ${ENGINE_SPEED}× faster`);
         if (!(await (waiting ? waitDial(waiting.slot, lastT, s.t, token) : later((s.t - lastT) / ENGINE_SPEED * 1000, token)))) return;
         lastT = s.t;waiting = null;
       }
@@ -587,15 +587,15 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
       else if (s.kind === 'hit') {light(s.slot);await engineSparkPath([{x: notchX(s.slot), y}], 1);}
       else if (s.kind === 'gain') {light(s.slot);gained += Number(s.real) || 0;engineMeter(s.meter, maxP, gained);$('dk2-tag').textContent = `+${num(s.amount)}`;}
       else if (s.kind === 'wait') {light(s.slot);waiting = s;await engineSparkPath([{x: notchX(s.slot), y}], 1);}
-      else if (s.kind === 'turn') {turn = s.n;light(s.slot);note(`Turn ${turn}`);}
+      else if (s.kind === 'turn') {turn = s.n;light(s.slot);note(`Timer fired ${turn}×`);}
       else if (s.kind === 'back') {
         const from = notchX(s.from), to = notchX(s.to);
         await engineSparkPath([{x: from, y}, {x: from, y: yR}, {x: notchX(engineView(d.chain)?.to ?? 0), y: yR}, {x: notchX(engineView(d.chain)?.to ?? 0), y}, {x: to, y}], ENGINE_STEP * 1.6);
         continue;
       } else if (s.kind === 'keep') {$('dk2-tag').textContent = `Keeps ${num(s.amount)}`;}
       else if (s.kind === 'stop') {
-        light(-1);parkSpark();stage.classList.add('dk-stopped');note(`Stopped: ${s.reason}${turn ? ` · ${turn} Turn${turn === 1 ? '' : 's'}` : ''}`);
-        stopPlay();announce(`The engine stopped: ${s.reason}. ${turn} Turns, plus ${num(gained)} Sparks.`);
+        light(-1);parkSpark();stage.classList.add('dk-stopped');note(`Stopped: ${s.reason}${turn ? ` · fired ${turn}×` : ''}`);
+        stopPlay();announce(`The engine stopped: ${s.reason}. The Timer fired ${turn} times, plus ${num(gained)} Sparks.`);
         return;
       }
       if (!(await later(ENGINE_STEP, token))) return;

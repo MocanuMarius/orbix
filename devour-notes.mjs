@@ -1,8 +1,8 @@
 // Devour cards (Black Hole, Dream, Devourer, Ember Feeder) eat cards for good. The player is told before (departure screen) and after (flight rewards notes).
 // Pure helpers, no DOM.
-import {previewBlackHoleMeals} from './card-black-hole.mjs?v=batch-1';
-import {SKILL_CARDS, getEmberFeederTargets, isCardRun} from './skill-cards.mjs?v=batch-1';
-import {getLifeCapacity} from './vitality.mjs?v=batch-1';
+import {previewBlackHoleMeals} from './card-black-hole.mjs?v=presets-1';
+import {SKILL_CARDS, getEmberFeederTargets, isCardRun} from './skill-cards.mjs?v=presets-1';
+import {getLifeCapacity} from './vitality.mjs?v=presets-1';
 
 const nameOf = id => SKILL_CARDS[id]?.name || id;
 const join = names => names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0] || '';
@@ -24,7 +24,7 @@ export function departureDevourWarnings(run) {
   cards.forEach((card, slot) => {
     if (card?.cardId === 'ember-feeder') {
       const targets = getEmberFeederTargets(cards, slot);
-      if (targets.length === 2) out.push({text: `Ember Feeder will devour ${join(targets.map(t => nameOf(t.card.cardId)))} at the Finish`, cardIds: targets.map(t => t.card.cardId)});
+      if (targets.length >= 1) out.push({text: `Ember Feeder will devour ${join(targets.map(t => nameOf(t.card.cardId)))} at the Finish`, cardIds: targets.map(t => t.card.cardId)});
     }
     if (card?.cardId === 'devourer' && run.lives < getLifeCapacity(run) && SKILL_CARDS[cards[slot + 1]?.cardId]?.rarity === 'rare')
       out.push({text: `Devourer will devour ${nameOf(cards[slot + 1].cardId)} at the Finish if you clear`, cardIds: [cards[slot + 1].cardId]});

@@ -1,20 +1,20 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=batch-1";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=presets-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=batch-1';
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=batch-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=batch-1';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=batch-1';
+import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=presets-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=presets-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=presets-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=presets-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
   melt: { common: 10, rare: 20, legendary: 40 },
-  // Forge (approved 2026-11-17, doubling rule 2026-11-18): first price per rarity; every forge of that rarity
-  // multiplies the next price by forgeGrowth for the rest of the run (run.cardForgeTally); rarities are independent.
+  // Forge (approved 2026-11-17; linear rise 2026-11-20, it doubled before): first price per rarity; every Forge or Evolve of that rarity
+  // adds forgeStep x the first price to the next price for the rest of the run (run.cardForgeTally): base x (1 + forgeStep x n), rounded up; rarities are independent.
   // The forged card stays hidden until paid.
   forge: { common: 15, rare: 40, legendary: 150 },
-  forgeGrowth: 2,
+  forgeStep: 0.5,
   improve: { common: 15, rare: 25, legendary: 40 },
   // Evolve has no price of its own (2026-11-18): evolving into a rarity costs that rarity's current Forge price
   // and counts as a Forge of it (run.cardForgeTally), so Forge and Evolve share one price track per rarity.
@@ -126,12 +126,14 @@ export function getUseDoublerTarget(cards, slot) {
   return livePhysicalCard(target) && def.charges && def.kind !== 'use-doubler' ? target : null;
 }
 /** Physical targets keep their slots and instance identities; holes are skipped. */
+/** Ember Feeder: one card eaten grows it by 1 max Spark, two cards by 3. */
+export const emberFeederGain = eaten => eaten >= 2 ? 3 : eaten === 1 ? 1 : 0;
 export function getEmberFeederTargets(cards, slot) {
   const targets = [];
   for (let index = slot + 1; index < (cards?.length || 0) && targets.length < 2; index++) {
     if (livePhysicalCard(cards[index]) && !SKILL_CARDS[cards[index].cardId]?.permanent) targets.push({ card: cards[index], slot: index });
   }
-  return targets.length === 2 ? targets : [];
+  return targets;
 }
 /** Called only once when the real attempt starts, never by a build quote. */
 export function consumeCardUseDoublers(run) {
@@ -663,8 +665,8 @@ export function getMountedCards(run) {
     if (d.kind === 'ember-feeder') {
       const targets = getEmberFeederTargets(run.mountedCards, index), growth = getCardFeederCapacity(card);
       printed.effectiveSummary = `Stored growth +${growth} maximum Sparks while equipped. ` + (targets.length
-        ? `After a successful flight, permanently consume ${targets.map(({card: target, slot}) => `${SKILL_CARDS[target.cardId].name} in slot ${slot + 1}`).join(' and ')} together for +1 more maximum Spark on this Ember Feeder. Physical consumers resolve left to right; targets must still be present. No refill.`
-        : 'Needs two occupied cards anywhere to its right. Fewer than two consumes neither. Failed flights and Dream consume nothing. Equipping does not refill.');
+        ? `After a successful flight, permanently consume ${targets.map(({card: target, slot}) => `${SKILL_CARDS[target.cardId].name} in slot ${slot + 1}`).join(' and ')} ${targets.length === 2 ? 'together ' : ''}for +${emberFeederGain(targets.length)} more maximum ${emberFeederGain(targets.length) === 1 ? 'Spark' : 'Sparks'} on this Ember Feeder. Physical consumers resolve left to right; targets must still be present. No refill.`
+        : 'Needs an occupied card anywhere to its right (one card: +1, two cards: +3). Failed flights and Dream consume nothing. Equipping does not refill.');
     }
     if (effective?.copiedBy) {
       const repeats=d.kind==='echo'?(d.repeatCount||1):1;
@@ -1267,8 +1269,10 @@ export function resolveCardRow(runtime, event = {}) {
         step.operation = operation;step.multiplier = amount;
         // Never Stored Sparks or permanent gains, so the legacy future-capacity multiplier boosts nothing.
         const boost = amount > 1 ? applyBoost(pass, amount, operation === "multiply" ? CARD_BOOSTED_REWARDS : []) : null;
+        // Clear Prism: also pays its own Sparks (alsoSparks) on the same Trigger, after it has doubled the cards before it (so they are never doubled).
+        if (operation === "multiply" && Number(rule.alsoSparks) > 0) { if (!step.success) succeed(); pay("sparks", Number(rule.alsoSparks)); lastPayout = Number(rule.alsoSparks); payers++; receipt.payerActions++; }
         if (boost?.any) {
-          succeed();
+          if (!step.success) succeed();
           for (const rewardKind of CARD_REWARD_KINDS) step[STEP_REWARD_FIELD[rewardKind]] = boost.increase[rewardKind];
           step.boosted = boost.boosted;
           for (const boostedSlot of boost.boosted) ledgerCards[boostedSlot]?.boostedBy.push(slot);
@@ -1300,7 +1304,12 @@ export function resolveCardRow(runtime, event = {}) {
         const gain = operation === "carried-interest" ? Math.min(10, Math.floor(integer(event.carriedStored) / 10)) * amount
           : operation === "add-stored-per-heart" ? integer(event.heartsLeft) * amount
           : operation === "add-stored-per-fired" ? receipt.event.firedInstanceIds.filter(id => id !== source.instanceId).length * amount : amount;
-        if (gain > 0) {
+        // Meter Mark: keeps its Stored Spark only on every 2nd Overfill. The count is a transient field on the card (markCount): it starts at 0 each flight, and a preview always pays.
+        const everyNth = Number(rule.everyNth) || 0;
+        let due = true;
+        if (everyNth > 1 && gain > 0 && !runtime.preview) { source.markCount = integer(source.markCount) + 1; due = source.markCount % everyNth === 0; }
+        if (gain > 0 && !due) step.skipReason = "counting";
+        else if (gain > 0) {
           succeed();
           pay("stored", gain, operation === "carried-interest" ? 10 * amount : undefined);
         } else step.skipReason = operation === "add-stored-per-heart" ? "no-hearts" : operation === "add-stored-per-fired" ? "no-cards-fired" : "no-carried-interest";
@@ -1407,6 +1416,7 @@ export function resolveCardRow(runtime, event = {}) {
 export const executeCardRowEvent = resolveCardRow;
 export function previewCardRow(snapshot, event = {}) {
   const runtime = createCardExecution(snapshot);
+  runtime.preview = true;
   if (Number.isFinite(snapshot?.eventSequence)) runtime.eventSequence = snapshot.eventSequence;
   return resolveCardRow(runtime, event);
 }
@@ -1487,6 +1497,7 @@ export function getCardModifiers(run) {
     cardTwinOrbit: false,
     cardTwinWick: false,
     cardFlashHandling: false,
+    cardFlashFetch: false,
     cardFlashSources: 0,
     cardFlashMeter: 0,
     cardGrowSources: 0,
@@ -1522,9 +1533,10 @@ export function getCardModifiers(run) {
     if (d.kind === "meter-mark") m.cardMeterMark = true;
     if (d.kind === "brimful") m.cardBrimful += 1;
     if (d.kind === "skim-line") { m.cardProximityUnlocked = true; m.cardSkimLine = true; }
+    if (d.kind === "close-call") m.cardProximityUnlocked = true; // Close Call brings its own Proximity (2026-11-20), like Skim Line (without the band)
     // One source adds 50% of normal reach; a boosted source counts as `factor` sources.
     if (d.kind === "proximity-range") m.cardProximitySources += factor;
-    if (d.kind === "rhythm") m.cardRhythm = true;
+    if (d.kind === "rhythm" || d.kind === "toll-bell" || d.kind === "pacesetter") m.cardRhythm = true; // Toll Bell and Pacesetter bring their own Rhythm (2026-11-20)
     if (d.kind === "rapid-lift") m.cardRapidLiftRank = Math.max(m.cardRapidLiftRank, d.rapidRank || 1);
     if (d.kind === "dream") m.cardDream = true;
     if (d.kind === "guide") m.cardLiftGuide = true;
@@ -1532,6 +1544,7 @@ export function getCardModifiers(run) {
     if (d.kind === "cache-handling") m.cardCacheHandling = true;
     if (d.kind === "twin-orbit") m.cardTwinOrbit = true;
     if (d.kind === "twin-wick") m.cardTwinWick = true;
+    if (d.kind === "flash-thread") m.cardFlashFetch = true; // Flare Thread: the Collector may fetch a Flare, so the Thread fires on that fetch too
     if (d.kind === "flash-handling") { m.cardFlashHandling = true; m.cardFlashSources++; m.cardFlashMeter += cardAmount(source) * CARD_UNIT; }
     if (d.kind === "packing") m.cardPackingSources += Math.max(1,Number(d.packingWeight)||1) * factor;
     if (d.kind === "downbeat") m.cardDownbeat = true;
