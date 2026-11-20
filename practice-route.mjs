@@ -1,6 +1,6 @@
-import {CARD_SYSTEM,makeSkillCard,getCardModifiers,getMountedCards} from './skill-cards.mjs?v=chance-1';
-import {getInscription,permanentOnSlot,writeInscription} from './inscriptions.mjs?v=chance-1';
-import {practiceCourseLesson,practiceStopById,practiceGoalMet,PRACTICE_STOPS,PRACTICE_SCRIBE_OFFERS} from './practice-course.mjs?v=chance-1';
+import {CARD_SYSTEM,makeSkillCard,getCardModifiers,getMountedCards} from './skill-cards.mjs?v=cards-3';
+import {getInscription,permanentOnSlot,writeInscription} from './inscriptions.mjs?v=cards-3';
+import {practiceCourseLesson,practiceStopById,practiceGoalMet,PRACTICE_STOPS,PRACTICE_SCRIBE_OFFERS} from './practice-course.mjs?v=cards-3';
 
 // Edition 5 (18 November 2026): thirteen stops; the card Chain is built one gift at a time on paused screens.
 // A saved Edition 4 practice in progress is moved onto Edition 5 when it loads (migratePracticeRun).

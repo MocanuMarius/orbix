@@ -1,9 +1,9 @@
-import {newState,createRun,selectNode} from './model.mjs?v=chance-1';
-import {BIOME_LEVELS} from './biomes.mjs?v=chance-1';
-import {circleHitsObstacle} from './flight.mjs?v=chance-1';
-import {scenePropBounds} from './scene-props.mjs?v=chance-1';
-import {terrainBoundary} from './terrain-boundary.mjs?v=chance-1';
-import {WispCompanion} from './wisp.mjs?v=chance-1';
+import {newState,createRun,selectNode} from './model.mjs?v=cards-3';
+import {BIOME_LEVELS} from './biomes.mjs?v=cards-3';
+import {circleHitsObstacle} from './flight.mjs?v=cards-3';
+import {scenePropBounds} from './scene-props.mjs?v=cards-3';
+import {terrainBoundary} from './terrain-boundary.mjs?v=cards-3';
+import {WispCompanion} from './wisp.mjs?v=cards-3';
 
 // A disposable run through the same App, WispFlight, HUD and authored course.
 export function createBoundaryInspectorState(query=new URLSearchParams()){

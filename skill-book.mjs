@@ -1,14 +1,14 @@
-import {SKILLS,getRunModifiers} from './model.mjs?v=chance-1';
-import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=chance-1';
-import {formatLuminance} from './luminance-units.mjs?v=chance-1';
-import {WISP_ART} from './companion-art.mjs?v=chance-1';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=chance-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=chance-1';
-import {skillIcon} from './upgrade-icons.mjs?v=chance-1';
-import {resourceSymbol} from './game-symbols.mjs?v=chance-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=chance-1';
-import {skillBookChapter} from './skill-chapters.mjs?v=chance-1';
-export {skillBookChapter} from './skill-chapters.mjs?v=chance-1';
+import {SKILLS,getRunModifiers} from './model.mjs?v=cards-3';
+import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=cards-3';
+import {formatLuminance} from './luminance-units.mjs?v=cards-3';
+import {WISP_ART} from './companion-art.mjs?v=cards-3';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=cards-3';
+import {getCompanionAbility} from './companion-abilities.mjs?v=cards-3';
+import {skillIcon} from './upgrade-icons.mjs?v=cards-3';
+import {resourceSymbol} from './game-symbols.mjs?v=cards-3';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=cards-3';
+import {skillBookChapter} from './skill-chapters.mjs?v=cards-3';
+export {skillBookChapter} from './skill-chapters.mjs?v=cards-3';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],

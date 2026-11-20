@@ -1,12 +1,12 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=chance-1";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=cards-3";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=chance-1';
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=chance-1';
-import {rollChance} from './card-chance.mjs?v=chance-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=chance-1';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=chance-1';
+import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=cards-3';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=cards-3';
+import {rollChance} from './card-chance.mjs?v=cards-3';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=cards-3';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=cards-3';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -136,6 +136,9 @@ export function getEmberFeederTargets(cards, slot) {
   }
   return targets;
 }
+/** Ember Snack: the one card it eats, with Ember Feeder's rules (the first live card to its right; Deep Vessel, Growth Ring and Wind Feather are permanent and never eaten). */
+export const EMBER_SNACK_STORED = 50;
+export const getEmberSnackTarget = (cards, slot) => getEmberFeederTargets(cards, slot).slice(0, 1)[0] || null;
 /** Called only once when the real attempt starts, never by a build quote. */
 export function consumeCardUseDoublers(run) {
   if (!isCardRun(run)) return [];
@@ -1549,6 +1552,8 @@ export function getCardModifiers(run) {
     if (d.kind === "proximity") m.cardProximityUnlocked = true;
     if (d.kind === "pulse-reader") m.cardPulseReader = true;
     if (d.kind === "courier-cord") m.cardCourierCord = true;
+    if (d.kind === "radar") m.cardRadar = true;
+    if (d.kind === "kindling") m.cardKindling = true;
     if (d.kind === "meter-mark") m.cardMeterMark = true;
     if (d.kind === "brimful") m.cardBrimful += 1;
     if (d.kind === "skim-line") { m.cardProximityUnlocked = true; m.cardSkimLine = true; }

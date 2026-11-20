@@ -4,10 +4,10 @@
 // for a Lift, or the tab is hidden (the flight pauses itself then), and which advances by the fixed simulation step,
 // so a given seed and input give the same engine log. Eligibility mirrors resolveCardRowEvent: no engine during a
 // Dream rehearsal, the clear/death animations, or a tutorial without practice cards.
-import {CARD_UNIT} from './skill-cards.mjs?v=chance-1';
-import {CardEngine, hasEngineCards} from './card-engine.mjs?v=chance-1';
-import {appendFires, engineFire, engineBars} from './chain-strip.mjs?v=chance-1';
-import {createFlashTether, FLASH_PULSE_INTERVAL} from './flash-tether.mjs?v=chance-1';
+import {CARD_UNIT} from './skill-cards.mjs?v=cards-3';
+import {CardEngine, hasEngineCards} from './card-engine.mjs?v=cards-3';
+import {appendFires, engineFire, engineBars} from './chain-strip.mjs?v=cards-3';
+import {createFlashTether, FLASH_PULSE_INTERVAL} from './flash-tether.mjs?v=cards-3';
 
 const live = e => !!(e.cardEngine && e.cardExecution && e.running && !e.paused && e.alive && !e.finished && !e.destroyed
   && !e.dying && !e.completing && !(e.tutorial && !e.mod?.practiceCards) && !(e.dream && e.dream.phase !== 'done'));
@@ -145,9 +145,27 @@ export function stepPulseReader(e) {
   appendFires(e, [{slot, kind: 'bar'}]);
 }
 
+/** Radar (Common card): while mounted it sends its own real light Pulse every 10 s of flight time, however many Radars (one Pulse, tagged at the leftmost).
+ * Unlike Pulse Reader it pays nothing and the Pulse is tagged at Radar's own slot, so only Pulse cards to its right hear it cross a Spark. A crossing never
+ * makes a Pulse, so Radar cannot answer itself. */
+export const RADAR_INTERVAL = 10;
+export function stepRadar(e) {
+  const slot = e.cardExecution?.cards?.findIndex(card => card?.cardId === 'radar') ?? -1;
+  if (slot < 0) { e.radarAt = undefined; return; }
+  const live2 = e.running && !e.paused && e.alive && !e.finished && !e.destroyed && !e.dying && !e.completing && !e.tutorial && !(e.dream && e.dream.phase !== 'done');
+  if (!live2) return;
+  if (!(e.radarAt >= 0)) e.radarAt = e.time + RADAR_INTERVAL;
+  if (e.time + 1e-9 < e.radarAt) return;
+  e.radarAt = e.time + RADAR_INTERVAL;
+  const wave = e.radiateLight?.({once: true, reveal: true, source: 'card-radar', sourceKind: 'card', color: '#d9f0dc'});
+  if (wave && typeof wave === 'object') wave.fromSlot = slot;
+  appendFires(e, [{slot, kind: 'bar'}]);
+}
+
 /** Bell (Inscription): a real light Pulse every 6 s of flight time, however many Bells. Runs only while the world is live. */
 export function stepFlightInscriptions(e) {
   stepPulseReader(e);
+  stepRadar(e);
   const ins = e.cardExecution?.inscriptions;
   if (!ins || !ins.some(entry => entry?.id === 'bell')) return;
   const live2 = e.running && !e.paused && e.alive && !e.finished && !e.destroyed && !e.dying && !e.completing && !e.tutorial && !(e.dream && e.dream.phase !== 'done');

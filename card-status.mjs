@@ -1,9 +1,9 @@
 /** Configuration hints only. Every numeric verdict comes from a read-only row quote. */
-import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, emberFeederGain, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=chance-1';
-import { rowSnapshot, slotInscriptionList } from './inscriptions.mjs?v=chance-1';
-import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=chance-1';
-import { normalizeCompanionFleet } from './companion-abilities.mjs?v=chance-1';
-import { skillProgress } from './skill-increments.mjs?v=chance-1';
+import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getEmberSnackTarget, emberFeederGain, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=cards-3';
+import { rowSnapshot, slotInscriptionList } from './inscriptions.mjs?v=cards-3';
+import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=cards-3';
+import { normalizeCompanionFleet } from './companion-abilities.mjs?v=cards-3';
+import { skillProgress } from './skill-increments.mjs?v=cards-3';
 
 /** Labels are plain instructions (docs/card-teaching-plan.md §3); `code` is stable for code. */
 const ready = reason => ({ state: 'ready', symbol: '✓', label: 'Ready', code: 'ready', reason, fix: 'Keep this order to use it when its Trigger happens.' });
@@ -124,6 +124,11 @@ export function getEquippedCardStatuses(run = {}, native = null) {
       const target = getUseDoublerTarget(cards, slot);
       if (!target) return blocked('Needs a card with uses to its right', 'The next Slot has no card with uses left to double.', 'Put a card with uses directly to its right; not another Use Doubler. It keeps its own use until then.', 'needs-uses-right');
       return ready(`When a real flight starts, Use Doubler is spent and ${name(target)} in Slot ${slot + 2} goes from ${target.charges} to ${target.charges * 2} uses. Previews, Dream and resuming never double again.`);
+    }
+    if (kind === 'ember-snack') {
+      const hit = getEmberSnackTarget(cards, slot);
+      if (!hit) return blocked('Needs a card to its right', 'Ember Snack eats only when a card sits to its right.', 'Put a card anywhere to its right. A clear eats it and pays 50 Stored Sparks.', 'no-target');
+      return ready(`After a clear, it eats ${name(hit.card)} in Slot ${hit.slot + 1} for good and pays 50 Stored Sparks. Then it is spent too.`);
     }
     if (kind === 'ember-feeder' && capacityFull(slot)) return max100();
     if (kind === 'ember-feeder') {

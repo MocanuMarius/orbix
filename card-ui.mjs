@@ -1,20 +1,20 @@
-import { flightDevoured, devouredLine } from "./devour-notes.mjs?v=chance-1";
-import { wispChipText } from "./start-bonus.mjs?v=chance-1";
-import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=chance-1";
-import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=chance-1";
-import { uiIcon } from "./ui-icons.mjs?v=chance-1";
-import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=chance-1";
-import { bandMarkup } from "./trigger-bands.mjs?v=chance-1";
-import { meltMarkBadge } from "./melt-mark.mjs?v=chance-1";
-import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=chance-1";
-import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=chance-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=chance-1";
-import { activeFlightPact } from './flight-pacts.mjs?v=chance-1';
-import { cardArt } from "./card-art.mjs?v=chance-1";
-import { cardTileLine } from "./card-tile-lines.mjs?v=chance-1";
-import { slotInscriptionId } from "./inscriptions.mjs?v=chance-1";
-import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=chance-1";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=chance-1';
+import { flightDevoured, devouredLine } from "./devour-notes.mjs?v=cards-3";
+import { wispChipText } from "./start-bonus.mjs?v=cards-3";
+import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=cards-3";
+import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=cards-3";
+import { uiIcon } from "./ui-icons.mjs?v=cards-3";
+import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=cards-3";
+import { bandMarkup } from "./trigger-bands.mjs?v=cards-3";
+import { meltMarkBadge } from "./melt-mark.mjs?v=cards-3";
+import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=cards-3";
+import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=cards-3";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=cards-3";
+import { activeFlightPact } from './flight-pacts.mjs?v=cards-3';
+import { cardArt } from "./card-art.mjs?v=cards-3";
+import { cardTileLine } from "./card-tile-lines.mjs?v=cards-3";
+import { slotInscriptionId } from "./inscriptions.mjs?v=cards-3";
+import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=cards-3";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=cards-3';
 import {
   getMountedCards,
   getOwnedCards,
@@ -31,13 +31,13 @@ import {
   getSkillWallet,
   equipOwnedCard,
   canRerollCardDraft,
-} from "./model.mjs?v=chance-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=chance-1";
-import { choiceScene } from "./choice-art.mjs?v=chance-1";
-import { livesMarkup } from "./lives.mjs?v=chance-1";
-import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=chance-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=chance-1";
-import {canDreamAt, dreamConfig} from './dream.mjs?v=chance-1';
+} from "./model.mjs?v=cards-3";
+import { resourceSymbol } from "./game-symbols.mjs?v=cards-3";
+import { choiceScene } from "./choice-art.mjs?v=cards-3";
+import { livesMarkup } from "./lives.mjs?v=cards-3";
+import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=cards-3";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=cards-3";
+import {canDreamAt, dreamConfig} from './dream.mjs?v=cards-3';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -51,7 +51,7 @@ import {
   SKILL_CARDS,
   cardTallyLine,
   cardAmount,
-} from "./skill-cards.mjs?v=chance-1";
+} from "./skill-cards.mjs?v=cards-3";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -100,7 +100,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=chance-1";
+export { cardArt } from "./card-art.mjs?v=cards-3";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }

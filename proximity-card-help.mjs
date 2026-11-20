@@ -1,9 +1,9 @@
 /** Disposable comparisons: real run modifiers, terrain, renderer and proximity HUD. */
-import {getRunModifiers} from './model.mjs?v=chance-1';
-import {makeSkillCard, SKILL_CARDS} from './skill-cards.mjs?v=chance-1';
-import {WispFlight} from './flight.mjs?v=chance-1';
-import {getProximityClearance, obstacleEdgeClearance} from './edging-pulse.mjs?v=chance-1';
-import {edgingPulseMarkup, updateEdgingPulse} from './edging-ui.mjs?v=chance-1';
+import {getRunModifiers} from './model.mjs?v=cards-3';
+import {makeSkillCard, SKILL_CARDS} from './skill-cards.mjs?v=cards-3';
+import {WispFlight} from './flight.mjs?v=cards-3';
+import {getProximityClearance, obstacleEdgeClearance} from './edging-pulse.mjs?v=cards-3';
+import {edgingPulseMarkup, updateEdgingPulse} from './edging-ui.mjs?v=cards-3';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const name = card => SKILL_CARDS[card?.cardId]?.name || 'Empty';
 

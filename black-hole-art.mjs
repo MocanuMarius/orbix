@@ -1,6 +1,6 @@
-import {lightVisibility,renderLightState} from './light-field.mjs?v=chance-1';
-import {drawBlackHoleWarning} from './black-hole-warning.mjs?v=chance-1';
-import {rectBatch,identityTransform} from './rect-raster.mjs?v=chance-1';
+import {lightVisibility,renderLightState} from './light-field.mjs?v=cards-3';
+import {drawBlackHoleWarning} from './black-hole-warning.mjs?v=cards-3';
+import {rectBatch,identityTransform} from './rect-raster.mjs?v=cards-3';
 // Pixel accretion and stolen-light trails. Cosmetics consume recorded drain;
 // rendering never spends fuel or changes the simulation.
 const TAU=Math.PI*2,MAX_MOTES=96;

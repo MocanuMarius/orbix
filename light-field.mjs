@@ -1,7 +1,7 @@
-import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=chance-1';
-import {lanternField} from './lantern-layout.mjs?v=chance-1';
-import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=chance-1';
-import {luminanceWaveVisibility} from './luminance-waves.mjs?v=chance-1';
+import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=cards-3';
+import {lanternField} from './lantern-layout.mjs?v=cards-3';
+import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=cards-3';
+import {luminanceWaveVisibility} from './luminance-waves.mjs?v=cards-3';
 export { LIGHT_EXTENT, lightAttenuation };
 const reflectedLight = .6;
 

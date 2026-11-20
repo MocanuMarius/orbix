@@ -1,9 +1,9 @@
-import {ARTIFACTS,getArtifactSalvageValue,canSellArtifact} from './model.mjs?v=chance-1';
-import {artifactDescription} from './artifact-copy.mjs?v=chance-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=chance-1';
-import {resourceSymbol} from './game-symbols.mjs?v=chance-1';
-import {reliquaryBackdropMarkup,reliquaryNicheMarkup} from './ui/reliquary-art.mjs?v=chance-1';
-import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=chance-1';
+import {ARTIFACTS,getArtifactSalvageValue,canSellArtifact} from './model.mjs?v=cards-3';
+import {artifactDescription} from './artifact-copy.mjs?v=cards-3';
+import {artifactIcon} from './upgrade-icons.mjs?v=cards-3';
+import {resourceSymbol} from './game-symbols.mjs?v=cards-3';
+import {reliquaryBackdropMarkup,reliquaryNicheMarkup} from './ui/reliquary-art.mjs?v=cards-3';
+import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=cards-3';
 
 export const COLLECTION_PAGE_SIZE=6;
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
