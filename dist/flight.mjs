@@ -1535,7 +1535,7 @@ export class WispFlight {
   cardSpillHeard(spill,fromSlot=-1,fromPulse=false){
     if(!(spill>1e-9)||this.inCardSpill)return;
     this.inCardSpill=true;
-    try{this.resolveCardRowEvent(CARD_ROW_EVENTS.overfill,{pickupKind:'light',fromSlot:Number.isInteger(fromSlot)?fromSlot:-1});if(!fromPulse)this.countOverfillWave(null);}
+    try{this.resolveCardRowEvent(CARD_ROW_EVENTS.overfill,{pickupKind:'light',fromSlot:Number.isInteger(fromSlot)?fromSlot:-1});if(!fromPulse)this.countOverfillWave(null,fromSlot);}
     finally{this.inCardSpill=false;}
   }
   syncCourierDripBadge() {
@@ -2216,7 +2216,7 @@ export class WispFlight {
   }
 
   /** Spillway / the plain every-third-Overfill Pulse: one count per Overfill. `key` (the pickup) stops a Spark being counted twice; a card-made Overfill has none. */
-  countOverfillWave(key){
+  countOverfillWave(key,fromSlot=-1){
     if((this.options?.cardPilot||this.mod.cardPilot)&&!this.tutorial
       &&(!this.dream||this.dream.phase==='done')&&this.running&&this.alive&&!this.paused&&!this.dying&&!this.completing
       &&!this.finished&&!this.destroyed&&!(key&&this.overfillWaveSeen.has(key))){
@@ -2224,7 +2224,8 @@ export class WispFlight {
       this.overfillWave.every=Math.max(1,Number(this.mod.cardOverfillEvery)||3);
       if(this.overfillWave.charge>=this.overfillWave.every){
         this.overfillWave.charge=0;this.overfillWave.waves++;
-        this.radiateLight({once:true,reveal:true,source:'card-overfill',sourceKind:'card',color:'#d9f0dc'});
+        const wave=this.radiateLight({once:true,reveal:true,source:'card-overfill',sourceKind:'card',color:'#d9f0dc'});
+        if(wave&&typeof wave==='object'&&Number.isInteger(fromSlot)&&fromSlot>=0)wave.fromSlot=fromSlot; // loop guard: an Overfill Pulse made by a card's spill is heard only by cards to the right of that card, so no card answers a wave its own firing caused
         this.sound('luminance',{strength:.35});
         this.activation('card-overfill',{label:'Overfill',outcome:{wave:1}});
         this.setEvent('Overfill · Pulse');
