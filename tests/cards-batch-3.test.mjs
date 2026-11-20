@@ -77,7 +77,7 @@ test('Undertow: a Falling Lift is one Collect for the cards to its right only, a
   try {
     const kinds = spy(e), seq = e.cardRowSequence;
     e.undertowCollect({meterFraction: 0.1});
-    assert.deepEqual(kinds, ['body-spark'], 'exactly one Collect');
+    assert.deepEqual(kinds.filter(k => k !== 'natural-overfill'), ['body-spark'], 'exactly one Collect (the Sparks it made at a full Meter may be heard as an Overfill, by the one-Overfill rule)');
     assert.equal(e.cardRowSequence, seq + 1, 'one event, no echo');
     assert.ok(e.cardRowTrace.sparks > 0, 'the Collect card on its right paid');
   } finally { e.destroy(); }

@@ -27,5 +27,6 @@ test('Cards that make a Pulse or need a Flare say what they need in their help',
   const says = (id, re) => assert.match(SKILL_CARDS[id].help || '', re, id);
   says('low-ember', /Pulse card/); says('first-catch', /Pulse card/); says('ember-bell', /Pulse cards/);
   says('spark-chime', /Pulse maker/); says('clear-prism', /Flare Handling/);
+  says('afterglow', /Flare Tinder/); says('flash-bank', /Flare Tinder/); says('flash-thread', /still recovering/);
   says('toll-bell', /needs no Rhythm card/); says('pacesetter', /needs no Rhythm card/);
 });
