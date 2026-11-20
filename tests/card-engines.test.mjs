@@ -140,7 +140,7 @@ test('a Timer returns its Pulse to the first Slot but never to itself', () => {
   const {engine, host, at} = rig(['first-catch', 'slow-wick', 'spark-chime']);
   at('collect', 0);
   assert.equal(host.meter, 0); assert.equal(engine.timers[0].slot, 1);
-  engine.advance(3);
+  engine.advance(5);
   assert.equal(engine.turns, 1);
   const back = hits(engine, 'pulse').find(p => p.back);
   assert.deepEqual([back.slot, back.to], [-1, 2], 'from the first Slot to the first hearer that is not the Wick');
@@ -184,15 +184,15 @@ test('a Chain with no Timer runs once', () => {
 });
 
 // ── Timers, stopping (rulings 3, 4, 6) ──────────────────────────────────────────────────────────────────────────
-test('Slow Wick waits 3 s, Heartbeat halves every Timer, and a burning Wick ignores further Pulses', () => {
+test('Slow Wick waits 5 s, Heartbeat halves every Timer, and a burning Wick ignores further Pulses', () => {
   const plain = rig(['close-call', 'slow-wick', 'spark-chime']); plain.at('skim', 0);
-  assert.equal(plain.engine.timers[0].at, 3);
+  assert.equal(plain.engine.timers[0].at, 5);
   plain.at('skim', 1); assert.equal(plain.engine.timers.length, 1, 'a burning Wick ignores the second Pulse: no second loop');
   assert.equal(hits(plain.engine, 'already-waiting').length, 1);
   const fast = rig([...WICK, 'heartbeat']); fast.at('collect', 0);
-  assert.equal(fast.engine.timers[0].at, 1.5);
+  assert.equal(fast.engine.timers[0].at, 2.5);
   const two = rig([...WICK, 'heartbeat', 'heartbeat']); two.at('collect', 0);
-  assert.equal(two.engine.timers[0].wait, 1.5, 'two Heartbeats would not halve it again');
+  assert.equal(two.engine.timers[0].wait, 2.5, 'two Heartbeats would not halve it again');
 });
 
 test('Metronome fires the next card every 3 s, stops when it cannot act and is re-armed by the next event', () => {

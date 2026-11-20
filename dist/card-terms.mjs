@@ -59,7 +59,7 @@ export const CARD_TERMS = Object.freeze({
   clear: ['Finish', 'Trigger: you clear a flight, or you pack your spare Sparks at the end of it.'],
   engine: ['Engine', 'A chain that keeps itself going: one card’s event fires a card to its right, and a Timer sends it back to Slot 1.'],
   turn: ['Timer firing', 'Each time a Timer card fires, the Chain is walked again from the first slot.'],
-  timer: ['Timer', 'A card that acts on a clock: Metronome fires the next card every 3 s, Slow Wick sends a Pulse every 3 s, Long Fuse repeats your last Trigger every 5 s, both by themselves. Each time one fires, the Chain is walked again from the first slot; without a Timer an engine runs once.'],
+  timer: ['Timer', 'A card that acts on a clock: Metronome fires the next card every 3 s, Slow Wick sends a Pulse every 5 s, Long Fuse repeats your last Trigger every 5 s, both by themselves. Each time one fires, the Chain is walked again from the first slot; without a Timer an engine runs once.'],
   'engine-skim': ['Skim', 'Trigger: you fly close to terrain until Proximity fills.'],
   timers: ['Timers', 'The card changes every Timer card in your chain.'],
   'take-off': ['Take-off', 'When you start a flight. Cards that say At take-off act then.'],
@@ -100,7 +100,7 @@ const CARD_TERM_DETAILS = Object.freeze({
   trigger: "The Triggers are Collect, Lift, Pulse, Delivery, Overfill, Finish and Skim. Boost cards work with all of them; Passive cards and At Rest cards do not wait for one. One touch can be two Triggers: a Spark that overfills your meter is Overfill, then Collect.",
   boost: "Boosts sit to the right of the cards they strengthen. Several Boosts multiply together (×1.25 then ×2 is ×2.5). Fractions round up: each firing’s Sparks are rounded up to a whole number at the end (2.5 becomes 3); Collector time keeps its decimals. They also strengthen always-on cards to their left (+20% Luminance ×2 = +40%), except Boosts that have their own Trigger or limited uses. Boosts never multiply Stored Sparks rewards or gains that last beyond the journey, such as Growth Ring and Wind Feather. Caps still apply: the meter stops at 100 Sparks, and boosted time never brings Collector below half a second.",
   engine: "Events made by a card travel to the right only. A card never answers an event it made itself in the same firing. An engine stops when a card cannot do its job, for example on a full meter; as Lift spends Sparks, the next event can start it again. Without a Timer a chain runs once.",
-  timer: "Slow Wick sends a Pulse back to Slot 1 every 3 s, with or without a Pulse to start it. Metronome, once an event reaches it, fires the card to its right every 3 s while that card can act. Long Fuse fires your last Trigger again every 5 s. Heartbeat halves every wait.",
+  timer: "Slow Wick sends a Pulse back to Slot 1 every 5 s, with or without a Pulse to start it. Metronome, once an event reaches it, fires the card to its right every 3 s while that card can act. Long Fuse fires your last Trigger again every 5 s. Heartbeat halves every wait.",
   encore: "All Refrains share one Encore per Trigger. It happens only if something worked the first time. The Sparks start at zero again, uses spent stay spent, and a first-crossing Stored Spark comes only once. Second Sun multiplies by more in an Encore.",
 });
 

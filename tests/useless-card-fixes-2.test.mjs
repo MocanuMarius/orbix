@@ -28,7 +28,7 @@ test('Wave Loom with a Timer mounted behaves as before (no extra Turns of its ow
 
 test('Slow Wick and Long Fuse light themselves at take-off', () => {
   const wick = flights(['slow-wick']);
-  for (const f of wick) { const l = log(f); const lit = l.find(x => x.k === 'lit').t; assert.ok(lit < 0.5, 'lit at take-off'); assert.ok(Math.abs(l.find(x => x.k === 'turn').t - lit - 3) < 1e-6, 'first Turn 3 s later'); }
+  for (const f of wick) { const l = log(f); const lit = l.find(x => x.k === 'lit').t; assert.ok(lit < 0.5, 'lit at take-off'); assert.ok(Math.abs(l.find(x => x.k === 'turn').t - lit - 5) < 1e-6, 'first Turn 5 s later'); }
   const fuse = flights(['long-fuse']);
   for (const f of fuse) { const l = log(f); const lit = l.find(x => x.k === 'lit').t; assert.ok(lit < 0.5); assert.ok(l.some(x => x.k === 'turn' && Math.abs(x.t - lit - 5) < 1e-6), 'first Turn 5 s later'); }
 });

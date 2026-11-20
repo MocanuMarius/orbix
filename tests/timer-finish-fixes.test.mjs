@@ -11,9 +11,9 @@ import { drawSkillCard } from '../dist/skill-cards.mjs';
 const row = ids => ids.map((id, i) => id ? makeSkillCard(id, `x${i}`) : null);
 const turnsAt = run => run.engine.turnLog;
 
-test('Slow Wick relights itself 3 s after every firing, with no Pulse to feed it', () => {
+test('Slow Wick relights itself 5 s after every firing, with no Pulse to feed it', () => {
   const run = simulateEngineChain(row(['slow-wick']), { horizon: 30 });
-  assert.deepEqual(turnsAt(run), [3, 6, 9, 12, 15, 18, 21, 24, 27, 30]);
+  assert.deepEqual(turnsAt(run), [5, 10, 15, 20, 25, 30]);
   assert.equal(run.running, true, 'still burning');
 });
 
@@ -31,8 +31,8 @@ test('a Pulse a Wick hears never makes it fire faster than its own period', () =
   assert.ok(engine.log.filter(x => x.k === 'already-waiting').length > 20, 'the Wick heard them and ignored them while burning');
   engine.advance(30);
   const t = engine.turnLog;
-  for (let i = 1; i < t.length; i++) assert.ok(t[i] - t[i - 1] >= 3 - 1e-6, `gap ${t[i] - t[i - 1]}`);
-  assert.equal(t.length, 10);
+  for (let i = 1; i < t.length; i++) assert.ok(t[i] - t[i - 1] >= 5 - 1e-6, `gap ${t[i] - t[i - 1]}`);
+  assert.equal(t.length, 6);
 });
 
 test('the Chain tab simulation shows Slow Wick, Long Fuse and Wave Loom alone as repeating, not "runs once"', () => {
@@ -43,16 +43,16 @@ test('the Chain tab simulation shows Slow Wick, Long Fuse and Wave Loom alone as
     assert.ok(stats.turnsPer10s > 0, `${id} turns per 10 s ${stats.turnsPer10s}`);
   }
   assert.equal(findEngineLoop(row(['spark-chime'])).runsOnce, true, 'a Chain with no Timer still runs once');
-  assert.ok(Math.abs(engineStats(row(['slow-wick'])).turnsPer10s - 10 / 3) < 0.01);
+  assert.ok(Math.abs(engineStats(row(['slow-wick'])).turnsPer10s - 10 / 5) < 0.01);
   assert.ok(Math.abs(engineStats(row(['wave-loom'])).turnsPer10s - 10 / 6) < 0.01);
 });
 
 test('Third Beat is Common, and Timer card text says how often they fire', () => {
   assert.equal(SKILL_CARDS['third-beat'].rarity, 'common');
   assert.equal(drawSkillCard({ campaignSeed: 'x', mapIndex: 0 }, 'frequency', { id: 'n' }, 'common') !== null, true);
-  assert.equal(faceEffect(makeSkillCard('slow-wick', 'a'), SKILL_CARDS['slow-wick']), 'Every 3 s: a Pulse');
+  assert.equal(faceEffect(makeSkillCard('slow-wick', 'a'), SKILL_CARDS['slow-wick']), 'Every 5 s: a Pulse');
   assert.equal(faceEffect(makeSkillCard('long-fuse', 'a'), SKILL_CARDS['long-fuse']), 'Every 5 s: fires again');
-  assert.equal(cardTileLine(makeSkillCard('slow-wick', 'a')), 'Every 3 s: a Pulse');
+  assert.equal(cardTileLine(makeSkillCard('slow-wick', 'a')), 'Every 5 s: a Pulse');
   for (const id of ['slow-wick', 'long-fuse']) assert.match(SKILL_CARDS[id].help, /by itself/);
 });
 
@@ -67,17 +67,18 @@ test('Home Beacon pays +3 Stored per heart left plus +1 per full 10 Sparks in th
   assert.equal(clear(['home-beacon', 'prism-lens'], { heartsLeft: 3, meterSparks: 25 }).r.stored, 11, 'a Boost never multiplies Stored Sparks');
 });
 
-test('Victory Lap: a card counts once, plus once more per full 10 firings it made; Victory Lap itself never counts', () => {
+test('Victory Lap: a card counts once, plus once more per full 15 firings it made; Victory Lap itself never counts', () => {
   const ids = row(['body-spark', 'toll-bell', 'victory-lap']);
   const rt = createCardExecution(ids);
   const [a, b, lap] = ids.map(c => c.instanceId);
   const pay = (firedCounts, firedInstanceIds = [a, b, lap]) => resolveCardRow(createCardExecution(ids), { kind: CARD_ROW_EVENTS.clear, firedInstanceIds, firedCounts }).stored;
   assert.equal(pay({ [a]: 1, [b]: 1, [lap]: 40 }), 2, 'one each; the Lap itself is left out whatever it fired');
   assert.equal(pay({ [a]: 9, [b]: 1 }), 2);
-  assert.equal(pay({ [a]: 10, [b]: 1 }), 3);
+  assert.equal(pay({ [a]: 10, [b]: 1 }), 2, '10 firings is not yet a full 15');
+  assert.equal(pay({ [a]: 14, [b]: 1 }), 2);
   assert.equal(pay({ [a]: 15, [b]: 1 }), 3, '15 firings = 2');
-  assert.equal(pay({ [a]: 30, [b]: 1 }), 5, '30 firings = 4');
-  assert.equal(pay({ [a]: 30, [b]: 25 }), 4 + 3);
+  assert.equal(pay({ [a]: 30, [b]: 1 }), 4, '30 firings = 3');
+  assert.equal(pay({ [a]: 30, [b]: 25 }), 3 + 2);
   assert.equal(pay({}, [a]), 1, 'no count known: once');
   assert.ok(rt.cards.length);
 });

@@ -1058,8 +1058,8 @@ function finishHeartPay(rule, event) {
   const amount = Math.max(0, Number(rule.amount) || 0), perTen = Math.max(0, Number(rule.perTenSparks) || 0);
   return amount * integer(event.heartsLeft) + perTen * Math.floor(Math.max(0, Number(event.meterSparks) || 0) / 10);
 }
-/** Victory Lap (2026-11-20): each other card that fired counts once, plus once more for each full 10 firings it made that flight. */
-export const VICTORY_LAP_STEP = 10;
+/** Victory Lap (2026-11-20): each other card that fired counts once, plus once more for each full 15 firings it made that flight. */
+export const VICTORY_LAP_STEP = 15;
 function finishFiredCredit(event, ownId) {
   const counts = event.firedCounts || {};
   return (event.firedInstanceIds || []).filter(id => id !== ownId).reduce((sum, id) => sum + 1 + Math.floor((Number(counts[id]) || 0) / VICTORY_LAP_STEP), 0);

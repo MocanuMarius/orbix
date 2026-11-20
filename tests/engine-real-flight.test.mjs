@@ -45,7 +45,7 @@ test('timer firings reach the in-flight Chain strip: a Turn mark for the Metrono
   }
 });
 
-test('the Chime loop under today’s rules: First Catch lights it, Ember Bell hears the Overfill, Slow Wick waits 3 s and returns the Pulse; only a Timer returns to Slot 1', () => {
+test('the Chime loop under today’s rules: First Catch lights it, Ember Bell hears the Overfill, Slow Wick waits 5 s and returns the Pulse; only a Timer returns to Slot 1', () => {
   const a = flights(['first-catch', 'spark-chime', 'ember-bell', 'slow-wick']);
   assert.ok(perFlight(a, 'turn') >= 3, `a loop turns: ${perFlight(a, 'turn')} Turns a flight`);
   assert.ok(entries(a, 'gain').every(x => (x.slot === 1 && x.amount === 1) || (x.slot === 0 && x.amount === 4)), 'Spark Chime gives 1 Spark per Pulse (First Catch’s own +4 is the only other gain)');
@@ -54,7 +54,7 @@ test('the Chime loop under today’s rules: First Catch lights it, Ember Bell he
   assert.ok(entries(a, 'pulse', x => x.slot === -1).every(x => x.back === true), 'only a Timer returns a Pulse to Slot 1');
   for (const f of a) {
     const lit = logOf(f).filter(x => x.k === 'lit' || x.k === 'turn');
-    for (let i = 1; i < lit.length; i++) if (lit[i].k === 'turn' && lit[i - 1].k === 'lit') assert.ok(Math.abs(lit[i].t - lit[i - 1].t - 3) < EPS, 'Slow Wick waits 3 s');
+    for (let i = 1; i < lit.length; i++) if (lit[i].k === 'turn' && lit[i - 1].k === 'lit') assert.ok(Math.abs(lit[i].t - lit[i - 1].t - 5) < EPS, 'Slow Wick waits 5 s');
   }
   assert.equal(perFlight(a, 'halt'), 0);
   const ember = flights(['body-spark', 'ember-bell', 'slow-wick', 'spark-chime']);

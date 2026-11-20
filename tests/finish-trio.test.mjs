@@ -25,7 +25,7 @@ test('catalogue: all three are normal-pool Finish cards, not starters, not perma
     assert.ok(cardTileLine(makeSkillCard(id, 'x')).length <= 22, `${id} tile line fits`);
   }
   assert.equal(faceEffect(makeSkillCard('clean-run', 'x'), SKILL_CARDS['clean-run']), 'Once: +5 Stored, no heart lost');
-  assert.equal(faceEffect(makeSkillCard('victory-lap', 'x'), SKILL_CARDS['victory-lap']), 'Once: +1 a card, +1 per 10 firings');
+  assert.equal(faceEffect(makeSkillCard('victory-lap', 'x'), SKILL_CARDS['victory-lap']), 'Once: +1 a card, +1 per 15 firings');
   assert.equal(faceEffect(makeSkillCard('curtain-call', 'x'), SKILL_CARDS['curtain-call']), 'Once: first card fires ×3');
 });
 
