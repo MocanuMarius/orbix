@@ -228,7 +228,8 @@ export class CardEngine {
    * crosses a Spark you have not taken, exactly like a Flare's Pulse. It never re-fires the sender or the cards to its left (the host
    * tags the ring with the sender's Slot). Made only when such a card exists, and never while packing (the flight is over). */
   realPulse(from, beat = false) {
-    if (this.inPack || typeof this.host.cardPulse !== 'function' || !this.pulseHeardByCardsRightOf(from)) return;
+    // A Timer beat always shows its ring (it lights the passage) even when no card hears it; other Pulses are made only when some card hears them.
+    if (this.inPack || typeof this.host.cardPulse !== 'function' || (!beat && !this.pulseHeardByCardsRightOf(from))) return;
     // One real Pulse per Turn instant: a Wave Loom's ring already made at this very moment (heard by the whole Chain) is the Timer's ring too.
     if (this.loomRing && this.loomRing.turn === this.turn && Math.abs(this.loomRing.t - this.t) < EPS) { this.record({ k: 'real-pulse-merged', slot: from }); return; }
     this.record({ k: 'real-pulse', slot: from });
