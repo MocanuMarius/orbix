@@ -1,6 +1,6 @@
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=timers-1';
-import {uiIcon} from './ui-icons.mjs?v=timers-1';
-import {fineTreasureObject} from './fine-treasure-art.mjs?v=timers-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=inscribe-1';
+import {uiIcon} from './ui-icons.mjs?v=inscribe-1';
+import {fineTreasureObject} from './fine-treasure-art.mjs?v=inscribe-1';
 
 // Three material tones sit above a shared dark contour. Keep light and shadow
 // readable at the tree's smallest size, even with all motion switched off.

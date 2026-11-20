@@ -1,7 +1,7 @@
 // Wordless in-flight cues for the starter cards (Skim Line, Pulse Reader, Courier Cord). Each is a few whole-pixel
 // rects per frame, read from state the engine already keeps; nothing is allocated and no canvas is created. The Meter Mark notch
 // is HUD markup (dist/glow-ui.mjs). A cue is drawn only while its card is mounted (e.mod flag).
-import {getProximityClearance} from './edging-pulse.mjs?v=timers-1';
+import {getProximityClearance} from './edging-pulse.mjs?v=inscribe-1';
 const r = Math.round, clamp = (n, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, n));
 const px = (c, x, y, w, h) => c.fillRect(r(x), r(y), Math.max(1, r(w)), Math.max(1, r(h)));
 

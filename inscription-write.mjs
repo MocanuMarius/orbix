@@ -4,13 +4,13 @@
 // the old one struck through ("Replaces Gilded"), and the card's before → after from the same row preview the Chain tab uses.
 // Nothing is written until "Write". The "?" on a card or a brand and every keyword open the glossary as an overlay; the selection stays.
 // Menu screen only, never in flight. Nothing on it scrolls at 890×400, 915×412 or 740×333 (styles: dist/artifact-reward.css).
-import {getInscription, getPermanentInscription, slotInscriptionId, slotInscriptionList} from './inscriptions.mjs?v=timers-1';
-import {inscriptionGlyph, inscriptionTag} from './inscription-ui.mjs?v=timers-1';
-import {cardTermTextMarkup} from './card-terms.mjs?v=timers-1';
-import {cardArt} from './card-art.mjs?v=timers-1';
-import {inscriptionEffect} from './inscription-on-card.mjs?v=timers-1';
-import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=timers-1';
-import {resolveChain, triggersFor, triggerName, num, chipOf} from './ui/chain-model.mjs?v=timers-1';
+import {getInscription, getPermanentInscription, slotInscriptionId, slotInscriptionList} from './inscriptions.mjs?v=inscribe-1';
+import {inscriptionGlyph, inscriptionTag} from './inscription-ui.mjs?v=inscribe-1';
+import {cardTermTextMarkup} from './card-terms.mjs?v=inscribe-1';
+import {cardArt} from './card-art.mjs?v=inscribe-1';
+import {inscriptionEffect} from './inscription-on-card.mjs?v=inscribe-1';
+import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=inscribe-1';
+import {resolveChain, triggersFor, triggerName, num, chipOf} from './ui/chain-model.mjs?v=inscribe-1';
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 
 const rowOf = run => Array.from({length: Math.max(0, Number(run?.cardSlots) || (run?.mountedCards || []).length)}, (_, i) => run?.mountedCards?.[i] || null);
