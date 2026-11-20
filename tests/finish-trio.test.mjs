@@ -24,9 +24,9 @@ test('catalogue: all three are normal-pool Finish cards, not starters, not perma
     assert.ok(def.help && def.ruleBands.length === 2);
     assert.ok(cardTileLine(makeSkillCard(id, 'x')).length <= 22, `${id} tile line fits`);
   }
-  assert.equal(faceEffect(makeSkillCard('clean-run', 'x'), SKILL_CARDS['clean-run']), '+5 Stored, no heart lost');
-  assert.equal(faceEffect(makeSkillCard('victory-lap', 'x'), SKILL_CARDS['victory-lap']), '+1 Stored per card fired');
-  assert.equal(faceEffect(makeSkillCard('curtain-call', 'x'), SKILL_CARDS['curtain-call']), 'first card fires ×3');
+  assert.equal(faceEffect(makeSkillCard('clean-run', 'x'), SKILL_CARDS['clean-run']), 'Once: +5 Stored, no heart lost');
+  assert.equal(faceEffect(makeSkillCard('victory-lap', 'x'), SKILL_CARDS['victory-lap']), 'Once: +1 a card, +1 per 10 firings');
+  assert.equal(faceEffect(makeSkillCard('curtain-call', 'x'), SKILL_CARDS['curtain-call']), 'Once: first card fires ×3');
 });
 
 test('Clean Run: +5 Stored at Finish only when no heart was lost; Echo repeats it; Boosts and Inscriptions add nothing', () => {

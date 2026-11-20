@@ -1053,6 +1053,17 @@ const freezeReceipt = (receipt) => {
   if (Array.isArray(receipt.firings)) { for (const firing of receipt.firings) Object.freeze(firing); Object.freeze(receipt.firings); }
   return Object.freeze(receipt);
 };
+/** Home Beacon (2026-11-20): +amount Stored per heart left at the clear, plus rule.perTenSparks per full 10 Sparks in the Meter at the clear. */
+function finishHeartPay(rule, event) {
+  const amount = Math.max(0, Number(rule.amount) || 0), perTen = Math.max(0, Number(rule.perTenSparks) || 0);
+  return amount * integer(event.heartsLeft) + perTen * Math.floor(Math.max(0, Number(event.meterSparks) || 0) / 10);
+}
+/** Victory Lap (2026-11-20): each other card that fired counts once, plus once more for each full 10 firings it made that flight. */
+export const VICTORY_LAP_STEP = 10;
+function finishFiredCredit(event, ownId) {
+  const counts = event.firedCounts || {};
+  return (event.firedInstanceIds || []).filter(id => id !== ownId).reduce((sum, id) => sum + 1 + Math.floor((Number(counts[id]) || 0) / VICTORY_LAP_STEP), 0);
+}
 /** The base reward of one firing of a card's own rule, before repeats, Encore and Boosts. */
 function baseRewards(def, card, rule, event) {
   const base = zeroRewards();
@@ -1061,8 +1072,8 @@ function baseRewards(def, card, rule, event) {
   if (rule.operation === "add-sparks") base.sparks = amount;
   if (rule.storedFirstCrossing) base.stored = Math.max(0, Number(rule.storedFirstCrossing) || 0);
   if (rule.operation === "add-stored") base.stored = amount;
-  if (rule.operation === "add-stored-per-heart") base.stored = amount * integer(event.heartsLeft);
-  if (rule.operation === "add-stored-per-fired") base.stored = amount * (event.firedInstanceIds || []).filter(id => id !== card?.instanceId).length;
+  if (rule.operation === "add-stored-per-heart") base.stored = finishHeartPay(rule, event);
+  if (rule.operation === "add-stored-per-fired") base.stored = amount * finishFiredCredit(event, card?.instanceId);
   if (rule.operation === "carried-interest") base.stored = Math.min(10, Math.floor(integer(event.carriedStored) / 10)) * amount;
   if (rule.operation === "add-cruising-speed") base.cruisingSpeed = amount;
   if (rule.operation === "add-future-capacity") base.futureCapacity = cleanCardFutureCapacity(amount);
@@ -1125,6 +1136,7 @@ export function resolveCardRow(runtime, event = {}) {
     ...(kind===CARD_ROW_EVENTS.wave?{waveId:event.waveId??null,
       pulseSource:event.pulseSource??null,pulseSourceKind:event.pulseSourceKind??null}:{}),
     heartsLeft: integer(event.heartsLeft), lastHeart: event.lastHeart === true, heartsLost: integer(event.heartsLost),
+    meterSparks: integer(event.meterSparks), firedCounts: event.firedCounts && typeof event.firedCounts === "object" ? event.firedCounts : {},
     // Victory Lap: the different mounted cards that fired during the flight (`'all'` = every mounted card, for previews).
     firedInstanceIds: ((mounted) => event.firedInstanceIds === 'all' ? mounted : Array.isArray(event.firedInstanceIds) ? [...new Set(event.firedInstanceIds)].filter(id => mounted.includes(id)) : [])((runtime?.cards || []).slice(0, CARD_ECONOMY.maxSlots).filter(Boolean).map(card => card.instanceId)),
     meterFraction: event.meterFraction ?? null, direction: event.direction ?? null,
@@ -1302,8 +1314,8 @@ export function resolveCardRow(runtime, event = {}) {
       } else if (operation === "add-stored" || operation === "carried-interest" || operation === "add-stored-per-heart" || operation === "add-stored-per-fired") {
         step.operation = operation;
         const gain = operation === "carried-interest" ? Math.min(10, Math.floor(integer(event.carriedStored) / 10)) * amount
-          : operation === "add-stored-per-heart" ? integer(event.heartsLeft) * amount
-          : operation === "add-stored-per-fired" ? receipt.event.firedInstanceIds.filter(id => id !== source.instanceId).length * amount : amount;
+          : operation === "add-stored-per-heart" ? finishHeartPay(rule, receipt.event)
+          : operation === "add-stored-per-fired" ? finishFiredCredit(receipt.event, source.instanceId) * amount : amount;
         // Meter Mark: keeps its Stored Spark only on every 2nd Overfill. The count is a transient field on the card (markCount): it starts at 0 each flight, and a preview always pays.
         const everyNth = Number(rule.everyNth) || 0;
         let due = true;

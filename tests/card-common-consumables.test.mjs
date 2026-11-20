@@ -93,9 +93,10 @@ test('roughly half the Common catalog has charges without consuming persistent b
   const common=Object.values(SKILL_CARDS).filter(def=>def.rarity==='common'&&!def.unreleased),droppable=common.filter(def=>!def.starterOnly);
   // Prism Lens joined the Commons (ladder 2026-11-17) and Double Lift was added; neither has charges.
   // 2026-11-18: six engine Commons were released (Spark Chime, Ember Bell, Slow Wick, First Catch, Afterglow, Full Satchel); none has charges.
-  assert.equal(common.length,62);assert.equal(common.filter(def=>def.charges).length,22); // +Clean Run, Victory Lap, Brimful (2026-11-18)
-  assert.equal(droppable.length,56);assert.equal(droppable.filter(def=>def.charges).length,22);
-  assert.equal(droppable.reduce((sum,def)=>sum+(def.dropWeight||1),0),61);
+  // 2026-11-20: Third Beat became Common (+1).
+  assert.equal(common.length,63);assert.equal(common.filter(def=>def.charges).length,22); // +Clean Run, Victory Lap, Brimful (2026-11-18)
+  assert.equal(droppable.length,57);assert.equal(droppable.filter(def=>def.charges).length,22);
+  assert.equal(droppable.reduce((sum,def)=>sum+(def.dropWeight||1),0),62);
   for(const id of ['body-spark','deep-vessel','tight-packing','echo','field-impulse','harvest-common',
     'downbeat','courier-tip','toll-bell','slip-feather','growth-seed-common','dream'])assert.equal(SKILL_CARDS[id].charges,undefined,id);
   let commonDrops=0,finiteDrops=0,finiteDrafts=0;
@@ -105,7 +106,7 @@ test('roughly half the Common catalog has charges without consuming persistent b
     commonDrops++;if(SKILL_CARDS[card.cardId].charges)finiteDrops++;
     if(drawSkillCardDraft(run,node).some(card=>SKILL_CARDS[card.cardId].rarity==='common'&&SKILL_CARDS[card.cardId].charges))finiteDrafts++;
   }
-  assert.ok(Math.abs(finiteDrops/commonDrops-22/58)<.03,'weighted Common frequency includes Growth Seed weight and persistent Dream');
+  assert.ok(Math.abs(finiteDrops/commonDrops-22/59)<.03,'weighted Common frequency includes Growth Seed weight and persistent Dream');
   assert.ok(finiteDrafts>1700&&finiteDrafts<2300,'normal three-card drafts usually offer a finite Common');
 });
 

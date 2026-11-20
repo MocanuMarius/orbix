@@ -285,9 +285,9 @@ test('an engine stops when the meter is full and no card hears the Overfill', ()
   at('collect', 0); engine.advance(30);
   assert.equal(host.meter, 3); assert.equal(engine.lastStop.reason, 'cannot-act'); assert.equal(engine.timers.length, 0);
   assert.equal(engine.turns, 1, 'no turn limit: at the next 3 s the Spark Chime could not act, so the Metronome stopped');
-  // A Wick version has no Metronome to stop it: the meter-full Chime is what ends the engine.
+  // A Wick version has no Metronome to stop it: the meter-full Chime is what stops the beat, but the Wick keeps burning by itself.
   const wick = rig(WICK, {start: 3, max: 3}); wick.at('collect', 0); wick.engine.advance(30);
-  assert.equal(wick.engine.lastStop.reason, 'meter-full'); assert.equal(wick.engine.timers.length, 0);
+  assert.equal(wick.engine.lastStop.reason, 'meter-full'); assert.equal(wick.engine.timers.length, 1);
 });
 
 test('starters: First Catch once per flight, Low Ember under half once per 6 s, Close Call on a skim', () => {

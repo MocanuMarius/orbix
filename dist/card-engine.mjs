@@ -44,7 +44,8 @@ export function findEngineLoop(cards) {
   const timers = specs.map((s, i) => s?.timer ? i : -1).filter(i => i >= 0);
   const returns = timers.filter(i => ['wick', 'fuse'].includes(specs[i].timer));
   const entry = specs.findIndex(s => hears(s, 'pulse'));
-  return { timers, returns, entry, runsOnce: !timers.length, heartbeat: specs.some(s => s?.timerScale) };
+  const loom = specs.some(s => s?.governor === 'wave-loom');
+  return { timers, returns, entry, loom, runsOnce: !timers.length && !loom, heartbeat: specs.some(s => s?.timerScale) };
 }
 
 /** Product of the Boosts to the right of `slot` (Any Trigger multipliers without limited uses), as on a firing. */
@@ -119,7 +120,7 @@ export class CardEngine {
   hasTimerCard() { return this.cards.some(card => !!engineSpec(card)?.timer); }
   /** Take-off, once per flight (2026-11-20): Slow Wick and Long Fuse light themselves, an Afterglow lights its own 1 s Flare (heard by the whole Chain
    * when it ends), and a Wave Loom with no Timer in the Chain starts making its own Turn every WAVE_LOOM_SELF_TURN seconds. */
-  takeOff(now = this.t) {
+  takeOff(now = this.t, { flare = true } = {}) {
     if (this.tookOff || this.inPack) return;
     this.tookOff = true;
     this.advance(now);
@@ -128,7 +129,7 @@ export class CardEngine {
       const spec = engineSpec(card);
       if (spec?.selfStart && spec.timer && spec.timer !== 'metronome') this.light(j, { type: 'pulse', from: j - 1, mask: 1 << j, turn: this.turn });
     });
-    if (cards.some(card => engineSpec(card)?.takeOffFlare) && this.host.startFlash) {
+    if (flare && cards.some(card => engineSpec(card)?.takeOffFlare) && this.host.startFlash) {
       const spec = engineSpec(cards.find(card => engineSpec(card)?.takeOffFlare));
       const started = !!this.host.startFlash(Number(spec.takeOffFlare) || 1, -1);
       this.record({ k: started ? 'flash' : 'flash-refused', slot: -1 });
@@ -382,6 +383,12 @@ export class CardEngine {
     if (this.inPack) { this.record({ k: 'no-time', slot: j }); return; }
     this.burning.add(j); this.schedule(j, spec.timer); this.record({ k: 'lit', slot: j });
   }
+  /** Slow Wick and Long Fuse burn by themselves (2026-11-20): after a firing they light again for the same wait, so a Pulse they hear
+   * (which only lights a card that is not already burning) can never make them fire faster than their own period. */
+  relight(slot, kind) {
+    if (this.inPack || this.burning.has(slot)) return;
+    this.burning.add(slot); this.schedule(slot, kind); this.record({ k: 'relit', slot });
+  }
   schedule(slot, kind) {
     const spec = engineSpec(this.cards[slot]), wait = (Number(spec.wait) || 1) * this.timerScale;
     this.timers.push({ at: this.t + wait, wait, slot, kind, seq: ++this.seq, instanceId: this.cards[slot]?.instanceId ?? null });
@@ -403,6 +410,7 @@ export class CardEngine {
     if (tm.kind === 'wick') {
       this.burning.delete(tm.slot); this.beginTurn(tm.slot);
       this.sendPulse(-1, self, { back: true });
+      this.relight(tm.slot, 'wick');
     } else if (tm.kind === 'fuse') {
       this.burning.delete(tm.slot); this.beginTurn(tm.slot);
       const r = this.host.repeatLastFiring?.(tm.slot);
@@ -416,6 +424,7 @@ export class CardEngine {
         if (real > EPS) this.queue.push({ type: 'gain', from: -1, mask: self, turn: this.turn, amount: real });
         if (spill > EPS && this.overfillHeardRightOf(-1)) this.queue.push({ type: 'overfill', from: -1, mask: self, turn: this.turn, spill, spillBase: this.baseSpill(spill) });
       }
+      this.relight(tm.slot, 'fuse');
     } else if (tm.kind === 'tick') {
       const next = tm.slot + 1;
       if (!this.canAct(next)) {
@@ -436,7 +445,7 @@ export class CardEngine {
     if (spec) {
       if (spec.family === 'pack' || !spec.does && !spec.timer) return false;
       if (spec.timer === 'metronome') return !this.armed.has(slot);
-      if (spec.timer) return !this.burning.has(slot);
+      if (spec.timer) return spec.selfStart ? true : !this.burning.has(slot);
       const id = this.keyOf(slot);
       if (spec.first && this.firstUsed.has(id)) return false;
       if (spec.cooldown && this.lowEmberAt.has(id) && this.t < this.lowEmberAt.get(id) + spec.cooldown - EPS) return false;
@@ -561,7 +570,8 @@ export function simulateEngineChain(cards, { horizon = 60, events = [], meter = 
   const runtime = createCardExecution(slotCards(cards));
   const host = createMeterHost({ ...meter, collectorRecovery }); host.runtime = runtime;
   const engine = new CardEngine(runtime, host, { log });
-  const queue = [...events].map((e, i) => ({ ...e, i })).sort((a, b) => a.t - b.t || a.i - b.i);
+  engine.takeOff(0, { flare: false }); // the flight does this on its first step: Slow Wick and Long Fuse light, a Wave Loom with no Timer starts its own Turns
+  const queue =[...events].map((e, i) => ({ ...e, i })).sort((a, b) => a.t - b.t || a.i - b.i);
   let nextBurn = burn > 0 ? 1 : Infinity, minMeter = host.meter, emptyAt = null;
   const flashEnd = () => host.flashes.filter(f => !f.done).reduce((m, f) => Math.min(m, f.until), Infinity);
   for (let guard = 0; guard < 200000; guard++) {

@@ -126,7 +126,7 @@ test('Finish: Home Beacon adds 3 Stored per heart left at the real clear and spe
     const r = flyRealNode({ ids: ['home-beacon'], mutate: run => { run.lives = hearts; } });
     assert.ok(r.record.success && r.finished);
     const rc = r.run.lastFlight.cardClearReceipt;
-    assert.equal(rc.stored, 3 * hearts, `${hearts} hearts`); assert.equal(rc.futureCapacity, 0);
+    assert.ok(rc.event.meterSparks > 0, 'Meter Sparks at the clear are read'); assert.equal(rc.stored, 3 * hearts + Math.floor(rc.event.meterSparks / 10), `${hearts} hearts`); assert.equal(rc.futureCapacity, 0);
     assert.equal(r.run.mountedCards[0].charges, 2, 'one use spent');
   }
   note('Finish', 'Home Beacon (real clear, 3 / 2 / 1 hearts)', '3 clears', 3, '+9 / +6 / +3 Stored', 'works');

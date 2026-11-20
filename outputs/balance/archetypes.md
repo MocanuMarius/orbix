@@ -113,3 +113,24 @@ The whole clear is worth about 42 Stored a flight before any Finish card, so the
 1. Give Slow Wick a plain loop: it relights itself 3 s after it fires, whether or not a Pulse arrives. Expected: about 30 firings a flight; with Spark Chime to its left roughly +20 to +30 Sparks, at the level of the Lift and Pulse Chains.
 2. Add a Common starter Timer ("Dripping Wick": every 4 s fires the card to its right once, like a weaker Metronome, +2 Sparks only if that card pays). Expected: Body Spark or Pocket Sparks chains reach about 20 Sparks a flight, close to the Pulse starter Chain.
 3. Show the Timer on its card face as a ring that fills in the card row (no text), and make Third Beat a Common so a payoff exists. Expected Sparks unchanged; this makes the archetype readable and buildable early.
+
+---
+
+## After the fix set (2026-11-20)
+
+Same method as above (`node scripts/balance/archetype-table.mjs --deep`, real flights, 9 per Chain, pilot `player-good`). Loop check: `node scripts/balance/timer-loop-check.mjs`.
+
+**Timer.** Slow Wick (3 s) and Long Fuse (5 s) now light at take-off and again after every firing, with or without a Pulse; a Pulse they hear while burning is ignored, so they never fire faster than their period. Third Beat is Common. Faces read "Timer / Every 3 s: a Pulse" and "Every 5 s: fires again". The Chain tab preview now runs take-off, so Slow Wick, Long Fuse and Wave Loom alone show their repeating Turns instead of "runs once". In flight every mounted Timer card's frame fills as a ring over its period and flashes when it fires (paused with the flight).
+
+| Chain | Cleared | Card Sparks / flight | Firings / flight |
+|---|---|---|---|
+| Slow Wick alone | 3/9 | 0 | 0 (pays nothing itself) |
+| Spark Chime, Slow Wick | 8/9 | 10.8 | 43.8 / 0 |
+| Slow Wick, Spark Chime | 8/9 | 10.8 | 0 / 43.8 |
+| Long Fuse, Spark Chime | 3/9 | 0.3 | 0 / 1.8 |
+| Spark Chime, Long Fuse | 3/9 | 0.3 | 1.8 / 0 |
+| Pulse Reader, Spark Chime, Slow Wick | 8/9 | 170.8 | 477.9 / 512.0 / 0 |
+
+Slow Wick + Spark Chime pays 10.8 card Sparks a flight (asked about 28; the rest hits a full Meter): inside the 10 to 40 window but at its low end, against about 20 for the Pulse Chain. Long Fuse + Spark Chime stays near zero: Probable cause, not checked: Long Fuse repeats the last Trigger from flying that the Chain answered, and with only a Chime there is often nothing to repeat. FLAG: Pulse Reader + Spark Chime + Slow Wick pays 170.8 Sparks a flight (was 12.0): every Slow Wick Pulse crosses many Sparks and each crossing fires both Pulse cards (up to 74 log entries in one instant, 393 gains a flight). No safety stop and one Timer firing per step, but it is 8 times the Pulse Chain. Proposal, not applied: lengthen Slow Wick to 5 s, or let a Timer's Pulse pay each Pulse card at most once per ring.
+
+**Finish.** Home Beacon pays +3 Stored per heart left plus +1 per full 10 Sparks in the Meter at the clear: +11.0 per cleared flight over the baseline of 42.0 (was +8.9; target 9 to 14). Victory Lap counts a card once plus once more per full 10 firings: +6.3 with Lift Guide beside it (was +0.9; target 3 to 5, so slightly high because Lift Guide alone fires about 58 times: 1 + 5). Proposal if that is too much: step of 15 firings instead of 10 (Lift Guide would give 1 + 3). Every live Finish card reads "Once: ..." on its face and tile, and its help says "Fires once, when you clear the flight." (Curtain Call says Boosts to its right do strengthen its Sparks, since that is true.)

@@ -860,7 +860,7 @@ export class WispFlight {
       warmCore: false, windSensitivity: 1, flapCost: 1, steady: false, ...options.modifiers };
     this.cardExecution=(this.mod.cardExecution?.cards?.some(Boolean)||this.mod.cardExecution?.inscriptions?.some(Boolean))?createCardExecution(this.mod.cardExecution):null;
     this.cardChargeLedger={...getCardCharges(this.cardExecution)};
-    this.cardExecutions=0;this.cardFiredIds=new Set();this.cardFreeLift=false;this.cardFreeLiftsUsed=0;
+    this.cardExecutions=0;this.cardFiredIds=new Set();this.cardFiredCounts=new Map();this.cardFreeLift=false;this.cardFreeLiftsUsed=0;
     this.cardRowTrace=null;this.cardRowSequence=0;this.cardFires=emptyMarks();this.cardFireSeq=0;this.cardFireListener=null;this.cardChain=chainView(this.cardExecution);this.cardReelCredit=0;this.cardRecoveryCredit=0;this.cardWatchlightUsed=false;this.cardLastAcceptedLift=null;
     // Engine cards (card-engine-flight.mjs): built only when the Chain holds one.
     this.cardEngine=null;this.cardEngineStored=0;this.cardEngineFlash=null;this.cardEngineLastFiring=null;this.cardPack=null;this.cardEngineLuminance=0;syncFlightEngine(this);
@@ -1608,7 +1608,7 @@ export class WispFlight {
       availableRecovery:w.enabled(this)?w.cooldown:0,availableReel:w.activeReelSeconds(),collectorReeling:w.activeReelSeconds()>0,
       guardRecovering:w.phase==='guard-recovery',kind,id:++this.cardRowSequence});
     // Victory Lap: remember every mounted card that fired at least once this flight.
-    for(const card of receipt.cards)if(card&&card.fired>0)this.cardFiredIds.add(card.instanceId);
+    for(const card of receipt.cards)if(card&&card.fired>0){this.cardFiredIds.add(card.instanceId);this.cardFiredCounts.set(card.instanceId,(this.cardFiredCounts.get(card.instanceId)||0)+card.fired)}
     const fireMarks=collectReceiptFires(receipt,this.cardExecution.inscriptions);appendFires(this,fireMarks);
     // Practice lessons about the Chain strip stop the flight the instant a shape turns white (practice-course.mjs).
     if(this.tutorial&&fireMarks.length){this.tutorial.fireAt=this.time;if(fireMarks.some(m=>m.kind==='bar'))this.tutorial.barAt=this.time;}
@@ -2867,7 +2867,7 @@ export class WispFlight {
       ...(this.cardEngine?{cardEngineTurns:this.cardEngine.turn,cardEngineStored:success&&this.alive?this.cardEngineStored:0,cardPack:success&&this.alive&&this.cardPack?{...this.cardPack}:null,...(this.cardTithePaid&&success&&this.alive?{cardTithePaid:this.cardTithePaid}:{})}:{}),
       lives:this.lives,cardHeartsRestored:this.cardHeartsRestored,
       artifactActivations: {...this.artifactEffects.activationCounts},
-      flame: this.flame,artifactCharges:{...this.artifactEffects.charges},cardCharges:this.getCardChargeLedger(),cardTallies:getCardTallies(this.cardExecution),cardExecutions:this.cardExecutions,cardFiredIds:[...this.cardFiredIds],deathPosition:!success?this.deathPosition||null:null,
+      flame: this.flame,artifactCharges:{...this.artifactEffects.charges},cardCharges:this.getCardChargeLedger(),cardTallies:getCardTallies(this.cardExecution),cardExecutions:this.cardExecutions,cardFiredIds:[...this.cardFiredIds],cardFiredCounts:Object.fromEntries(this.cardFiredCounts),deathPosition:!success?this.deathPosition||null:null,
       score: Math.floor(this.score), collected: this.baseEmbers, bodyFuelCollected: this.bodyFuelCollected,bodyPickups:this.bodyPickups,collectorPickups:this.collectorPickups, collisions: this.collisions,
       boosts: this.boosts,
       routeBonus:this.routeObjective?.state || null,

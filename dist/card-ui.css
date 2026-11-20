@@ -1784,6 +1784,11 @@ html body button.flight-card-row.chain-strip[hidden]{display:none}
 .chain-strip .chain-echo{position:absolute;inset:0;box-sizing:border-box;border:1px solid #fff;box-shadow:0 0 0 1px #0b121099;opacity:0;pointer-events:none;will-change:transform,opacity}
 .chain-strip .chain-bar{position:absolute;left:0;top:16px;width:10px;height:2px;background:#f0c86a;box-shadow:0 0 0 1px #0b1210;transform-origin:50% 50%}
 .chain-strip .chain-bar-none{display:none}
+/* Timer ring (2026-11-20): the frame border of a Timer card fills clockwise over its period (--p 0..100, animated in card-row-feedback.mjs) and a full ring flashes when it fires. */
+@property --p{syntax:'<number>';inherits:false;initial-value:0}
+.chain-strip .chain-ring{position:absolute;inset:-1px;box-sizing:border-box;padding:2px;pointer-events:none;background:conic-gradient(from 0deg,#ffe9a6 calc(var(--p) * 1%),transparent 0);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.chain-strip .chain-ring-flash{background:#fff;opacity:0}
+.chain-strip .chain-ring[hidden]{display:none}
 .chain-strip .chain-num{position:absolute;left:50%;top:20px;transform:translateX(-50%);font:700 14px/14px var(--pixel,monospace);color:#f0c86a;text-shadow:-1px 0 #0b1210,1px 0 #0b1210,0 -1px #0b1210,0 1px #0b1210;white-space:nowrap;opacity:0;pointer-events:none;will-change:transform,opacity}
 .chain-strip .chain-cell.chain-lit .chain-num{opacity:1}
 /* The effect icons (artifact row) leave the flight HUD while the Chain strip is up: their details stay in the paused view. The optional-objective counter sits right of the strip. */

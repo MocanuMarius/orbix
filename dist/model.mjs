@@ -1579,6 +1579,8 @@ export function finishFlight(run,result){
  const clearEvent=()=>({kind:CARD_ROW_EVENTS.clear,heartsLeft:count(run.lives),lastHeart:run.lives===1,
   heartsLost:run.nodeHeartsLost?.key===`${run.mapIndex}:${n.id}`?count(run.nodeHeartsLost.count):0,
   firedInstanceIds:Array.isArray(result.cardFiredIds)?result.cardFiredIds.filter(id=>typeof id==='string'):[],
+  firedCounts:result.cardFiredCounts&&typeof result.cardFiredCounts==='object'?result.cardFiredCounts:{},
+  meterSparks:Math.max(0,Math.floor(clamp(finite(result.flame,run.flame),0,getGlowCapacity(run))/ENGINE_CARD_UNIT+1e-9)),
   carriedStored:count(attempt?.cardCarriedStored??attempt?.condensedGlow),cruisingSpeedRoom:6});
  let max=getGlowCapacity(run);const flameBase=clamp(finite(result.flame,run.flame),0,max),recovery=getRecoveryRules(run);
  // Curtain Call: the Sparks its Slot-1 card fires at the Finish go into the meter (up to its room) before the leftover packs into Stored Sparks.

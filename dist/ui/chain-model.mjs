@@ -315,7 +315,7 @@ export function enginePlate(row, slot) {
   if (!spec) return null;
   const scale = row.some(x => SKILL_CARDS[x?.cardId]?.engine?.timerScale) ? .5 : 1;
   const amount = cardAmount(c), sparks = `+${num(amount)} Spark${amount === 1 ? '' : 's'}`;
-  if (spec.timer === 'wick' || spec.timer === 'fuse') return {long: `Waits ${secs(spec.wait * scale)}`, short: `Waits ${secs(spec.wait * scale)}`};
+  if (spec.timer === 'wick' || spec.timer === 'fuse') return {long: `Timer: every ${secs(spec.wait * scale)}`, short: `Every ${secs(spec.wait * scale)}`};
   if (spec.timer === 'metronome') return {long: `Fires the next card every ${secs(spec.wait * scale)}`, short: `Every ${secs(spec.wait * scale)}`};
   if (spec.timerScale) return {long: 'Timers wait half as long', short: 'Waits ×½'};
   if (spec.governor === 'third-beat') return {long: 'Every 3rd Timer firing ×2', short: '3rd firing ×2'};
