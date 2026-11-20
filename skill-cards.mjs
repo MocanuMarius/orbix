@@ -1,11 +1,11 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=inscribe-1";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=beat-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=inscribe-1';
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=inscribe-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=inscribe-1';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=inscribe-1';
+import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=beat-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=beat-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=beat-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=beat-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -962,7 +962,7 @@ function apportion(weights, total, whole) {
 }
 const rowEventKinds = new Set(Object.values(CARD_ROW_EVENTS));
 /** Kindled ("also fires on a Lift") hears every Lift: a falling Lift and a plain one (a Lift that is not falling, or comes under 0.75 s after the last). */
-const inscriptionHears = (ins, kind) => !!ins && (ins.also === kind || (ins.id === 'kindled' && kind === CARD_ROW_EVENTS.plainLift));
+const inscriptionHears = (ins, kind, collectNth = false) => !!ins && (ins.also === kind || (ins.id === 'kindled' && kind === CARD_ROW_EVENTS.plainLift) || (ins.id === 'courier' && kind === CARD_ROW_EVENTS.body && collectNth));
 export function getCardRowRule(def, card) {
   if (def?.row) return { ...def.row, amount: def.rankStep ? cardAmount(card) : def.row.amount ?? cardAmount(card) };
   const amount = cardAmount(card);
@@ -1001,7 +1001,7 @@ function inscriptionHearsEvent(runtime, kind) {
   const cards = runtime.cards || [];
   return runtime.inscriptions.some((entry, slot) => { const ins = getInscription(entry?.id);
     if (!ins) return false;
-    if (inscriptionHears(ins, kind)) return !!cards[slot];
+    if (inscriptionHears(ins, kind) || (ins.id === 'courier' && kind === CARD_ROW_EVENTS.body)) return !!cards[slot]; // Courier counts every Collect, so it must be told of each
     return ins.id === 'hollow' && kind === CARD_ROW_EVENTS.body && !cards[slot];
   });
 }
@@ -1148,6 +1148,8 @@ export function resolveCardRow(runtime, event = {}) {
   if (!runtime || !rowEventKinds.has(kind) || event.eligible === false) {
     receipt.charges = getCardCharges(runtime);return freezeReceipt(receipt);
   }
+  // Courier: every 3rd Collect of the flight (the count lives on the flight's card execution, so it starts over each flight).
+  const collectNth = kind === CARD_ROW_EVENTS.body && (runtime.collectCount = (runtime.collectCount || 0) + 1) % 3 === 0;
   const cards = (runtime.cards || []).slice(0, CARD_ECONOMY.maxSlots);
   const topology = cards.map((card) => card ? { ...card } : null);
   const live = new Map(cards.filter(Boolean).map((card) => [card.instanceId, card]));
@@ -1210,7 +1212,8 @@ export function resolveCardRow(runtime, event = {}) {
       const source = live.get(target?.instanceId);
       const creditSlot = copy ? slot + 1 : slot;
       receipt.slotVisits++;
-      const repeats = (copy && ownDef.kind === "echo" ? Math.max(1,integer(ownDef.repeatCount || 1,CARD_ROW_LIMITS.repeats)) : 1) * (isNextToKeystone(topology, slot) ? 2 : 1) * (slotInscriptionId(runtime, creditSlot) === "twin-mark" && !isOncePerTriggerPayout(def, def ? getCardRowRule(def, source || target) : null) ? 2 : 1);
+      const repeats = (copy && ownDef.kind === "echo" ? Math.max(1,integer(ownDef.repeatCount || 1,CARD_ROW_LIMITS.repeats)) : 1) * (isNextToKeystone(topology, slot) ? 2 : 1) * (slotInscriptionId(runtime, creditSlot) === "twin-mark" && !isOncePerTriggerPayout(def, def ? getCardRowRule(def, source || target) : null) ? 2 : 1)
+        * (slotInscriptionId(runtime, creditSlot) === "wellspring" && kind === CARD_ROW_EVENTS.overfill && !isOncePerTriggerPayout(def, def ? getCardRowRule(def, source || target) : null) ? (getInscription('wellspring')?.times || 1) : 1);
       for (let repeatIndex = 0; repeatIndex < repeats; repeatIndex++) {
       const subtotal = total("sparks", pass), futureSubtotal = total("futureCapacity", pass);
       const step = { eventId: receipt.event.id, eventKind: kind, pass, slot, repeatIndex, creditSlot,
@@ -1255,12 +1258,14 @@ export function resolveCardRow(runtime, event = {}) {
         : ![CARD_ROW_EVENTS.victory,CARD_ROW_EVENTS.clear,CARD_ROW_EVENTS.attach].includes(kind));
       const insId = slotInscriptionId(runtime, creditSlot), insDef = getInscription(insId);
       const once = isOncePerTriggerPayout(def, rule);
-      const alsoHeard = !!rule && rule.operation !== "multiply" && !once && inscriptionHears(insDef, kind);
+      const alsoHeard = !!rule && rule.operation !== "multiply" && !once && inscriptionHears(insDef, kind, collectNth);
       const mirrored = !!rule && rule.operation !== "multiply" && !once && insId === "mirror" && firedSlots.has(creditSlot - 1);
-      if (rule && (rule.event === kind || rule.alsoEvents?.includes(kind) || wildcard || alsoHeard || mirrored) && matchesRowCondition(rule.when,event,pass,slot,lastOccupied) && matchesRowShape(rule.when,topology,slot)) {
+      // Sunlit: a Flare's Pulse (event.flarePulse) is heard only by Sunlit slots (and a Boost); a card's own Flare trigger is not that Pulse.
+      const nativeHeard = event.flarePulse ? (wildcard && rule?.operation === "multiply") : (rule?.event === kind || rule?.alsoEvents?.includes(kind) || wildcard);
+      if (rule && (nativeHeard || alsoHeard || mirrored) && matchesRowCondition(rule.when,event,pass,slot,lastOccupied) && matchesRowShape(rule.when,topology,slot)) {
       const operation = rule.operation;
       // Mirror: the card fired only because its left neighbour did (the strip flashes the Mirror's bar).
-      if (mirrored && !(rule.event === kind || rule.alsoEvents?.includes(kind) || wildcard || alsoHeard)) step.mirrored = true;
+      if (mirrored && !(nativeHeard || alsoHeard)) step.mirrored = true;
       let amount = Math.max(0,positionAmount(rule,topology,slot,Number(pass === 2 && rule.replayAmount !== undefined ? rule.replayAmount : rule.amount) || 0));
       // Crate Lining: a Cluster delivery pays half of its Cache amount (rounded up).
       if (rule.when?.halfPickupKinds?.includes(event.pickupKind) && event.pickupKind !== rule.when.pickupKind) amount = Math.ceil(amount / 2 - 1e-9);
@@ -1532,7 +1537,7 @@ export function getCardModifiers(run) {
   m.cardPackingRemainder = integer(run.cardPackingRemainder, 3);
   m.cardExecution = { cards: clone(run.mountedCards || []), inscriptions: clone(cleanSlotInscriptions({ mountedCards: run.mountedCards || [], slotInscriptions: run.slotInscriptions })) };
   // Whetted: the card here starts every flight with 1 extra use (the flight's ledger only ever lowers a card's uses, so it is free and never kept).
-  m.cardExecution.cards.forEach((card, slot) => { if (card && Number.isFinite(card.charges) && slotInscriptionId(m.cardExecution, slot) === "whetted") card.charges = Math.min(getCardChargeCapacity(card) + 1, integer(card.charges) + 1); });
+  m.cardExecution.cards.forEach((card, slot) => { if (card && Number.isFinite(card.charges) && slotInscriptionId(m.cardExecution, slot) === "whetted") card.charges = Math.min(getCardChargeCapacity(card) + (getInscription('whetted')?.uses || 1), integer(card.charges) + (getInscription('whetted')?.uses || 1)); });
   m.cardLuminancePercent += countInscription(m.cardExecution, "lantern") * (getInscription("lantern").percent || 0);
   // Always-on bonuses are strengthened by Boosts to their right (Boost rules, details A–F).
   const boost = getCardBoostFactors(run);

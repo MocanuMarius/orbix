@@ -12,12 +12,12 @@ export const INSCRIPTIONS = Object.freeze(Object.fromEntries([
   def('gilded', 'Gilded', 'card', '+2 Sparks each firing.', {glyph: 'gild', bonus: 2}),
   def('resonant', 'Resonant', 'card', 'Also fires on a Pulse.', {glyph: 'wave', also: 'wave-crossing'}),
   def('kindled', 'Kindled', 'card', 'Also fires on a Lift.', {glyph: 'lift', also: 'downbeat-lift'}),
-  def('courier', 'Courier', 'card', 'Also fires on a Delivery.', {glyph: 'give', also: 'collector-delivery'}),
-  def('wellspring', 'Wellspring', 'card', 'Also fires on an Overfill.', {glyph: 'well', also: 'natural-overfill'}),
-  def('flare', 'Sunlit', 'card', 'Also fires when you Collect a Flare.', {glyph: 'flash', also: 'flash-pickup'}),
+  def('courier', 'Courier', 'card', 'Also fires on a Delivery and every 3rd Collect.', {glyph: 'give', also: 'collector-delivery', everyCollect: 3}),
+  def('wellspring', 'Wellspring', 'card', 'Fires 3 times on each Overfill.', {glyph: 'well', also: 'natural-overfill', times: 3}),
+  def('flare', 'Sunlit', 'card', 'Also fires on a Flare Collect and each Flare Pulse.', {glyph: 'flash', also: 'flash-pickup', flarePulse: true}),
   def('mirror', 'Mirror', 'card', 'Fires when the card on its left fires.', {glyph: 'mirror'}),
-  def('brimful', 'Brimful', 'card', 'Its Sparks above the Meter become Stored Sparks.', {glyph: 'brim'}),
-  def('whetted', 'Whetted', 'card', '+1 use each flight.', {glyph: 'whet'}),
+  def('brimful', 'Brimful', 'card', 'Each Spark above the Meter becomes 2 Stored Sparks.', {glyph: 'brim', storedPerSpill: 2}),
+  def('whetted', 'Whetted', 'card', '+2 uses each flight.', {glyph: 'whet', uses: 2}),
   // Standalone
   def('hollow', 'Hollow', 'standalone', 'Empty slot: +2 Sparks on each Collect.', {glyph: 'hollow', bonus: 2}),
   def('hearth', 'Hearth', 'standalone', '+10 max Sparks.', {glyph: 'hearth', capacity: 10}),
@@ -25,7 +25,7 @@ export const INSCRIPTIONS = Object.freeze(Object.fromEntries([
   def('long-cord', 'Long Cord', 'standalone', 'Collector reach +30%.', {glyph: 'cord', reach: 1.3}),
   def('bell', 'Bell', 'standalone', 'A Pulse every 6 seconds.', {glyph: 'bell', every: 6}),
   def('lodestone', 'Lodestone', 'standalone', 'Cards on both sides: +1 Spark each firing.', {glyph: 'lode', bonus: 1}),
-  def('ember-bed', 'Ember Bed', 'standalone', 'Finish: +3 Stored Sparks, +1 per empty slot.', {glyph: 'bed', stored: 3}),
+  def('ember-bed', 'Ember Bed', 'standalone', 'Finish: +5 Stored Sparks, +2 per empty slot.', {glyph: 'bed', stored: 5, perEmpty: 2}),
   def('cinder', 'Cinder', 'standalone', 'Lift costs 1 less Spark.', {glyph: 'cinder'}),
   // Chest gifts: permanent like the 18 above, but only a chest writes them (never the Scribe's offer). They were run-long finds
   // stored loose in the run (run.treasureGifts); the numbers are unchanged. All standalone: they work on any slot.
@@ -133,7 +133,7 @@ export const hollowBonus = (source, slot, occupied) => occupied ? 0 : (slotInscr
 export const lodestoneSlots = (source, slot) => [slot - 1, slot + 1].filter(s => slotInscriptionId(source, s) === 'lodestone');
 export const lodestoneBonus = (source, slot) => [slot - 1, slot + 1].reduce((sum, s) => sum + (slotInscriptionId(source, s) === 'lodestone' ? INSCRIPTIONS.lodestone.bonus : 0), 0);
 export const capacityBonusSparks = source => countInscription(source, 'hearth') * INSCRIPTIONS.hearth.capacity;
-export const emberBedStored = (source, cards) => { const beds = countInscription(source, 'ember-bed'); if (!beds) return 0; const empty = (cards || []).filter(card => !card).length; return beds * (INSCRIPTIONS['ember-bed'].stored + empty); };
+export const emberBedStored = (source, cards) => { const beds = countInscription(source, 'ember-bed'); if (!beds) return 0; const empty = (cards || []).filter(card => !card).length; return beds * (INSCRIPTIONS['ember-bed'].stored + INSCRIPTIONS['ember-bed'].perEmpty * empty); };
 
 /** The slot Inscriptions of a run, aligned to `cards` ([{id}|null]), or null when no slot carries one. */
 export function slotInscriptionList(run, cards = run?.mountedCards || []) {

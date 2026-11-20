@@ -1,5 +1,5 @@
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=inscribe-1';
-import {pickupKind,pickupShellRadius,isFuelPickup} from './pickups.mjs?v=inscribe-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=beat-1';
+import {pickupKind,pickupShellRadius,isFuelPickup} from './pickups.mjs?v=beat-1';
 
 export const LUMINANCE_WAVE_TUNING=Object.freeze({speed:640,interval:1,maximumWaves:48,maximumSources:16});
 const finite=(value,fallback)=>Number.isFinite(Number(value))?Number(value):fallback;
@@ -88,6 +88,7 @@ export class LuminanceWaves {
             y:previousOrigin.y+(origin.y-previousOrigin.y)*mix,radius:source.radius,color:source.color,
             reveal:source.reveal,source:source.source,sourceKind:source.sourceKind});
           wave.radius=Math.min(wave.maximum,age*LUMINANCE_WAVE_TUNING.speed);wave.age=age;wave.emittedAt=finite(e.time,this.clock)-age;
+          if(id==='flash'&&source.follow==='flash')e.flarePulseHeard?.();
         }
         source.next+=source.interval;
       }
@@ -141,7 +142,7 @@ export class LuminanceWaves {
             e.flame=(e.flame||0)+gain;e.flameRestored=(e.flameRestored||0)+gain;
             if(bookFuel&&rank>=3)e.resonanceStored=(e.resonanceStored||0)+1;
             let cardAction=false;
-            if(cardFuel){
+            if(cardFuel&&!wave.beat){ // a Timer's Pulse is a beat: it lights the passage but its crossings fire no card
               if(orderedCards){
                 const action=e.resolveCardRowEvent('wave-crossing',{firstCrossing,pickupKind:kind,
                   meterFraction,guardRecovering:e.wisp?.phase==='guard-recovery',

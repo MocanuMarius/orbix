@@ -5,7 +5,7 @@
 // full rules, which the "?" help window shows (card-ui.mjs › cardHelpDescription). Numbers the player tracks during a
 // run (uses left, a growth or tally counter) stay on the face as badges, not here.
 // The internal trigger keys (card-rule-bands.mjs › CARD_TRIGGERS) are untouched; this is a wording layer on top of them.
-import {getCardRuleBands, getCardTrigger} from './card-rule-bands.mjs?v=inscribe-1';
+import {getCardRuleBands, getCardTrigger} from './card-rule-bands.mjs?v=beat-1';
 
 /** Words for Triggers that the display layer (card-trigger-labels.mjs) leaves without a chip, as [word, glossary key]. */
 const EXTRA_WORDS = Object.freeze({
@@ -80,7 +80,7 @@ const LINES = Object.freeze({
   'double-lift': 'Lift twice in 1 s: 2nd free', climb: '3 Lifts in 1 s: 2nd, 3rd free',
   'flash-tinder': 'Starts a 1 s Flare', 'homing-thread': 'Fetches a Spark, 2× reach',
   'overflow-bell': 'A Pulse; keeps 2 Stored',
-  'slow-wick': 'Every 5 s: a Pulse', metronome: 'Every 3 s: fires next', 'long-fuse': 'Every 5 s: fires again',
+  'slow-wick': 'Every 3 s: a Pulse', metronome: 'Every 3 s: fires next', 'long-fuse': 'Every 5 s: fires again',
   heartbeat: 'Timers wait half',
   'first-catch': '1st: +4 Sparks, a Pulse', 'close-call': 'A Pulse, +12 Sparks', 'low-ember': 'Under half: +6, a Pulse',
   'third-beat': '3rd firing counts twice', momentum: '+1 a firing; 5th: +40% light',
