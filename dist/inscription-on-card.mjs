@@ -33,7 +33,9 @@ export function inscriptionEffect(inscription, card) {
       const event = ins.also, same = rule.event === event || rule.alsoEvents?.includes(event);
       if (same && ins.id !== 'kindled') return no(`it already fires on ${ALSO[event]}`);
       if (ins.id === 'kindled') return yes(`also fires on every Lift: ${effect}`);
-      return yes(`also fires on ${ALSO[event]}: ${effect}`);
+      // The card keeps its own condition on the new Trigger too (Flare Bank still needs the meter at ⅓ or less on a Delivery).
+      const cond = getCardRuleBands(card, def).find(b => b.type === 'condition')?.detail, tail = cond ? ` (only with ${/^meter/.test(cond) ? 'the ' : ''}${cond})` : '';
+      return yes(`also fires on ${ALSO[event]}: ${effect}${tail}`);
     }
     case 'mirror': return listens ? yes(`also fires whenever the card on its left fires: ${effect}`) : no(engine || !rule || boost ? why : `it only fires at ${own}`);
     case 'brimful': return rule && ['add-sparks', 'add-last-payout'].includes(rule.operation) && !rule.overSeconds ? yes('its Sparks above the Meter become Stored Sparks') : no(curtain || (engine || !rule ? why : 'it pays no Sparks from the Chain'));
