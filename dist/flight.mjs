@@ -1528,11 +1528,12 @@ export class WispFlight {
     this.syncCourierDripBadge();
   }
   /** A Spark a card made that found the Meter full counts as an Overfill for the row cards (Meter Mark, Ring Spring) to the right of `fromSlot`.
-   * Row Overfill cards pay no Sparks, and a re-entrant spill (a firing made while this one resolves) is not reported again, so it cannot loop. */
-  cardSpillHeard(spill,fromSlot=-1){
+   * Row Overfill cards pay no Sparks, and a re-entrant spill (a firing made while this one resolves) is not reported again, so it cannot loop.
+   * A spill made by a Pulse crossing a Spark (`fromPulse`) never feeds the Overfill Pulse (Spillway): that Pulse would pay more Sparks, spill again and run away. */
+  cardSpillHeard(spill,fromSlot=-1,fromPulse=false){
     if(!(spill>1e-9)||this.inCardSpill)return;
     this.inCardSpill=true;
-    try{this.resolveCardRowEvent(CARD_ROW_EVENTS.overfill,{pickupKind:'light',fromSlot:Number.isInteger(fromSlot)?fromSlot:-1});this.countOverfillWave(null);}
+    try{this.resolveCardRowEvent(CARD_ROW_EVENTS.overfill,{pickupKind:'light',fromSlot:Number.isInteger(fromSlot)?fromSlot:-1});if(!fromPulse)this.countOverfillWave(null);}
     finally{this.inCardSpill=false;}
   }
   syncCourierDripBadge() {
@@ -1648,7 +1649,7 @@ export class WispFlight {
     }
     // One Overfill rule (2026-11-20): Sparks a card made that find the Meter full are an Overfill for the row cards to the right of the maker too.
     const rowSpill=instant-gain/CARD_UNIT;
-    if(rowSpill>1e-9&&kind!==CARD_ROW_EVENTS.overfill)this.cardSpillHeard(rowSpill,receipt.cards.findIndex(c=>c&&c.effective.sparks>0));
+    if(rowSpill>1e-9&&kind!==CARD_ROW_EVENTS.overfill)this.cardSpillHeard(rowSpill,receipt.cards.findIndex(c=>c&&c.effective.sparks>0),kind===CARD_ROW_EVENTS.wave);
     return {receipt:liveReceipt,gain};
   }
 

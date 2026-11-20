@@ -49,6 +49,17 @@ test('One Overfill rule never loops: no safety limit, and the engine stays withi
   }
 });
 
+test('One Overfill rule: Pulses made by Overfill cards cannot run away (Sparks a Pulse pays are not counted toward the Overfill Pulse)', () => {
+  // Found while building the rule: counting a Pulse's own spill toward the every-third-Overfill Pulse made Ember Bell + Resonant Harvest fire 500+ times a flight.
+  for (const [levelId, seedIndex] of [['pinewood-timber-run', 0], ['marsh-reed-channel', 2], ['fungal-cap-canopy', 2]]) {
+    for (const ids of [['ember-bell', 'harvest-common'], ['spillway-ii', 'harvest-common'], ['ember-bell', 'harvest-common', 'meter-mark']]) {
+      const f = fly({ ids, levelId, seedIndex, engineOptions: { cardPilot: true } });
+      assert.ok((f.log.slots[1]?.fired || 0) < 150, `${ids.join('+')} on ${levelId}: Harvest fired ${f.log.slots[1]?.fired} times`);
+      assert.ok(!f.log.engine.cardEngine?.warned);
+    }
+  }
+});
+
 test('Courier Cord: a dripped Spark that finds the Meter full is an Overfill (Overfill cards to its right hear it)', () => {
   const run = ids => fly({ ids, levelId: BIOME_LEVELS[0].id, seedIndex: 0, duration: 90, engineOptions: { cardPilot: true },
     hook: e => { const st = e.step.bind(e); e.step = dt => { e.flame = e.maxFlame; return st(dt); }; } });
