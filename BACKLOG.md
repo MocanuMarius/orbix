@@ -19,6 +19,34 @@ The entries below are chronological release snapshots. Their old “current” l
 
 Pasted by the owner as "a huge backlog of items I'd like to at least document as discussion points for the future; some of them are actionable right now". Nothing here is decided unless it says so. Grouping and the "check first" notes are the coordinator's; the items are the owner's.
 
+### Work order: local items first, simplest first (owner, 20 November: "items that have a local effect and don't require a big apparatus… in the order of their complexity")
+
+Each is one card, one screen element or one constant. Do them top to bottom, ship in small batches. Items not in this list (2 starting slots, Deck locked before battles, cards never destroyed at 0 uses, fillable/alchemy archetype, hearts, handicap bosses, damaged cards, run logging, relic removal, Rest and Scribe screen redesigns, Speedrunner, Death Sense, achievements, stronger Black Holes) touch whole systems and wait.
+
+Batch 1, text and checks:
+1. Wave Loom: face and help say plainly what it does.
+2. Skim cards: find the Common whose effect equals the Rare's; fix the duplicate or the wording.
+3. Check that Overfill fires cards in real flights; find the case where it seems not to.
+4. Courier Inscription with Flare Bank: reproduce, fix or state on the card.
+
+Batch 2, one number or one small display:
+5. Skim charge fades fast when not sustained (grace and decay constants in `dist/edging-pulse.mjs`).
+6. Skim cooldown easier to read in flight (charge, pulse, recovery).
+7. Final summary card shows Overfill and the packing ratio (spilled Sparks → Stored, 1 per 6).
+8. Low Ember and Clear Prism: measure with the owner's method; Clear Prism gets a new effect or is retired.
+
+Batch 3, single new cards on existing mechanisms:
+9. Radar (Common): sends a Pulse every 10 s (Pulse Reader already sends one every 8 s).
+10. Regeneration: slowly recovers Sparks while the Meter is under a threshold.
+11. A one-card feeder: eats 1 card, gives 50 Stored Sparks (simpler Ember Feeder).
+12. Forge Hammer: charges on Finish; when charged the next Forge costs much less.
+13. A Common that lets the Collector take every kind of pickup and shortens its reel cooldown.
+
+Batch 4, small screen changes:
+14. Mark a card for melt on the "add to Deck" screen.
+15. Trigger colour band on card faces.
+16. Second Look as an inventory item: used automatically, 3 uses, refillable.
+
 ### A. Looks like a bug or needs a check (actionable now, no design decision)
 - **Courier Inscription does not seem to work with Flare Bank** (card id `flash-bank`). Reproduce in a real flight, fix or explain on the card.
 - **"Overfill does not work with cards, maybe?"** Check that Overfill cards fire in real flights (the audit says they do: find the case where it looks like they do not).
