@@ -15,6 +15,60 @@ The entries below are chronological release snapshots. Their old “current” l
 - **Waiting, owner said "let's wait some more" (18 November):** re-measure balance after the stacked changes (combo sweep with real-flight numbers, Pulse builds, hidden cards' payouts) and the phone performance check (`node scripts/perf/daily.mjs`, last quick run timed out). Do not start until asked. Also parked with them: making the full test suite green and a release gate (about 64 known failures: 7 treasure tests, about 20 in `tests/flight.test.mjs`, Wave Loom double Pulse in `tests/pulse-sources.test.mjs`).
 - Standing rule: items that need no decision are picked up and built continuously; items that need one are put to the owner one case at a time (memory `work-backlog-continuously`). The live queue is in `docs/overnight-plan.md`.
 
+## Owner's discussion list, 20 November 2026
+
+Pasted by the owner as "a huge backlog of items I'd like to at least document as discussion points for the future; some of them are actionable right now". Nothing here is decided unless it says so. Grouping and the "check first" notes are the coordinator's; the items are the owner's.
+
+### A. Looks like a bug or needs a check (actionable now, no design decision)
+- **Courier Inscription does not seem to work with Flare Bank** (card id `flash-bank`). Reproduce in a real flight, fix or explain on the card.
+- **"Overfill does not work with cards, maybe?"** Check that Overfill cards fire in real flights (the audit says they do: find the case where it looks like they do not).
+- **"One Common Skim card has the same effect as the Rare?"** Compare every Skim card's rule and text; fix the duplicate or the wording.
+- **How does Wave Loom work?** Its face and help do not explain it: rewrite so it is clear, and check it against the audit.
+- **Skim should show its cooldown better** (charge, the 5 s pulse, the 2 s recovery are hard to read in flight).
+- **Overfill and its packing ratio should be shown better on the final summary card** (spilled Sparks → Stored at 1 per 6 is invisible today).
+- **Remove everything in the app related to relics.** Already planned as pruning step P5 in `handoff.md`; the owner wants it done.
+
+### B. Rule changes the owner proposes (each needs a yes before building)
+- **Start with only 2 slots**; "5 slots are already on by Map 2", which is too fast. Re-pace slot gains over the run.
+- **Deck tuning only before battles**, then it stays fixed (today the Deck can be changed any time, including a paused flight).
+- **Refilling cards should always be possible: stop destroying cards when they reach 0 uses.** A spent card stays, empty, until refilled.
+- **Second Look**: used automatically from the inventory (not mounted), with 3 uses, and needs a refill. (Today: Rare, Passive, must be mounted, once per reward, no uses.)
+- **Skim charge should start cooling down and dissipate quickly if not sustained** (today: 1.25 s grace, then a slow fade).
+- **Black Holes should be stronger. Where are the supermassive ones ("SBH")?** (Note: a Black Hole on stop 3 of Map 1 already killed simulated pilots and the owner's first attempt; decide where strong ones appear.)
+- **More fillable items; fill them with "mana", packed energy or "liquid Spark"; spend it to refill items.** A second resource or a use for Stored Sparks: the "alchemy" idea below belongs with this.
+- **More cards should give protection, probably fillable**: an "alchemy" archetype built on refillable cards.
+- **Hearts**: "the player interacts too little with hearts: just by dying, and some cards that are really kind of useless". Needs ideas (spend a heart for power, heal on a feat, cards that scale with missing hearts…).
+- **Collecting feels thin**: "not enough simple Collect + cards maybe". Ideas: a Devour + Collect card, other variations.
+
+### C. New cards the owner proposes
+- **Speedrunner**: a cone of view to the front, and +1% speed on an Overfill; a share of that is added permanently, up to 25%.
+- **Radar** (Common?): sends a ping (Pulse) every 10 s.
+- **Death Sense** (starter): shows your last run and how you died.
+- **Forge Hammer**: greatly lowers the cost of the next Forge when charged; charges when you Finish.
+- **A Common that lets the Collector take every kind of pickup (all Caches) and lowers its reel cooldown.**
+- **Regeneration**: slowly recovers Sparks while the Meter is within a certain threshold.
+- **A simpler Ember Feeder**: "Ember Feeder is too weak… too much setup": a card that eats only 1 card and gives back 50 Stored Sparks.
+- **Damaged Rare / Legendary cards**: weaker finds with a limited number of uses, unlike the undamaged card; a folded corner shows the damage.
+- **Devour + Collect card** (see B, collecting).
+
+### D. Cards the owner finds weak or useless (rework or retire)
+- **Clear Prism: useless.**
+- **Ember Feeder: too weak** (see C).
+- **Low Ember: seems weak, "but I don't know, may be OK".**
+- For contrast: **"the pulsing archetype seems really easy to play with and satisfying"**: use it as the bar for the others.
+
+### E. Screens and feedback
+- **Rest menu: picking options is still difficult**; it needs scenery or art, and better confirmations.
+- **Inscription (Scribe) screen needs more work**: "it doesn't let you look at stuff so you can assess how it works" (inspect cards and slots while choosing).
+- **Mark cards as trash / melt on the "add to Deck" screen** instead of later.
+- **Cards with different triggers get a coloured band or decoration** so a trigger is easy to spot at a glance.
+
+### F. Bosses, events, meta
+- **Bosses that invalidate your slots or handicap you**, depending on their theme.
+- **More crazy oath events**, e.g. ×1.2 final Sparks for some handicap.
+- **Achievements for the biggest-value combo**, measured in Stored Sparks.
+- **A log of all runs, to analyse and balance the game and learn how people play**; "maybe track what they do in the interface so we can iron out weird spots in the UI and navigation". (A local, opt-in flight recorder exists: Settings → Advanced → Record play, `dist/play-log.mjs`. Not yet: whole-run records, menu/navigation tracking, and any way to collect logs from players other than copy and paste. Sending data anywhere needs the owner's explicit decision and a consent screen.)
+
 ## To flesh out later (owner ideas, 18 November 2026 evening)
 
 - **Re-roll cards.** Owner: "passive cards… keep it in your inventory and allow you to re-roll some card, and you should get one of the same type, even for legendaries maybe". Concept to design: a card kept in the Deck (not mounted) with uses; on a reward pack it re-rolls one offered card into another of the same rarity (so a guaranteed Guardian Legendary can be re-rolled into a different Legendary). Open points: uses per run, whether it can re-roll a whole pack, whether an Inscription version exists, how it shows on the tap-to-pick screen.
