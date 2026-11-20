@@ -13,7 +13,7 @@ import {CARD_GUIDE_TOPICS} from '../dist/card-guide.mjs';
 import {CARD_TERMS,cardTermTextMarkup} from '../dist/card-terms.mjs';
 
 function game(seed='cards-dream') {
-  const state=M.newState(),run=state.run=M.createRun(state.profile,seed,1,{cards:true});
+  const state=M.newState(),run=state.run=M.createRun(state.profile,seed,1,{cards:true,cardSlots:3});
   run.mountedCards=['dream','spark-cache','lift-guide'].map((id,i)=>makeSkillCard(id,`${seed}:${i}`));
   return {state,run};
 }
@@ -141,7 +141,7 @@ test('real card Dream repeats freely, hands off the chosen eight seconds silentl
 import {previewBlackHoleMeals,consumeBlackHoles} from '../dist/card-black-hole.mjs';
 import {cleanCardRun} from '../dist/skill-cards.mjs';
 function devourRun(ids,seed='dream-devour') {
-  const state=M.newState(),run=state.run=M.createRun(state.profile,seed,1,{cards:true});
+  const state=M.newState(),run=state.run=M.createRun(state.profile,seed,1,{cards:true,cardSlots:3});
   run.mountedCards=ids.map((id,i)=>id?makeSkillCard(id,`${seed}:${i}`):null);
   run.reserveCards=[];
   return run;

@@ -124,7 +124,7 @@ test('Tithe: at Pack it pays 5 Stored Sparks (those the flight began with) and t
   try { dead.flame = 30; dead.finish(false); assert.equal(dead.cardTithePaid, 0, 'no Pack, no Tithe'); } finally { dead.destroy(); }
   const finish = paid => {
     const state = M.newState(); state.profile.tutorialComplete = true;
-    const run = state.run = M.createRun(state.profile, 'tithe-run', 1, {cards: true});
+    const run = state.run = M.createRun(state.profile, 'tithe-run', 1, {cards:true,cardSlots:3});
     M.chooseStartingGift(state, M.getStartingGiftOffers(run)[0].id);
     run.mountedCards[2] = makeSkillCard('tithe', 't1'); run.condensedGlow = 20;
     const node = M.getChoices(run).find(choice => choice.type !== 'support');

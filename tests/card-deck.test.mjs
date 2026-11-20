@@ -7,7 +7,7 @@ import { getGlowCapacity } from '../dist/vitality.mjs';
 const fresh = (seed = 'owned-card-deck') => {
   const state = M.newState();
   state.profile.tutorialComplete = true;
-  state.run = M.createRun(state.profile, seed, 1, { cards: true });
+  state.run = M.createRun(state.profile, seed, 1, {cards:true,cardSlots:3});
   return state;
 };
 const reload = (state, raw = false) => {

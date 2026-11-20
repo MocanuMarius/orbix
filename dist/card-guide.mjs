@@ -54,7 +54,7 @@ export const CARD_GUIDE_TOPICS = {
     steps: [
       step(
         "Your Deck and chain",
-        "Every card you earn stays in your Deck. The cards in your chain work; the rest wait in the reserve. Your chain starts with 3 Slots, and Rest can add more, up to 5. You begin with the card you picked and Lift Guide, leaving one Slot free.",
+        "Every card you earn stays in your Deck. The cards in your chain work; the rest wait in the reserve. Your chain starts with 2 Slots, and Rest can add more, up to 5. You begin with the card you picked and Lift Guide, filling both Slots.",
         "skills",
       ),
       step(

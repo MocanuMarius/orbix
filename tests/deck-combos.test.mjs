@@ -6,7 +6,7 @@ import {getDeckComboLinks,deckSwapComboMarkup} from '../dist/deck-combos.mjs';
 import {WispFlight} from '../dist/flight.mjs';
 
 function row(ids,artifacts=['dawn-loom']){
-  const state=newState(),run=state.run=createRun(state.profile,'deck-combos',1,{cards:true});
+  const state=newState(),run=state.run=createRun(state.profile,'deck-combos',1,{cards:true,cardSlots:3});
   run.companions=['collector'];run.companionRole='collector';run.artifacts=artifacts;
   run.mountedCards=ids.map((id,i)=>id?makeSkillCard(id,`mounted:${i}`):null);run.reserveCards=[];
   return run;

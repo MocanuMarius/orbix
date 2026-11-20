@@ -17,7 +17,7 @@ import { collectorCanFetch } from "../dist/collector-load.mjs";
 const fresh = (seed = "card-test") => {
   const state = M.newState();
   state.profile.tutorialComplete = true;
-  state.run = M.createRun(state.profile, seed, 1, { cards: true });
+  state.run = M.createRun(state.profile, seed, 1, {cards:true,cardSlots:3});
   return state;
 };
 const mount = (run, ids) => {

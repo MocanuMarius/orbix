@@ -300,7 +300,7 @@ export function cleanCardRun(run) {
   migrateGrowth(run);
   migrateGrowth(run.attemptEntry);
   run.cardSlots = Math.max(
-    3,
+    2,
     integer(run.cardSlots || 3, CARD_ECONOMY.maxSlots),
   );
   const seen = new Set(),

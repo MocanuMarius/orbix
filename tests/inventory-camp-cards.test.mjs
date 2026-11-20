@@ -6,7 +6,7 @@ import { cardsBenchMarkup, cardRewardMarkup, cardForgeMarkup, starterGiftConfirm
 
 function fresh(seed = 'inventory-camp') {
   const state = M.newState(); state.profile.tutorialComplete = true;
-  state.run = M.createRun(state.profile, seed, 1, { cards: true });
+  state.run = M.createRun(state.profile, seed, 1, {cards:true,cardSlots:3});
   return state;
 }
 function rest(run) {

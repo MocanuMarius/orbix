@@ -109,7 +109,7 @@ test('context lines name the actual card, Trigger and place',()=>{
 });
 
 function freshRun(seed='depart-adapter'){
- const state=newState();state.run=createRun(state.profile,seed,1,{cards:true});
+ const state=newState();state.run=createRun(state.profile,seed,1,{cards:true,cardSlots:3});
  const run=state.run;
  run.mountedCards[0]=makeSkillCard('rhythm','t:0');run.mountedCards[1]=makeSkillCard('toll-bell','t:1');
  const node=getChoices(run).find(n=>n.type!=='support');assert.ok(selectNode(run,node.id));

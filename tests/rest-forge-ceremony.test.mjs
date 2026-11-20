@@ -8,7 +8,7 @@ import { createForgeCeremony, forgeCeremonyPlan, forgeCeremonyLength, forgeCerem
 function rest(ids = []) {
   const state = M.newState();
   state.profile.tutorialComplete = true;
-  const run = state.run = M.createRun(state.profile, 'rest-forge', 1, { cards: true });
+  const run = state.run = M.createRun(state.profile, 'rest-forge', 1, {cards:true,cardSlots:3});
   run.mountedCards = Array.from({ length: 3 }, (_, i) => ids[i] ? makeSkillCard(ids[i], `rest:${i}`) : null);
   run.current = run.map.flat().find(node => node.kind === 'camp');
   run.step = run.current.row;

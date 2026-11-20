@@ -24,7 +24,7 @@ test('Black Hole and Dream eat nothing when the card to their right is permanent
 });
 
 function play(setup) {
-  const state = M.newState(); state.profile.tutorialComplete = true; state.run = M.createRun(state.profile, 'permanent-cards', 1, {cards: true});
+  const state = M.newState(); state.profile.tutorialComplete = true; state.run = M.createRun(state.profile, 'permanent-cards', 1, {cards:true,cardSlots:3});
   assert.ok(M.chooseStartingGift(state, M.getStartingGiftOffers(state.run)[0].id));
   state.run.mountedCards = setup.map(id => id ? card(id) : null); state.run.reserveCards = [];
   const reload = () => { let v; assert.ok(M.saveState(state, {setItem: (_, x) => v = x, getItem: () => v})); state.run = M.loadState({getItem: () => v}).run; };

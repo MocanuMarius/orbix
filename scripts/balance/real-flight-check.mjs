@@ -23,7 +23,7 @@ export { M, S, P };
 /** A real card run with `ids` mounted in Slots 1..n (null = empty slot) and optional slot Inscriptions. */
 export function makeRun(ids, { seed = 'rf', inscriptions = [], flame } = {}) {
   const state = M.newState(); state.profile.tutorialComplete = true;
-  const run = M.createRun(state.profile, seed, 1, { cards: true });
+  const run = M.createRun(state.profile, seed, 1, { cards: true, cardSlots: 3 });
   while (run.mountedCards.length < ids.length) run.mountedCards.push(null);
   M.cleanSlotInscriptions(run);
   ids.forEach((id, i) => { run.mountedCards[i] = id ? S.makeSkillCard(id, `rf:${i}:${id}`) : null; });

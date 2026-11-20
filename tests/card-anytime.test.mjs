@@ -7,7 +7,7 @@ import { makeSkillCard } from '../dist/skill-cards.mjs';
 function fresh(seed = 'anytime-deck') {
   const state = M.newState();
   state.profile.tutorialComplete = true;
-  state.run = M.createRun(state.profile, seed, 1, { cards: true });
+  state.run = M.createRun(state.profile, seed, 1, {cards:true,cardSlots:3});
   state.run.condensedGlow = 200;
   return state;
 }
