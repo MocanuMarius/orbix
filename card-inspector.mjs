@@ -1,9 +1,9 @@
 // A disposable deck for phone inspection. Never reads or writes a player save.
-import { newState, createRun, advanceMap, getSupportChoices, getChoices, selectNode, beginFlightAttempt, markFlightAttemptStarted, finishFlight, settleCheckpoint } from './model.mjs?v=loop-1';
-import { makeSkillCard, describeSkillCard } from './skill-cards.mjs?v=loop-1';
-import { grantTreasureGift } from './treasure.mjs?v=loop-1';
-import { cleanSlotInscriptions, writeInscription, INSCRIPTIONS } from './inscriptions.mjs?v=loop-1';
-import { ROUTE_BONUSES } from './route-bonuses.mjs?v=loop-1';
+import { newState, createRun, advanceMap, getSupportChoices, getChoices, selectNode, beginFlightAttempt, markFlightAttemptStarted, finishFlight, settleCheckpoint } from './model.mjs?v=tidy-1';
+import { makeSkillCard, describeSkillCard } from './skill-cards.mjs?v=tidy-1';
+import { grantTreasureGift } from './treasure.mjs?v=tidy-1';
+import { cleanSlotInscriptions, writeInscription, INSCRIPTIONS } from './inscriptions.mjs?v=tidy-1';
+import { ROUTE_BONUSES } from './route-bonuses.mjs?v=tidy-1';
 
 export function prepareCardInspectorReward(run, cardId = 'harvest-rare', objective = 'gilded') {
   if (run.cardReward && !run.cardReward.uiAcknowledged) return;
@@ -121,7 +121,9 @@ export function createCardInspectorState(params = new URLSearchParams()) {
     markFlightAttemptStarted(run);
     // ?engine=1: the engine lines of the ceremony (Pack cards, Kept by your engine) with sample amounts.
     const engineLines = params.get('engine') === '1' ? { cardPack: { sparks: 6, asked: 6, stored: 2, turns: 1 }, cardEngineStored: 2 } : {};
-    finishFlight(run, { success:true, flame:50, collected:6, ...engineLines,
+    // ?spill=1: Sparks spilled past a full meter (the Overfill line of the summary).
+    const spillLines = params.get('spill') === '1' ? { pickupOverflow: 200, condensedGlow: 10 } : {};
+    finishFlight(run, { success:true, flame:50, collected:6, ...engineLines, ...spillLines,
       artifactCharges:{'flash-stone':1}, artifactActivations:{'flash-stone':1},
       routeBonus:{id:'gilded', eligible:true, complete:true, target:4, progress:4} });
     settleCheckpoint(state);

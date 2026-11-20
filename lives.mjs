@@ -1,5 +1,5 @@
-import { getLifeCapacity } from './vitality.mjs?v=loop-1';
-import { uiIcon } from './ui-icons.mjs?v=loop-1';
+import { getLifeCapacity } from './vitality.mjs?v=tidy-1';
+import { uiIcon } from './ui-icons.mjs?v=tidy-1';
 /** One heart of the approved icon set: full, spent (empty) or shielded. 16 px inline; screens set their own whole-multiple size in ui-icons.css. */
 export function lifeHeartSvg(spent = false, { size = 16, shield = false } = {}) {
   const name = shield ? 'heart-shield' : spent ? 'heart-empty' : 'heart-full';

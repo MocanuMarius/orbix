@@ -1,11 +1,11 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=loop-1";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=tidy-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=loop-1';
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=loop-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=loop-1';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=loop-1';
+import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=tidy-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=tidy-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=tidy-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=tidy-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -183,6 +183,8 @@ function cleanCard(card, seen) {
     // Scar Tissue, Collector's Ledger, Old Friend: what the card has counted (batch 2).
     ...((def.tallyEvent || def.tallied) && integer(card.tally) ? { tally: integer(card.tally) } : {}),
     ...(def.edition && integer(card.edition) ? { edition: integer(card.edition) } : {}),
+    // Melt mark (melt-mark.mjs): the player's "melt this later" reminder; written only while set.
+    ...(card.meltMark === true ? { meltMark: true } : {}),
     // Growth Seed: the amount of the Seeds merged into this one (one Seed per run, see mergeGrowthSeeds).
     ...(def.kind === 'camp-grow' && integer(card.seedBonus) ? { seedBonus: integer(card.seedBonus) } : {}),
   };

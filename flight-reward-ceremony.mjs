@@ -1,17 +1,18 @@
-import {ARTIFACTS,SKILL_CARDS,getCardDraft,lastCourseName} from './model.mjs?v=loop-1';
-import {flightDevoured} from './devour-notes.mjs?v=loop-1';
-import {chipIcon} from './ui/trigger-icons.mjs?v=loop-1';
-import {cardArt,cardDraftMarkup,cardDraftOffersMarkup,cardDraftRerollMarkup} from './card-ui.mjs?v=loop-1';
-import {planTally,tallyStateAt,tallyLayout} from './reward-tally.mjs?v=loop-1';
-import {createTallySound} from './reward-tally-sound.mjs?v=loop-1';
-import {rewardEarnings} from './reward-screen.mjs?v=loop-1';
-import {resourceSymbol} from './game-symbols.mjs?v=loop-1';
-import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=loop-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=loop-1';
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=loop-1';
-import {sealedPackMarkup} from './flight-reward-pack-art.mjs?v=loop-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=loop-1';
-import {flightRewardReceiptDetail,FLIGHT_REWARD_SOURCE_DETAILS} from './flight-reward-details.mjs?v=loop-1';
+import {ARTIFACTS,SKILL_CARDS,getCardDraft,lastCourseName,getRunModifiers} from './model.mjs?v=tidy-1';
+import {overfillSummary} from './overfill-summary.mjs?v=tidy-1';
+import {flightDevoured} from './devour-notes.mjs?v=tidy-1';
+import {chipIcon} from './ui/trigger-icons.mjs?v=tidy-1';
+import {cardArt,cardDraftMarkup,cardDraftOffersMarkup,cardDraftRerollMarkup} from './card-ui.mjs?v=tidy-1';
+import {planTally,tallyStateAt,tallyLayout} from './reward-tally.mjs?v=tidy-1';
+import {createTallySound} from './reward-tally-sound.mjs?v=tidy-1';
+import {rewardEarnings} from './reward-screen.mjs?v=tidy-1';
+import {resourceSymbol} from './game-symbols.mjs?v=tidy-1';
+import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=tidy-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=tidy-1';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=tidy-1';
+import {sealedPackMarkup} from './flight-reward-pack-art.mjs?v=tidy-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=tidy-1';
+import {flightRewardReceiptDetail,FLIGHT_REWARD_SOURCE_DETAILS} from './flight-reward-details.mjs?v=tidy-1';
 export {flightRewardReceiptDetail};
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -66,7 +67,9 @@ export function flightRewardCeremonyReceipt(run){
  const relicEntries=Object.entries(flight.artifactActivations||{}).filter(([id,amount])=>ARTIFACTS[id]&&count(amount)>0).map(([id,amount])=>({artifactId:id,detailKey:`artifact:${id}`,text:`${ARTIFACTS[id].name} · activated ×${count(amount)}`}));
  relicEntries.push(...(Array.isArray(flight.consumedArtifacts)?flight.consumedArtifacts:[]).filter(id=>ARTIFACTS[id]).map(id=>({artifactId:id,detailKey:`artifact:${id}`,text:`${ARTIFACTS[id].name} · uses depleted this flight`})));
  const devoured=flightDevoured(flight).map(item=>({cardId:item.cardId,detailKey:'devoured',text:`Devoured: ${item.name}`}));
- const effectEntries=[...optionalNotes,...growthNotes,...devoured,...relicEntries];
+ const spill=overfillSummary(flight,run?getRunModifiers(run).condensationRules:{});
+ const spillNotes=spill?[{detailKey:'source-overflow',text:spill.text}]:[];
+ const effectEntries=[...spillNotes,...optionalNotes,...growthNotes,...devoured,...relicEntries];
  return {total,base:baseRows.reduce((sum,row)=>sum+row.amount,0),bonus:bonusRows.reduce((sum,row)=>sum+row.amount,0),baseRows,bonusRows,
   notes:effectEntries.map(entry=>entry.text),effectEntries,wallet:count(run?.condensedGlow)};
 }

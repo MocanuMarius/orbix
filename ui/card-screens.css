@@ -793,3 +793,8 @@ html body #dk-root .dk2-empty.dk2-inscribed .dk2-ins-name{flex:none;text-align:c
 #dk-root .dk2-ins-read .dk2-ins-with{margin:0}
 html body #dk-root.dk.dk21 .dk2-station.dk2-inscribed .dk21-eye{left:auto;right:0;margin-left:0}
 html body #dk-root.dk .dk2-ins-read h2.dk2-ins-title{position:static;width:auto;height:auto;margin:0 0 4px;clip:auto;overflow:visible;color:#2a2118!important;-webkit-text-fill-color:#2a2118!important;-webkit-text-stroke:0!important;text-shadow:none;font-size:18px;line-height:22px}
+
+/* Deck tile: trigger colour band along the top edge (trigger-bands.mjs) and the melt mark (melt-mark.mjs). */
+#dk-root .dk21-tilemain{position:relative}
+#dk-root .dk-band{position:absolute;left:0;right:0;top:0;height:4px;background:var(--band);box-shadow:0 1px 0 #2a1d12;pointer-events:none;z-index:3}
+#dk-root .dk2-art{position:relative}

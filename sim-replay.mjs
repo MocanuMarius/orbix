@@ -3,9 +3,9 @@
 // Opens a throwaway card run (nothing is read from or written to the save: app.mjs treats it like a mock scene) on the SAME map, route and flight
 // seed the pilots of scripts/balance/starter-sim.mjs fly, with Lift Guide mounted and nothing else, and shows the normal departure screen.
 // After the flight the normal result shows, plus a small panel: Next stop / Retry / Exit. Never loaded without the `simrun` parameter.
-import {newState,createRun,getChoices,selectNode,resolveSupport} from './model.mjs?v=loop-1';
-import {makeSkillCard} from './skill-cards.mjs?v=loop-1';
-import {prepareRouteOffer} from './route-offers.mjs?v=loop-1';
+import {newState,createRun,getChoices,selectNode,resolveSupport} from './model.mjs?v=tidy-1';
+import {makeSkillCard} from './skill-cards.mjs?v=tidy-1';
+import {prepareRouteOffer} from './route-offers.mjs?v=tidy-1';
 
 export const SIM_STOPS=6;
 export const SPARK_UNITS=10/3;

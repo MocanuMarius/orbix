@@ -1,18 +1,20 @@
-import { flightDevoured, devouredLine } from "./devour-notes.mjs?v=loop-1";
-import { wispChipText } from "./start-bonus.mjs?v=loop-1";
-import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=loop-1";
-import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=loop-1";
-import { uiIcon } from "./ui-icons.mjs?v=loop-1";
-import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=loop-1";
-import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=loop-1";
-import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=loop-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=loop-1";
-import { activeFlightPact } from './flight-pacts.mjs?v=loop-1';
-import { cardArt } from "./card-art.mjs?v=loop-1";
-import { cardTileLine } from "./card-tile-lines.mjs?v=loop-1";
-import { slotInscriptionId } from "./inscriptions.mjs?v=loop-1";
-import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=loop-1";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=loop-1';
+import { flightDevoured, devouredLine } from "./devour-notes.mjs?v=tidy-1";
+import { wispChipText } from "./start-bonus.mjs?v=tidy-1";
+import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=tidy-1";
+import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=tidy-1";
+import { uiIcon } from "./ui-icons.mjs?v=tidy-1";
+import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=tidy-1";
+import { bandMarkup } from "./trigger-bands.mjs?v=tidy-1";
+import { meltMarkBadge } from "./melt-mark.mjs?v=tidy-1";
+import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=tidy-1";
+import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=tidy-1";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=tidy-1";
+import { activeFlightPact } from './flight-pacts.mjs?v=tidy-1';
+import { cardArt } from "./card-art.mjs?v=tidy-1";
+import { cardTileLine } from "./card-tile-lines.mjs?v=tidy-1";
+import { slotInscriptionId } from "./inscriptions.mjs?v=tidy-1";
+import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=tidy-1";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=tidy-1';
 import {
   getMountedCards,
   getOwnedCards,
@@ -29,13 +31,13 @@ import {
   getSkillWallet,
   equipOwnedCard,
   canRerollCardDraft,
-} from "./model.mjs?v=loop-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=loop-1";
-import { choiceScene } from "./choice-art.mjs?v=loop-1";
-import { livesMarkup } from "./lives.mjs?v=loop-1";
-import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=loop-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=loop-1";
-import {canDreamAt, dreamConfig} from './dream.mjs?v=loop-1';
+} from "./model.mjs?v=tidy-1";
+import { resourceSymbol } from "./game-symbols.mjs?v=tidy-1";
+import { choiceScene } from "./choice-art.mjs?v=tidy-1";
+import { livesMarkup } from "./lives.mjs?v=tidy-1";
+import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=tidy-1";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=tidy-1";
+import {canDreamAt, dreamConfig} from './dream.mjs?v=tidy-1';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -49,7 +51,7 @@ import {
   SKILL_CARDS,
   cardTallyLine,
   cardAmount,
-} from "./skill-cards.mjs?v=loop-1";
+} from "./skill-cards.mjs?v=tidy-1";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -98,7 +100,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=loop-1";
+export { cardArt } from "./card-art.mjs?v=tidy-1";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
@@ -201,7 +203,7 @@ function faceBadges(card, compact) {
   const def = SKILL_CARDS[card.cardId || card.id] || {};
   const chip = getCardTrigger(card, def);
   const tally = isDevourCard(card) ? devourTally(card) : null, dreamTally = def.kind === 'dream';
-  return `${compact ? `<span class="card-tbadge-row">${chipBadge(chip, { cls: 'card-tbadge' })}</span>` : ''}${rarityPips(rarity(card))}${cardTallyLine(card) && !cardGrowthBadge(card) ? `<span class="card-bh-tally"><b>${cardTallyLine(card)}</b></span>` : ''}${tally && tally.eaten ? `<span class="card-bh-tally"><b>Devoured ${tally.eaten}</b> · ${dreamTally ? `Dream ${8 + tally.growth} s` : `+${tally.growth}${compact ? '' : ' max Sparks'}`}</span>` : ''}`;
+  return `${compact ? `<span class="card-tbadge-row">${chipBadge(chip, { cls: 'card-tbadge' })}</span>` : ''}${rarityPips(rarity(card))}${meltMarkBadge(card)}${cardTallyLine(card) && !cardGrowthBadge(card) ? `<span class="card-bh-tally"><b>${cardTallyLine(card)}</b></span>` : ''}${tally && tally.eaten ? `<span class="card-bh-tally"><b>Devoured ${tally.eaten}</b> · ${dreamTally ? `Dream ${8 + tally.growth} s` : `+${tally.growth}${compact ? '' : ' max Sparks'}`}</span>` : ''}`;
 }
 export function cardFace(card, { compact = false, fitted = false, slot = null, selected = false, status = null, sightWarning = '', availability = null } = {}) {
   if (!card) return `<article class="skill-card empty-card"><div class="card-empty-art">+</div><h3>Empty slot${slot === null ? '' : ` ${slot + 1}`}</h3></article>`;
@@ -217,7 +219,7 @@ export function cardFace(card, { compact = false, fitted = false, slot = null, s
   const dense = status && verbose;
   const growth = finite ? null : cardGrowthBadge(card);
   const badge = growth ? `<span class="card-use-counter card-growth-badge" role="img" aria-label="${esc(growth.label)}">${esc(growth.text)}</span>` : finite ? compact ? `<span class="card-use-counter" role="img" aria-label="${usesLabel}">${uses}</span>` : `<button type="button" class="card-use-counter" data-card-term="uses" aria-haspopup="dialog" aria-label="${usesLabel}: help">${uses}</button>` : '';
-  return `<article class="skill-card card-${rarity(card)} card-effect-${effectState} ${compact ? 'compact-card card-thumbnail' : 'card-readable'} ${fitted ? 'card-fitted' : ''} ${finite || growth ? 'card-has-uses' : ''} ${status ? 'card-has-status' : ''} ${dense || fitted && status ? 'card-status-dense' : ''} ${verbose ? 'card-rules-dense' : ''} ${bands.length >= 4 ? 'card-rules-long' : ''} ${selected ? 'card-selected' : ''}" data-card-effect-state="${effectState}" data-card-instance="${esc(card.instanceId || '')}" data-card-help="${esc(card.cardId || card.id)}" data-card-rank="${card.rank || 1}"${Number.isFinite(card.charges) ? ` data-card-charges="${card.charges}"` : ''} data-card-name="${esc(cardName(card))}" data-card-description="${esc(cardHelpDescription(card))}" aria-label="${esc(cardName(card))}, ${esc(rarity(card))}${status ? `, ${esc(cardStatusText(status))}` : ''}${effectReason && effectReason !== status?.reason ? `, ${esc(effectReason)}` : ''}"><header class="card-face-heading"><h3>${esc(cardName(card))}</h3>${compact ? '' : `<button type="button" class="card-help" data-card-term-trigger="${esc(card.cardId || card.id)}" data-card-terms="${cardTerms(card).join(' ')}" aria-haspopup="dialog" aria-label="Help with ${esc(cardName(card))}">?</button>`}</header><div class="card-illustration">${cardArt(card, { compact })}${rarityInlay(card)}${faceBadges(card, compact)}${compact ? '' : badge}${sightWarning ? `<span class="card-sight-warning" role="img" title="${esc(sightWarning)}" aria-label="${esc(sightWarning)}">${effectState === 'partial' ? '≈' : '×'} <small>${effectState === 'partial' ? 'Light blocked' : 'Sight blocked'}</small></span>` : ''}</div>${compact ? '' : `<div class="card-rule-band" role="group" aria-label="Rules for ${esc(cardName(card))}">${cardMechanicMarkup(card,{fitted})}</div>`}${cardStatusMarkup(status, {compact, slot})}${compact ? badge : ''}</article>`;
+  return `<article class="skill-card card-${rarity(card)} card-effect-${effectState} ${compact ? 'compact-card card-thumbnail' : 'card-readable'} ${fitted ? 'card-fitted' : ''} ${finite || growth ? 'card-has-uses' : ''} ${status ? 'card-has-status' : ''} ${dense || fitted && status ? 'card-status-dense' : ''} ${verbose ? 'card-rules-dense' : ''} ${bands.length >= 4 ? 'card-rules-long' : ''} ${selected ? 'card-selected' : ''}" data-card-effect-state="${effectState}" data-card-instance="${esc(card.instanceId || '')}" data-card-help="${esc(card.cardId || card.id)}" data-card-rank="${card.rank || 1}"${Number.isFinite(card.charges) ? ` data-card-charges="${card.charges}"` : ''} data-card-name="${esc(cardName(card))}" data-card-description="${esc(cardHelpDescription(card))}" aria-label="${esc(cardName(card))}, ${esc(rarity(card))}${status ? `, ${esc(cardStatusText(status))}` : ''}${effectReason && effectReason !== status?.reason ? `, ${esc(effectReason)}` : ''}">${bandMarkup(card)}<header class="card-face-heading"><h3>${esc(cardName(card))}</h3>${compact ? '' : `<button type="button" class="card-help" data-card-term-trigger="${esc(card.cardId || card.id)}" data-card-terms="${cardTerms(card).join(' ')}" aria-haspopup="dialog" aria-label="Help with ${esc(cardName(card))}">?</button>`}</header><div class="card-illustration">${cardArt(card, { compact })}${rarityInlay(card)}${faceBadges(card, compact)}${compact ? '' : badge}${sightWarning ? `<span class="card-sight-warning" role="img" title="${esc(sightWarning)}" aria-label="${esc(sightWarning)}">${effectState === 'partial' ? '≈' : '×'} <small>${effectState === 'partial' ? 'Light blocked' : 'Sight blocked'}</small></span>` : ''}</div>${compact ? '' : `<div class="card-rule-band" role="group" aria-label="Rules for ${esc(cardName(card))}">${cardMechanicMarkup(card,{fitted})}</div>`}${cardStatusMarkup(status, {compact, slot})}${compact ? badge : ''}</article>`;
 }
 /** Wisp stat picture: the wisp orb with one stat mark (whole pixels, 24x24). */
 const WISP_MARKS = {
