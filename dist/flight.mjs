@@ -1505,6 +1505,29 @@ export class WispFlight {
   }
 
   /** The banked Ring Spring seconds are shown on the first Ring Spring card (a transient field, never saved). */
+  /** Courier Cord drip: `courierDrip` seconds are owed; each whole second pays 1 Spark into the Meter (capped by room). Ends with the flight; stops if the card is unmounted. */
+  updateCourierDrip(dt) {
+    if(!(this.courierDrip>0))return;
+    if(!this.mod.cardCourierCord){this.courierDrip=0;this.courierDripAcc=0;this.syncCourierDripBadge();return;}
+    const step=Math.min(dt,this.courierDrip);this.courierDrip-=step;this.courierDripAcc=(this.courierDripAcc||0)+step;
+    if(this.courierDrip<1e-9)this.courierDrip=0;
+    while(this.courierDripAcc>=1-1e-9){
+      this.courierDripAcc-=1;
+      const gain=Math.min(CARD_UNIT,Math.max(0,this.maxFlame-this.flame));
+      this.flame+=gain;this.flameRestored+=gain;
+      if(this.rec)this.rec.cardSparks+=gain/CARD_UNIT;
+    }
+    if(this.courierDrip===0)this.courierDripAcc=0;
+    this.syncCourierDripBadge();
+  }
+  syncCourierDripBadge() {
+    let shown=false;
+    for(const card of this.cardExecution?.cards||[]){
+      if(!card)continue;
+      if(card.cardId!=='courier-cord'){continue;}
+      if(!shown&&this.courierDrip>0){card.dripLeft=this.courierDrip;shown=true;}else delete card.dripLeft;
+    }
+  }
   syncRingSpringBank() {
     let shown = false;
     for (const card of this.cardExecution?.cards || []) {
@@ -1571,13 +1594,17 @@ export class WispFlight {
     const fireMarks=collectReceiptFires(receipt,this.cardExecution.inscriptions);appendFires(this,fireMarks);
     // Practice lessons about the Chain strip stop the flight the instant a shape turns white (practice-course.mjs).
     if(this.tutorial&&fireMarks.length){this.tutorial.fireAt=this.time;if(fireMarks.some(m=>m.kind==='bar'))this.tutorial.barAt=this.time;}
-    const gain=Math.min(receipt.sparks*CARD_UNIT,Math.max(0,this.maxFlame-this.flame));
+    // Courier Cord: its Sparks do not pay at once; they drip 1 Spark per second (see updateCourierDrip). Rule `overSeconds` marks such a card.
+    let drip=0;for(const c of receipt.cards)if(c&&c.cardId==='courier-cord')drip+=c.effective.sparks;
+    drip=Math.min(Math.max(0,drip),receipt.sparks);const instant=receipt.sparks-drip;
+    if(drip>0){this.courierDrip=(this.courierDrip||0)+drip;if(this.cardExecution)this.syncCourierDripBadge();}
+    const gain=Math.min(instant*CARD_UNIT,Math.max(0,this.maxFlame-this.flame));
     const liveReceipt=Object.freeze({...receipt,restoredSparks:gain/CARD_UNIT});
     if(receipt.steps.some(step=>step.success&&step.operation!=='replay-row'))this.cardRowTrace=liveReceipt;
     this.flame+=gain;this.flameRestored+=gain;
     if(this.rec)this.rec.cardSparks+=gain/CARD_UNIT;
     // Brimful: Sparks a Brimful card gained above the Meter become Stored Sparks (never boosted again).
-    if(receipt.brimful>0){const over=Math.floor(Math.min(receipt.brimful,Math.max(0,receipt.sparks-gain/CARD_UNIT))+1e-9);if(over>0)this.resonanceStored+=over;}
+    if(receipt.brimful>0){const over=Math.floor(Math.min(receipt.brimful,Math.max(0,instant-gain/CARD_UNIT))+1e-9);if(over>0)this.resonanceStored+=over;}
     if(this.tutorial&&this.mod.practiceCards&&kind==='wave-crossing'&&gain>0)this.tutorial.harvestPaid=true;
     if(this.tutorial&&kind==='wave-crossing'&&receipt.sparks>0)this.tutorial.pulsePaidAt=this.time;
     this.resonanceStored+=receipt.stored;
@@ -1601,7 +1628,7 @@ export class WispFlight {
       if(receipt.steps.some(step=>step.success))this.cardEngineLastFiring={kind,detail:{...detail}};
       const origin=Number.isInteger(detail.fromSlot)&&detail.fromSlot>=0?{fromSlot:detail.fromSlot}:{};
       if(gain>0)raiseFlightEngine(this,'gain',{amount:gain/CARD_UNIT,...origin});
-      const spill=receipt.sparks-gain/CARD_UNIT;
+      const spill=instant-gain/CARD_UNIT;
       if(spill>1e-9)raiseFlightEngine(this,'overfill',{spill,...origin});
     }
     return {receipt:liveReceipt,gain};
@@ -2258,6 +2285,7 @@ export class WispFlight {
       if(this.dyingAge>=this.dyingDuration)this.finish(false);return;
     }
     this.time += dt;
+    this.updateCourierDrip(dt);
     this.cardRhythm?.advance();
     this.flightBoon.tryReserve();
     updateGlideRegeneration(this,dt);

@@ -36,7 +36,7 @@ export function inscriptionEffect(inscription, card) {
       return yes(`also fires on ${ALSO[event]}: ${effect}`);
     }
     case 'mirror': return listens ? yes(`also fires whenever the card on its left fires: ${effect}`) : no(engine || !rule || boost ? why : `it only fires at ${own}`);
-    case 'brimful': return rule && ['add-sparks', 'add-last-payout'].includes(rule.operation) ? yes('its Sparks above the Meter become Stored Sparks') : no(curtain || (engine || !rule ? why : 'it pays no Sparks from the Chain'));
+    case 'brimful': return rule && ['add-sparks', 'add-last-payout'].includes(rule.operation) && !rule.overSeconds ? yes('its Sparks above the Meter become Stored Sparks') : no(curtain || (engine || !rule ? why : 'it pays no Sparks from the Chain'));
     case 'whetted': return Number.isFinite(def.charges) ? yes('+1 use each flight') : no('it has no uses');
     default: return yes(lower(ins.text));
   }

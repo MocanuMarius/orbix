@@ -1,6 +1,9 @@
 // Pulse Reader, Courier Cord, Meter Mark (2026-11-18; Finish Flag retired 2026-11-19): the Lift Guide pattern for four more Triggers.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { WispFlight } from '../dist/flight.mjs';
+import { CARD_UNIT } from '../dist/skill-cards.mjs';
+import { cardGrowthBadge } from '../dist/card-ui.mjs';
 import { fly, makeRun, M } from '../scripts/balance/real-flight-check.mjs';
 import { SKILL_CARDS, makeSkillCard, createCardExecution, resolveCardRow, CARD_ROW_EVENTS, getCardModifiers } from '../dist/skill-cards.mjs';
 import { faceEffect, faceTrigger } from '../dist/card-face-lines.mjs';
@@ -14,7 +17,7 @@ const fire = (ids, inscriptions, kind, extra = {}) => {
   return resolveCardRow(createCardExecution(inscriptions ? { cards, inscriptions: inscriptions.map(id => id ? { id } : null) } : { cards }), { kind, meterFraction: .5, heartsLeft: 2, firstCrossing: true, ...extra });
 };
 const E = CARD_ROW_EVENTS;
-const CARDS = [['pulse-reader', 'Pulse', '+1 Spark', E.wave], ['courier-cord', 'Delivery', '+1 Spark', E.delivery], ['meter-mark', 'Overfill', 'keeps 1 Stored', E.overfill]];
+const CARDS = [['pulse-reader', 'Pulse', '+1 Spark', E.wave], ['courier-cord', 'Delivery', '+10 Sparks over 10 s', E.delivery], ['meter-mark', 'Overfill', 'keeps 1 Stored', E.overfill]];
 
 test('faces: Trigger word and one short effect line; common, copyable, starter-only', () => {
   for (const [id, word, line] of CARDS) {
@@ -25,17 +28,53 @@ test('faces: Trigger word and one short effect line; common, copyable, starter-o
   }
 });
 
-test('Pulse Reader and Courier Cord: +1 Spark on their Trigger only; Echo twice; a Boost rounds up; Twin Mark, Gilded', () => {
-  for (const [id, , , kind] of [CARDS[0], CARDS[1]]) {
-    assert.equal(fire([id], null, kind).sparks, 1, id);
-    assert.equal(fire([id], null, E.body).sparks, 0, `${id} ignores a Collect`);
-    assert.equal(fire(['echo', id], null, kind).sparks, 2);
-    assert.equal(fire([id, 'prism-lens'], null, kind).sparks, 2, 'x1.25 rounds up');
-    assert.equal(fire([id, 'crescendo'], null, kind).sparks, 2);
-    assert.equal(fire([id], ['gilded'], kind).sparks, 3);
-    assert.equal(fire([id], ['twin-mark'], kind).sparks, 2);
-    assert.ok(fire(['echo', id, 'glide-prism'], ['gilded'], kind).sparks < 20, 'bounded');
-  }
+test('Pulse Reader: +1 Spark on its Trigger only; Echo twice; a Boost rounds up; Twin Mark, Gilded', () => {
+  const [id, , , kind] = CARDS[0];
+  assert.equal(fire([id], null, kind).sparks, 1, id);
+  assert.equal(fire([id], null, E.body).sparks, 0, `${id} ignores a Collect`);
+  assert.equal(fire(['echo', id], null, kind).sparks, 2);
+  assert.equal(fire([id, 'prism-lens'], null, kind).sparks, 2, 'x1.25 rounds up');
+  assert.equal(fire([id, 'crescendo'], null, kind).sparks, 2);
+  assert.equal(fire([id], ['gilded'], kind).sparks, 3);
+  assert.equal(fire([id], ['twin-mark'], kind).sparks, 2);
+  assert.ok(fire(['echo', id, 'glide-prism'], ['gilded'], kind).sparks < 20, 'bounded');
+});
+
+test('Courier Cord: a Delivery is worth 10 Sparks over 10 s; Echo adds another 10; a Boost lengthens it (x1.25 -> 13); it ignores other Triggers', () => {
+  const k = E.delivery;
+  assert.equal(fire(['courier-cord'], null, k).sparks, 10);
+  assert.equal(fire(['courier-cord'], null, E.body).sparks, 0);
+  assert.equal(fire(['echo', 'courier-cord'], null, k).sparks, 20);
+  assert.equal(fire(['courier-cord', 'prism-lens'], null, k).sparks, 13);
+  assert.equal(fire(['courier-cord'], ['twin-mark'], k).sparks, 20);
+  assert.equal(SKILL_CARDS['courier-cord'].row.overSeconds, 10);
+});
+
+const dripStub = ({ maxFlame = 100 * CARD_UNIT, ...over } = {}) => Object.defineProperty(Object.assign(Object.create(WispFlight.prototype), { mod: { cardCourierCord: true }, flame: 0, flameRestored: 0, rec: { cardSparks: 0 }, courierDrip: 0,
+  cardExecution: { cards: [{ cardId: 'courier-cord', instanceId: 'c' }] } }, over), 'maxFlame', { value: maxFlame });
+const run = (e, seconds, dt = 1 / 60) => { for (let t = 0; t < seconds - 1e-9; t += dt) e.updateCourierDrip(Math.min(dt, seconds - t)); };
+const sparksOf = e => Math.round(e.flame / CARD_UNIT * 1e6) / 1e6;
+
+test('Courier Cord drip: 0 at once, 5 after 5 s, 10 after 10 s, none after; two Deliveries 4 s apart give 20 over 20 s', () => {
+  const e = dripStub(); e.courierDrip += 10;
+  assert.equal(sparksOf(e), 0);
+  run(e, 5); assert.equal(sparksOf(e), 5); assert.equal(cardGrowthBadge(e.cardExecution.cards[0]).text, '5 s');
+  run(e, 5); assert.equal(sparksOf(e), 10); run(e, 5); assert.equal(sparksOf(e), 10, 'nothing after the drip ends');
+  assert.equal(cardGrowthBadge(e.cardExecution.cards[0]), null);
+  const f = dripStub(); f.courierDrip += 10; run(f, 4); f.courierDrip += 10; run(f, 16 - 1e-9 + 1e-9); assert.equal(sparksOf(f), 20, 'two Deliveries: 20 in total over 20 s'); assert.equal(f.rec.cardSparks, 20);
+  const g = dripStub(); g.courierDrip += 10; run(g, 4); g.courierDrip += 10; run(g, 10); assert.equal(sparksOf(g), 14, 'still dripping at 1 per second');
+  assert.equal(g.rec.cardSparks, 14, 'the recorder counts dripped Sparks as card Sparks');
+});
+
+test('Courier Cord drip: nothing when the card is not mounted; capped by room at a full Meter', () => {
+  const e = dripStub({ mod: {} }); e.courierDrip = 10; run(e, 10); assert.equal(sparksOf(e), 0); assert.equal(e.courierDrip, 0);
+  const f = dripStub({ flame: 98 * CARD_UNIT }); f.courierDrip = 10; run(f, 10); assert.equal(sparksOf(f), 100); assert.equal(Math.round(f.rec.cardSparks), 2, 'only the room is paid and recorded');
+});
+
+test('real flight: a Delivery pays no Spark at once but owes 10 s of drip; the badge shows it', () => {
+  let seen = null;
+  fly({ ids: ['courier-cord'], hook: e => { const step = e.step.bind(e); let done = false; e.step = dt => { step(dt); if (!done && e.time > 5 && e.running && !e.paused) { done = true; const before = e.flame; const out = e.resolveCardRowEvent(E.delivery, { pickupKind: 'light' }); seen = { gain: out?.gain, drip: e.courierDrip, flame: e.flame - before, badge: e.cardExecution.cards[0].dripLeft }; } }; } });
+  assert.ok(seen, 'the event ran'); assert.equal(seen.gain, 0); assert.equal(seen.flame, 0); assert.ok(seen.drip > 9.9 && seen.drip <= 10); assert.ok(seen.badge > 0);
 });
 
 test('Meter Mark pays Stored Sparks once; Boosts and Inscriptions never multiply them; Echo repeats', () => {
