@@ -1,5 +1,5 @@
-import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=presets-1';
-import {createChainStrip, baseColor, stripLayout, STRIP, STRIP_COLORS, sparkNumber} from './chain-strip.mjs?v=presets-1';
+import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=timers-1';
+import {createChainStrip, baseColor, stripLayout, STRIP, STRIP_COLORS, sparkNumber} from './chain-strip.mjs?v=timers-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number = value => Number((Number(value) || 0).toFixed(3));
 const capped = trace => Number.isFinite(trace?.restoredSparks) && Math.abs(trace.restoredSparks - trace.sparks) > 1e-7;
@@ -121,6 +121,42 @@ export function createCardRowFeedback(root, {onInspect = () => {}, reducedMotion
       if (lit !== node.lit) { node.lit = lit; node.cell.classList[lit ? 'add' : 'remove']('chain-lit'); }
     }
   }
+  // Timer rings (2026-11-20): a mounted Timer card's frame border fills over its period and a full ring flashes when it fires. One Web Animation per
+  // Timer card, restarted on a fire (the engine's wait `at` changes), paused while the flight is paused: no per-frame work, no text.
+  function ringElements(node) {
+    if (node.ring) return;
+    node.ring = doc.createElement('i'); node.ringFlash = doc.createElement('i');
+    node.ring.className = 'chain-ring'; node.ringFlash.className = 'chain-ring chain-ring-flash';
+    node.cell.insertBefore(node.ringFlash, node.bar); node.cell.insertBefore(node.ring, node.ringFlash);
+    node.ringAt = null; node.ringAnim = null; node.ringShown = -1;
+  }
+  const RING_FRAMES = [{'--p': 0}, {'--p': 100}], RING_FLASH = [{opacity: 1}, {opacity: 1, offset: .35}, {opacity: 0}];
+  function rings(snapshot) {
+    const timers = snapshot?.cardEngine?.timers, cells = strip.cells, paused = !!(snapshot?.paused || snapshot?.finished), soft = reduced();
+    for (let i = 0; i < cells.length; i++) {
+      const node = nodes[i]; if (!node) continue;
+      const tm = timers?.length ? timers.find(t => t.slot === cells[i].slot) : null;
+      if (!tm || !(tm.wait > 0)) {
+        if (node.ring && !node.ring.hidden) { node.ringAnim?.cancel(); node.ringAnim = null; node.ringAt = null; node.ring.hidden = true; node.ringFlash.hidden = true; }
+        continue;
+      }
+      ringElements(node); node.ring.hidden = false; node.ringFlash.hidden = false;
+      const at = tm.progress * tm.wait * 1000;
+      if (soft || typeof node.ring.animate !== 'function') { // reduced motion: the ring is set from the engine's progress, a few times a second at most
+        const p = Math.round(tm.progress * 20) * 5; if (p !== node.ringShown) { node.ringShown = p; node.ring.style.setProperty('--p', String(p)); }
+        continue;
+      }
+      if (node.ringAt !== tm.at) {
+        const fired = node.ringAt !== null;
+        node.ringAnim?.cancel(); node.ringAt = tm.at;
+        node.ringAnim = node.ring.animate(RING_FRAMES, {duration: tm.wait * 1000, easing: 'steps(20, end)', fill: 'forwards'});
+        node.ringAnim.currentTime = at;
+        if (fired && !paused) node.ringFlash.animate(RING_FLASH, {duration: ms * .5});
+      } else if (!paused && node.ringAnim && Math.abs((node.ringAnim.currentTime || 0) - at) > 250) node.ringAnim.currentTime = at;
+      const anim = node.ringAnim;
+      if (anim) { if (paused && anim.playState === 'running') anim.pause(); else if (!paused && anim.playState === 'paused') anim.play(); }
+    }
+  }
   function fade() {
     if (strip.faded === shownFaded) return;
     shownFaded = strip.faded;
@@ -140,7 +176,7 @@ export function createCardRowFeedback(root, {onInspect = () => {}, reducedMotion
   return {strip, destroy() { if (timer !== null) clearTimer(timer); timer = null; dialog?.remove(); button.remove(); root.style?.removeProperty('--strip-w'); }, attach(engine) { if (engine) engine.cardFireListener = listener; },
     update(snapshot) {
       if (strip.sync(snapshot, now()) || strip.version !== shownVersion) { shownVersion = strip.version; paint(); }
-      flashes(); fade(); schedule();
+      flashes(); rings(snapshot); fade(); schedule();
       const next = snapshot?.cardRowTrace, nextSequence = Number(snapshot?.cardRowSequence);
       if (next?.steps?.length && next !== trace && nextSequence !== sequence) { sequence = nextSequence; trace = next; }
     }};

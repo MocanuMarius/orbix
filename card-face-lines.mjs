@@ -5,7 +5,7 @@
 // full rules, which the "?" help window shows (card-ui.mjs › cardHelpDescription). Numbers the player tracks during a
 // run (uses left, a growth or tally counter) stay on the face as badges, not here.
 // The internal trigger keys (card-rule-bands.mjs › CARD_TRIGGERS) are untouched; this is a wording layer on top of them.
-import {getCardRuleBands, getCardTrigger} from './card-rule-bands.mjs?v=presets-1';
+import {getCardRuleBands, getCardTrigger} from './card-rule-bands.mjs?v=timers-1';
 
 /** Words for Triggers that the display layer (card-trigger-labels.mjs) leaves without a chip, as [word, glossary key]. */
 const EXTRA_WORDS = Object.freeze({
@@ -19,7 +19,7 @@ const GROUP_KEYS = Object.freeze({collect: 'collect', lift: 'falling-lift', puls
 const START_CARDS = new Set(['twin-wick', 'use-doubler', 'dream', 'black-hole']);
 
 // Wave Loom and Third Beat follow a Timer, so their first line says Timer (2026-11-20).
-const TIMER_FACE = new Set(['wave-loom', 'third-beat']);
+const TIMER_FACE = new Set(['wave-loom', 'third-beat', 'slow-wick', 'long-fuse']);
 /** {word, term, iconId}: the one word on line 1, its glossary entry and the id its icon is drawn for. */
 export function faceTrigger(card = {}, definition = {}) {
   const chip = getCardTrigger(card, definition);
@@ -60,7 +60,7 @@ const LINES = Object.freeze({
   counterweight: 'Falling: Collector 0.75 s sooner',
   'glide-prism': '×2 before it', 'courier-glass': '×2 before it', 'clear-prism': '+6 Sparks; ×2 before it', 'wick-doubler': '×2 before it',
   'mending-moss': 'While recovering: 3 s sooner',
-  'home-beacon': '+3 Stored per heart left', 'clean-run': '+5 Stored, no heart lost', 'victory-lap': '+1 Stored per card fired', 'curtain-call': 'first card fires ×3', brimful: 'Full Meter: Collect +1', 'pressure-valve': 'next Lift free', floodgate: 'whole Chain fires', 'last-light': 'Last heart: rewards ×2', 'flash-bank': '{fx} when low',
+  'home-beacon': 'Once: +3 a heart, +1 per 10 Sparks', 'clean-run': 'Once: +5 Stored, no heart lost', 'victory-lap': 'Once: +1 a card, +1 per 15 firings', 'curtain-call': 'Once: first card fires ×3', brimful: 'Full Meter: Collect +1', 'pressure-valve': 'next Lift free', floodgate: 'whole Chain fires', 'last-light': 'Last heart: rewards ×2', 'flash-bank': '{fx} when low',
   'return-spring': 'Reels in 0.5 s sooner',
   'haul-winch': 'Cluster: reel 3 s sooner',
   'crate-lining': '{fx} Cache, half Cluster',
@@ -70,8 +70,8 @@ const LINES = Object.freeze({
   'mirror-grain': 'Adds last + again', 'closing-chord': 'Last: cards before ×2.5',
   'second-sun': '×2 before, ×3 Encore',
   'edge-reach': 'A Pulse near terrain',
-  'growth-ring': '+1 max Spark', 'wind-feather': '+1% speed', 'wayfarers-purse': '+5 Stored Sparks',
-  'nest-egg': '+1 Stored per 10 packed',
+  'growth-ring': 'Once: +1 max Spark', 'wind-feather': 'Once: +1% speed', 'wayfarers-purse': 'Once: +5 Stored Sparks',
+  'nest-egg': 'Once: +1 Stored per 10 packed',
   devourer: 'Eats a Rare: +1 heart', 'use-doubler': 'Next card: 2× uses', 'ember-feeder': 'Eats 1: +1, or 2: +3',
   'fast-spool': 'While reeling: 3 s sooner',
   'twin-orbit': 'A 2nd Collector fetches', 'twin-wick': '2 Collectors a flight',
@@ -80,7 +80,7 @@ const LINES = Object.freeze({
   'double-lift': 'Lift twice in 1 s: 2nd free', climb: '3 Lifts in 1 s: 2nd, 3rd free',
   'flash-tinder': 'Starts a 1 s Flare', 'homing-thread': 'Fetches a Spark, 2× reach',
   'overflow-bell': 'A Pulse; keeps 2 Stored',
-  'slow-wick': '3 s later: a Pulse', metronome: 'Every 3 s: fires next', 'long-fuse': '5 s later: fires again',
+  'slow-wick': 'Every 5 s: a Pulse', metronome: 'Every 3 s: fires next', 'long-fuse': 'Every 5 s: fires again',
   heartbeat: 'Timers wait half',
   'first-catch': '1st: +4 Sparks, a Pulse', 'close-call': 'A Pulse, +12 Sparks', 'low-ember': 'Under half: +6, a Pulse',
   'third-beat': '3rd firing counts twice', momentum: '+1 a firing; 5th: +40% light',

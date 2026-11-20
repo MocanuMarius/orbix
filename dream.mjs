@@ -1,6 +1,6 @@
 // A dream records simulation inputs, never run rewards or snapshots of the world.
-import {getChoices} from './model.mjs?v=presets-1';
-import {getCardModifiers,isCardDreamRoute,isCardRun,DREAM_BASE_SECONDS,getCardDreamBonus} from './skill-cards.mjs?v=presets-1';
+import {getChoices} from './model.mjs?v=timers-1';
+import {getCardModifiers,isCardDreamRoute,isCardRun,DREAM_BASE_SECONDS,getCardDreamBonus} from './skill-cards.mjs?v=timers-1';
 const INPUTS=['beginLiftInput','endLiftInput','flap','activateAbility','activateFieldImpulse'];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const ordered=value=>Array.isArray(value)?value.map(ordered):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(k=>[k,ordered(value[k])])):value;
@@ -8,7 +8,7 @@ export function dreamFingerprint(options={}){
   const modifiers = {...options.modifiers};
   delete modifiers.eventFavors;
   delete modifiers.flightBoon; // Waking benefits cannot change rehearsed physics.
-  return JSON.stringify(ordered({simulation:'presets-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
+  return JSON.stringify(ordered({simulation:'timers-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
     node:options.node,companions:options.companions,modifiers,flame:options.flame,condensedGlow:options.condensedGlow||0,condensedRemainder:options.condensedRemainder||0}));
 }
 export function dreamConfig(run={},node=run.current){

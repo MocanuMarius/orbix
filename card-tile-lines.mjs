@@ -2,8 +2,8 @@
 // tile where the card's own effect line (card-rule-bands.mjs › getCardRuleBands, type "effect") is too long
 // to fit. Same meaning, approved vocabulary, about 22 characters at most. The full line is always on the
 // opened card. Moved from the design lab's TILE_SHORT table (56 cards) with the Pulse wording applied.
-import {getCardRuleBands} from './card-rule-bands.mjs?v=presets-1';
-import {SKILL_CARDS, describeSkillCard, cardTallyLine} from './skill-cards.mjs?v=presets-1';
+import {getCardRuleBands} from './card-rule-bands.mjs?v=timers-1';
+import {SKILL_CARDS, describeSkillCard, cardTallyLine} from './skill-cards.mjs?v=timers-1';
 
 export const CARD_TILE_LINES = Object.freeze({
   'momentum': '+1/firing, 5th: +40%',
@@ -14,9 +14,9 @@ export const CARD_TILE_LINES = Object.freeze({
   'harvest-home': 'Collect cards, +2 each',
   'wave-loom': 'Pulse when Timer fires',
   'climb': 'Lifts 2 and 3 free', 'watchlight': 'Collector saves you', 'second-look': 'Re-roll a reward card', 'springboard': 'Collect: free bounce',
-  'lift-guide': 'On the beat: +1 Spark', 'wind-feather': '+1% speed per Finish', 'growth-ring': '+1 max Spark/Finish', 'skim-line': 'Skim: +12 Sparks', 'pulse-reader': 'Pulse: +1 Spark', 'courier-cord': '+10 Sparks over 10 s', 'meter-mark': 'Every 2nd: +1 Stored', 'finish-flag': 'Finish: +2 Stored', 'cache-handling': 'Fetches Caches: +12', 'second-sun': '×2 before, ×3 Encore',
+  'lift-guide': 'On the beat: +1 Spark', 'wind-feather': 'Once: +1% speed', 'growth-ring': 'Once: +1 max Spark', 'skim-line': 'Skim: +12 Sparks', 'pulse-reader': 'Pulse: +1 Spark', 'courier-cord': '+10 Sparks over 10 s', 'meter-mark': 'Every 2nd: +1 Stored', 'finish-flag': 'Finish: +2 Stored', 'cache-handling': 'Fetches Caches: +12', 'second-sun': '×2 before, ×3 Encore',
   'twin-wick': '2 Collectors a flight', 'harvest-legendary': '+2 Sparks, +1 Stored',
-  'nest-egg': '+1 Stored per 10', 'flash-handling': '+6; fetches Flare',
+  'nest-egg': 'Once: +1 Stored per 10', 'flash-handling': '+6; fetches Flare',
   'dream': 'Devour: longer Dream', 'spillway': '2nd Overfill: a Pulse', 'mirror-grain': 'Adds last + again',
   'ember-feeder': 'Eats 1: +1, 2: +3 max', 'refrain': 'Encore: fires again', 'devourer': 'Eats a Rare: +1 heart',
   'tight-packing': '+50% from packing', 'tight-packing-ii': '+75% from packing', 'tight-packing-iii': '+100% from packing',
@@ -27,20 +27,20 @@ export const CARD_TILE_LINES = Object.freeze({
   'clear-prism': '+6; doubles all before', 'wick-doubler': 'Doubles all before', 'crescendo': 'Doubles all before',
   'diving-bell': 'Final Pulse, +3 Sparks', 'counterweight': 'Ready 0.75 s sooner', 'haul-winch': 'Next reel 3 s sooner',
   'fast-spool': 'Reels in 3 s sooner', 'rhythm': '3 even Lifts: a Pulse', 'glass-spool': 'Ready 0.5 s sooner',
-  'use-doubler': 'Next card: 2× uses', 'tailwind': '3rd Collect: +1 heart', 'wind-feather': '+1% speed (max 10%)',
+  'use-doubler': 'Next card: 2× uses', 'tailwind': '3rd Collect: +1 heart', 'wind-feather': 'Once: +1% speed',
   'twin-orbit': '2nd Collector fetches', 'prism-lens': 'All before ×1.25', 'prism-lens-ii': 'All before ×3',
   'keystone': 'Neighbours fire twice', 'vanguard': 'Slot 1: +3, else +1', 'bookends': 'Ends match: all ×2',
   'empty-chair': '+2 per empty Slot', 'ladder': '+1 per card to left', 'twin-flame': 'Exactly 2 before: ×3', 'spill-jar': 'Half of spill: Stored',
-  'home-beacon': '+3 Stored per heart', 'clean-run': '+5 Stored if no crash', 'victory-lap': '+1 Stored per card', 'curtain-call': 'First card fires ×3', brimful: 'Full Meter: Collect +1', 'pressure-valve': 'Next Lift free', floodgate: 'Whole Chain fires', 'last-light': 'Last heart: ×2', 'second-wind': 'Crash: all fire 5 s', 'undertow': 'Falling Lift: Collect',
+  'home-beacon': 'Once: +3/heart, +1/10', 'clean-run': 'Once: +5 if no crash', 'victory-lap': 'Once: +1 per card', 'curtain-call': 'Once: card 1 fires ×3', brimful: 'Full Meter: Collect +1', 'pressure-valve': 'Next Lift free', floodgate: 'Whole Chain fires', 'last-light': 'Last heart: ×2', 'second-wind': 'Crash: all fire 5 s', 'undertow': 'Falling Lift: Collect',
   'closing-chord': 'Last: all before ×2.5', 'ring-spring': 'Next ready 1 s sooner', 'ring-spring-ii': 'Next ready 2 s sooner',
   'pacesetter': 'Ready 3 s sooner', 'mending-moss': 'Ready 3 s sooner', 'flash-thread': 'Ready 3 s sooner',
   'chameleon-two': 'Next: any, not growth', 'slip-feather': 'A revealing Pulse', 'edge-reach': 'Pulse; reach +50%', 'double-lift': '2nd Lift is free',
   // Engine, Pack and Black Hole cards (released 2026-11-18).
-  'metronome': 'Every 3 s: fires next', 'heartbeat': 'Timers wait half', 'slow-wick': 'Pulse: 3 s, then Pulse',
-  'spark-chime': 'Pulse: +1 Spark', 'ember-bell': 'Overfill: sends Pulse', 'long-fuse': 'Pulse: 5 s, fire again',
+  'metronome': 'Every 3 s: fires next', 'heartbeat': 'Timers wait half', 'slow-wick': 'Every 5 s: a Pulse',
+  'spark-chime': 'Pulse: +1 Spark', 'ember-bell': 'Overfill: sends Pulse', 'long-fuse': 'Every 5 s: fire again',
   'first-catch': '1st: +4, then a Pulse', 'overflow-bell': 'Pulse; keeps 2 Stored', 'flash-tinder': 'Collect: 1 s Flare',
   'afterglow': 'Flare ends: +2 Sparks', 'third-beat': '3rd firing counts 2×', 'black-hole': 'Eats next: +max Sparks',
-  'full-satchel': 'Pack: +3 Sparks',
+  'full-satchel': 'Pack: +3 Sparks', 'wayfarers-purse': 'Once: +5 Stored',
 });
 
 /** The line a Deck tile shows: the tile form when the card has one, else its real effect line. */
