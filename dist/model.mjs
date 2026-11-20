@@ -364,18 +364,18 @@ function dealRouteEvents(recipe,deck,seed){
 // A Rest, Scribe, treasure or event is always entered from flights and leaves into flights (or the guardian), as before.
 const CARD_TOPOLOGY='rests-scribes-1';
 const cardRecipe=(id,name,rows,edges)=>({id,name,rows,edges,extraFlightRows:rows.flatMap((r,i)=>r==='FFF'?[i]:[]),topology:CARD_TOPOLOGY});
-// Maps 1 and 2: 15 rows. Rests on rows 4, 10 and 13; Scribe stop on row 8; the guardian on row 14 awards the second Scribe.
+// Maps 1 and 2: 15 rows. Rests on rows 4, 10 and 13; the guardian on row 14 offers an Inscription. (The Scribe stop is no longer generated; old saves keep theirs.)
 const MID_ROWS=Object.freeze([
- cardRecipe('card-lantern-forks-v2','Ember Camps',['FFF','FEF','TVR','FFF',' R ',' F ','V T','F F',' S ','E F',' R ',' F ','F F',' R ',' B '],
+ cardRecipe('card-lantern-forks-v2','Ember Camps',['FFF','FEF','TVR','FFF',' R ',' F ','V T','F F',' F ','E F',' R ',' F ','F F',' R ',' B '],
   [['01','12','2'],['0','12','2'],['01','1','2'],['1','1','1'],['','1',''],['','02',''],['0','','2'],['1','','1'],['','02',''],['1','','1'],['','1',''],['','02',''],['1','','1'],['','1','']]),
- cardRecipe('card-moon-forks-v2','Moon Camps',['FFF','FEF','RVT','FFF',' R ',' F ','T V','F F',' S ','F E',' R ',' F ','F F',' R ',' B '],
+ cardRecipe('card-moon-forks-v2','Moon Camps',['FFF','FEF','RVT','FFF',' R ',' F ','T V','F F',' F ','F E',' R ',' F ','F F',' R ',' B '],
   [['0','01','12'],['0','12','2'],['0','1','12'],['1','1','1'],['','1',''],['','02',''],['0','','2'],['1','','1'],['','02',''],['1','','1'],['','1',''],['','02',''],['1','','1'],['','1','']]),
 ]);
-// Map 3: 17 rows. Rests on rows 4, 9 and 15; Scribe stops on rows 6 and 11 (a third and two thirds of the way); its guardian awards nothing.
+// Map 3: 17 rows. Rests on rows 4, 9 and 15; flights on rows 6 and 11 where Scribe stops used to be; its guardian awards nothing.
 const FINAL_ROWS=Object.freeze([
- cardRecipe('card-lantern-forks-final','Ember Camps',['FFF','FEF','TVR','FFF',' R ',' F ',' S ','F F','E F',' R ',' F ',' S ','F F','V T','F F',' R ',' B '],
+ cardRecipe('card-lantern-forks-final','Ember Camps',['FFF','FEF','TVR','FFF',' R ',' F ',' F ','F F','E F',' R ',' F ',' F ','F F','V T','F F',' R ',' B '],
   [['01','12','2'],['0','12','2'],['01','1','2'],['1','1','1'],['','1',''],['','1',''],['','02',''],['0','','2'],['1','','1'],['','1',''],['','1',''],['','02',''],['0','','2'],['0','','2'],['1','','1'],['','1','']]),
- cardRecipe('card-moon-forks-final','Moon Camps',['FFF','FEF','RVT','FFF',' R ',' F ',' S ','F F','F E',' R ',' F ',' S ','F F','T V','F F',' R ',' B '],
+ cardRecipe('card-moon-forks-final','Moon Camps',['FFF','FEF','RVT','FFF',' R ',' F ',' F ','F F','F E',' R ',' F ',' F ','F F','T V','F F',' R ',' B '],
   [['0','01','12'],['0','12','2'],['0','1','12'],['1','1','1'],['','1',''],['','1',''],['','02',''],['0','','2'],['1','','1'],['','1',''],['','1',''],['','02',''],['0','','2'],['0','','2'],['1','','1'],['','1','']]),
 ]);
 export const CARD_ROUTE_RECIPES=Object.freeze([...MID_ROWS,...FINAL_ROWS]);

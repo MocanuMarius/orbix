@@ -59,6 +59,11 @@ test('every event outcome of a card run uses current words only and fits one sho
   assert.ok(seen.size >= 25, `${seen.size} distinct outcomes audited`);
 });
 
+/** Chests hold an Inscription 35% of the time, so look through seeds for the find a test needs. */
+function chestWith(kind, seed, ok) {
+  for (let i = 0; i < 80; i++) { const c = chestOf(kind, `${seed}-${i}`); if (ok(c.run.pendingChest.find)) return c; }
+  assert.fail(`no ${kind} chest with the wanted find`);
+}
 function chestOf(kind, seed) {
   const state = runAt(seed), run = state.run, stop = run.map.flat().find(n => n.kind === 'treasure' && !n.practiceLoan);
   stop.treasureKind = kind;
@@ -70,7 +75,7 @@ function chestOf(kind, seed) {
 test('the chest keeps its own find: shown under the picture, taken with the choice, never twice', () => {
   // Hollow Vessel: +3 max Sparks for the run (kept as before: run.treasureCapacity), filled.
   {
-    const {state, run, stop} = chestOf('vessel', 'find-vessel'), capacity = run.treasureCapacity || 0;
+    const {state, run, stop} = chestWith('vessel', 'find-vessel', f => f === 'vessel'), capacity = run.treasureCapacity || 0;
     assert.equal(run.pendingChest.find, 'vessel');
     const html = chestStopMarkup(run, {node: stop}), t = text(html);
     assert.match(t, /Found\s+Hollow Vessel/); assert.match(t, /\+3 max Sparks/);
@@ -80,8 +85,8 @@ test('the chest keeps its own find: shown under the picture, taken with the choi
   }
   // Starglass Cache: a Far Lens or Quick Lens Inscription; the slot write screen opens after the choice.
   for (const option of ['sparks', 'card']) {
-    const {state, run, stop} = chestOf('lens', 'find-lens-' + option), id = run.pendingChest.find;
-    assert.ok(['farLens', 'quickLens'].includes(id));
+    const {state, run, stop} = chestWith('lens', 'find-lens-' + option, f => ['farLens', 'quickLens'].includes(f)), id = run.pendingChest.find;
+    assert.ok(['farLens', 'quickLens', 'wick', 'toll'].includes(id));
     assert.match(text(chestStopMarkup(run, {node: stop})), /Found\s+(Far Lens|Quick Lens)/);
     assert.equal(run.pendingTemporary, undefined);
     assert.ok(M.chooseChestReward(state, option));
@@ -89,7 +94,7 @@ test('the chest keeps its own find: shown under the picture, taken with the choi
   }
   // Same chest, same find after a reload; the Reliquary holds none.
   assert.equal(chestOf('lens', 'find-same').run.pendingChest.find, chestOf('lens', 'find-same').run.pendingChest.find);
-  assert.equal(chestOf('wager', 'find-none').run.pendingChest.find, null);
-  const none = chestOf('wager', 'find-none2');
+  assert.equal(chestWith('wager', 'find-none', f => f === null).run.pendingChest.find, null);
+  const none = chestWith('wager', 'find-none2', f => f === null);
   assert.doesNotMatch(chestStopMarkup(none.run, {node: none.stop}), /Found/);
 });

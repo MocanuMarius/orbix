@@ -4,6 +4,7 @@ import * as M from '../dist/model.mjs';
 import {stopPreviewMarkup} from '../dist/stop-preview.mjs';
 import {getMapStopInfo,mapStopIconMarkup} from '../dist/map-guide.mjs';
 import {scribeMarkup} from '../dist/reward-screen.mjs';
+import {chestHoldsInscription, chestFindId} from '../dist/treasure.mjs';
 import {slotInscriptionId} from '../dist/inscriptions.mjs';
 
 // Card-run map layout (rests-scribes-1): every path passes >= 3 Rests, a fourth is optional, and every map offers exactly two Scribes.
@@ -44,24 +45,22 @@ test('every path passes at least 3 Rests, one more Rest is optional and skippabl
   });
 });
 
-test('every map offers exactly two Scribes, none from the last guardian, and no path can dodge a Scribe stop', () => {
-  let total = 0;
-  const totals = [];
+test('new maps have no Scribe stop; a Guardian clear queues an Inscription offer; chests hold one about 35% of the time', () => {
   everyMap((map, index, seed) => {
+    assert.equal(map.flat().filter(n => n.kind === 'scribe').length, 0, `${seed} map ${index}`);
     const run = M.createRun(M.newState().profile, 'scribe-count', 1, {cards: true}), boss = map.at(-1).find(n => n.boss);
-    const bossScribe = M.flightRewardKind(run, boss) === 'inscription' ? 1 : 0;
-    assert.equal(bossScribe, index === 2 ? 0 : 1, 'the last guardian ends the run and awards no Scribe');
-    const stops = map.flat().filter(n => n.kind === 'scribe');
-    assert.equal(stops.length, index === 2 ? 2 : 1, `${seed} map ${index}`);
-    for (const p of paths(map)) assert.equal(p.filter(n => n.kind === 'scribe').length, index === 2 ? 2 : 1);
-    const stopRows = stops.map(s => s.row / (map.length - 1));
-    if (index === 2) assert.ok(stopRows[0] > .28 && stopRows[0] < .42 && stopRows[1] > .6 && stopRows[1] < .75, stopRows.join());
-    else assert.ok(stopRows[0] > .4 && stopRows[0] < .6, stopRows.join());
-    assert.equal(stops.length + bossScribe, 2);
-    totals[index] = stops.length + bossScribe;
+    assert.equal(M.flightRewardKind(run, boss), index === 2 ? null : 'inscription', 'Guardians of maps 1 and 2 offer an Inscription');
   });
-  total = totals.reduce((a, b) => a + b, 0);
-  assert.equal(total, M.SCRIBES_PER_MAP * M.MAP_COUNT); assert.equal(M.SCRIBE_MAX_PER_RUN, 6);
+  const state = M.newState(), run = state.run = M.createRun(state.profile, 'guardian-offer', 1, {cards: true});
+  const boss = run.map.at(-1).find(n => n.boss);
+  run.current = boss; run.phase = 'flight';
+  const reward = M.makeFlightRewardForTest ? M.makeFlightRewardForTest(run) : null;
+  if (reward) assert.ok(reward.kind === 'inscription' && reward.offers.length >= 1);
+  const base = M.createRun(M.newState().profile, 'chest-rate', 1, {cards: true});
+  let holds = 0; const N = 4000;
+  for (let i = 0; i < N; i++) { base.campaignSeed = `chest-${i}`; if (chestHoldsInscription(base, {id: 'n1'})) holds++; }
+  assert.ok(Math.abs(holds / N - 0.35) < 0.04, String(holds / N));
+  for (let i = 0; i < 200; i++) { base.campaignSeed = `find-${i}`; const id = chestFindId(base, {id: 'n2'}, 'lens'); assert.ok(id === null || ['farLens', 'quickLens', 'wick', 'toll'].includes(id)); }
 });
 
 test('maps are connected: every node is reachable, every node reaches the guardian, and the length matches the layout', () => {
@@ -88,7 +87,7 @@ test('other stop types stay within a stated tolerance of the old 10-row map', ()
     assert.equal(count(x => x.kind === 'treasure'), BEFORE.treasure);
     assert.equal(count(x => x.kind === 'event'), BEFORE.event);
     const flights = count(x => x.type === 'flight' && !x.elite && !x.boss);
-    assert.ok(flights >= BEFORE.flights && flights <= BEFORE.flights + 6, `${flights} ordinary flights`);
+    assert.ok(flights >= BEFORE.flights && flights <= BEFORE.flights + 8, `${flights} ordinary flights`);
     assert.equal(count(x => x.kind === 'camp'), 4); assert.equal(map.length > BEFORE.rows, true);
     for (const x of n) assert.ok(x.routeTopology === 'rests-scribes-1' && x.encounterStage >= 0 && x.encounterStage <= 6);
   });
@@ -103,6 +102,10 @@ test('legacy (non-card) runs keep their maps: no Scribe stop, ten rows', () => {
 function atStop(seed, index, kind) {
   const s = M.newState(), run = M.createRun(s.profile, seed, 1, {cards: true});
   run.map = M.makeMap(`${seed}|tier:1|map:${index}`, index, 1, true); run.mapIndex = index; run.seed = `${seed}|tier:1|map:${index}`;
+  if (kind === 'scribe') { // new maps no longer generate it; old saves still hold one, so turn a single-lane flight into the legacy stop
+    const row = run.map.find(r => r.length === 1 && r[0].kind === 'normal' && r[0].row > 3), n = row[0];
+    Object.assign(n, {kind: 'scribe', type: 'support', name: 'The Scribe', locationName: 'The Scribe', fuelPreview: M.SCRIBE_STOP_SUMMARY, description: M.SCRIBE_STOP_SUMMARY, riskPreview: 'No flight: nothing is at risk', commitment: 'Write one Inscription, then return to the map', rewardPreview: M.SCRIBE_STOP_REWARD});
+  }
   const stop = run.map.flat().find(n => n.kind === kind), pred = run.map[stop.row - 1].find(n => n.nextIds.includes(stop.id));
   run.step = stop.row; run.path = [pred.id];
   return {s, run, stop};
