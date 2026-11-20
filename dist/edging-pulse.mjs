@@ -4,8 +4,9 @@ import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=guide-clarity-1';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => n * n * (3 - 2 * n);
 const EPSILON = 1e-9;
+// Owner, 20 Nov 2026 (work order 5): a Skim charge fades fast once the player leaves the wall: 0.5 s grace, then a full meter empties in 1 s.
 export const EDGING_PULSE_TUNING = Object.freeze({ clearance: 48, chargeSeconds: 2,
-  graceSeconds: 1.25, decayPerSecond: .08, duration: 5, recovery: 2, waves: 3 });
+  graceSeconds: .5, decayPerSecond: 1, duration: 5, recovery: 2, waves: 3 });
 /** World-space body-to-solid clearance; card sources add normal reach, never multiply each other. */
 export function getProximityClearance(modifiers = {}) {
   // Boosted Edge Reach counts as a fractional source (+50% x1.25 = +62.5%). No ceiling (designer, 2026-11-17).
@@ -137,7 +138,7 @@ export class EdgingPulse {
     const rate = number(e.mod?.edgingChargeRate, 1, .25, 4);
     const decay = number(e.mod?.edgingDecayRate, 1, 0, 4);
     if (this.nearEdge) {
-      this.graceRemaining = number(e.mod?.edgingGrace,EDGING_PULSE_TUNING.graceSeconds,1.25,3);
+      this.graceRemaining = number(e.mod?.edgingGrace,EDGING_PULSE_TUNING.graceSeconds,EDGING_PULSE_TUNING.graceSeconds,3);
       this.charge = clamp(this.charge + dt * rate / EDGING_PULSE_TUNING.chargeSeconds, 0, 1);
     } else {
       // Ordinary flap arcs and short gaps preserve earned progress, but never

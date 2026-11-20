@@ -19,6 +19,8 @@ import {LIFT_KIND, resolveChain, slotInfo, hereLine, fullRuleText, plateWords, w
   chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=guide-clarity-1';
 import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips, TIMER_MARK} from './trigger-icons.mjs?v=guide-clarity-1';
 import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=guide-clarity-1';
+import {bandMarkup} from '../trigger-bands.mjs?v=guide-clarity-1';
+import {toggleMeltMark, isMeltMarked, meltMarkBadge} from '../melt-mark.mjs?v=guide-clarity-1';
 import {triggerLabel, triggerTermKey} from '../card-trigger-labels.mjs';
 import {CARD_TERMS} from '../card-terms.mjs?v=guide-clarity-1';
 import {SKILL_CARDS} from '../skill-cards.mjs?v=guide-clarity-1';
@@ -234,9 +236,9 @@ function tileHTML(d, view, c) {
   }
   const frame = rest ? 'rest' : at >= 0 ? `chain${RARITY_WORD[r]}` : r;
   return `<div class="dk2-tile dk21-tile dc-r-${r}${d.unseen.has(c.instanceId) ? ' dk2-isnew' : ''}${rest ? ' dk21-rest' : ''}${at >= 0 ? ' dk21-inchain' : ''}${cls}" data-uid="${esc(c.instanceId)}" style="--fr:var(--fr-${frame})">
-    <button type="button" class="dk2-btn dk2-tilemain dk21-tilemain" data-uid="${esc(c.instanceId)}" aria-label="${esc(label)}" ${disabled ? 'aria-disabled="true"' : ''}>
-     <span class="dk21-top">${chipBadge(chip, {cls: 'dk-tbadge'})}<span class="dk-topr">${d.unseen.has(c.instanceId) ? NEW_BADGE : ''}${rarityPips(r)}${at >= 0 ? `<span class="dk21-slot"><b>Slot ${at + 1}</b></span>` : ''}</span></span>
-     <span class="dk2-body dk21-body"><span class="dk2-art dk21-art">${cardArt(c, {compact: true})}${mark && !rest && ['add', 'mul', 'repeat'].includes(mark.cls) ? `<span class="dk2-mark dk-mark-${mark.cls}" aria-hidden="true">${mark.glyph}</span>` : ''}${u ? `<span class="dk2-uses" aria-hidden="true">${u.now}/${u.max}</span>` : ''}</span>
+    <button type="button" class="dk2-btn dk2-tilemain dk21-tilemain" data-uid="${esc(c.instanceId)}" aria-label="${esc(label + (isMeltMarked(c) ? ' Marked to melt.' : ''))}" ${disabled ? 'aria-disabled="true"' : ''}>
+     ${bandMarkup(c, 'dk-band')}<span class="dk21-top">${chipBadge(chip, {cls: 'dk-tbadge'})}<span class="dk-topr">${d.unseen.has(c.instanceId) ? NEW_BADGE : ''}${rarityPips(r)}${at >= 0 ? `<span class="dk21-slot"><b>Slot ${at + 1}</b></span>` : ''}</span></span>
+     <span class="dk2-body dk21-body"><span class="dk2-art dk21-art">${cardArt(c, {compact: true})}${mark && !rest && ['add', 'mul', 'repeat'].includes(mark.cls) ? `<span class="dk2-mark dk-mark-${mark.cls}" aria-hidden="true">${mark.glyph}</span>` : ''}${u ? `<span class="dk2-uses" aria-hidden="true">${u.now}/${u.max}</span>` : ''}${meltMarkBadge(c, 'dk-meltmark')}</span>
       <span class="dk2-text"><b class="dk2-name">${esc(nameOf(c))}</b>${sub ? `<small class="dk2-sub">${esc(sub)}</small>` : `<b class="dk2-effect">${esc(effect)}</b>`}</span></span>
     </button>
     ${eyeBtn(`data-uid="${esc(c.instanceId)}"`, `Read ${nameOf(c)}`)}</div>`;
@@ -294,7 +296,8 @@ function readerHTML(d, view, opts) {
   } else if (view.tab === 'deck') {
     acts = `<div class="dk2-acts">${rest ? '' : `<button type="button" class="wb-sign wb-sign-standard" id="dk2-put" aria-label="${at >= 0 ? `Move ${esc(nameOf(c))} to another slot` : `Put ${esc(nameOf(c))} in your chain`}"><span class="wb-sign-text"><b>${at >= 0 ? 'Move…' : 'Put in chain…'}</b></span></button>`}
       ${at >= 0 ? `<button type="button" class="wb-sign wb-sign-quiet" id="dk2-takeout" aria-label="Take ${esc(nameOf(c))} out of slot ${at + 1}. It stays in your Deck"><span class="wb-sign-text"><b>Take out</b></span></button>` : ''}
-      <button type="button" class="wb-sign wb-sign-quiet" id="dk2-melt" aria-label="Melt ${esc(nameOf(c))}: shows what you get first"><span class="wb-sign-text"><b>Melt…</b></span></button></div>`;
+      <button type="button" class="wb-sign wb-sign-quiet" id="dk2-melt" aria-label="Melt ${esc(nameOf(c))}: shows what you get first"><span class="wb-sign-text"><b>Melt…</b></span></button>
+      ${`<button type="button" class="wb-sign wb-sign-quiet" id="dk2-mark" aria-pressed="${isMeltMarked(c)}" aria-label="${isMeltMarked(c) ? `Clear the melt mark on ${esc(nameOf(c))}` : `Mark ${esc(nameOf(c))} to melt later. Nothing is melted now`}"><span class="wb-sign-text"><b>${isMeltMarked(c) ? 'Clear mark' : 'Mark'}</b></span></button>`}</div>`;
   }
   const availability = getCardFaceAvailability(d.run, printed, at >= 0 ? d.statuses[at] : null);
   const face = inert(cardFace(printed, {compact: false, ...(availability.state !== 'active' ? {availability} : {})}));
@@ -778,6 +781,13 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
       const c = d.byUid(view.reading);
       if (t.closest('#dk2-close') || t === $('dk2-read')) {closeCard();return;}
       if (t.closest('#dk2-melt')) {askMelt();return;}
+      if (t.closest('#dk2-mark')) {
+        const on = toggleMeltMark(d.run, c.instanceId);
+        if (on === null) return;
+        actions.persist?.();renderAll();$('dk2-mark')?.focus({preventScroll: true});
+        announce(on ? `${nameOf(c)} is marked to melt. Nothing is melted until you choose Melt.` : `Melt mark cleared on ${nameOf(c)}.`);
+        return;
+      }
       if (t.closest('#dk2-keep')) {keepCard();return;}
       if (t.closest('#dk2-meltgo')) {confirmMelt(t.closest('#dk2-meltgo'));return;}
       if (t.closest('#dk2-put')) {view.reading = null;startPlacing(c);return;}

@@ -121,7 +121,9 @@ export function createCardInspectorState(params = new URLSearchParams()) {
     markFlightAttemptStarted(run);
     // ?engine=1: the engine lines of the ceremony (Pack cards, Kept by your engine) with sample amounts.
     const engineLines = params.get('engine') === '1' ? { cardPack: { sparks: 6, asked: 6, stored: 2, turns: 1 }, cardEngineStored: 2 } : {};
-    finishFlight(run, { success:true, flame:50, collected:6, ...engineLines,
+    // ?spill=1: Sparks spilled past a full meter (the Overfill line of the summary).
+    const spillLines = params.get('spill') === '1' ? { pickupOverflow: 200, condensedGlow: 10 } : {};
+    finishFlight(run, { success:true, flame:50, collected:6, ...engineLines, ...spillLines,
       artifactCharges:{'flash-stone':1}, artifactActivations:{'flash-stone':1},
       routeBonus:{id:'gilded', eligible:true, complete:true, target:4, progress:4} });
     settleCheckpoint(state);

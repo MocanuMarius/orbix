@@ -1908,3 +1908,11 @@ html body .card-reroll.is-dim small{display:block!important}
 @media(prefers-reduced-motion:reduce){.card-draft-option.is-rerolled .card-draft-face{animation:none}}
 @media(max-height:360px){.start-slot-plate small{display:none}}
 html body .card-reroll small{font-size:12px!important;line-height:1.15!important;opacity:1!important;color:#2a2118!important}
+/* Trigger colour band (trigger-bands.mjs): a thin strip along the top edge of every card face, inside the frame. It sits above
+   the name row's padding, never over the name, the Trigger badge or the art. */
+.skill-card>.card-band{position:absolute;left:0;right:0;top:0;height:4px;background:var(--band);box-shadow:0 1px 0 #2a1d12;pointer-events:none;z-index:4}
+.skill-card.compact-card>.card-band{height:3px}
+/* Melt mark badge (melt-mark.mjs): a small red tag at the lower left of the picture. */
+.card-melt-mark,.dk-meltmark{position:absolute;left:3px;bottom:3px;z-index:6;display:inline-block;padding:0 3px;border:2px solid #2a1d12;background:#c8443c;color:#fff1d8;font:400 10px/12px var(--pixel,monospace);letter-spacing:0;text-shadow:1px 1px #2a1d12;pointer-events:none}
+.card-melt-mark b,.dk-meltmark b{font-weight:400}
+.skill-card.card-readable>.card-band{height:6px}

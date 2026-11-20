@@ -96,6 +96,7 @@ import {createTutorialCoach} from './tutorial-coach.mjs?v=guide-clarity-1';
 import {getTutorialWorldFocus,demonstratedTutorialTopics,tutorialEntryLesson,notePracticeHint,hasPracticeHint,takePracticeHint,carryPracticeHints,takeCarriedPracticeHint,deferPracticeLesson,FIRST_FLIGHT_STOPS} from './tutorial.mjs?v=guide-clarity-1';
 import {isInventoryOnlyCard} from './skill-cards.mjs?v=guide-clarity-1';
 import {markCardsSeen} from './model.mjs?v=guide-clarity-1';
+import {meltMarkedIds} from './melt-mark.mjs?v=guide-clarity-1';
 import {isCardRun,getCardCampPreview,getMountedCards,getOwnedCards,getCardReward,getCardDraft,claimDraftedCard,rerollCardDraft,equipOwnedCard,unequipMountedCard,getCardMeltPreview,meltOwnedCards,getCardImprovePreview,improveOwnedCard,getCardForgePreview,forgeOwnedCard,canManageCards,syncCardFlightForEdit,applyCardFlightEdits,closeCardFlightEdit,commitCardCharges} from './model.mjs?v=guide-clarity-1';
 import {CARD_GUIDE_TOPICS} from './card-guide.mjs?v=guide-clarity-1';
 import {installComboLessons} from './combo-lesson.mjs?v=guide-clarity-1';
@@ -529,6 +530,7 @@ function showCards(){
 // Real changes from the Chain and Deck screens: each goes through the model's own transaction, then the sheet reopens.
 const deckScreenActions={
  done:()=>doneDeck(),
+ persist:()=>persist(),
  transfer:(id,slot,expectedId)=>{if(canEditDeck())requestCardTransfer(id,slot,expectedId);else showCards();},
  takeOut:(slot,id)=>{if(canEditDeck()&&unequipMountedCard(state.run,slot,id))repaintDeck();else showCards();},
  meltQuote:id=>{if(!canEditDeck())return {eligible:false};const preview=getCardMeltPreview(state.run,[id]);return {eligible:!!preview.eligible,reason:preview.reason,amount:Math.floor(preview.amount||0),token:preview.token,wallet:Math.floor(getSkillWallet(state).condensedGlow||0)};},
@@ -645,6 +647,8 @@ function beginDeckMelt(singleId=null,origin=null){
  if(!canEditDeck())return;
  cardMeltOrigin=origin||deckSurface();cardMeltSingle=!!singleId;cardMeltIds.clear();cardMeltToken=null;cardEquipMode=false;cardTargetSlot=null;cardDeckNotice='';
  if(singleId){cardMeltIds.add(singleId);return previewDeckMelt();}
+ // Cards the player marked ("Mark" in the Deck) start selected in the multi-select melt.
+ meltMarkedIds(state.run).forEach(id=>cardMeltIds.add(id));
  cardMeltMode=true;cardMeltScroll=0;cardInspecting=false;showCards();
 }
 function previewDeckMelt(){

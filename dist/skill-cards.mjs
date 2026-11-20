@@ -183,6 +183,8 @@ function cleanCard(card, seen) {
     // Scar Tissue, Collector's Ledger, Old Friend: what the card has counted (batch 2).
     ...((def.tallyEvent || def.tallied) && integer(card.tally) ? { tally: integer(card.tally) } : {}),
     ...(def.edition && integer(card.edition) ? { edition: integer(card.edition) } : {}),
+    // Melt mark (melt-mark.mjs): the player's "melt this later" reminder; written only while set.
+    ...(card.meltMark === true ? { meltMark: true } : {}),
     // Growth Seed: the amount of the Seeds merged into this one (one Seed per run, see mergeGrowthSeeds).
     ...(def.kind === 'camp-grow' && integer(card.seedBonus) ? { seedBonus: integer(card.seedBonus) } : {}),
   };
