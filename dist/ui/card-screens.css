@@ -769,3 +769,27 @@ html body #dk-root.dk.dk2 .dk2-info-body:has(.dk2-inscription) .dk2-inscription 
 /* A Chain with a Timer card shows an hourglass and an infinity sign beside its total (no sentence). */
 #dk-root .dk-timer-mark{position:absolute;left:-30px;top:-92px;z-index:3;width:auto;height:auto;min-height:0;padding:3px;margin:0;display:flex;align-items:center;justify-content:center;background:#e8d6a4;border:2px solid #6b5335;cursor:help}
 #dk-root .dk-timer-mark .dk-timer-art{display:block;image-rendering:pixelated;width:51px;height:30px}/* the global 'button svg' rule would squeeze it to 20 px; 3 px per art pixel is about twice the old size */
+
+/* ── Inscription made easy to see (2026-11-20): a dark plaque carrying the mark and the NAME on every inscribed slot, a detail sheet
+   in the card sheet's own frame. The eye always sits at the right of an inscribed slot, so the plaque has the left. Whole pixels. */
+html body #dk-root .dk2-inscribed .dk21-eye{left:auto;right:0;margin-left:0}
+html body #dk-root .dk2-ins-brand{box-sizing:border-box;gap:4px;padding:2px 4px 2px 3px;background:#2a2118;color:#f6ebcc;border:2px solid #6b5335;align-items:center;justify-content:flex-start;overflow:hidden}
+html body #dk-root .dk2-inscribed:not(.dk2-empty) .dk2-ins-brand{left:3px;top:calc(var(--eye) - 34px);height:34px;width:calc(100% - 58px)}
+html body #dk-root .dk2-inscribed.dk2-ins-idle .dk2-ins-brand{opacity:1;outline:none;border-style:dashed;border-color:#b8643c}
+html body #dk-root .dk2-ins-brand .ins-brand-edge{fill:#2a2118}
+html body #dk-root .dk2-ins-brand:hover .ins-brand-edge{fill:#3a2e22}
+html body #dk-root .dk2-ins-name{display:block;min-width:0;flex:1 1 auto;font:400 10px/12px var(--pixel,monospace);letter-spacing:.5px;text-align:left;white-space:normal;overflow:hidden;color:#f6ebcc}
+html body #dk-root .dk2-empty.dk2-inscribed .dk2-ins-brand{flex-direction:column;justify-content:center;gap:2px;left:6px;right:6px;top:calc(var(--eye) + 8px)!important;width:auto!important;height:auto!important;min-height:60px;margin:0}
+html body #dk-root .dk2-empty.dk2-inscribed .dk2-ins-name{flex:none;text-align:center;white-space:nowrap;text-overflow:ellipsis;max-width:100%}
+@container (max-width:118px){
+ html body #dk-root .dk2-inscribed:not(.dk2-empty) .dk2-ins-brand{width:44px;padding:2px;justify-content:center}
+ html body #dk-root .dk2-inscribed:not(.dk2-empty) .dk2-ins-name{display:none}
+}
+#dk-root .dk2-ins-face{width:136px;height:136px;box-sizing:border-box;background:#2a2118;border:3px solid #6b5335;color:#f6ebcc}
+#dk-root .dk2-ins-face.dk2-inscription-standalone{border-color:var(--moss)}
+#dk-root .dk2-ins-read .dk2-ins-title{margin:0 0 4px;font:400 18px/22px var(--pixel,monospace);letter-spacing:1px;color:var(--ink)}
+#dk-root .dk2-ins-read .dk2-ins-sub{display:flex;align-items:center;gap:8px;margin:0 0 6px;font:400 12px/16px var(--pixel,monospace);color:var(--ink-soft)}
+#dk-root .dk2-ins-read .dk2-ins-kind{margin:0 0 6px;font:400 12px/15px var(--pixel,monospace);color:var(--ink-soft)}
+#dk-root .dk2-ins-read .dk2-ins-with{margin:0}
+html body #dk-root.dk.dk21 .dk2-station.dk2-inscribed .dk21-eye{left:auto;right:0;margin-left:0}
+html body #dk-root.dk .dk2-ins-read h2.dk2-ins-title{position:static;width:auto;height:auto;margin:0 0 4px;clip:auto;overflow:visible;color:#2a2118!important;-webkit-text-fill-color:#2a2118!important;-webkit-text-stroke:0!important;text-shadow:none;font-size:18px;line-height:22px}

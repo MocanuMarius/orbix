@@ -23,7 +23,7 @@ export function inscriptionTag(ins) {
 export function inscriptionBrand(slot, id) {
   const ins = getInscription(id);
   if (!ins) return '';
-  return `<button type="button" class="dk2-ins-brand dk2-ins-${ins.kind}" data-ins-slot="${slot}" data-ins-id="${ins.id}" aria-label="Inscription on slot ${slot + 1}: ${esc(ins.name)}. ${esc(ins.text)}">${inscriptionGlyph(ins.id, {role: 'brand'})}</button>`;
+  return `<button type="button" class="dk2-ins-brand dk2-ins-${ins.kind}" data-ins-slot="${slot}" data-ins-id="${ins.id}" aria-label="Inscription on slot ${slot + 1}: ${esc(ins.name)}. Open it">${inscriptionGlyph(ins.id, {role: 'brand'})}<span class="dk2-ins-name" aria-hidden="true">${esc(ins.name)}</span></button>`;
 }
 /** The thin etched line inside the slot frame (also drawn on an empty slot). */
 export const inscriptionFrame = id => { const ins = getInscription(id); return ins ? `<i class="dk2-ins-frame dk2-ins-frame-${ins.kind}" aria-hidden="true"></i>` : ''; };
@@ -41,3 +41,27 @@ export function inscriptionBlock(slot, id, entry, card) {
 }
 /** One line for the screen note (read from the brand on a slot). */
 export const inscriptionLine = (slot, id) => { const ins = getInscription(id); return ins ? `Inscription on slot ${slot + 1}: ${ins.name}. ${ins.text}` : ''; };
+
+/** What the Inscription sheet says (pure, for tests): name, tag word, plain text, and "With <card>: <what happens>" when a card is mounted. */
+export function inscriptionSheetModel(id, card = null, cardName = '') {
+  const ins = getInscription(id);
+  if (!ins) return null;
+  const fx = card ? inscriptionEffect(ins, card) : null;
+  return {id: ins.id, name: ins.name, tag: ins.kind === 'card' ? 'Card' : 'Slot', kindWord: INSCRIPTION_KIND_WORDS[ins.kind], text: ins.text,
+    withLine: fx ? `With ${cardName || 'this card'}: ${fx.text.replace(/^no effect on this card/, 'no effect')}` : '', works: fx ? fx.works : null};
+}
+/** The detail sheet of an Inscription, in the card sheet's own frame (dk2-read / dk2-dialog). One way out: Close. */
+export function inscriptionSheetMarkup(slot, id, card = null, cardName = '') {
+  const m = inscriptionSheetModel(id, card, cardName), ins = getInscription(id);
+  if (!m) return '';
+  const where = card ? `On slot ${slot + 1}, under ${cardName}` : `On slot ${slot + 1}, which is empty`;
+  return `<div class="dk2-read dk2-ins-read" id="dk2-read"><div class="dk2-dialog" role="dialog" aria-modal="true" aria-labelledby="dk2-read-name">
+    <div class="dk2-face dk2-ins-face dk2-inscription-${ins.kind}" aria-hidden="true">${inscriptionGlyph(ins.id, {role: 'huge'})}</div>
+    <div class="dk2-info"><div class="dk2-info-body">
+     <h2 class="dk2-ins-title" id="dk2-read-name">${esc(m.name)}</h2>
+     <p class="dk2-ins-sub">${inscriptionTag(ins)} <span>${esc(where)}</span></p>
+     <p class="dk2-rule">${cardTermTextMarkup(m.text)}</p>
+     <p class="dk2-ins-kind">${esc(m.kindWord)}.</p>
+     ${m.withLine ? `<p class="dk2-here dk2-ins-with${m.works ? '' : ' dk2-here-idle'}" data-works="${m.works}">${m.works ? '' : '<i class="dk2-warn" aria-hidden="true">!</i>'}<span>${esc(m.withLine)}</span></p>` : ''}
+    </div><div class="dk2-info-foot"><button type="button" class="wb-sign wb-sign-quiet dk2-close" id="dk2-close" aria-label="Close ${esc(m.name)}"><span class="wb-sign-text"><b>Close</b></span></button></div></div></div></div>`;
+}

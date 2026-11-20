@@ -27,7 +27,7 @@ import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=guide-clar
 import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=guide-clarity-1';
 import {slotInscriptionId, slotInscriptionList, slotEntry} from '../inscriptions.mjs?v=guide-clarity-1';
 import {inscriptionEffect} from '../inscription-on-card.mjs?v=guide-clarity-1';
-import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=guide-clarity-1';
+import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionSheetMarkup} from '../inscription-ui.mjs?v=guide-clarity-1';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const SPARK_SRC = SPARK_ICON_SRC;
@@ -39,7 +39,7 @@ const RANK = {legendary: 0, rare: 1, common: 2};
 /** The screen's own state. It belongs to the open Deck only; nothing here enters a save. */
 export function createDeckView() {
   return {tab: 'chain', pick: null, placing: null, filter: 'all', sort: 'rarity', trigger: null, liftFalling: true, liftCue: true, reading: null, readingReturn: null,
-    melting: null, note: '', noteTone: '', scroll: 0, focus: null, announce: '', bookFrom: 'chain', menu: false, shown: []};
+    melting: null, insSheet: null, note: '', noteTone: '', scroll: 0, focus: null, announce: '', bookFrom: 'chain', menu: false, shown: []};
 }
 
 // ── Data ─────────────────────────────────────────────────────────────────────
@@ -273,6 +273,7 @@ function bookPanelHTML(d, view, opts) {
 
 // ── The opened card ──────────────────────────────────────────────────────────
 function readerHTML(d, view, opts) {
+  if (view.insSheet != null) {const at = view.insSheet, card = d.row[at] || null;return slotInscriptionId(d.run, at) ? inscriptionSheetMarkup(at, slotInscriptionId(d.run, at), card, card ? nameOf(card) : '') : '';}
   const c = view.reading && d.byUid(view.reading);
   if (!c) return '';
   const at = d.slotOf(c), rest = isRest(c), w = whenOf(c), r = rarityOf(c);
@@ -347,10 +348,10 @@ export function deckScreenMarkup(run, view = createDeckView(), opts = {}) {
   <div class="wb-world" aria-hidden="true"></div>
   <div class="wb-page dk-sheet" id="dk-sheet">
    <div class="wb-pagelight" aria-hidden="true"></div>
-   <header class="dk2-head dk21-head" id="dk2-head"${view.reading ? ' inert' : ''}>${headHTML(d, view, opts)}</header>
-   <section class="dk2-panel dk2-rowpanel" id="dk2-rowpanel" role="tabpanel" aria-labelledby="dk2-tab-chain"${view.tab !== 'chain' ? ' hidden' : ''}${view.reading ? ' inert' : ''}>${view.tab === 'chain' ? chainPanelHTML(d, view, opts) : ''}</section>
-   <section class="dk2-panel dk2-deckpanel" id="dk2-deckpanel" role="tabpanel" aria-labelledby="dk2-tab-deck"${view.tab !== 'deck' ? ' hidden' : ''}${view.reading ? ' inert' : ''}>${view.tab === 'deck' ? deckPanelHTML(d, view, opts) : ''}</section>
-   <section class="dk2-panel dk-bookpanel" id="dk2-bookpanel" role="tabpanel" aria-labelledby="dk2-tab-triggers"${view.tab !== 'triggers' ? ' hidden' : ''}${view.reading ? ' inert' : ''}>${view.tab === 'triggers' ? bookPanelHTML(d, view, opts) : ''}</section>
+   <header class="dk2-head dk21-head" id="dk2-head"${view.reading || view.insSheet != null ? ' inert' : ''}>${headHTML(d, view, opts)}</header>
+   <section class="dk2-panel dk2-rowpanel" id="dk2-rowpanel" role="tabpanel" aria-labelledby="dk2-tab-chain"${view.tab !== 'chain' ? ' hidden' : ''}${view.reading || view.insSheet != null ? ' inert' : ''}>${view.tab === 'chain' ? chainPanelHTML(d, view, opts) : ''}</section>
+   <section class="dk2-panel dk2-deckpanel" id="dk2-deckpanel" role="tabpanel" aria-labelledby="dk2-tab-deck"${view.tab !== 'deck' ? ' hidden' : ''}${view.reading || view.insSheet != null ? ' inert' : ''}>${view.tab === 'deck' ? deckPanelHTML(d, view, opts) : ''}</section>
+   <section class="dk2-panel dk-bookpanel" id="dk2-bookpanel" role="tabpanel" aria-labelledby="dk2-tab-triggers"${view.tab !== 'triggers' ? ' hidden' : ''}${view.reading || view.insSheet != null ? ' inert' : ''}>${view.tab === 'triggers' ? bookPanelHTML(d, view, opts) : ''}</section>
    ${readerHTML(d, view, opts)}
   </div>
   <p class="dk-sr" id="dk-live" role="status" aria-live="polite"></p>
@@ -727,6 +728,14 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
     const w = whenOf(c);
     announce(`${nameOf(c)}. ${RARITY_WORD[rarityOf(c)]}. Triggers on: ${w.text}. ${hereLine(d.chain, c)}`);
   }
+  function openIns(slot) {
+    if (view.reading || view.insSheet != null || !slotInscriptionId(d.run, slot)) return;
+    view.insSheet = slot;renderAll();$('dk2-close')?.focus({preventScroll: true});
+  }
+  function closeIns() {
+    const slot = view.insSheet;view.insSheet = null;renderAll();
+    (root.querySelector(`[data-ins-slot="${slot}"]`) || $('dk2-done'))?.focus({preventScroll: true});
+  }
   function closeCard() {
     if (!view.reading) return;
     view.reading = null;view.melting = null;
@@ -764,6 +773,7 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
     if (t.closest('[data-card-term]')) return;
     const term = t.closest('.dk22-term');
     if (term && term.closest('.dk22-trow')) {setTrigger(term.dataset.term);return;}
+    if (view.insSheet != null) {if (t.closest('#dk2-close') || t === $('dk2-read')) closeIns();return;}
     if (view.reading) {
       const c = d.byUid(view.reading);
       if (t.closest('#dk2-close') || t === $('dk2-read')) {closeCard();return;}
@@ -787,7 +797,7 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
     const bookCard = t.closest('.tb-card');
     if (bookCard) {openCard(d.byUid(bookCard.dataset.uid), bookCard);return;}
     const insButton = t.closest('[data-ins-slot]');
-    if (insButton && !view.placing) {const slot = Number(insButton.dataset.insSlot);say(inscriptionLine(slot, slotInscriptionId(d.run, slot), slotEntry(d.run, slot)), 'dk2-note-ins');renderAll();return;}
+    if (insButton && !view.placing) {openIns(Number(insButton.dataset.insSlot));return;}
     if (t.closest('#dk2-done')) {actions.done?.();return;}
     if (t.closest('#dk2-placecancel')) {cancelPlacing();return;}
     if (t.closest('#dk2-pickcancel')) {cancelPick();return;}
@@ -824,6 +834,7 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
   // Handled on keydown so the browser's dialog close request (which may skip a repeated cancel) never runs.
   const stepBack = () => {
     if (view.menu) {view.menu = false;renderAll();$('dk2-filter')?.focus({preventScroll: true});return;}
+    if (view.insSheet != null) {closeIns();return;}
     if (view.reading) {if (view.melting) keepCard(); else closeCard();return;}
     if (view.pick !== null) {cancelPick();return;}
     if (view.placing) {cancelPlacing();return;}
@@ -839,7 +850,7 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
     stepBack();
   });
   root.addEventListener('keydown', event => {
-    if (view.reading && event.key === 'Tab') {
+    if ((view.reading || view.insSheet != null) && event.key === 'Tab') {
       const items = [...$('dk2-read').querySelectorAll('button:not([disabled])')];
       const i = items.indexOf(document.activeElement);
       event.preventDefault();items[(i + (event.shiftKey ? items.length - 1 : 1) + items.length) % items.length]?.focus();
