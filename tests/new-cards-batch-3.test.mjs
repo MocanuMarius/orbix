@@ -64,3 +64,15 @@ test('Kindling recovers 1 Spark per 1 s only while the Meter is under 50%, and s
   assert.equal(e.flame, e.maxFlame * .7, 'above 50% it does nothing');
   const plain = synthFlight([]); assert.ok(!plain.mod.cardKindling);
 });
+
+test('Slow Burn counts its Sparks as card Sparks and lights its card; Ember Snack shows its paid Stored line', async () => {
+  const e = synthFlight(['kindling']);
+  e.rec = { cardSparks: 0 }; e.flame = e.maxFlame * .1; e.cardFires = [];
+  for (let i = 0; i < 2 * 120; i++) e.updateKindling(1 / 120);
+  assert.ok(Math.abs(e.rec.cardSparks - 2) < 1e-6, 'recorder counts 2 Sparks');
+  assert.ok(Math.abs(e.kindlingSparks - 2) < 1e-6, 'sim counter counts 2 Sparks');
+  assert.equal(e.cardFires.filter(f => f.slot === 0).length, 2, 'lights its slot once per paying second');
+  const { emberSnackLine } = await import('../dist/devour-notes.mjs');
+  assert.equal(emberSnackLine({ emberSnackStored: 50 }), 'Ember Snack · +50 Stored');
+  assert.equal(emberSnackLine({}), '');
+});

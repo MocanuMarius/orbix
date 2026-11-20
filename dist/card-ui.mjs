@@ -1,4 +1,4 @@
-import { flightDevoured, devouredLine } from "./devour-notes.mjs?v=guide-clarity-1";
+import { flightDevoured, devouredLine, emberSnackLine } from "./devour-notes.mjs?v=guide-clarity-1";
 import { wispChipText } from "./start-bonus.mjs?v=guide-clarity-1";
 import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=guide-clarity-1";
 import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=guide-clarity-1";
@@ -86,8 +86,9 @@ export const cardName = (c) => c?.name || c?.cardId || "Card";
 export function flightCardChangesMarkup(run){
   const flight=run?.lastFlight;if(!flight)return '';
   const fed=flight.emberFeederSacrifices||[],doubled=flight.cardUseDoublings||[],eaten=flightDevoured(flight);
-  if(!fed.length&&!doubled.length&&!eaten.length)return '';
-  return `<details class="card-flight-changes"><summary>Card changes this flight · ${fed.length+doubled.length+(eaten.length?1:0)}</summary>${eaten.length?`<p><strong>${esc(devouredLine(eaten))}.</strong> Gone for good.</p>`:''}${doubled.map(change=>`<p><strong>Use Doubler consumed.</strong> ${esc(change.name)} · ${change.before} → ${change.after} remaining uses.</p>`).join('')}${fed.map(change=>`<p><strong>Ember Feeder · +${amount(change.totalCapacity)} maximum Sparks while equipped.</strong> Permanently consumed ${change.targets.map(target=>`${esc(target.name)} (slot ${target.slot+1})`).join(' and ')}. No meter refill.</p>`).join('')}</details>`;
+  const snack=emberSnackLine(flight);
+  if(!fed.length&&!doubled.length&&!eaten.length&&!snack)return '';
+  return `<details class="card-flight-changes"><summary>Card changes this flight · ${fed.length+doubled.length+(eaten.length?1:0)+(snack?1:0)}</summary>${eaten.length?`<p><strong>${esc(devouredLine(eaten))}.</strong> Gone for good.</p>`:''}${snack?`<p><strong>${esc(snack)}.</strong></p>`:''}${doubled.map(change=>`<p><strong>Use Doubler consumed.</strong> ${esc(change.name)} · ${change.before} → ${change.after} remaining uses.</p>`).join('')}${fed.map(change=>`<p><strong>Ember Feeder · +${amount(change.totalCapacity)} maximum Sparks while equipped.</strong> Permanently consumed ${change.targets.map(target=>`${esc(target.name)} (slot ${target.slot+1})`).join(' and ')}. No meter refill.</p>`).join('')}</details>`;
 }
 function flightPackingReceipt(run, reward) {
   const flight = run?.lastFlight,

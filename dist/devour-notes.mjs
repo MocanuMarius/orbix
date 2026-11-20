@@ -15,6 +15,8 @@ export function flightDevoured(flight) {
   for (const eat of flight?.devourerSacrifices || []) out.push({cardId: eat.cardId, name: nameOf(eat.cardId), by: 'Devourer'});
   return out;
 }
+/** The Stored Sparks Ember Snack paid this flight, as one short line ('Ember Snack · +50 Stored'), or ''. */
+export const emberSnackLine = flight => (flight?.emberSnackStored > 0 ? `Ember Snack · +${Math.round(flight.emberSnackStored)} Stored` : '');
 export const devouredLine = items => items.length ? `Devoured: ${join(items.map(item => item.name))}` : '';
 
 /** Warnings for the departure screen: what a mounted Devour card will eat in the flight about to start. [{text, cardIds}] */

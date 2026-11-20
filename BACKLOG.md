@@ -19,6 +19,10 @@ The entries below are chronological release snapshots. Their old “current” l
 
 Do this before any other backlog item once the weekly allowance is back (23 November). Today every card or flight job touches the same few large files (`dist/flight.mjs`, `dist/app.mjs`, `dist/skill-cards.mjs`, `dist/card-engine.mjs`, `dist/model.mjs`, `dist/card-catalog.mjs`, `dist/card-ui.mjs`), so only one worker can run at a time. Split them into smaller modules along ownership lines (for example one module per card family, per screen, per flight subsystem), with no behaviour change, tests green before and after, and a short map in `handoff.md` saying which module owns what. Opus worker (core flight and save logic); one file per step; release after each step.
 
+## Rhythm rework (owner, 20 November 2026, evening): to design
+
+Owner's words: "we want to improve how rythm works, by making the not train on diff lengths". Coordinator's reading, to confirm with the owner before building: Rhythm (today: Lifts in a steady beat, the cue around 1.367 s after the last Lift) should not train the player on one fixed interval; the beat or run of cues should come in different lengths, so keeping Rhythm stays a skill instead of a memorised tempo. Ask the owner what "lengths" means (interval between Lifts, or how many Lifts make a Rhythm) and show two or three variants as videos before building.
+
 ## Owner's discussion list, 20 November 2026
 
 Pasted by the owner as "a huge backlog of items I'd like to at least document as discussion points for the future; some of them are actionable right now". Nothing here is decided unless it says so. Grouping and the "check first" notes are the coordinator's; the items are the owner's.

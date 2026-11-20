@@ -1,6 +1,6 @@
 import {ARTIFACTS,SKILL_CARDS,getCardDraft,lastCourseName,getRunModifiers} from './model.mjs?v=guide-clarity-1';
 import {overfillSummary} from './overfill-summary.mjs?v=guide-clarity-1';
-import {flightDevoured} from './devour-notes.mjs?v=guide-clarity-1';
+import {flightDevoured,emberSnackLine} from './devour-notes.mjs?v=guide-clarity-1';
 import {chipIcon} from './ui/trigger-icons.mjs?v=guide-clarity-1';
 import {cardArt,cardDraftMarkup,cardDraftOffersMarkup,cardDraftRerollMarkup} from './card-ui.mjs?v=guide-clarity-1';
 import {planTally,tallyStateAt,tallyLayout} from './reward-tally.mjs?v=guide-clarity-1';
@@ -67,6 +67,7 @@ export function flightRewardCeremonyReceipt(run){
  const relicEntries=Object.entries(flight.artifactActivations||{}).filter(([id,amount])=>ARTIFACTS[id]&&count(amount)>0).map(([id,amount])=>({artifactId:id,detailKey:`artifact:${id}`,text:`${ARTIFACTS[id].name} · activated ×${count(amount)}`}));
  relicEntries.push(...(Array.isArray(flight.consumedArtifacts)?flight.consumedArtifacts:[]).filter(id=>ARTIFACTS[id]).map(id=>({artifactId:id,detailKey:`artifact:${id}`,text:`${ARTIFACTS[id].name} · uses depleted this flight`})));
  const devoured=flightDevoured(flight).map(item=>({cardId:item.cardId,detailKey:'devoured',text:`Devoured: ${item.name}`}));
+ const snackLine=emberSnackLine(flight);if(snackLine)devoured.push({cardId:'ember-snack',detailKey:'devoured',text:snackLine});
  const spill=overfillSummary(flight,run?getRunModifiers(run).condensationRules:{});
  const spillNotes=spill?[{detailKey:'source-overflow',text:spill.text}]:[];
  const effectEntries=[...spillNotes,...optionalNotes,...growthNotes,...devoured,...relicEntries];

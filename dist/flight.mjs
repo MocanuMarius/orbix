@@ -1536,13 +1536,15 @@ export class WispFlight {
     if(!this.mod.cardKindling||!this.alive||this.finished||this.dying||this.completing){this.kindlingAcc=0;return;}
     const cap=this.maxFlame*.5;
     if(this.flame>=cap-1e-9){this.kindlingAcc=0;return;}
-    this.kindlingAcc=(this.kindlingAcc||0)+dt;
+    this.kindlingAcc=(this.kindlingAcc||0)+dt;let fired=false;
     while(this.kindlingAcc>=1-1e-9){
       this.kindlingAcc-=1;
       const gain=Math.min(CARD_UNIT,Math.max(0,cap-this.flame));
       if(gain<=0)break;
       this.flame+=gain;this.flameRestored+=gain;
+      this.kindlingSparks=(this.kindlingSparks||0)+gain/CARD_UNIT;
       if(this.rec)this.rec.cardSparks+=gain/CARD_UNIT;
+      if(!fired){fired=true;const slot=this.cardExecution?.cards?.findIndex(card=>card?.cardId==='kindling')??-1;if(slot>=0)appendFires(this,[{slot,kind:'bar'}]);}
       if(this.flame>=cap-1e-9){this.kindlingAcc=0;break;}
     }
   }

@@ -15,7 +15,7 @@ export async function createSim({ style }) {
   const appState = experiencedState();
   if (!process.argv.includes('--importOnly')) process.argv.push('--importOnly');
   const { simulate, buildCase } = await import('../balance-current-flight.mjs');
-  const sparksOf = (card, log) => card === 'skim-line' ? (log.engine.cardEngine?.sparks || 0) : (log.slots[card === 'lift-guide' ? 0 : 1]?.sparks || 0);
+  const sparksOf = (card, log) => card === 'skim-line' ? (log.engine.cardEngine?.sparks || 0) : card === 'kindling' ? (log.engine.kindlingSparks || 0) : (log.slots[card === 'lift-guide' ? 0 : 1]?.sparks || 0);
 
   /** The simulate() config for `pick` in `run`: the app's flight (appFlightOptions) unless opts.legacy. Exposed for tests/sim-matches-app.test.mjs. */
   function flightConfig(run, pick, style, opts = {}) {
