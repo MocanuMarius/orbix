@@ -2,8 +2,8 @@
 // tile where the card's own effect line (card-rule-bands.mjs › getCardRuleBands, type "effect") is too long
 // to fit. Same meaning, approved vocabulary, about 22 characters at most. The full line is always on the
 // opened card. Moved from the design lab's TILE_SHORT table (56 cards) with the Pulse wording applied.
-import {getCardRuleBands} from './card-rule-bands.mjs?v=tidy-1';
-import {SKILL_CARDS, describeSkillCard, cardTallyLine} from './skill-cards.mjs?v=tidy-1';
+import {getCardRuleBands} from './card-rule-bands.mjs?v=chance-1';
+import {SKILL_CARDS, describeSkillCard, cardTallyLine} from './skill-cards.mjs?v=chance-1';
 
 export const CARD_TILE_LINES = Object.freeze({
   'momentum': '+1/firing, 5th: +40%',
@@ -14,7 +14,7 @@ export const CARD_TILE_LINES = Object.freeze({
   'harvest-home': 'Collect cards, +2 each',
   'wave-loom': 'Pulse when Timer fires',
   'climb': 'Lifts 2 and 3 free', 'watchlight': 'Collector saves you', 'second-look': 'Re-roll a reward card', 'springboard': 'Collect: free bounce',
-  'lift-guide': 'On the beat: +1 Spark', 'wind-feather': 'Once: +1% speed', 'growth-ring': 'Once: +1 max Spark', 'skim-line': 'Skim: +12 Sparks', 'pulse-reader': 'Pulse: +1 Spark', 'courier-cord': '+10 Sparks over 10 s', 'meter-mark': 'Every 2nd: +1 Stored', 'finish-flag': 'Finish: +2 Stored', 'cache-handling': 'Fetches Caches: +12', 'second-sun': '×2 before, ×3 Encore',
+  'lift-guide': '50%: +1 Spark on cue', 'wind-feather': 'Once: +1% speed', 'growth-ring': 'Once: +1 max Spark', 'skim-line': 'Skim: +12 Sparks', 'pulse-reader': 'Pulse: +1 Spark', 'courier-cord': '+10 Sparks over 10 s', 'meter-mark': '50%: +1 Stored', 'finish-flag': 'Finish: +2 Stored', 'cache-handling': 'Fetches Caches: +12', 'second-sun': '×2 before, ×3 Encore',
   'twin-wick': '2 Collectors a flight', 'harvest-legendary': '+2 Sparks, +1 Stored',
   'nest-egg': 'Once: +1 Stored per 10', 'flash-handling': '+6; fetches Flare',
   'dream': 'Devour: longer Dream', 'spillway': '2nd Overfill: a Pulse', 'mirror-grain': 'Adds last + again',
@@ -39,7 +39,7 @@ export const CARD_TILE_LINES = Object.freeze({
   'metronome': 'Every 3 s: fires next', 'heartbeat': 'Timers wait half', 'slow-wick': 'Every 3 s: a Pulse',
   'spark-chime': 'Pulse: +1 Spark', 'ember-bell': 'Overfill: sends Pulse', 'long-fuse': 'Every 5 s: fire again',
   'first-catch': '1st: +4, then a Pulse', 'overflow-bell': 'Pulse; keeps 2 Stored', 'flash-tinder': 'Collect: 1 s Flare',
-  'afterglow': 'Flare ends: +2 Sparks', 'third-beat': '3rd firing counts 2×', 'black-hole': 'Eats next: +max Sparks',
+  'afterglow': 'Flare ends: +2 Sparks', 'third-beat': '33%: counts 2×', 'black-hole': 'Eats next: +max Sparks',
   'full-satchel': 'Pack: +3 Sparks', 'wayfarers-purse': 'Once: +5 Stored',
 });
 

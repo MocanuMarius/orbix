@@ -1,8 +1,8 @@
-import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=tidy-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=tidy-1';
-import {queueInscriptionWrite} from './temporary-inscriptions.mjs?v=tidy-1';
-import {oathLine,oathReward} from './oaths.mjs?v=tidy-1';
-import {INSCRIPTIONS,ownsInscription,hasActiveInscription} from './inscriptions.mjs?v=tidy-1';
+import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=chance-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=chance-1';
+import {queueInscriptionWrite} from './temporary-inscriptions.mjs?v=chance-1';
+import {oathLine,oathReward} from './oaths.mjs?v=chance-1';
+import {INSCRIPTIONS,ownsInscription,hasActiveInscription} from './inscriptions.mjs?v=chance-1';
 
 export const TREASURE_KINDS = Object.freeze(['vessel', 'lens', 'tithe', 'wager']);
 export const LENS_SIGHT = 1.15;

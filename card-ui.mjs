@@ -1,20 +1,20 @@
-import { flightDevoured, devouredLine } from "./devour-notes.mjs?v=tidy-1";
-import { wispChipText } from "./start-bonus.mjs?v=tidy-1";
-import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=tidy-1";
-import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=tidy-1";
-import { uiIcon } from "./ui-icons.mjs?v=tidy-1";
-import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=tidy-1";
-import { bandMarkup } from "./trigger-bands.mjs?v=tidy-1";
-import { meltMarkBadge } from "./melt-mark.mjs?v=tidy-1";
-import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=tidy-1";
-import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=tidy-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=tidy-1";
-import { activeFlightPact } from './flight-pacts.mjs?v=tidy-1';
-import { cardArt } from "./card-art.mjs?v=tidy-1";
-import { cardTileLine } from "./card-tile-lines.mjs?v=tidy-1";
-import { slotInscriptionId } from "./inscriptions.mjs?v=tidy-1";
-import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=tidy-1";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=tidy-1';
+import { flightDevoured, devouredLine } from "./devour-notes.mjs?v=chance-1";
+import { wispChipText } from "./start-bonus.mjs?v=chance-1";
+import { cardTermTextMarkup, cardTermMarkup } from "./card-terms.mjs?v=chance-1";
+import { faceTrigger, faceEffect, faceFinePrint } from "./card-face-lines.mjs?v=chance-1";
+import { uiIcon } from "./ui-icons.mjs?v=chance-1";
+import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=chance-1";
+import { bandMarkup } from "./trigger-bands.mjs?v=chance-1";
+import { meltMarkBadge } from "./melt-mark.mjs?v=chance-1";
+import { chipBadge, chipIcon, rarityPips } from "./ui/trigger-icons.mjs?v=chance-1";
+import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=chance-1";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=chance-1";
+import { activeFlightPact } from './flight-pacts.mjs?v=chance-1';
+import { cardArt } from "./card-art.mjs?v=chance-1";
+import { cardTileLine } from "./card-tile-lines.mjs?v=chance-1";
+import { slotInscriptionId } from "./inscriptions.mjs?v=chance-1";
+import { inscriptionGlyph } from "./inscription-glyphs.mjs?v=chance-1";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=chance-1';
 import {
   getMountedCards,
   getOwnedCards,
@@ -31,13 +31,13 @@ import {
   getSkillWallet,
   equipOwnedCard,
   canRerollCardDraft,
-} from "./model.mjs?v=tidy-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=tidy-1";
-import { choiceScene } from "./choice-art.mjs?v=tidy-1";
-import { livesMarkup } from "./lives.mjs?v=tidy-1";
-import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=tidy-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=tidy-1";
-import {canDreamAt, dreamConfig} from './dream.mjs?v=tidy-1';
+} from "./model.mjs?v=chance-1";
+import { resourceSymbol } from "./game-symbols.mjs?v=chance-1";
+import { choiceScene } from "./choice-art.mjs?v=chance-1";
+import { livesMarkup } from "./lives.mjs?v=chance-1";
+import { getGlowCapacity, getLifeCapacity, formatGlow } from "./vitality.mjs?v=chance-1";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=chance-1";
+import {canDreamAt, dreamConfig} from './dream.mjs?v=chance-1';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -51,7 +51,7 @@ import {
   SKILL_CARDS,
   cardTallyLine,
   cardAmount,
-} from "./skill-cards.mjs?v=tidy-1";
+} from "./skill-cards.mjs?v=chance-1";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -100,7 +100,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=tidy-1";
+export { cardArt } from "./card-art.mjs?v=chance-1";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
@@ -192,7 +192,6 @@ export function cardGrowthBadge(card) {
   if (def.kind === 'wind-feather') return { text: `+${n}%`, label: `Now +${n}% flight speed from this card` };
   if (def.kind === 'growth-ring') return { text: `+${n}`, label: `Now +${n} max Sparks from this card` };
   if (def.kind === 'camp-grow') { const v = cardAmount(card); return { text: `+${v}`, label: `Grows +${v} max Sparks at Rest` }; }
-  if (def.kind === 'meter-mark' && Number.isFinite(card.markCount)) { const c = card.markCount % 2; return { text: `${c}/2`, label: `${c} of 2 Overfills counted: the 2nd keeps a Stored Spark` }; }
   if (def.kind === 'ring-spring' && Number(card.banked) > 0) { const b = Number(card.banked); return { text: `${b} s`, label: `${b} seconds banked: they come off the next Collector recovery` }; }
   if (def.kind === 'courier-cord' && Number(card.dripLeft) > 0) { const s = Math.ceil(Number(card.dripLeft) - 1e-9); return { text: `${s} s`, label: `${s} seconds of Spark drip left` }; }
   if (def.kind === 'pressure-valve' && Number(card.armed) > 0) return { text: 'Free', label: 'Armed: your next Lift is free' };

@@ -1,4 +1,4 @@
-import {lightVisibility} from './light-field.mjs?v=tidy-1';
+import {lightVisibility} from './light-field.mjs?v=chance-1';
 
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 export const WARNING_NOTICE=.31;

@@ -9,10 +9,10 @@ const def = (id, name, kind, text, extra = {}) => Object.freeze({id, name, kind,
 export const INSCRIPTIONS = Object.freeze(Object.fromEntries([
   // Card-modifying
   def('twin-mark', 'Twin Mark', 'card', 'Fires twice. On a Boost, the Boost applies twice.', {glyph: 'twin'}),
-  def('gilded', 'Gilded', 'card', '+2 Sparks each firing.', {glyph: 'gild', bonus: 2}),
+  def('gilded', 'Gilded', 'card', 'Each firing, 50%: +2 Sparks.', {glyph: 'gild', bonus: 2, chance: 50}),
   def('resonant', 'Resonant', 'card', 'Also fires on a Pulse.', {glyph: 'wave', also: 'wave-crossing'}),
   def('kindled', 'Kindled', 'card', 'Also fires on a Lift.', {glyph: 'lift', also: 'downbeat-lift'}),
-  def('courier', 'Courier', 'card', 'Also fires on a Delivery and every 3rd Collect.', {glyph: 'give', also: 'collector-delivery', everyCollect: 3}),
+  def('courier', 'Courier', 'card', 'Also fires on a Delivery. On a Collect, 33%: also fires.', {glyph: 'give', also: 'collector-delivery', collectChance: 33}),
   def('wellspring', 'Wellspring', 'card', 'Fires 3 times on each Overfill.', {glyph: 'well', also: 'natural-overfill', times: 3}),
   def('flare', 'Sunlit', 'card', 'Also fires on a Flare Collect and each Flare Pulse.', {glyph: 'flash', also: 'flash-pickup', flarePulse: true}),
   def('mirror', 'Mirror', 'card', 'Fires when the card on its left fires.', {glyph: 'mirror'}),

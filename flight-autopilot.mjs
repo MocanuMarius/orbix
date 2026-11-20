@@ -4,7 +4,7 @@
 // holding the next Spark. Without that script's look-ahead search, so the pilot costs almost nothing per step
 // (bands are recomputed at 10 Hz). It moves the wisp directly; Lifts are still sent at an even pace so Rhythm and
 // Lift cards fire. Optional invulnerability ignores hits and deaths and keeps the meter up.
-import {obstaclePolygons} from './flight.mjs?v=tidy-1';
+import {obstaclePolygons} from './flight.mjs?v=chance-1';
 
 const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));
 function subtract(blocked,height){blocked.sort((a,b)=>a[0]-b[0]);let low=29;const bands=[];

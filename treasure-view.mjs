@@ -1,11 +1,11 @@
-import {companionArtSvg} from './companion-art.mjs?v=tidy-1';
-import {resourceSymbol} from './game-symbols.mjs?v=tidy-1';
-import {lifeHeartSvg} from './lives.mjs?v=tidy-1';
-import {getTreasureChoices,getTreasureKind,SKILLS,isCardRun} from './model.mjs?v=tidy-1';
-import {CHEST_CARD_LINE,chestChoiceLine} from './treasure.mjs?v=tidy-1';
-import {treasureArt} from './treasure-art.mjs?v=tidy-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=tidy-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=tidy-1';
+import {companionArtSvg} from './companion-art.mjs?v=chance-1';
+import {resourceSymbol} from './game-symbols.mjs?v=chance-1';
+import {lifeHeartSvg} from './lives.mjs?v=chance-1';
+import {getTreasureChoices,getTreasureKind,SKILLS,isCardRun} from './model.mjs?v=chance-1';
+import {CHEST_CARD_LINE,chestChoiceLine} from './treasure.mjs?v=chance-1';
+import {treasureArt} from './treasure-art.mjs?v=chance-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=chance-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=chance-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 

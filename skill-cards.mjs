@@ -1,11 +1,12 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=tidy-1";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=chance-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=tidy-1';
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=tidy-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=tidy-1';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=tidy-1';
+import {drawStartBonusIds,isStartBonusId,startBonusKind,WISP_STATS} from './start-bonus.mjs?v=chance-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=chance-1';
+import {rollChance} from './card-chance.mjs?v=chance-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=chance-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=chance-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -964,7 +965,7 @@ function apportion(weights, total, whole) {
 }
 const rowEventKinds = new Set(Object.values(CARD_ROW_EVENTS));
 /** Kindled ("also fires on a Lift") hears every Lift: a falling Lift and a plain one (a Lift that is not falling, or comes under 0.75 s after the last). */
-const inscriptionHears = (ins, kind, collectNth = false) => !!ins && (ins.also === kind || (ins.id === 'kindled' && kind === CARD_ROW_EVENTS.plainLift) || (ins.id === 'courier' && kind === CARD_ROW_EVENTS.body && collectNth));
+const inscriptionHears = (ins, kind) => !!ins && (ins.also === kind || (ins.id === 'kindled' && kind === CARD_ROW_EVENTS.plainLift));
 export function getCardRowRule(def, card) {
   if (def?.row) return { ...def.row, amount: def.rankStep ? cardAmount(card) : def.row.amount ?? cardAmount(card) };
   const amount = cardAmount(card);
@@ -1003,7 +1004,7 @@ function inscriptionHearsEvent(runtime, kind) {
   const cards = runtime.cards || [];
   return runtime.inscriptions.some((entry, slot) => { const ins = getInscription(entry?.id);
     if (!ins) return false;
-    if (inscriptionHears(ins, kind) || (ins.id === 'courier' && kind === CARD_ROW_EVENTS.body)) return !!cards[slot]; // Courier counts every Collect, so it must be told of each
+    if (inscriptionHears(ins, kind) || (ins.id === 'courier' && kind === CARD_ROW_EVENTS.body)) return !!cards[slot]; // Courier rolls on every Collect, so it must be told of each
     return ins.id === 'hollow' && kind === CARD_ROW_EVENTS.body && !cards[slot];
   });
 }
@@ -1150,8 +1151,6 @@ export function resolveCardRow(runtime, event = {}) {
   if (!runtime || !rowEventKinds.has(kind) || event.eligible === false) {
     receipt.charges = getCardCharges(runtime);return freezeReceipt(receipt);
   }
-  // Courier: every 3rd Collect of the flight (the count lives on the flight's card execution, so it starts over each flight).
-  const collectNth = kind === CARD_ROW_EVENTS.body && (runtime.collectCount = (runtime.collectCount || 0) + 1) % 3 === 0;
   const cards = (runtime.cards || []).slice(0, CARD_ECONOMY.maxSlots);
   const topology = cards.map((card) => card ? { ...card } : null);
   const live = new Map(cards.filter(Boolean).map((card) => [card.instanceId, card]));
@@ -1260,23 +1259,28 @@ export function resolveCardRow(runtime, event = {}) {
         : ![CARD_ROW_EVENTS.victory,CARD_ROW_EVENTS.clear,CARD_ROW_EVENTS.attach].includes(kind));
       const insId = slotInscriptionId(runtime, creditSlot), insDef = getInscription(insId);
       const once = isOncePerTriggerPayout(def, rule);
-      const alsoHeard = !!rule && rule.operation !== "multiply" && !once && inscriptionHears(insDef, kind, collectNth);
       const mirrored = !!rule && rule.operation !== "multiply" && !once && insId === "mirror" && firedSlots.has(creditSlot - 1);
       // Sunlit: a Flare's Pulse (event.flarePulse) is heard only by Sunlit slots (and a Boost); a card's own Flare trigger is not that Pulse.
       const nativeHeard = event.flarePulse ? (wildcard && rule?.operation === "multiply") : (rule?.event === kind || rule?.alsoEvents?.includes(kind) || wildcard);
+      // Courier: on a Collect the card also fires with the Inscription's chance (a roll per firing; a card that already hears Collect needs none).
+      let alsoHeard = !!rule && rule.operation !== "multiply" && !once && inscriptionHears(insDef, kind);
+      if (!alsoHeard && !nativeHeard && !!rule && rule.operation !== "multiply" && !once && insDef?.id === "courier" && kind === CARD_ROW_EVENTS.body) alsoHeard = rollChance(runtime, insDef.collectChance);
       if (rule && (nativeHeard || alsoHeard || mirrored) && matchesRowCondition(rule.when,event,pass,slot,lastOccupied) && matchesRowShape(rule.when,topology,slot)) {
       const operation = rule.operation;
+      // Chance (owner rule 20 Nov): a rule with `chance` rolls once per firing; a failed roll is not a firing (no pay, no light, no use).
+      const missed = Number(rule.chance) > 0 && !rollChance(runtime, rule.chance);
       // Mirror: the card fired only because its left neighbour did (the strip flashes the Mirror's bar).
       if (mirrored && !(nativeHeard || alsoHeard)) step.mirrored = true;
       let amount = Math.max(0,positionAmount(rule,topology,slot,Number(pass === 2 && rule.replayAmount !== undefined ? rule.replayAmount : rule.amount) || 0));
       // Crate Lining: a Cluster delivery pays half of its Cache amount (rounded up).
       if (rule.when?.halfPickupKinds?.includes(event.pickupKind) && event.pickupKind !== rule.when.pickupKind) amount = Math.ceil(amount / 2 - 1e-9);
       const payout = operation === "add-last-payout" ? lastPayout : amount;
-      if ((operation === "add-sparks" || operation === "add-last-payout") && payout > 0 && payers >= (Number(rule.minimumEarlierPayers)||0)) {
+      if (missed) { step.operation = operation; step.skipReason = "chance"; }
+      else if ((operation === "add-sparks" || operation === "add-last-payout") && payout > 0 && payers >= (Number(rule.minimumEarlierPayers)||0)) {
         step.operation = operation;succeed();
         pay("sparks", payout);lastPayout = payout;payers++;receipt.payerActions++;
-        // Inscriptions: Gilded (+2 each firing on this slot) and Lodestone on a neighbouring slot (+1 each). Boosts to the right see them.
-        const extra = (insDef?.id === "gilded" ? insDef.bonus : 0) + lodestoneBonus(runtime, creditSlot);
+        // Inscriptions: Gilded (each firing on this slot, 50%: +2) and Lodestone on a neighbouring slot (+1 each). Boosts to the right see them.
+        const extra = (insDef?.id === "gilded" && rollChance(runtime, insDef.chance) ? insDef.bonus : 0) + lodestoneBonus(runtime, creditSlot);
         if (extra > 0) pay("sparks", extra);
         const lodes = lodestoneSlots(runtime, creditSlot);
         if (lodes.length) step.lodestoneSlots = lodes;
@@ -1323,12 +1327,8 @@ export function resolveCardRow(runtime, event = {}) {
         const gain = operation === "carried-interest" ? Math.min(10, Math.floor(integer(event.carriedStored) / 10)) * amount
           : operation === "add-stored-per-heart" ? finishHeartPay(rule, receipt.event)
           : operation === "add-stored-per-fired" ? finishFiredCredit(receipt.event, source.instanceId) * amount : amount;
-        // Meter Mark: keeps its Stored Spark only on every 2nd Overfill. The count is a transient field on the card (markCount): it starts at 0 each flight, and a preview always pays.
-        const everyNth = Number(rule.everyNth) || 0;
-        let due = true;
-        if (everyNth > 1 && gain > 0 && !runtime.preview) { source.markCount = integer(source.markCount) + 1; due = source.markCount % everyNth === 0; }
-        if (gain > 0 && !due) step.skipReason = "counting";
-        else if (gain > 0) {
+        // Meter Mark: its 50% chance is rolled above (rule.chance), once per Overfill.
+        if (gain > 0) {
           succeed();
           pay("stored", gain, operation === "carried-interest" ? 10 * amount : undefined);
         } else step.skipReason = operation === "add-stored-per-heart" ? "no-hearts" : operation === "add-stored-per-fired" ? "no-cards-fired" : "no-carried-interest";

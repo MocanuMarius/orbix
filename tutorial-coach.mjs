@@ -1,6 +1,6 @@
-import {tutorialTarget,tutorialTextMarkup,tutorialExampleMarkup} from './tutorial-context.mjs?v=tidy-1';
-import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=tidy-1';
-import {CARD_TERMS} from './card-terms.mjs?v=tidy-1';
+import {tutorialTarget,tutorialTextMarkup,tutorialExampleMarkup} from './tutorial-context.mjs?v=chance-1';
+import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=chance-1';
+import {CARD_TERMS} from './card-terms.mjs?v=chance-1';
 const escText=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /** Glossary links for a lesson: the same keyword buttons the cards use (card-terms.mjs opens them). */
 export function coachTermsMarkup(terms=[]){

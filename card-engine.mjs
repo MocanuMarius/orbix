@@ -17,8 +17,9 @@
 //   no Overfill hearer, a Metronome whose next card cannot act, a Long Fuse with nothing to repeat.
 // - Events only move right and each Timer holds at most one pending wait, so one instant always terminates; a hard
 //   safety counter still stops the engine (and warns once) if that is ever exceeded.
+import {rollChance, GILDED_CHANCE, THIRD_BEAT_CHANCE} from './card-chance.mjs?v=chance-1';
 import {SKILL_CARDS, CARD_ECONOMY, cardAmount, getCardRowRule, hasCardRowEvent, matchesRowCondition, matchesRowShape, isInventoryOnlyCard,
-  createCardExecution, resolveCardRow, getCardChargeCapacity} from './skill-cards.mjs?v=tidy-1';
+  createCardExecution, resolveCardRow, getCardChargeCapacity} from './skill-cards.mjs?v=chance-1';
 
 export const ENGINE_LIMITS = Object.freeze({ deliveriesPerInstant: 400, timersPerAdvance: 5000, logEntries: 5000, turnLog: 5000 });
 /** Player-made Triggers the engine cards listen to (not CARD_ROW_EVENTS: the ordinary walker never sees them). */
@@ -76,7 +77,7 @@ const round6 = v => Math.round(v * 1e6) / 1e6;
 export class CardEngine {
   constructor(runtime, host = {}, { log = true } = {}) {
     this.runtime = runtime || { cards: [] }; this.host = host; this.logging = log;
-    this.t = 0; this.turn = 0; this.pass = 1; this.inPack = false;
+    this.t = 0; this.turn = 0; this.beatDouble = false; this.pass = 1; this.inPack = false;
     this.timers = []; this.seq = 0; this.queue = [];
     this.burning = new Set(); this.armed = new Set(); this.firstUsed = new Set();
     this.lowEmberAt = new Map(); this.bellTurn = new Map();
@@ -242,9 +243,11 @@ export class CardEngine {
     const left = this.cards[slot - 1], def = defOf(left), target = defOf(this.cards[slot]);
     return def?.kind === 'echo' && target?.copyable ? Math.max(1, Math.min(3, Math.floor(def.repeatCount || 1))) : 0;
   }
-  thirdBeat() { return this.turn > 0 && this.turn % 3 === 0 && this.cards.some(card => engineSpec(card)?.governor === 'third-beat') ? 2 : 1; }
+  /** Third Beat (chance, 2026-11-20): each time a Timer fires, THIRD_BEAT_CHANCE% that this firing's Spark gains count twice (rolled in beginTurn). */
+  thirdBeat() { return this.beatDouble ? 2 : 1; }
   beginTurn(slot) {
     this.turn++;
+    this.beatDouble = this.cards.some(card => engineSpec(card)?.governor === 'third-beat') && rollChance(this.runtime, THIRD_BEAT_CHANCE);
     if (this.turnLog.length < ENGINE_LIMITS.turnLog) this.turnLog.push(round6(this.t));
     this.record({ k: 'turn', slot });
     if (this.inPack) return;
@@ -285,7 +288,7 @@ export class CardEngine {
   act(j, ev, mask) {
     const card = this.cards[j], spec = engineSpec(card);
     for (const what of spec.does || []) {
-      if (what === 'gain') this.gain(j, cardAmount(card) + (this.runtime?.inscriptions?.[j]?.id === 'gilded' ? 2 : 0) + [j - 1, j + 1].filter(k => this.runtime?.inscriptions?.[k]?.id === 'lodestone').length, mask);
+      if (what === 'gain') this.gain(j, cardAmount(card) + (this.runtime?.inscriptions?.[j]?.id === 'gilded' && rollChance(this.runtime, GILDED_CHANCE) ? 2 : 0) + [j - 1, j + 1].filter(k => this.runtime?.inscriptions?.[k]?.id === 'lodestone').length, mask);
       else if (what === 'pulse') {
         if (spec.keep && ev?.type === 'overfill' && !ev.natural) {
           const keep = Math.floor(Math.min(spec.keep, Number(ev.spillBase ?? ev.spill) || 0) + EPS);

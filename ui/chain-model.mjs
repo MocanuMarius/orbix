@@ -7,14 +7,14 @@
 // LEFT did to it (an Echo repeating it). Later Boosts and the Encore keep their own plates. Honesty rule: the
 // plates read left to right (+ adds, × multiplies the running figure, Encore repeats the line, each firing
 // rounded up to whole Sparks) must give the resolver's total; when they do not, plates show plain figures.
-import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, getEffectiveCardSources, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=tidy-1';
-import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=tidy-1';
-import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=tidy-1';
+import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, getEffectiveCardSources, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=chance-1';
+import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=chance-1';
+import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=chance-1';
 import {DISPLAY_GROUPS, GROUP_TERM} from '../card-trigger-labels.mjs';
-import {faceTrigger, faceEffect} from '../card-face-lines.mjs?v=tidy-1';
-import {getCardRuleBands} from '../card-rule-bands.mjs?v=tidy-1';
-import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=tidy-1';
-import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=tidy-1';
+import {faceTrigger, faceEffect} from '../card-face-lines.mjs?v=chance-1';
+import {getCardRuleBands} from '../card-rule-bands.mjs?v=chance-1';
+import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=chance-1';
+import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=chance-1';
 
 /** The Triggers in the designer's order, with the game's names and glossary keys (card-terms.mjs). */
 export const TRIGGERS = Object.freeze([
@@ -318,7 +318,7 @@ export function enginePlate(row, slot) {
   if (spec.timer === 'wick' || spec.timer === 'fuse') return {long: `Timer: every ${secs(spec.wait * scale)}`, short: `Every ${secs(spec.wait * scale)}`};
   if (spec.timer === 'metronome') return {long: `Fires the next card every ${secs(spec.wait * scale)}`, short: `Every ${secs(spec.wait * scale)}`};
   if (spec.timerScale) return {long: 'Timers wait half as long', short: 'Waits ×½'};
-  if (spec.governor === 'third-beat') return {long: 'Every 3rd Timer firing ×2', short: '3rd firing ×2'};
+  if (spec.governor === 'third-beat') return {long: 'Each Timer firing, 33%: ×2', short: '33%: ×2'};
   if (spec.governor === 'momentum') return {long: `+1 Spark each firing, +${num(amount)}% light after 5`, short: `+1 a firing`};
   if (spec.governor === 'wave-loom') return {long: 'A light Pulse each time a Timer fires', short: 'Light Pulse'};
   if (spec.family === 'pack') {
