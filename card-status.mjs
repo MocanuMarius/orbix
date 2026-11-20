@@ -1,9 +1,9 @@
 /** Configuration hints only. Every numeric verdict comes from a read-only row quote. */
-import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, emberFeederGain, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=beat-1';
-import { rowSnapshot, slotInscriptionList } from './inscriptions.mjs?v=beat-1';
-import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=beat-1';
-import { normalizeCompanionFleet } from './companion-abilities.mjs?v=beat-1';
-import { skillProgress } from './skill-increments.mjs?v=beat-1';
+import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, emberFeederGain, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=loop-1';
+import { rowSnapshot, slotInscriptionList } from './inscriptions.mjs?v=loop-1';
+import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=loop-1';
+import { normalizeCompanionFleet } from './companion-abilities.mjs?v=loop-1';
+import { skillProgress } from './skill-increments.mjs?v=loop-1';
 
 /** Labels are plain instructions (docs/card-teaching-plan.md §3); `code` is stable for code. */
 const ready = reason => ({ state: 'ready', symbol: '✓', label: 'Ready', code: 'ready', reason, fix: 'Keep this order to use it when its Trigger happens.' });
