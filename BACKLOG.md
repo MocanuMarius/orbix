@@ -15,6 +15,10 @@ The entries below are chronological release snapshots. Their old “current” l
 - **Waiting, owner said "let's wait some more" (18 November):** re-measure balance after the stacked changes (combo sweep with real-flight numbers, Pulse builds, hidden cards' payouts) and the phone performance check (`node scripts/perf/daily.mjs`, last quick run timed out). Do not start until asked. Also parked with them: making the full test suite green and a release gate (about 64 known failures: 7 treasure tests, about 20 in `tests/flight.test.mjs`, Wave Loom double Pulse in `tests/pulse-sources.test.mjs`).
 - Standing rule: items that need no decision are picked up and built continuously; items that need one are put to the owner one case at a time (memory `work-backlog-continuously`). The live queue is in `docs/overnight-plan.md`.
 
+## FIRST when usage returns (owner, 20 November 2026): split the big files so several agents can work in parallel
+
+Do this before any other backlog item once the weekly allowance is back (23 November). Today every card or flight job touches the same few large files (`dist/flight.mjs`, `dist/app.mjs`, `dist/skill-cards.mjs`, `dist/card-engine.mjs`, `dist/model.mjs`, `dist/card-catalog.mjs`, `dist/card-ui.mjs`), so only one worker can run at a time. Split them into smaller modules along ownership lines (for example one module per card family, per screen, per flight subsystem), with no behaviour change, tests green before and after, and a short map in `handoff.md` saying which module owns what. Opus worker (core flight and save logic); one file per step; release after each step.
+
 ## Owner's discussion list, 20 November 2026
 
 Pasted by the owner as "a huge backlog of items I'd like to at least document as discussion points for the future; some of them are actionable right now". Nothing here is decided unless it says so. Grouping and the "check first" notes are the coordinator's; the items are the owner's.
